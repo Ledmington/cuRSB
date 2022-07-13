@@ -7,7 +7,7 @@ set -x
 
 srcdir=${srcdir:-`pwd`}
 builddir=${builddir:-`pwd`}
-prefix="/home/dez/src/librsb-1.3-O0/local/librsb-debug"
+prefix="/usr/local"
 exec_prefix="${prefix}"
 bindir="${exec_prefix}/bin"
 if test -z "${LIBRSB_CONFIG}"; then
@@ -75,7 +75,7 @@ do
 done
 fi
 
-if test x"yes" == x"yes" ; then
+if test x"no" == x"yes" ; then
 if test x"yes" = x"yes" ; then
 FP=${srcdir}/fortran_rsb_fi.F90
 if test x"yes" = x"yes" ; then

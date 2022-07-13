@@ -15,7 +15,7 @@ dnl
 dnl	---------------------------------------------------------------------------
 dnl	Generate code with m4 debug info in it.
 dnl
-define(`RSB_M4_DEBUG',`1')dnl
+define(`RSB_M4_DEBUG',`0')dnl
 dnl
 dnl	---------------------------------------------------------------------------
 dnl	If 1, enables register blocking, in kernels where this is supported (experimental).
