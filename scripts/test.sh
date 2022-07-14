@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2008-2021 Michele Martone
+# Copyright (C) 2008-2020 Michele Martone
 # 
 # This file is part of librsb.
 # 
@@ -18,34 +18,22 @@
 # License along with librsb; see the file COPYING.
 # If not, see <http://www.gnu.org/licenses/>.
 
-# Script for library consistence checking.
-
-set -e
-set -x
-set -o pipefail
-shopt -s expand_aliases
-
 if test x"${srcdir}" = x ; then srcdir=. ; fi
 ULIMIT_S=10000
 echo "Invoking ulimit -s ${ULIMIT_S}"
 ulimit -s ${ULIMIT_S} 
 
-
-value="L2:4/64/512K,L1:8/64/24K";
-test `RSB_USER_SET_MEM_HIERARCHY_INFO=$value ./rsbench -C | grep RSB_USER_SET_MEM_HIERARCHY_INFO` == \
-      RSB_USER_SET_MEM_HIERARCHY_INFO:$value
-unset value;
-
-test `RSB_USER_SET_MEM_HIERARCHY_INFO=value  ./rsbench -C | grep RSB_USER_SET_MEM_HIERARCHY_INFO` == \
-      RSB_USER_SET_MEM_HIERARCHY_INFO:value
-
-# check rsb__get_lnc_size() output:
-O=`( set +o pipefail; OMP_NUM_THREADS=1 RSB_USER_SET_MEM_HIERARCHY_INFO="L2:4/64/512K,L1:8/64/24K" ./rsbench -I | less | head -n 10 ) | grep '^L. size:' `
-echo "${O}" 
-test "${O}" == "L1 size: 24576 
-L2 size: 524288 "
-
-QUICK='--no-flush-cache-in-iterations --no-flush-cache-around-loop --want-no-memory-benchmark'
+# This should be the main script for library consistence checking.
+# TODO : for every:
+#	 * type
+#	 * matrix storage
+#	 * op <-
+#	 * missing boundary and 'limit' testing! e.g.: ./rsbench -g -r 1000000 -c 1000000 -b 20
+#	 * rsbenchxx (albeit minimal) testing
+#	 * -i (in place)
+#
+#	TODO: need minimal testing for -h --help
+# FIXME : complete the 'strict' option
 
 gen_liminal()
 {
@@ -84,22 +72,17 @@ $x || exit -1
 
 make rsbench || fail	# we want our test programs
 
-test `$B -C  | grep row.unrolls |sed "s/^row unrolls://g;s/ /,/g"` = 1
-test `$B -C  | grep column.unrolls |sed "s/^column unrolls://g;s/ /,/g"` = 1
-test `$B -C  | grep ^types.count: | sed s/types.count://g` -gt 0
-test `$B -C  | grep ^types.count: | sed s/types.count://g` -lt 8
+ru=`$B -C | grep row.unrolls |sed "s/^row unrolls://g;s/ /,/g"`;
+cu=`$B -C | grep column.unrolls |sed "s/^column unrolls://g;s/ /,/g"`;
 
-$B -oa -Ob ${QUICK} --want-no-autotune --notranspose -f ${srcdir}/us.mtx --expand-symmetry --verbose  | grep us.mtx.*36
-$B -oa -Ob ${QUICK} --matrix-sample-pcnt   1 --want-no-autotune --no-transpose -f ${srcdir}/A.mtx | grep sing.only.1. # alias to --notranspose
-$B -oa -Ob ${QUICK} --matrix-sample-pcnt   1 --want-no-autotune --notranspose -f ${srcdir}/A.mtx | grep sing.only.1.
-$B -oa -Ob ${QUICK} --matrix-sample-pcnt  50 --want-no-autotune --notranspose -f ${srcdir}/A.mtx | grep sing.only.3.
-$B -oa -Ob ${QUICK} --matrix-sample-pcnt  99 --want-no-autotune --notranspose -f ${srcdir}/A.mtx | grep sing.only.5.
+if test -z "$ru" ; then fail ; fi
+if test -z "$cu" ; then fail ; fi
 
 # FIXME : compact all of these flags in some way..
 if true ; then 
 
-$x "$B --help" # -h
-    $B --help || fail # 
+$x "$B -h"
+    $B -h || fail # 
 
 $x "$B -oa -Ob -h"
     $B -oa -Ob -h || fail # 
@@ -107,27 +90,29 @@ $x "$B -oa -Ob -h"
 #$x "$B -M"
 #    $B -M || fail # 
 
-$x "$B --hardware-counters" # -H
-    $B --hardware-counters || fail # 
+$x "$B -H"
+    $B -H || fail # 
 
-$x "$B --configuration" # -C
-    $B --configuration || fail # 
+$x "$B -C"
+    $B -C || fail # 
 
 pdm=${srcdir}/pd.mtx
 
-$x "$B --guess-blocking $pdm" # -G
-    $B --guess-blocking $pdm || fail # 
+$x "$B -G $pdm"
+    $B -G $pdm || fail # 
 
-$x "$B -oa -Ob  ${QUICK} -f $pdm --matrix-dump-graph $pdm.dot --matrix-dump-internals"
-$B -oa -Ob  ${QUICK} -f $pdm --matrix-dump-graph $pdm.dot --matrix-dump-internals || fail # 
+# FIXME: the following functionalities should be improved and made public
+$x "$B -oa -Ob  -f $pdm --matrix-dump-graph $pdm.dot --matrix-dump-internals"
+$B -oa -Ob  -f $pdm --matrix-dump-graph $pdm.dot --matrix-dump-internals || fail # 
 
 $x "$B -ot -Ob --lower 3"
 $B -ot -Ob --lower 3 || fail # 
 
-$x "$B --matrix-print $pdm" # -P
-    $B --matrix-print $pdm || fail # 
+$x "$B -P $pdm"
+    $B -P $pdm || fail # 
 
 $x "$B -I"
+   # $B -I || make feedback
     $B -I || fail # system information dumpout
 
 bmfn=test.mtx.rsb
@@ -136,81 +121,84 @@ for detr in "--lower" "--dense" ; do
 if $B --configuration | grep 'XDR.*off' ; then
 	st=$((st+1))
 else
-	$x "$B -oa -Ob ${QUICK} $detr=10 -w $bmfn $deff"
-	    $B -oa -Ob ${QUICK} $detr=10 -w $bmfn  || fail # binary I/O test
+	$x "$B -oa -Ob $detr=10 -w $bmfn $deff"
+	    $B -oa -Ob $detr=10 -w $bmfn  || fail # binary I/O test
 	
-	$x "$B -oa -Ob ${QUICK} -b $bmfn $deff"
-	    $B -oa -Ob ${QUICK} -b $bmfn  || fail # binary I/O test
+	$x "$B -oa -Ob -b $bmfn $deff"
+	    $B -oa -Ob -b $bmfn  || fail # binary I/O test
 fi
 done
 done
 
 $x "$B -OR"
-    $B -OR || fail # a no op
+    $B -OR || fail # 
 
-$x "$B -Ot -b"
-    $B -Ot -b || fail # a no op
+#$x "$B -Ot -b"
+#    $B -Ot -b || fail #  FIXME : broken
 
-$x "$B --bench -e -f test.mtx"
-    $B --bench -e -f test.mtx || fail # obsolete; here for coverage
+#$x "$B -e"
+#    $B -e -f test.mtx || fail # FIXME : broken
 
-$x "$B  -oa -Ob ${QUICK} --gen-diag 10000  --beta 2 --implicit-diagonal"
-    $B  -oa -Ob ${QUICK} --gen-diag 10000  --beta 2 --implicit-diagonal || fail
+#$x "$B -Or"
+#    $B -Or || fail # FIXME : full testing . slow !
 
-if test x"$RSB_SHORT_TEST_SH" = x1; then
-	export RSB_BENCHMARK_MIN_SECONDS=0.01
-else
-	export RSB_BENCHMARK_MIN_SECONDS=0.1
-fi
-$x "$B -Or" # reference
-    $B -Or || fail
+$x "$B --matrix-ls ${srcdir}/A.mtx"
+    $B --matrix-ls ${srcdir}/A.mtx || fail # 
 
-$x "$B --matrix-ls-latex ${srcdir}/A.mtx"
-    $B --matrix-ls-latex ${srcdir}/A.mtx || fail #
-diff <( $B --matrix-ls-latex ${srcdir}/A.mtx ; ) - <<- EOF
-\\begin{table}[]\\begin{footnotesize}\\begin{center} \\begin{tabular}{lllll}\\hline
-matrix & rows & columns & nnz & nnz/row \\\\\\hline
-A.mtx & 3 & 3 & 6 & 2\\\\%%symm
-\\hline \\end{tabular} \\caption{Caption.}\\label{testbed_matrices}\\end{center}\\end{footnotesize}\\end{table}
-EOF
+#$x "$B -Oc -f $M"
+#    $B -Oc -f $M || fail # FIXME : fuller testing . slow !
 
-$x "$B -Oc -f $M"
-RSB_BENCHMARK_MIN_SECONDS=0.0001 $B -Oc -f $M || fail # fuller testing
+#$x "$B -os -Ob"
+#    $B -os -Ob || fail # FIXME
+
+
+#$x "$B -o$o -Ob"
+#    $B -o$o -Ob || fail # FIXME : o in v a m s c i n S
 
 	$B --plot-matrix -aRzd -f $pdm || fail
 fi
 
 # The following are here for (rather flimsy) testing/coverage purposes:
-$x "$B -oa -Ob ${QUICK} -f ${srcdir}/A.mtx -Fo  --z-sorted-coo"
-$B -oa -Ob ${QUICK} -f ${srcdir}/A.mtx -Fo  --z-sorted-coo || fail
-$x "$B -oa -Ob ${QUICK} --lower 4 --want-no-recursive --ilu0"
-$B -oa -Ob ${QUICK} --lower 4 --want-no-recursive --ilu0 || fail
-$x "$B -oa -Ob ${QUICK} --lower 4 -K"
-$B -oa -Ob ${QUICK} --lower 4 -K || fail
-$x "$B -oa -Ob ${QUICK} --dense 10 --nrhs 1,2 --incy 1,2 --nrhs 1,2 -K"
-$B -oa -Ob ${QUICK} --dense 10 --nrhs 1,2 --incy 1,2 --nrhs 1,2 -K
+$x "$B -oa -Ob -f ${srcdir}/A.mtx -Fo  --z-sorted-coo"
+$B -oa -Ob -f ${srcdir}/A.mtx -Fo  --z-sorted-coo || fail
+$x "$B -oa -Ob --lower 4 --want-no-recursive --ilu0"
+$B -oa -Ob --lower 4 --want-no-recursive --ilu0 || fail
+$x "$B -oa -Ob --lower 4 -K"
+$B -oa -Ob --lower 4 -K || fail
+$x "$B -oa -Ob --dense 10 --nrhs 1,2 --incy 1,2 --nrhs 1,2 -K"
+$B -oa -Ob --dense 10 --nrhs 1,2 --incy 1,2 --nrhs 1,2 -K
 
-if make sbtf -a -f sbtf ; then ./sbtf || fail ; fi # make sbtf gives no error code if sbtf conditionally out.
-if make sbtc -a -f sbtc ; then ./sbtc || fail ; fi
-if make ot   -a -f   ot ; then ./ot   || fail ; fi
+if test "x`which gfortran`" != x -a gfortran -v ; then
+	make blas_sparse.F90 || fail
+	make sbtf.F90 || fail
+	CFLAGS='-O0 -ggdb -DHAVE_RSB_KERNELS=1 -fopenmp'
+	gfortran $CFLAGS -c blas_sparse.F90 || fail
+	gfortran $CFLAGS -o sbtf blas_sparse.F90 sbtf.F90 -lrsb -L. || fail
+	./sbtf || fail
+fi
 
-for o in "-b 9" "-n 10%" "-n 2%"; # bandwidth and overall density
+# FIXME : -b X implies a bandwidth of X!
+for o in "-b 9" "-n 10%" "-n 2%"; 
 do
+#for n in 10 100 1000 2000 4000 8000  ;
 for n in 1 2 3 4  10 100 200;
 do
 case $n in 
 	-1)
+	# FIXME : the code is still not mature for handling well this...
 	gen_liminal ;; # in one case we test for a limit sized matrix
 	1|2|3|4)
-	$x "$B --generate-matrix -r $n -c $n -b $n  > $M" # -g
-	   $B --generate-matrix -r $n -c $n -b $((n-1))  > $M || fail
+	# matrix generation
+	$x "$B -g -r $n -c $n -b $n  > $M"
+	   $B -g -r $n -c $n -b $((n-1))  > $M || fail
 	;;
 	*)
-	$x "$B --generate-matrix -r $n -c $n $o  > $M"
-	   $B --generate-matrix -r $n -c $n $o  > $M || fail
+	# matrix generation
+	$x "$B -g -r $n -c $n $o  > $M"
+	   $B -g -r $n -c $n $o  > $M || fail
 esac
 
-# provide a small matrix when matrix creation was disabled at configure time
+# 20110607 FIXME this is only a partial fix, which shall provide a small matrix when matrix creation was disabled at configure time
 $B --configuration | grep RSB_IOLEVEL:0 && cp $pdm $M 
 
 sep="              *"
@@ -219,23 +207,29 @@ for f in `$B --configuration | grep format.switches |sed "s/^format switches://g
 do
 
 # various formats testing
-for a in "" "-R";	# with RSB format
+#for a in "" "-A" "-R";	# with automatic and non automatic blocking size choice (still (still brokenbroken)
+for a in "" "-R";	# with automatic and non automatic blocking size choice (still (still brokenbroken)
 do
 	# matrix dumpout
-	$x "$B -Od -f $M -T : -F $f"
-	   $B -Od -f $M -T : -F $f > $nulldev || fail # needs -f matrixname
+	$x "$B -Od -f $M -F $f"
+	   $B -Od -f $M -F $f > $nulldev || fail # needs -f matrixname
 
-#	$x "$B -oa -Ob ${QUICK} -f $M -d -F $f -t 1 $a"
-#	   $B -oa -Ob ${QUICK} -f $M -d -F $f -t 1 $a || fail
-	c="$?"
-#	$x "$B -oa -Ob ${QUICK} -f $M -d -F $f -t 1 $a"
-#	es="$B -oa -Ob ${QUICK} -f $M -d -F $f -t 1 $a"
+	# basic matrix handling tests (FIXME : doesn't test/support -A flag!)
+	# 20100829 removed -s from the following
+#	$x "$B -Ot -f $M -r $ru -c $cu -F $f $a"
+#	   $B -Ot -f $M -r $ru -c $cu -F $f $a || fail 
 
-	$x "$B -oa -Ob ${QUICK} -f $M  -F $f -t 1 $a"
-	   $B -oa -Ob ${QUICK} -f $M  -F $f -t 1 $a || fail
+#	$x "$B -oa -Ob -f $M -d -F $f -t 1 $a"
+#	   $B -oa -Ob -f $M -d -F $f -t 1 $a || fail
 	c="$?"
-	$x "$B -oa -Ob ${QUICK} -f $M  -F $f -t 1 $a"
-	es="$B -oa -Ob ${QUICK} -f $M  -F $f -t 1 $a"
+#	$x "$B -oa -Ob -f $M -d -F $f -t 1 $a"
+#	es="$B -oa -Ob -f $M -d -F $f -t 1 $a"
+
+	$x "$B -oa -Ob -f $M  -F $f -t 1 $a"
+	   $B -oa -Ob -f $M  -F $f -t 1 $a || fail
+	c="$?"
+	$x "$B -oa -Ob -f $M  -F $f -t 1 $a"
+	es="$B -oa -Ob -f $M  -F $f -t 1 $a"
 
 	if test x"$c" = x"0" 
 	then
@@ -248,38 +242,26 @@ do
 			exit -1
 		fi
 	fi
+#	./rsbench -Ot -f $B # test_matops.c should care
+#	if test x"$?" = x"0" ; then pt=$((pt+1)) ; else ft=$((ft+1)) ; fi
 done
 done
 done
 done
 
-$x "$B -oa -Ob ${QUICK} -R --dense 100 --write-performance-record=test.rpr"
-    $B -oa -Ob ${QUICK} -R --dense 100 --write-performance-record=test.rpr
-$x "$B                      --read-performance-record=test.rpr"
-    $B                      --read-performance-record=test.rpr
+$x "$B -oa -Ob -R --dense 100 --write-performance-record test.rpr"
+    $B -oa -Ob -R --dense 100 --write-performance-record test.rpr || $x
+$x "$B                      --read-performance-record test.rpr"
+    $B                      --read-performance-record test.rpr || $x
 
-$x "$B -oa -Ob ${QUICK} -R --write-performance-record=test.rpr ${pdm} non-existing.mtx"
-    $B -oa -Ob ${QUICK} -R --write-performance-record=test.rpr ${pdm} non-existing.mtx
+$x "$B -oa -Ob -R --write-performance-record test.rpr ${pdm} non-existing.mtx"
+    $B -oa -Ob -R --write-performance-record test.rpr ${pdm} non-existing.mtx || $x
 
-for RSB_PR_MULTIDUMP in 0 1 2 3; do
-	RSB_PR_MULTIDUMP=$RSB_PR_MULTIDUMP $B --read-performance-record  \
-		test.rpr  test.rpr
-done
-
-rm test.rpr
-
-# test for the RSB_FAF_CHKGSS feature
-rm -f non-existing.mtx
-rm -f non-existing.mtx.gz
-cp -pv ${pdm} non-existing.mtx.gz
-if grep RSB_WANT_ZLIB_SUPPORT.1 rsb-config.h ; then
-	$x "$B -oa -Ob -R non-existing.mtx"
-	    { $B -oa -Ob -R non-existing.mtx | grep assuming.you; } || fail;
-fi
+rm test.rpr || $x
 
 if ! test x"$RSB_SHORT_TEST_SH" = x1; then
-$x "$B --blas-testing" # -B
-    $B --blas-testing || fail # 
+$x "$B -B"
+    $B -B || fail # 
 fi
 
 $e "passed  tests : $pt"

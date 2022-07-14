@@ -7,7 +7,7 @@ dnl
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- For block coordinates format.
+ But for block coordinates format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 dnl

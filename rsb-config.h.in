@@ -12,9 +12,6 @@
 /* */
 #undef COPYRIGHT_STRING
 
-/* Compilation flags. */
-#undef CXXFLAGS
-
 /* Define to 1 if you have the <assert.h> header file. */
 #undef HAVE_ASSERT_H
 
@@ -24,31 +21,25 @@
 /* Define to 1 if you have the <ctype.h> header file. */
 #undef HAVE_CTYPE_H
 
-/* Define to 1 if you have the <dirent.h> header file. */
-#undef HAVE_DIRENT_H
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
 /* Define to 1 if you have the <dmalloc.h> header file. */
 #undef HAVE_DMALLOC_H
 
-/* Define to 1 if you don't have 'vprintf' but do have '_doprnt.' */
+/* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
 #undef HAVE_DOPRNT
 
-/* Define to 1 if you have the 'dup' function. */
+/* Define to 1 if you have the `dup' function. */
 #undef HAVE_DUP
-
-/* Define to 1 if you have the <execinfo.h> header file. */
-#undef HAVE_EXECINFO_H
 
 /* fileno(): C FILE to posix file descriptor. */
 #undef HAVE_FILENO
 
-/* Define to 1 if you have the 'fread' function. */
+/* Define to 1 if you have the `fread' function. */
 #undef HAVE_FREAD
 
-/* Define to 1 if you have the 'fwrite' function. */
+/* Define to 1 if you have the `fwrite' function. */
 #undef HAVE_FWRITE
 
 /* Get an environment variable. */
@@ -56,9 +47,6 @@
 
 /* If present, will give us host name. */
 #undef HAVE_GETHOSTNAME
-
-/* getopt */
-#undef HAVE_GETOPT
 
 /* Define to 1 if you have the <getopt.h> header file. */
 #undef HAVE_GETOPT_H
@@ -69,17 +57,8 @@
 /* gettimeofday */
 #undef HAVE_GETTIMEOFDAY
 
-/* Define to 1 if you have the <gmock/gmock.h> header file. */
-#undef HAVE_GMOCK_GMOCK_H
-
 /* Define to 1 if you have the <gsl/gsl_sort.h> header file. */
 #undef HAVE_GSL_GSL_SORT_H
-
-/* Define to 1 if you have the <gtest/gtest.h> header file. */
-#undef HAVE_GTEST_GTEST_H
-
-/* used by RSB_WANT_EXPERIMENTAL_BINARY_COO, and not present on older zlib */
-#undef HAVE_GZFREAD
 
 /* Define to 1 if you have the <hwloc.h> header file. */
 #undef HAVE_HWLOC_H
@@ -87,8 +66,11 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the 'isatty' function. */
+/* Define to 1 if you have the `isatty' function. */
 #undef HAVE_ISATTY
+
+/* Define to 1 if you have the <libgen.h> header file. */
+#undef HAVE_LIBGEN_H
 
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
@@ -105,11 +87,8 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* Define to 1 if you have the 'memset' function. */
+/* Define to 1 if you have the `memset' function. */
 #undef HAVE_MEMSET
-
-/* Define to 1 if you have the <mkl/mkl.h> header file. */
-#undef HAVE_MKL_MKL_H
 
 /* If present, the mlockall function makes all allocations memory resident. */
 #undef HAVE_MLOCKALL
@@ -130,19 +109,16 @@
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
 
-/* Define to 1 if you have the 'rand' function. */
+/* Define to 1 if you have the `rand' function. */
 #undef HAVE_RAND
 
 /* Define to 1 if you have the <regex.h> header file. */
 #undef HAVE_REGEX_H
 
-/* rindex */
-#undef HAVE_RINDEX
-
 /* Define to 1 if you have the <rpc/xdr.h> header file. */
 #undef HAVE_RPC_XDR_H
 
-/* Define to 1 if you have the 'sched_getaffinity' function. */
+/* Define to 1 if you have the `sched_getaffinity' function. */
 #undef HAVE_SCHED_GETAFFINITY
 
 /* Define to 1 if you have the <sched.h> header file. */
@@ -172,11 +148,8 @@
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
 
-/* Define to 1 if you have the 'strncmp' function. */
+/* Define to 1 if you have the `strncmp' function. */
 #undef HAVE_STRNCMP
-
-/* strrchr */
-#undef HAVE_STRRCHR
 
 /* If present, the sysconf function gives lots of system info. */
 #undef HAVE_SYSCONF
@@ -192,9 +165,6 @@
 
 /* Define to 1 if you have the <sys/systemcfg.h> header file. */
 #undef HAVE_SYS_SYSTEMCFG_H
-
-/* Define to 1 if you have the <sys/time.h> header file. */
-#undef HAVE_SYS_TIME_H
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
@@ -214,7 +184,7 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
-/* Define to 1 if you have the 'vprintf' function. */
+/* Define to 1 if you have the `vprintf' function. */
 #undef HAVE_VPRINTF
 
 /* Define to 1 if you have the <zlib.h> header file. */
@@ -254,7 +224,7 @@
 /* If set, the library will use smaller indices in blocks. */
 #undef RSB_BLOCK_SMALL_INDICES
 
-/* Maximal number of supported threads (default 128). */
+/* Maximal number of supported threads (default 160). */
 #undef RSB_CONST_MAX_SUPPORTED_THREADS
 
 /* If not null, the library will rely on this for memory hierarchy info,
@@ -267,14 +237,8 @@
 /* Performance Application Programming Interface. */
 #undef RSB_HAVE_PAPI
 
-/* Will include mkl/mkl.h */
-#undef RSB_INCLUDE_MKL_MKL_H
-
 /* Inner error verbosity (internal debug level). */
 #undef RSB_INT_ERR_VERBOSITY
-
-/* Extra internal memory checks (for debugging). */
-#undef RSB_MEM_DBG
 
 /* Error verbosity (often known as debug level). */
 #undef RSB_OUT_ERR_VERBOSITY
@@ -288,15 +252,6 @@
 /* If undefined, NDEBUG will be defined. */
 #undef RSB_USE_ASSERT
 
-/* Usable rusage and getrusage? */
-#undef RSB_USE_GETRUSAGE
-
-/* Use librsbpp. */
-#undef RSB_USE_LIBRSBPP
-
-/* Enable calling MKL from RSB (internal, deprecated). */
-#undef RSB_USE_MKL
-
 /* experimental. */
 #undef RSB_WANT_ACTION_SIGNAL
 
@@ -304,18 +259,12 @@
    librsb. Trespass attempts will fail. */
 #undef RSB_WANT_ALLOCATOR_LIMITS
 
-/* No ARMPL support wanted in the benchmarking program. */
-#undef RSB_WANT_ARMPL
-
 /* */
 #undef RSB_WANT_DMALLOC
 
 /* On some architectures (notably modern Intel), floating point computations
    on non double aligned data make loose some clock cycle. */
 #undef RSB_WANT_DOUBLE_ALIGNED
-
-/* "Will use Google Test" */
-#undef RSB_WANT_GTEST
 
 /* Supported input/output functionality. */
 #undef RSB_WANT_IO_LEVEL
@@ -327,9 +276,6 @@
 /* Enabling collection of time statistics in librsb operations (this
    introduces an overhead). */
 #undef RSB_WANT_LIBRSB_STATS
-
-/* long types for rsb_coo_idx_t and rsb_nnz_idx_t */
-#undef RSB_WANT_LONG_IDX
 
 /* Looping kernels. */
 #undef RSB_WANT_LOOPING_KERNELS
@@ -375,58 +321,53 @@
 /* Sparse BLAS interface compilation. */
 #undef RSB_WITH_SPARSE_BLAS_INTERFACE
 
-/* The size of 'char', as computed by sizeof. */
+/* The size of `char', as computed by sizeof. */
 #undef SIZEOF_CHAR
 
-/* The size of 'complex', as computed by sizeof. */
+/* The size of `complex', as computed by sizeof. */
 #undef SIZEOF_COMPLEX
 
-/* The size of 'double', as computed by sizeof. */
+/* The size of `double', as computed by sizeof. */
 #undef SIZEOF_DOUBLE
 
-/* The size of 'double complex', as computed by sizeof. */
+/* The size of `double complex', as computed by sizeof. */
 #undef SIZEOF_DOUBLE_COMPLEX
 
-/* The size of 'float', as computed by sizeof. */
+/* The size of `float', as computed by sizeof. */
 #undef SIZEOF_FLOAT
 
-/* The size of 'float complex', as computed by sizeof. */
+/* The size of `float complex', as computed by sizeof. */
 #undef SIZEOF_FLOAT_COMPLEX
 
-/* The size of 'int', as computed by sizeof. */
+/* The size of `int', as computed by sizeof. */
 #undef SIZEOF_INT
 
-/* The size of 'long', as computed by sizeof. */
+/* The size of `long', as computed by sizeof. */
 #undef SIZEOF_LONG
 
-/* The size of 'long double', as computed by sizeof. */
+/* The size of `long double', as computed by sizeof. */
 #undef SIZEOF_LONG_DOUBLE
 
-/* The size of 'long double complex', as computed by sizeof. */
-#undef SIZEOF_LONG_DOUBLE_COMPLEX
-
-/* The size of 'long int', as computed by sizeof. */
+/* The size of `long int', as computed by sizeof. */
 #undef SIZEOF_LONG_INT
 
-/* The size of 'long long int', as computed by sizeof. */
+/* The size of `long long int', as computed by sizeof. */
 #undef SIZEOF_LONG_LONG_INT
 
-/* The size of 'short int', as computed by sizeof. */
+/* The size of `short int', as computed by sizeof. */
 #undef SIZEOF_SHORT_INT
 
-/* The size of 'size_t', as computed by sizeof. */
+/* The size of `size_t', as computed by sizeof. */
 #undef SIZEOF_SIZE_T
 
-/* The size of 'void *', as computed by sizeof. */
+/* The size of `void *', as computed by sizeof. */
 #undef SIZEOF_VOID_P
 
-/* Define to 1 if all of the C90 standard headers exist (not just the ones
-   required in a freestanding environment). This macro is provided for
-   backward compatibility; new code need not use it. */
+/* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* VCS REVISION */
-#undef VCS_REVISION
+/* SVN REVISION */
+#undef SVN_REVISION
 
 /* Version number of package */
 #undef VERSION
@@ -443,10 +384,10 @@
 # endif
 #endif
 
-/* Define to empty if 'const' does not conform to ANSI C. */
+/* Define to empty if `const' does not conform to ANSI C. */
 #undef const
 
-/* Define to '__inline__' or '__inline' if that's what the C compiler
+/* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
 #undef inline
@@ -454,18 +395,17 @@
 
 /* Define to the equivalent of the C99 'restrict' keyword, or to
    nothing if this is not supported.  Do not define if restrict is
-   supported only directly.  */
+   supported directly.  */
 #undef restrict
-/* Work around a bug in older versions of Sun C++, which did not
-   #define __restrict__ or support _Restrict or __restrict__
-   even though the corresponding Sun C compiler ended up with
-   "#define restrict _Restrict" or "#define restrict __restrict__"
-   in the previous line.  This workaround can be removed once
-   we assume Oracle Developer Studio 12.5 (2016) or later.  */
-#if defined __SUNPRO_CC && !defined __RESTRICT && !defined __restrict__
+/* Work around a bug in Sun C++: it does not support _Restrict or
+   __restrict__, even though the corresponding Sun C compiler ends up with
+   "#define restrict _Restrict" or "#define restrict __restrict__" in the
+   previous line.  Perhaps some future version of Sun C++ will work with
+   restrict; if so, hopefully it defines __RESTRICT like Sun C does.  */
+#if defined __SUNPRO_CC && !defined __RESTRICT
 # define _Restrict
 # define __restrict__
 #endif
 
-/* Define to 'unsigned int' if <sys/types.h> does not define. */
+/* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t

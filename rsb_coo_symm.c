@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 

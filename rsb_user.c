@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2019 Michele Martone
 
 This file is part of librsb.
 
@@ -358,17 +358,12 @@ rsb_err_t rsb__sys_info()
 	RSB_INFO("RSB_MAX_ALLOCATABLE_MEMORY_CHUNK: %llu\n",(long long unsigned)RSB_MAX_ALLOCATABLE_MEMORY_CHUNK);
 
 	RSB_INFO("timing min delta (if negative, don't complain with us)   : %lg s\n", rsb__timer_sanity());
-	RSB_INFO("timing granularity : %lg s\n", RSB_CACHED_TIMER_GRANULARITY);
+	RSB_INFO("timing granularity : %lg s\n", rsb__timer_granularity());
 #if   defined(RSB_CFLAGS)
 	RSB_INFO("CFLAGS   : %s\n",RSB_CFLAGS);
 #else /* RSB_CFLAGS */
 	RSB_INFO("no CFLAGS info\n");
 #endif /* RSB_CFLAGS */
-#if   defined(RSB_CXXFLAGS)
-	RSB_INFO("CXXFLAGS : %s\n",RSB_CXXFLAGS);
-#else /* RSB_CXXFLAGS */
-	RSB_INFO("no CXXFLAGS info\n");
-#endif /* RSB_CXXFLAGS */
 #if   defined(RSB_CC)
 	RSB_INFO("CC       : %s\n",RSB_CC);
 #else /* RSB_CC */
@@ -435,7 +430,7 @@ rsb_err_t rsb__sys_info()
 				tt += bt;
 			}
 			res = cookie;
-			RSB_INFO("for array sized %ld elems, took %g s for linear search and %g s for binary search for element %ld, in %ld tries, for a total of %f s (ignore this:%ld)\n", (long int)n,mtl,mtb,(long int)v,(long int)tries,tt,(long int)res);
+			RSB_INFO("for array sized %d elems, took %g s for linear search and %g s for binary search for element %d, in %d tries, for a total of %f s (ignore this:%d)\n", n,mtl,mtb,v,tries,tt,res);
 			v = v/2;
 		}
 failed:
@@ -445,30 +440,6 @@ failed:
 	goto err;
 err:
 	RSB_DO_ERR_RETURN(errval)
-}
-
-rsb_real_t rsb__getenv_real_t(const char*envv, const rsb_real_t altv)
-{
-	const char * v = rsb__getenv(envv);
-	return v ? rsb__util_atof(v) : altv;
-}
-
-rsb_int_t rsb__getenv_int_t(const char*envv, const rsb_int_t altv)
-{
-	const char * v = rsb__getenv(envv);
-	return v ? rsb__util_atoi(v) : altv;
-}
-
-const rsb_char_t * rsb__getenv_str(const char*envv, const rsb_char_t* altv)
-{
-	const char * v = rsb__getenv(envv);
-	return v ? v : altv;
-}
-
-rsb_char_t rsb__getenv_char(const char *envv, const rsb_char_t altv)
-{
-	const char * v = rsb__getenv(envv);
-	return v ? *v : altv;
 }
 
 /* @endcond */

@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -33,7 +33,6 @@ If not, see <http://www.gnu.org/licenses/>.
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 void rsb__util_nnz_array_set_sequence(rsb_nnz_idx_t * p, rsb_nnz_idx_t n, rsb_nnz_idx_t o, rsb_nnz_idx_t i)
 {
 	/*!
@@ -52,7 +51,6 @@ void rsb__util_nnz_array_set_sequence(rsb_nnz_idx_t * p, rsb_nnz_idx_t n, rsb_nn
 		p[k] = o+k*i;
 	}
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 void rsb__util_coo_array_set_sequence(rsb_coo_idx_t * p, rsb_nnz_idx_t n, rsb_coo_idx_t o, rsb_coo_idx_t i)
 {
@@ -165,7 +163,7 @@ void rsb__util_coo_array_copy_trans_add(rsb_coo_idx_t * d, const rsb_coo_idx_t *
 		d[k] = s[k]+a;
 }
 
-static void rsb__util_coo_array_mul(rsb_coo_idx_t * p, rsb_nnz_idx_t n, rsb_coo_idx_t a)
+void rsb__util_coo_array_mul(rsb_coo_idx_t * p, rsb_nnz_idx_t n, rsb_coo_idx_t a)
 {
 	/*!
 		\ingroup gr_internals
@@ -188,7 +186,7 @@ static void rsb__util_coo_array_mul(rsb_coo_idx_t * p, rsb_nnz_idx_t n, rsb_coo_
 void rsb__util_coo_arrays_mul(rsb_coo_idx_t * p, rsb_coo_idx_t * q, rsb_coo_idx_t a, rsb_coo_idx_t b, rsb_nnz_idx_t n)
 {
 	/*!
-		multiply COO arrays p[n] and q[n] respectively by a and b.
+		TODO : document this.
 	*/
 	rsb__util_coo_array_mul(p,n,a);
 	rsb__util_coo_array_mul(q,n,b);
@@ -237,7 +235,6 @@ void rsb__util_hcoo_array_add(rsb_half_idx_t * p, rsb_nnz_idx_t n, rsb_coo_idx_t
 		}
 }
 
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 void rsb__util_coo_arrays_add(rsb_coo_idx_t * p, rsb_coo_idx_t * q, rsb_coo_idx_t a, rsb_coo_idx_t b, rsb_nnz_idx_t n)
 {
 	/*!
@@ -246,8 +243,8 @@ void rsb__util_coo_arrays_add(rsb_coo_idx_t * p, rsb_coo_idx_t * q, rsb_coo_idx_
 	rsb__util_coo_array_add(p,n,a);
 	rsb__util_coo_array_add(q,n,b);
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#if 0
 void rsb_util_coo_arrays_sub(rsb_coo_idx_t * p, rsb_coo_idx_t * q, rsb_coo_idx_t a, rsb_coo_idx_t b, rsb_nnz_idx_t n)
 {
 	/*!
@@ -256,8 +253,9 @@ void rsb_util_coo_arrays_sub(rsb_coo_idx_t * p, rsb_coo_idx_t * q, rsb_coo_idx_t
 	rsb__util_coo_array_sub(p,n,a);
 	rsb__util_coo_array_sub(q,n,b);
 }
+#endif
 
-void rsb__util_nnz_array_add(rsb_nnz_idx_t * p, rsb_nnz_idx_t n, rsb_nnz_idx_t a)
+void rsb_util_nnz_array_add(rsb_nnz_idx_t * p, rsb_nnz_idx_t n, rsb_nnz_idx_t a)
 {
 	/*!
 		\ingroup gr_internals
@@ -277,8 +275,7 @@ void rsb__util_nnz_array_add(rsb_nnz_idx_t * p, rsb_nnz_idx_t n, rsb_nnz_idx_t a
 		}
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
-static void rsb__util_nnz_array_sub(rsb_nnz_idx_t * p, rsb_nnz_idx_t n, rsb_nnz_idx_t s)
+void rsb_util_nnz_array_sub(rsb_nnz_idx_t * p, rsb_nnz_idx_t n, rsb_nnz_idx_t s)
 {
 	/*!
 		\ingroup gr_internals
@@ -297,7 +294,6 @@ static void rsb__util_nnz_array_sub(rsb_nnz_idx_t * p, rsb_nnz_idx_t n, rsb_nnz_
 			RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(p[k]));
 		}
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 void rsb__util_coo_array_sub(rsb_coo_idx_t * p, rsb_nnz_idx_t n, rsb_coo_idx_t s)
 {
@@ -325,10 +321,9 @@ void rsb__util_nnz_array_to_fortran_indices(rsb_nnz_idx_t * p, rsb_nnz_idx_t n)
 		\ingroup gr_internals
 		Adds 1 to the given matrix coordinate indices array.
 	*/
-	rsb__util_nnz_array_add(p, n, 1);
+	rsb_util_nnz_array_add(p, n, 1);
 }
 
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 void rsb__util_coo_array_to_fortran_indices(rsb_coo_idx_t * p, rsb_nnz_idx_t n)
 {
 	/*!
@@ -337,7 +332,6 @@ void rsb__util_coo_array_to_fortran_indices(rsb_coo_idx_t * p, rsb_nnz_idx_t n)
 	*/
 	rsb__util_coo_array_add(p, n, 1);
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 void rsb__util_coo_array_to_fortran_indices_parallel(rsb_coo_idx_t * p, rsb_nnz_idx_t n)
 {
@@ -346,12 +340,10 @@ void rsb__util_coo_array_to_fortran_indices_parallel(rsb_coo_idx_t * p, rsb_nnz_
 		Adds 1 to the given matrix coordinate indices array.
 	*/
 	register rsb_nnz_idx_t k;
-#if RSB_WANT_OMP_RECURSIVE_KERNELS
 	const rsb_nnz_idx_t mcs = RSB_MINIMUM_VECOP_OMP_CHUNK; 
-#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 
 	RSB_DEBUG_ASSERT(p || n==0);
-	RSB_DEBUG_ASSERT(n>=0);
+	RSB_DEBUG_ASSERT(p>=0);
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(n));
 
 	if(p)
@@ -366,19 +358,15 @@ void rsb__util_coo_array_to_fortran_indices_parallel(rsb_coo_idx_t * p, rsb_nnz_
 	}
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 void rsb__util_nnz_array_from_fortran_indices(rsb_nnz_idx_t * p, rsb_nnz_idx_t n)
 {
 	/*!
 		\ingroup gr_internals
 		Subtracts 1 from the given matrix coordinate indices array.
 	*/
-	rsb__util_nnz_array_sub(p, n, 1);
+	rsb_util_nnz_array_sub(p, n, 1);
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
-// OK, but unused 
 void rsb__util_coo_array_from_fortran_indices(rsb_coo_idx_t * p, rsb_nnz_idx_t n, rsb_bool_t want_parallel)
 {
 	/*!
@@ -409,9 +397,7 @@ void rsb__util_coo_array_from_fortran_indices(rsb_coo_idx_t * p, rsb_nnz_idx_t n
 	else
 		rsb__util_coo_array_sub(p, n, 1);
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_flags_t rsb__util_coo_determine_uplo_flags(const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t nnz)
 {
 	/*!
@@ -448,7 +434,6 @@ done:
 		RSB_DO_FLAG_DEL(flags,RSB_FLAG_TRIANGULAR);
 	return flags;
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_bool_t rsb__util_coo_check_if_triangle_non_empty(const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_flags_t flags)
 {
@@ -483,7 +468,6 @@ void rsb__util_coo_upper_to_lower_symmetric(rsb_coo_idx_t * IA, rsb_coo_idx_t * 
 			RSB_SWAP(rsb_coo_idx_t,IA[n],JA[n]);
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 void rsb__util_coo_lower_to_upper_symmetric(rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz)
 {
 	/*!
@@ -491,9 +475,8 @@ void rsb__util_coo_lower_to_upper_symmetric(rsb_coo_idx_t * IA, rsb_coo_idx_t * 
 	*/
 	rsb__util_coo_upper_to_lower_symmetric(JA, IA, nnz);
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
-rsb_err_t rsb__util_coo_check_if_has_diagonal_elements(const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t m, rsb_bool_t *has_diagonal_elements, rsb_bool_t wv)
+rsb_err_t rsb__util_coo_check_if_has_diagonal_elements(const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t m, rsb_bool_t *has_diagonal_elements)
 {
 	/*!
 		\ingroup gr_internals
@@ -526,18 +509,18 @@ rsb_err_t rsb__util_coo_check_if_has_diagonal_elements(const rsb_coo_idx_t * IA,
 			++cnnz;
 		}
 	}
-
+#if 1
 	if(cnnz<m)
-	if(wv)
 	{
-		RSB_STDERR("Missing %zd diagonal elements.\n",(size_t)(m-cnnz));
+		RSB_STDERR("missing %zd diagonal elements\n",(size_t)(m-cnnz));
 	}
-
+#endif
 	for(n=0;RSB_LIKELY(n<m);++n)
 		if(!RSB_BITMAP_GET(bmap,1,nnz,0,n))
 		{
-			if(wv)
-				RSB_STDERR("Missing element %zd.\n",(size_t)n);
+#if 1
+			RSB_STDERR("missing element %zd\n",(size_t)n);
+#endif
 			goto missing_diagonal_element;
 		}
 goto ok;
@@ -614,7 +597,6 @@ rsb_bool_t rsb__util_is_coo_array_sorted_up_partial_order(const rsb_nnz_idx_t * 
 	return rsb__util_is_nnz_array_sorted_up_partial_order(p, n);
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_bool_t rsb__util_is_coo_array_sorted_up(const rsb_coo_idx_t * p, const rsb_nnz_idx_t n)
 {
 	/*!
@@ -633,7 +615,6 @@ no:
 	/* RSB_STDOUT("%d=p[%d]>=p[%d]=%d\n",p[i-1],i-1,i,p[i]); */
 	return RSB_BOOL_FALSE;
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED*/
 
 rsb_bool_t rsb__util_is_nnz_array_sorted_up(const rsb_nnz_idx_t * p, const rsb_nnz_idx_t n)
 {
@@ -652,7 +633,6 @@ no:
 	return RSB_BOOL_FALSE;
 }
 
-#if RSB_WANT_BCSC_LEAVES  
 void rsb__util_nnz_array_add_array(rsb_nnz_idx_t * p, const rsb_nnz_idx_t * q, rsb_nnz_idx_t n)
 {
 	/*!
@@ -671,15 +651,14 @@ void rsb__util_nnz_array_add_array(rsb_nnz_idx_t * p, const rsb_nnz_idx_t * q, r
 		p[k] += q[k];
 	}
 }
-#endif /* RSB_WANT_BCSC_LEAVES */
 
-rsb_int_t rsb__util_find_max_index(const rsb_int_t * p, rsb_int_t n)
+rsb_coo_idx_t rsb__util_find_max_index(const rsb_nnz_idx_t * p, rsb_nnz_idx_t n)
 {
 	/*!
 		\ingroup gr_internals
 	*/
-	rsb_int_t i,l=0;
-	rsb_int_t m;
+	rsb_nnz_idx_t i,l=0;
+	rsb_coo_idx_t m;
 	if(n<1)
 		goto ret;
 	m = p[l];
@@ -690,13 +669,13 @@ ret:
 	return l;
 }
 
-rsb_int_t rsb__util_find_min_index(const rsb_int_t * p, rsb_int_t n)
+rsb_coo_idx_t rsb__util_find_min_index(const rsb_nnz_idx_t * p, rsb_nnz_idx_t n)
 {
 	/*!
 		\ingroup gr_internals
 	*/
-	rsb_int_t i,l=0;
-	rsb_int_t m;
+	rsb_nnz_idx_t i,l=0;
+	rsb_coo_idx_t m;
 	if(n<1)
 		goto ret;
 	m = p[l];
@@ -707,13 +686,13 @@ ret:
 	return l;
 }
 
-rsb_nnz_idx_t rsb__util_find_coo_max_index_val(const rsb_nnz_idx_t * p, rsb_nnz_idx_t n)
+rsb_coo_idx_t rsb__util_find_max_index_val(const rsb_nnz_idx_t * p, rsb_nnz_idx_t n)
 {
 	/*!
 		\ingroup gr_internals
 	*/
 	rsb_nnz_idx_t i;
-	rsb_nnz_idx_t m;
+	rsb_coo_idx_t m;
 	if(n<1)
 		return RSB_MARKER_COO_VALUE;
 	m = p[0];
@@ -723,14 +702,13 @@ rsb_nnz_idx_t rsb__util_find_coo_max_index_val(const rsb_nnz_idx_t * p, rsb_nnz_
 	return m;
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
-rsb_nnz_idx_t rsb__util_find_coo_min_index_val(const rsb_nnz_idx_t * p, rsb_nnz_idx_t n)
+rsb_coo_idx_t rsb__util_find_min_index_val(const rsb_nnz_idx_t * p, rsb_nnz_idx_t n)
 {
 	/*!
 		\ingroup gr_internals
 	*/
 	rsb_nnz_idx_t i;
-	rsb_nnz_idx_t m;
+	rsb_coo_idx_t m;
 	if(n<1)
 		return RSB_MARKER_COO_VALUE;
 	m = p[0];
@@ -738,53 +716,6 @@ rsb_nnz_idx_t rsb__util_find_coo_min_index_val(const rsb_nnz_idx_t * p, rsb_nnz_
 		if(p[i]<m)
 			m = p[i];
 	return m;
-}
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-
-rsb_int_t rsb__util_find_max_index_val(const rsb_int_t * p, rsb_int_t n)
-{
-	/*!
-		\ingroup gr_internals
-	*/
-	rsb_int_t i;
-	rsb_int_t m;
-	if(n<1)
-		return RSB_MARKER_INT_VALUE;
-	m = p[0];
-	for(i=1;RSB_LIKELY(i<n);++i)
-		if(p[i]>m)
-			m = p[i];
-	return m;
-}
-
-rsb_int_t rsb__util_find_min_index_val(const rsb_int_t * p, rsb_int_t n)
-{
-	/*!
-		\ingroup gr_internals
-	*/
-	rsb_int_t i;
-	rsb_int_t m;
-	if(n<1)
-		return RSB_MARKER_INT_VALUE;
-	m = p[0];
-	for(i=1;RSB_LIKELY(i<n);++i)
-		if(p[i]<m)
-			m = p[i];
-	return m;
-}
-
-rsb_coo_idx_t rsb__util_find_coo_val_idx(const rsb_coo_idx_t * p, const rsb_nnz_idx_t n, const rsb_coo_idx_t m)
-{
-	/*!
-		\ingroup gr_internals
-		Return index of m if found, n otherwise.
-	*/
-	rsb_nnz_idx_t i;
-
-	for ( i=0; RSB_LIKELY(i<n); ++i )
-		if( p[i] == m )
-			return i;
-	return n;
 }
 
 void rsb__util_coo_array_renumber(rsb_coo_idx_t * a, const rsb_coo_idx_t * iren, rsb_nnz_idx_t n, rsb_flags_t aflags, rsb_flags_t pflags, rsb_flags_t oflags)
@@ -885,7 +816,6 @@ err:
 	return RSB_ERR_ENOMEM; 
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__debug_print_index_vector(const rsb_coo_idx_t * v1, size_t n){
 	/*! 
 	 **/
@@ -896,15 +826,13 @@ rsb_err_t rsb__debug_print_index_vector(const rsb_coo_idx_t * v1, size_t n){
 		return RSB_ERR_BADARGS;
 
 	for(i=0;i<n ;++i) 
-		RSB_STDOUT("%zd : %ld \n",(rsb_printf_int_t)(i+ioff),(long int)(v1[i]+voff));
+		RSB_STDOUT("%zd : %d \n",(rsb_printf_int_t)(i+ioff),v1[i]+voff);
 	return RSB_ERR_NO_ERROR;
 #else
 	return RSB_ERR_UNSUPPORTED_FEATURE;
 #endif /* RSB_ALLOW_STDOUT */
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__debug_print_index_vectors_diff(const rsb_coo_idx_t * v1, const rsb_coo_idx_t * v2, size_t n, int onlyfirst){
 	/*! 
 	 **/
@@ -918,7 +846,7 @@ rsb_err_t rsb__debug_print_index_vectors_diff(const rsb_coo_idx_t * v1, const rs
 			if(v1[i]!=v2[i]){
 		differing++;
 		if((onlyfirst==0)||(onlyfirst>differing))
-		RSB_STDOUT("%zd : %ld %ld \n",(rsb_printf_int_t)i,						(long int)v1[i],(long int)v2[i]		);
+		RSB_STDOUT("%zd : %d %d \n",(rsb_printf_int_t)i,						v1[i],v2[i]		);
 			}
 		if(differing>onlyfirst)RSB_STDOUT("...and %zd more ...\n",(rsb_printf_int_t)(differing-onlyfirst));
 	return RSB_ERR_NO_ERROR;
@@ -926,7 +854,6 @@ rsb_err_t rsb__debug_print_index_vectors_diff(const rsb_coo_idx_t * v1, const rs
 	return RSB_ERR_UNSUPPORTED_FEATURE;
 #endif /* RSB_ALLOW_STDOUT */
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_err_t rsb__util_find_extremal_half_index_val(const rsb_half_idx_t * RSB_RESTRICT p, rsb_nnz_idx_t n, rsb_coo_idx_t lb, rsb_coo_idx_t ub, rsb_half_idx_t *lf, rsb_half_idx_t * RSB_RESTRICT uf)
 {
@@ -937,10 +864,8 @@ rsb_err_t rsb__util_find_extremal_half_index_val(const rsb_half_idx_t * RSB_REST
 
 	for(i=0;i<n;++i)
 		vm = RSB_MIN(vm,p[i]), vM = RSB_MAX(vM,p[i]);
-	if(lf)
-		*lf = vm;
-	if(uf)
-		*uf = vM;
+	if(lf)*lf = vm;
+	if(uf)*uf = vM;
 	return RSB_ERR_NO_ERROR;
 }
 

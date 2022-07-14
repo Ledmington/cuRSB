@@ -3,12 +3,12 @@
  @file
  @brief
 
- Former performance info gathering code; now obsoleted and used as test.
+ Performance info gathering code. (OBSOLETE)
  */
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -41,13 +41,13 @@ If not, see <http://www.gnu.org/licenses/>.
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- For block coordinates format.
+ But for block compressed sparse stripes format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -83,7 +83,7 @@ extern "C" {
 #include <clapack.h>
 #endif /* RSB_HAVE_CLAPACK_H */
 #include <math.h>
-rsb_err_t rsb__fit_hyp(double x[], double y[], size_t nb_loop, double * a, double * b, double *c, double c_s);
+rsb_err_t rsb_fit_hyp(double x[], double y[], size_t nb_loop, double * a, double * b, double *c, double c_s);
 
 rsb_err_t rsb__do_referencebenchmark(void);
 

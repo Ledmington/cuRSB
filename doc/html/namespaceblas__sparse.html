@@ -19,7 +19,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">librsb
-   &#160;<span id="projectnumber">1.3.0.1</span>
+   &#160;<span id="projectnumber">1.2.0.11</span>
    </div>
   </td>
  </tr>
@@ -423,10 +423,6 @@ Variables</h2></td></tr>
 <tr class="separator:a56dc72776b8dcdc43f0cebbdc93dcd21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf0fe16da38fc03226e462dc6104cc68"><td class="memItemLeft" align="right" valign="top">integer, parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a> =6666</td></tr>
 <tr class="separator:acf0fe16da38fc03226e462dc6104cc68"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad93ad887209d2ad9747484f74b53e14d"><td class="memItemLeft" align="right" valign="top">integer, parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblas__sparse.html#ad93ad887209d2ad9747484f74b53e14d">blas_rsb_rep_rec</a> =9993</td></tr>
-<tr class="separator:ad93ad887209d2ad9747484f74b53e14d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a050f3622266c10f6d1117a33ac19f2ff"><td class="memItemLeft" align="right" valign="top">integer, parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblas__sparse.html#a050f3622266c10f6d1117a33ac19f2ff">blas_rsb_rep_hwi</a> =9994</td></tr>
-<tr class="separator:a050f3622266c10f6d1117a33ac19f2ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9cd9a2263c79534384bef6bf27e65787"><td class="memItemLeft" align="right" valign="top">integer, parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblas__sparse.html#a9cd9a2263c79534384bef6bf27e65787">blas_rsb_rep_rsb</a> =9995</td></tr>
 <tr class="separator:a9cd9a2263c79534384bef6bf27e65787"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9fe6012ccac0890c7f7a8500e77e9ff7"><td class="memItemLeft" align="right" valign="top">integer, parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblas__sparse.html#a9fe6012ccac0890c7f7a8500e77e9ff7">blas_rsb_rep_csr</a> =9996</td></tr>
@@ -437,10 +433,6 @@ Variables</h2></td></tr>
 <tr class="separator:a10ebafcdf3cc36cf0471ba20ffcd2980"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a508fec1d9853698fd08c239dd08a7291"><td class="memItemLeft" align="right" valign="top">integer, parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblas__sparse.html#a508fec1d9853698fd08c239dd08a7291">blas_rsb_duplicates_sum</a> =9999</td></tr>
 <tr class="separator:a508fec1d9853698fd08c239dd08a7291"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ff4ff0562a662ed6d75b04a08263093"><td class="memItemLeft" align="right" valign="top">integer, parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a> =4</td></tr>
-<tr class="separator:a6ff4ff0562a662ed6d75b04a08263093"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab80c4b5d32569dc66091c6a5808c2372"><td class="memItemLeft" align="right" valign="top">integer, parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a> =4</td></tr>
-<tr class="separator:ab80c4b5d32569dc66091c6a5808c2372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="af4e9f97f85799c5e8f60c78d40d906f3"></a>
@@ -452,13 +444,13 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">subroutine blas_sparse::cuscr_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>m</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
@@ -470,7 +462,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -510,25 +502,25 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">subroutine blas_sparse::cuscr_block_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Mb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Nb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>l</em>, </td>
         </tr>
         <tr>
@@ -540,7 +532,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -587,7 +579,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -636,31 +628,31 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>row_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>col_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -708,13 +700,13 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>l</em>, </td>
         </tr>
         <tr>
@@ -726,31 +718,31 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>row_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>col_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>jndx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -798,13 +790,13 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -816,13 +808,13 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -869,7 +861,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -881,19 +873,19 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>jndx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -946,19 +938,19 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1004,13 +996,13 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -1022,13 +1014,13 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1069,25 +1061,25 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">subroutine blas_sparse::cuscr_variable_block_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Mb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Nb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>K</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>L</em>, </td>
         </tr>
         <tr>
@@ -1099,7 +1091,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1152,7 +1144,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nrhs</em>, </td>
         </tr>
         <tr>
@@ -1176,7 +1168,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldb</em>, </td>
         </tr>
         <tr>
@@ -1188,13 +1180,13 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldc</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1224,7 +1216,7 @@ Variables</h2></td></tr>
 <dd>
 </dd>
 <dd>
-By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#gad018cf218c2c938bb5cf4577f1b53319">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaf8193efe99bd255f8fcc4d72213c02d3">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaba57464d66e3f29bc3177d480b0b6a54">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacd371d9e8ab736cd4bd5e46973152bb5">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga16a77093831bc32ccc056258d6f93445">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacadd9208ad4a6a8d4ceab32ee173c6f4">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1d81f70e1fb15c3912006ed71a5cd471">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gae9a587087965874604ce9785f8660664">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
+By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#ga9a8f45ddd3c890a296239b212f0c033b">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gafb4d039eb5319613ed30db7fb323278c">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1ee2eb4be4c1e0565051fe04ca7415a2">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga9ec2e63176f2d6b11ee48bb523b4f7c7">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaeeddeb634efe4448a31d62fb547362f6">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga29c11c0c304637e89852359b0f8b10b5">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga88138db4545610d234d18d42237f36ee">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga8c87639294b57d2893cd29f64902a64d">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>On the topic of autotuning, see also <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm</a>. If <code>&ndash;enable-rsb-num-threads</code> has been specified at configure time, the <code>RSB_NUM_THREADS</code> environment variable will override the number of executing threads specified by <code>OMP_NUM_THREADS</code>. (See also <a class="el" href="group__rsb__doc__rsb.html#ggae0bada88731b01751401847d60110fb6ad9150d4d5672d1835185d6e2286d92f4">RSB_IO_WANT_EXECUTING_THREADS</a>).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>On success, 0 is returned; on error, -1. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -1269,7 +1261,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incx</em>, </td>
         </tr>
         <tr>
@@ -1281,13 +1273,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incy</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1315,7 +1307,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
 <dd>
 </dd>
 <dd>
-By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#gad018cf218c2c938bb5cf4577f1b53319">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaf8193efe99bd255f8fcc4d72213c02d3">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaba57464d66e3f29bc3177d480b0b6a54">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacd371d9e8ab736cd4bd5e46973152bb5">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga16a77093831bc32ccc056258d6f93445">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacadd9208ad4a6a8d4ceab32ee173c6f4">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1d81f70e1fb15c3912006ed71a5cd471">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gae9a587087965874604ce9785f8660664">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
+By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#ga9a8f45ddd3c890a296239b212f0c033b">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gafb4d039eb5319613ed30db7fb323278c">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1ee2eb4be4c1e0565051fe04ca7415a2">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga9ec2e63176f2d6b11ee48bb523b4f7c7">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaeeddeb634efe4448a31d62fb547362f6">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga29c11c0c304637e89852359b0f8b10b5">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga88138db4545610d234d18d42237f36ee">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga8c87639294b57d2893cd29f64902a64d">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>On the topic of autotuning, see also <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm</a>. If <code>&ndash;enable-rsb-num-threads</code> has been specified at configure time, the <code>RSB_NUM_THREADS</code> environment variable will override the number of executing threads specified by <code>OMP_NUM_THREADS</code>. (See also <a class="el" href="group__rsb__doc__rsb.html#ggae0bada88731b01751401847d60110fb6ad9150d4d5672d1835185d6e2286d92f4">RSB_IO_WANT_EXECUTING_THREADS</a>).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>On success, 0 is returned; on error, -1. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -1348,7 +1340,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nrhs</em>, </td>
         </tr>
         <tr>
@@ -1372,13 +1364,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1445,13 +1437,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1492,13 +1484,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="memname">subroutine blas_sparse::duscr_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>m</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
@@ -1510,7 +1502,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1550,25 +1542,25 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="memname">subroutine blas_sparse::duscr_block_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Mb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Nb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>l</em>, </td>
         </tr>
         <tr>
@@ -1580,7 +1572,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1627,7 +1619,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1676,31 +1668,31 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>row_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>col_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1748,13 +1740,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>l</em>, </td>
         </tr>
         <tr>
@@ -1766,31 +1758,31 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>row_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>col_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>jndx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1838,13 +1830,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -1856,13 +1848,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1909,7 +1901,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -1921,19 +1913,19 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>jndx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -1986,19 +1978,19 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2044,13 +2036,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -2062,13 +2054,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2109,25 +2101,25 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="memname">subroutine blas_sparse::duscr_variable_block_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Mb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Nb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>K</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>L</em>, </td>
         </tr>
         <tr>
@@ -2139,7 +2131,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2192,7 +2184,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nrhs</em>, </td>
         </tr>
         <tr>
@@ -2216,7 +2208,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldb</em>, </td>
         </tr>
         <tr>
@@ -2228,13 +2220,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldc</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2264,7 +2256,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
 <dd>
 </dd>
 <dd>
-By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#gad018cf218c2c938bb5cf4577f1b53319">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaf8193efe99bd255f8fcc4d72213c02d3">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaba57464d66e3f29bc3177d480b0b6a54">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacd371d9e8ab736cd4bd5e46973152bb5">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga16a77093831bc32ccc056258d6f93445">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacadd9208ad4a6a8d4ceab32ee173c6f4">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1d81f70e1fb15c3912006ed71a5cd471">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gae9a587087965874604ce9785f8660664">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
+By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#ga9a8f45ddd3c890a296239b212f0c033b">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gafb4d039eb5319613ed30db7fb323278c">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1ee2eb4be4c1e0565051fe04ca7415a2">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga9ec2e63176f2d6b11ee48bb523b4f7c7">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaeeddeb634efe4448a31d62fb547362f6">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga29c11c0c304637e89852359b0f8b10b5">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga88138db4545610d234d18d42237f36ee">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga8c87639294b57d2893cd29f64902a64d">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>On the topic of autotuning, see also <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm</a>. If <code>&ndash;enable-rsb-num-threads</code> has been specified at configure time, the <code>RSB_NUM_THREADS</code> environment variable will override the number of executing threads specified by <code>OMP_NUM_THREADS</code>. (See also <a class="el" href="group__rsb__doc__rsb.html#ggae0bada88731b01751401847d60110fb6ad9150d4d5672d1835185d6e2286d92f4">RSB_IO_WANT_EXECUTING_THREADS</a>).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>On success, 0 is returned; on error, -1. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -2309,7 +2301,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incx</em>, </td>
         </tr>
         <tr>
@@ -2321,13 +2313,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incy</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2355,7 +2347,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
 <dd>
 </dd>
 <dd>
-By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#gad018cf218c2c938bb5cf4577f1b53319">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaf8193efe99bd255f8fcc4d72213c02d3">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaba57464d66e3f29bc3177d480b0b6a54">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacd371d9e8ab736cd4bd5e46973152bb5">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga16a77093831bc32ccc056258d6f93445">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacadd9208ad4a6a8d4ceab32ee173c6f4">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1d81f70e1fb15c3912006ed71a5cd471">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gae9a587087965874604ce9785f8660664">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
+By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#ga9a8f45ddd3c890a296239b212f0c033b">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gafb4d039eb5319613ed30db7fb323278c">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1ee2eb4be4c1e0565051fe04ca7415a2">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga9ec2e63176f2d6b11ee48bb523b4f7c7">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaeeddeb634efe4448a31d62fb547362f6">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga29c11c0c304637e89852359b0f8b10b5">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga88138db4545610d234d18d42237f36ee">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga8c87639294b57d2893cd29f64902a64d">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>On the topic of autotuning, see also <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm</a>. If <code>&ndash;enable-rsb-num-threads</code> has been specified at configure time, the <code>RSB_NUM_THREADS</code> environment variable will override the number of executing threads specified by <code>OMP_NUM_THREADS</code>. (See also <a class="el" href="group__rsb__doc__rsb.html#ggae0bada88731b01751401847d60110fb6ad9150d4d5672d1835185d6e2286d92f4">RSB_IO_WANT_EXECUTING_THREADS</a>).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>On success, 0 is returned; on error, -1. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -2388,7 +2380,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nrhs</em>, </td>
         </tr>
         <tr>
@@ -2412,13 +2404,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2485,13 +2477,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2532,13 +2524,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="memname">subroutine blas_sparse::suscr_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>m</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
@@ -2550,7 +2542,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2590,25 +2582,25 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="memname">subroutine blas_sparse::suscr_block_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Mb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Nb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>l</em>, </td>
         </tr>
         <tr>
@@ -2620,7 +2612,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2667,7 +2659,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2716,31 +2708,31 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>row_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>col_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2788,13 +2780,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>l</em>, </td>
         </tr>
         <tr>
@@ -2806,31 +2798,31 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>row_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>col_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>jndx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2878,13 +2870,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -2896,13 +2888,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -2949,7 +2941,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -2961,19 +2953,19 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>jndx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3026,19 +3018,19 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3084,13 +3076,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -3102,13 +3094,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3149,25 +3141,25 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="memname">subroutine blas_sparse::suscr_variable_block_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Mb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Nb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>K</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>L</em>, </td>
         </tr>
         <tr>
@@ -3179,7 +3171,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3232,7 +3224,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nrhs</em>, </td>
         </tr>
         <tr>
@@ -3256,7 +3248,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldb</em>, </td>
         </tr>
         <tr>
@@ -3268,13 +3260,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldc</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3304,7 +3296,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
 <dd>
 </dd>
 <dd>
-By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#gad018cf218c2c938bb5cf4577f1b53319">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaf8193efe99bd255f8fcc4d72213c02d3">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaba57464d66e3f29bc3177d480b0b6a54">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacd371d9e8ab736cd4bd5e46973152bb5">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga16a77093831bc32ccc056258d6f93445">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacadd9208ad4a6a8d4ceab32ee173c6f4">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1d81f70e1fb15c3912006ed71a5cd471">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gae9a587087965874604ce9785f8660664">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
+By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#ga9a8f45ddd3c890a296239b212f0c033b">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gafb4d039eb5319613ed30db7fb323278c">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1ee2eb4be4c1e0565051fe04ca7415a2">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga9ec2e63176f2d6b11ee48bb523b4f7c7">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaeeddeb634efe4448a31d62fb547362f6">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga29c11c0c304637e89852359b0f8b10b5">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga88138db4545610d234d18d42237f36ee">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga8c87639294b57d2893cd29f64902a64d">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>On the topic of autotuning, see also <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm</a>. If <code>&ndash;enable-rsb-num-threads</code> has been specified at configure time, the <code>RSB_NUM_THREADS</code> environment variable will override the number of executing threads specified by <code>OMP_NUM_THREADS</code>. (See also <a class="el" href="group__rsb__doc__rsb.html#ggae0bada88731b01751401847d60110fb6ad9150d4d5672d1835185d6e2286d92f4">RSB_IO_WANT_EXECUTING_THREADS</a>).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>On success, 0 is returned; on error, -1. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -3349,7 +3341,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incx</em>, </td>
         </tr>
         <tr>
@@ -3361,13 +3353,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incy</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3395,7 +3387,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
 <dd>
 </dd>
 <dd>
-By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#gad018cf218c2c938bb5cf4577f1b53319">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaf8193efe99bd255f8fcc4d72213c02d3">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaba57464d66e3f29bc3177d480b0b6a54">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacd371d9e8ab736cd4bd5e46973152bb5">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga16a77093831bc32ccc056258d6f93445">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacadd9208ad4a6a8d4ceab32ee173c6f4">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1d81f70e1fb15c3912006ed71a5cd471">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gae9a587087965874604ce9785f8660664">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
+By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#ga9a8f45ddd3c890a296239b212f0c033b">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gafb4d039eb5319613ed30db7fb323278c">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1ee2eb4be4c1e0565051fe04ca7415a2">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga9ec2e63176f2d6b11ee48bb523b4f7c7">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaeeddeb634efe4448a31d62fb547362f6">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga29c11c0c304637e89852359b0f8b10b5">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga88138db4545610d234d18d42237f36ee">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga8c87639294b57d2893cd29f64902a64d">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>On the topic of autotuning, see also <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm</a>. If <code>&ndash;enable-rsb-num-threads</code> has been specified at configure time, the <code>RSB_NUM_THREADS</code> environment variable will override the number of executing threads specified by <code>OMP_NUM_THREADS</code>. (See also <a class="el" href="group__rsb__doc__rsb.html#ggae0bada88731b01751401847d60110fb6ad9150d4d5672d1835185d6e2286d92f4">RSB_IO_WANT_EXECUTING_THREADS</a>).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>On success, 0 is returned; on error, -1. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -3428,7 +3420,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nrhs</em>, </td>
         </tr>
         <tr>
@@ -3452,13 +3444,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3525,13 +3517,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3578,7 +3570,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3621,7 +3613,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3670,7 +3662,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3720,7 +3712,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3758,13 +3750,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="memname">subroutine blas_sparse::zuscr_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>m</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>n</em>, </td>
         </tr>
         <tr>
@@ -3776,7 +3768,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3816,25 +3808,25 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="memname">subroutine blas_sparse::zuscr_block_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Mb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Nb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>l</em>, </td>
         </tr>
         <tr>
@@ -3846,7 +3838,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3893,7 +3885,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -3942,31 +3934,31 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>row_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>col_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4014,13 +4006,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>k</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>l</em>, </td>
         </tr>
         <tr>
@@ -4032,31 +4024,31 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>row_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>col_stride</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>jndx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4104,13 +4096,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -4122,13 +4114,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4175,7 +4167,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -4187,19 +4179,19 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>jndx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4252,19 +4244,19 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>j</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4310,13 +4302,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>i</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nnz</em>, </td>
         </tr>
         <tr>
@@ -4328,13 +4320,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>indx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4375,25 +4367,25 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="memname">subroutine blas_sparse::zuscr_variable_block_begin </td>
           <td>(</td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Mb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>Nb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>K</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>), dimension (:)&#160;</td>
+          <td class="paramtype">integer, dimension (:)&#160;</td>
           <td class="paramname"><em>L</em>, </td>
         </tr>
         <tr>
@@ -4405,7 +4397,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4458,7 +4450,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nrhs</em>, </td>
         </tr>
         <tr>
@@ -4482,7 +4474,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldb</em>, </td>
         </tr>
         <tr>
@@ -4494,13 +4486,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldc</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4530,7 +4522,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
 <dd>
 </dd>
 <dd>
-By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#gad018cf218c2c938bb5cf4577f1b53319">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaf8193efe99bd255f8fcc4d72213c02d3">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaba57464d66e3f29bc3177d480b0b6a54">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacd371d9e8ab736cd4bd5e46973152bb5">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga16a77093831bc32ccc056258d6f93445">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacadd9208ad4a6a8d4ceab32ee173c6f4">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1d81f70e1fb15c3912006ed71a5cd471">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gae9a587087965874604ce9785f8660664">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
+By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#ga9a8f45ddd3c890a296239b212f0c033b">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gafb4d039eb5319613ed30db7fb323278c">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1ee2eb4be4c1e0565051fe04ca7415a2">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga9ec2e63176f2d6b11ee48bb523b4f7c7">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaeeddeb634efe4448a31d62fb547362f6">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga29c11c0c304637e89852359b0f8b10b5">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga88138db4545610d234d18d42237f36ee">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga8c87639294b57d2893cd29f64902a64d">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>On the topic of autotuning, see also <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm</a>. If <code>&ndash;enable-rsb-num-threads</code> has been specified at configure time, the <code>RSB_NUM_THREADS</code> environment variable will override the number of executing threads specified by <code>OMP_NUM_THREADS</code>. (See also <a class="el" href="group__rsb__doc__rsb.html#ggae0bada88731b01751401847d60110fb6ad9150d4d5672d1835185d6e2286d92f4">RSB_IO_WANT_EXECUTING_THREADS</a>).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>On success, 0 is returned; on error, -1. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -4575,7 +4567,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incx</em>, </td>
         </tr>
         <tr>
@@ -4587,13 +4579,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incy</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4621,7 +4613,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
 <dd>
 </dd>
 <dd>
-By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#gad018cf218c2c938bb5cf4577f1b53319">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaf8193efe99bd255f8fcc4d72213c02d3">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaba57464d66e3f29bc3177d480b0b6a54">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacd371d9e8ab736cd4bd5e46973152bb5">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga16a77093831bc32ccc056258d6f93445">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gacadd9208ad4a6a8d4ceab32ee173c6f4">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1d81f70e1fb15c3912006ed71a5cd471">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gae9a587087965874604ce9785f8660664">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="rsb__libspblas_8h.html#a89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
+By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38fc03226e462dc6104cc68">blas_rsb_autotune_next_operation</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a> (at any time) the next multiplication routine call (either of <a class="el" href="group__rsb__doc__sparse__blas.html#ga9a8f45ddd3c890a296239b212f0c033b">BLAS_dusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gafb4d039eb5319613ed30db7fb323278c">BLAS_susmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga1ee2eb4be4c1e0565051fe04ca7415a2">BLAS_zusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga9ec2e63176f2d6b11ee48bb523b4f7c7">BLAS_cusmv</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#gaeeddeb634efe4448a31d62fb547362f6">BLAS_dusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga29c11c0c304637e89852359b0f8b10b5">BLAS_susmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga88138db4545610d234d18d42237f36ee">BLAS_zusmm</a>, <a class="el" href="group__rsb__doc__sparse__blas.html#ga8c87639294b57d2893cd29f64902a64d">BLAS_cusmm</a>) will invoke autotuning before carrying out the effective operation. The tuning will take in account parameters like transposition, number of right hand sides, and scaling constants. By setting the <code><a class="el" href="namespaceblas__sparse.html#afab5c86162fcf329199b0666f33cde96">blas_rsb_spmv_autotuning_on</a></code> property via <a class="el" href="group__rsb__doc__sparse__blas.html#ga89577a4a63cc8659f1d463fb819bc002">BLAS_ussp</a>, the default number of executing threads for this matrix will be determined once, at matrix assembly time, and employed irrespective of the default threads count (different values for transposed and untransposed multiply). This can be overridden only by setting the <code>RSB_NUM_THREADS</code> environment variable. </dd></dl>
 <dl class="section see"><dt>See also</dt><dd>On the topic of autotuning, see also <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm</a>. If <code>&ndash;enable-rsb-num-threads</code> has been specified at configure time, the <code>RSB_NUM_THREADS</code> environment variable will override the number of executing threads specified by <code>OMP_NUM_THREADS</code>. (See also <a class="el" href="group__rsb__doc__rsb.html#ggae0bada88731b01751401847d60110fb6ad9150d4d5672d1835185d6e2286d92f4">RSB_IO_WANT_EXECUTING_THREADS</a>).</dd></dl>
 <dl class="section return"><dt>Returns</dt><dd>On success, 0 is returned; on error, -1. </dd></dl>
 <dl class="params"><dt>Parameters</dt><dd>
@@ -4654,7 +4646,7 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>nrhs</em>, </td>
         </tr>
         <tr>
@@ -4678,13 +4670,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>ldb</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -4751,13 +4743,13 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#a6ff4ff0562a662ed6d75b04a08263093">rsb_blas_idx_kind</a>)&#160;</td>
+          <td class="paramtype">integer&#160;</td>
           <td class="paramname"><em>incx</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">integer(kind=<a class="el" href="namespaceblas__sparse.html#ab80c4b5d32569dc66091c6a5808c2372">rsb_blas_ist_kind</a>), intent(out)&#160;</td>
+          <td class="paramtype">integer, intent(out)&#160;</td>
           <td class="paramname"><em>istat</em>&#160;</td>
         </tr>
         <tr>
@@ -5588,34 +5580,6 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
 
 </div>
 </div>
-<a id="a050f3622266c10f6d1117a33ac19f2ff"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a050f3622266c10f6d1117a33ac19f2ff">&#9670;&nbsp;</a></span>blas_rsb_rep_hwi</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">integer, parameter blas_sparse::blas_rsb_rep_hwi =9994</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ad93ad887209d2ad9747484f74b53e14d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad93ad887209d2ad9747484f74b53e14d">&#9670;&nbsp;</a></span>blas_rsb_rep_rec</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">integer, parameter blas_sparse::blas_rsb_rep_rec =9993</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a9cd9a2263c79534384bef6bf27e65787"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9cd9a2263c79534384bef6bf27e65787">&#9670;&nbsp;</a></span>blas_rsb_rep_rsb</h2>
 
@@ -5974,34 +5938,6 @@ By setting the <code><a class="el" href="namespaceblas__sparse.html#acf0fe16da38
       <table class="memname">
         <tr>
           <td class="memname">integer, parameter blas_sparse::blas_zero_base =221</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="a6ff4ff0562a662ed6d75b04a08263093"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6ff4ff0562a662ed6d75b04a08263093">&#9670;&nbsp;</a></span>rsb_blas_idx_kind</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">integer, parameter blas_sparse::rsb_blas_idx_kind =4</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="ab80c4b5d32569dc66091c6a5808c2372"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab80c4b5d32569dc66091c6a5808c2372">&#9670;&nbsp;</a></span>rsb_blas_ist_kind</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">integer, parameter blas_sparse::rsb_blas_ist_kind =4</td>
         </tr>
       </table>
 </div><div class="memdoc">

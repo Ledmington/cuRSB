@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -22,9 +22,8 @@ If not, see <http://www.gnu.org/licenses/>.
 /*!
  @file
  @author Michele Martone
-
- @brief A toy <rsb.h>-based C program implementing the power
-        method for computing matrix eigenvalues. Uses #rsb_spmv().
+ @brief A toy program implementing the power method
+        for computing matrix eigenvalues.
  \ingroup rsb_doc_examples
 
  \include power.c
@@ -32,31 +31,30 @@ If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdio.h>	// printf
 #include <math.h>	// sqrt
-#include <stdlib.h>	// calloc
+#include <stdlib.h>	// calloc, EXIT_SUCCESS
 #include <rsb.h>
 
 int main(const int argc, char * const argv[])
 {
-	const int WANT_VERBOSE = 0;
+	int WANT_VERBOSE = 0;
 	struct rsb_mtx_t *mtxAp = NULL;
 	const int bs = RSB_DEFAULT_BLOCKING;
+	int i;
 	const int br = bs, bc = bs; /* bs x bs blocked */
-	const rsb_nnz_idx_t nnzA = 4;
-	const rsb_coo_idx_t  nrA = 3;
-	const rsb_coo_idx_t  ncA = 3;
-	rsb_int_t it = 0;
-	const rsb_int_t maxit = 100;
+	rsb_err_t errval = 0;
+	rsb_nnz_idx_t nnzA = 4;
+	rsb_coo_idx_t  nrA = 3;
+	rsb_coo_idx_t  ncA = 3;
+	rsb_int_t it = 0, maxit = 100;
 	const rsb_coo_idx_t    IA[] = { 0, 1, 2, 0 };
 	const rsb_coo_idx_t    JA[] = { 0, 1, 2, 2 };
 	const RSB_DEFAULT_POSSIBLY_FIRST_BLAS_TYPE VA[] = { 11, 22, 33, 13 };
 	const RSB_DEFAULT_POSSIBLY_FIRST_BLAS_TYPE ZERO = 0;
-	int i;
-	rsb_err_t errval = 0;
 
 	RSB_DEFAULT_POSSIBLY_FIRST_BLAS_TYPE norm = 0.0, /* nu */
-		oldnorm = 1.0, /* oldnorm */
-		*b1 = NULL, *b2 = NULL,
-		*bnow = NULL, *bnext = NULL;/* b1 and b2 aliases */
+	oldnorm = 1.0, /* oldnorm */
+	*b1 = NULL, *b2 = NULL,
+	*bnow = NULL, *bnext = NULL;/* b1 and b2 aliases */
 	rsb_type_t typecode = RSB_NUMERICAL_TYPE_FIRST_BLAS;
 	size_t ds = 0;
        	/* tolerance */

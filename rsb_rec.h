@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -38,9 +38,6 @@ enum rsb_op_t{	/* FIXME : temporary, experimental  */
             rsb_op_spsvu = 4,
             rsb_op_spsvut = 5,
             rsb_op_get_csr = 6,
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
-            rsb_op_ata = 7,
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
             rsb_op_nop = 0
 };
 #define RSB_PTR_SHIFT(DPTR,MPTR,PPTR,TC)	/* FIXME: temporarily here */ \
@@ -51,9 +48,7 @@ enum rsb_op_t{	/* FIXME : temporary, experimental  */
 
 #define RSB_TMP_OVERALLOC_MTX 4 /* 1 < RSB_TMP_OVERALLOC_MTX < 4; a temporary measure */
 
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__init_set_quad_submatrices_info(const struct rsb_mtx_partitioning_info_t * pinfop, struct rsb_mtx_t ** matrices, rsb_nnz_idx_t uuk, rsb_nnz_idx_t mk, rsb_nnz_idx_t uk, rsb_nnz_idx_t lk, rsb_nnz_idx_t llk, rsb_coo_idx_t mB, rsb_coo_idx_t kB, rsb_coo_idx_t roff, rsb_coo_idx_t coff);
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 rsb_err_t rsb__get_array_of_leaf_matrices(struct rsb_mtx_t *mtxAp, struct rsb_translated_matrix_t ** tmatricesp, rsb_submatrix_idx_t *countp);
 rsb_err_t rsb__fill_array_of_leaf_matrices(const struct rsb_translated_matrix_t *tmatrix, struct rsb_translated_matrix_t *matrices, rsb_submatrix_idx_t * n);
 rsb_err_t rsb__sort_array_of_leaf_matrices(const struct rsb_translated_matrix_t *rmatrix,struct rsb_translated_matrix_t *matrices, rsb_submatrix_idx_t n, enum rsb_op_t op);

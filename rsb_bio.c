@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -33,9 +33,6 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb_common.h"
 #if RSB_WANT_XDR_SUPPORT
 //#ifndef RSB_HAVE_RPC_XDR_H
-#if RSB_HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 #include <rpc/xdr.h>
 
 #pragma GCC visibility push(hidden)
@@ -54,15 +51,6 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_XDR_LOAD_ERROR RSB_XDR_ERROR 
 #define RSB_XDR_SAVE_ERROR RSB_XDR_ERROR 
 #define RSB_XDR_SAVE_TRY(EXP) if(EXP!=1)RSB_XDR_ERROR 
-
-#ifdef RSB_WANT_LONG_IDX_TYPE 
-#define RSB_XDR_COO_IDX xdr_int64_t
-#define RSB_XDR_NNZ_IDX xdr_int64_t
-#else /* RSB_WANT_LONG_IDX_TYPE */
-#define RSB_XDR_COO_IDX xdr_int32_t
-#define RSB_XDR_NNZ_IDX xdr_int32_t
-#endif /* RSB_WANT_LONG_IDX_TYPE */
-
 
 rsb_err_t rsb__do_bindump_init(void)
 {
@@ -91,26 +79,24 @@ static rsb_err_t rsb_do_rw_matrix_dimensions_xdr(struct rsb_mtx_t * mtxAp, XDR *
 	uint64_t el_size_ = mtxAp->el_size;
 	uint64_t element_count_ = mtxAp->element_count;
 
-	RSB_XDR_SAVE_TRY(RSB_XDR_NNZ_IDX(xdrsp,&(mtxAp->nnz)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->nnz)));
 	RSB_XDR_SAVE_TRY(xdr_uint64_t(xdrsp,&(el_size_)));
 	RSB_XDR_SAVE_TRY(xdr_uint64_t(xdrsp,&(element_count_)));
-#if RSB_WANT_DBC
-	RSB_XDR_SAVE_TRY(RSB_XDR_NNZ_IDX(xdrsp,&(mtxAp->block_count)));
-#endif
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->block_count)));
 	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->all_leaf_matrices_n)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->nr)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->nc)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->nr)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->nc)));
 	RSB_XDR_SAVE_TRY(xdr_char(xdrsp,&(mtxAp->typecode)));
 	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->flags)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->roff)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->coff)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->bm)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->bk)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->broff)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->bcoff)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->roff)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,&(mtxAp->coff)));
-	RSB_XDR_SAVE_TRY(RSB_XDR_NNZ_IDX(xdrsp,&(mtxAp->nzoff)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->roff)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->coff)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->bm)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->bk)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->broff)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->bcoff)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->roff)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->coff)));
+	RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,&(mtxAp->nzoff)));
 	mtxAp->element_count = element_count_;
 	mtxAp->el_size = el_size_;
 err:
@@ -195,11 +181,7 @@ static rsb_err_t rsb_do_rw_matrix_xdr_ia(struct rsb_mtx_t * mtxAp, struct rsb_mt
 		/* FIXME: write me */
 	}
 	errval = rsb_do_rw_matrix_struct_xdr(mtxAp,smp,xdrsp,rw);
-#if RSB_WANT_DBC
 	errval = rsb__set_init_flags_and_stuff(mtxAp,NULL,NULL,mtxAp->nr,mtxAp->nc,mtxAp->nnz,mtxAp->block_count,mtxAp->element_count,mtxAp->typecode,mtxAp->flags);
-#else
-	errval = rsb__set_init_flags_and_stuff(mtxAp,NULL,NULL,mtxAp->nr,mtxAp->nc,mtxAp->nnz,                 0,mtxAp->element_count,mtxAp->typecode,mtxAp->flags);
-#endif
 	if(RSB_SOME_ERROR(errval))
 	{RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 	if(rsb__is_recursive_matrix(mtxAp->flags))
@@ -220,7 +202,7 @@ static rsb_err_t rsb_do_rw_matrix_xdr_ia(struct rsb_mtx_t * mtxAp, struct rsb_mt
 
 		if(mtxAp->bpntr)
 		for(n=0;n<mtxAp->Mdim+1;++n)
-		RSB_XDR_SAVE_TRY(RSB_XDR_NNZ_IDX(xdrsp,mtxAp->bpntr+n));
+		RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,mtxAp->bpntr+n));
 
 		*rnnzp += mtxAp->nnz;
 		if(smp && rw=='r')
@@ -271,7 +253,7 @@ static rsb_err_t rsb_do_rw_matrix_xdr_ja(struct rsb_mtx_t * mtxAp, rsb_coo_idx_t
 			mtxAp->bindx = JA+*rnnzp;
 		/* should dump the rnnz VA and JA elements */
 		for(n=0;n<mtxAp->nnz;++n)
-			RSB_XDR_SAVE_TRY(RSB_XDR_COO_IDX(xdrsp,mtxAp->bindx+n));
+			RSB_XDR_SAVE_TRY(xdr_int32_t(xdrsp,mtxAp->bindx+n));
 		*rnnzp += mtxAp->nnz;
 	}
 err:
@@ -363,11 +345,9 @@ static rsb_err_t rsb_do_compute_total_bytes_for_binary_dump_recursive(const stru
 		if(submatrix)
 			RSB_DO_ERROR_CUMULATE(errval,rsb_do_compute_total_bytes_for_binary_dump_recursive(submatrix,ia_size,ja_size,va_size));
 	}
-
 	*ia_size += sizeof(struct rsb_mtx_t)+sizeof(rsb_nnz_idx_t)*(mtxAp->Mdim+1);
 	*ja_size += 0;
 	*va_size += 0;
-
 	RSB_DO_ERR_RETURN(errval)
 }
 
@@ -434,7 +414,7 @@ rsb_err_t rsb__do_load_matrix_file_as_binary(struct rsb_mtx_t ** mtxApp, const r
 		goto ierr;
 	if(rnnz!=mtxAp->nnz)
 	{
-		RSB_IO_ERROR("error : read %ld instead of %ld nnz!\n",(long int)rnnz,(long int)mtxAp->nnz);
+		RSB_IO_ERROR("error : read %d instead of %d nnz!\n",rnnz,mtxAp->nnz);
 		errval = RSB_ERR_GENERIC_ERROR; goto ierr;
 	}
 
@@ -443,14 +423,14 @@ rsb_err_t rsb__do_load_matrix_file_as_binary(struct rsb_mtx_t ** mtxApp, const r
 	errval = rsb_do_rw_matrix_xdr_ja(mtxAp,JA,&rnnz,&xdrs,'r');
 	if(rnnz!=mtxAp->nnz)
 	{
-		RSB_IO_ERROR("error : read %ld instead of %ld nnz!\n",(long int)rnnz,(long int)mtxAp->nnz);
+		RSB_IO_ERROR("error : read %d instead of %d nnz!\n",rnnz,mtxAp->nnz);
 		errval = RSB_ERR_GENERIC_ERROR; goto ierr;
 	}
 	rnnz = 0;
 	errval = rsb_do_rw_matrix_xdr_va(mtxAp,VA,&rnnz,&xdrs,'r');
 	if(rnnz!=mtxAp->nnz)
 	{
-		RSB_IO_ERROR("error : read %ld instead of %ld nnz!\n",(long int)rnnz,(long int)mtxAp->nnz);
+		RSB_IO_ERROR("error : read %d instead of %d nnz!\n",rnnz,mtxAp->nnz);
 		errval = RSB_ERR_GENERIC_ERROR; goto ierr;
 	}
 
@@ -480,9 +460,9 @@ ierr:
 	RSB_DO_FLAG_ADD(mtxAp->flags,RSB_FLAG_FIX_FOR_BINARY_LOADED_MATRIX);
 
 	lt += rsb_time();
-	RSB_IO_NOTICE("#ia_size %lld..\n",(long long int)ia_size);
-	RSB_IO_NOTICE("#ja_size %lld..\n",(long long int)ja_size);
-	RSB_IO_NOTICE("#va_size %lld..\n",(long long int)va_size);
+	RSB_IO_NOTICE("#ia_size %d..\n",(int)ia_size);
+	RSB_IO_NOTICE("#ja_size %d..\n",(int)ja_size);
+	RSB_IO_NOTICE("#va_size %d..\n",(int)va_size);
 	RSB_IO_NOTICE("#binary loading file %s succeeded and took %lf s (%.0f nnz/s).\n",filename,lt,(1.0/(lt/mtxAp->nnz)));
 	/* FIXME : this is debug info */
 //	RSB_DO_ERROR_CUMULATE(errval,rsb__do_print_matrix_stats(mtxAp,RSB_CONST_DUMP_TIMES|RSB_CONST_DUMP_DIMENSIONS|RSB_CONST_DUMP_RECURSION,NULL));
@@ -532,21 +512,21 @@ rsb_err_t rsb__do_save_matrix_file_as_binary(const struct rsb_mtx_t * mtxAp, FIL
 	errval = rsb_do_rw_matrix_xdr_ia((struct rsb_mtx_t*)mtxAp,NULL,&rnnz,&xdrs,'w');
 	if(rnnz!=mtxAp->nnz)
 	{
-		RSB_IO_ERROR("error : wrote %ld instead of %ld nnz!\n",(long int)rnnz,(long int)mtxAp->nnz);
+		RSB_IO_ERROR("error : wrote %d instead of %d nnz!\n",rnnz,mtxAp->nnz);
 		errval = RSB_ERR_GENERIC_ERROR; goto ierr;
 	}
 	rnnz = 0;
 	errval = rsb_do_rw_matrix_xdr_ja((struct rsb_mtx_t*)mtxAp,NULL,&rnnz,&xdrs,'w');
 	if(rnnz!=mtxAp->nnz)
 	{
-		RSB_IO_ERROR("error : wrote %ld instead of %ld nnz!\n",(long int)rnnz,(long int)mtxAp->nnz);
+		RSB_IO_ERROR("error : wrote %d instead of %d nnz!\n",rnnz,mtxAp->nnz);
 		errval = RSB_ERR_GENERIC_ERROR; goto ierr;
 	}
 	rnnz = 0;
 	errval = rsb_do_rw_matrix_xdr_va((struct rsb_mtx_t*)mtxAp,NULL,&rnnz,&xdrs,'w');
 	if(rnnz!=mtxAp->nnz)
 	{
-		RSB_IO_ERROR("error : read %ld instead of %ld nnz!\n",(long int)rnnz,(long int)mtxAp->nnz);
+		RSB_IO_ERROR("error : read %d instead of %d nnz!\n",rnnz,mtxAp->nnz);
 		errval = RSB_ERR_GENERIC_ERROR; goto ierr;
 	}
 ierr:

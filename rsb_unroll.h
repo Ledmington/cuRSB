@@ -9,7 +9,7 @@
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -38,7 +38,6 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_UNROLL_H_INCLUDED
 
 #include "rsb_types.h"
-#include "rsb_common.h"
 
 /* NULL should be defined. */
 #ifndef NULL

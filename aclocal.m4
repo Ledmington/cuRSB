@@ -14,8 +14,8 @@
 m4_ifndef([AC_CONFIG_MACRO_DIRS], [m4_defun([_AM_CONFIG_MACRO_DIRS], [])m4_defun([AC_CONFIG_MACRO_DIRS], [_AM_CONFIG_MACRO_DIRS($@)])])
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
-m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.72a.28-eea50],,
-[m4_warning([this file was generated for autoconf 2.72a.28-eea50.
+m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.69],,
+[m4_warning([this file was generated for autoconf 2.69.
 You have another version of autoconf.  It may work, but is not guaranteed to.
 If you have problems, you may need to regenerate the build system entirely.
 To do so, use the procedure documented by the package, typically 'autoreconf'.])])
@@ -415,23 +415,6 @@ AC_DEFUN([AM_OUTPUT_DEPENDENCY_COMMANDS],
 [AC_CONFIG_COMMANDS([depfiles],
      [test x"$AMDEP_TRUE" != x"" || _AM_OUTPUT_DEPENDENCY_COMMANDS],
      [AMDEP_TRUE="$AMDEP_TRUE" MAKE="${MAKE-make}"])])
-
-# AM_EXTRA_RECURSIVE_TARGETS                                -*- Autoconf -*-
-
-# Copyright (C) 2012-2018 Free Software Foundation, Inc.
-#
-# This file is free software; the Free Software Foundation
-# gives unlimited permission to copy and/or distribute it,
-# with or without modifications, as long as this notice is preserved.
-
-# AM_EXTRA_RECURSIVE_TARGETS
-# --------------------------
-# Define the list of user recursive targets.  This macro exists only to
-# be traced by Automake, which will ensure that a proper definition of
-# user-defined recursive targets (and associated rules) is propagated
-# into all the generated Makefiles.
-# TODO: We should really reject non-literal arguments here...
-AC_DEFUN([AM_EXTRA_RECURSIVE_TARGETS], [])
 
 # Do all the work for Automake.                             -*- Autoconf -*-
 

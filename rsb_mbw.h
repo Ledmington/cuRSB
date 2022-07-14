@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -34,8 +34,21 @@ extern "C" {
 #endif /* __cplusplus */
 #include "rsb.h"		/* public API specification */
 
+#if 0
+#define RSB_MB_READ		0x00
+#define RSB_MB_WRITE		0x01
+#define RSB_MB_RW		0x02
+#define RSB_MB_BZERO		0x03
+#define RSB_MB_ZERO		0x04
+
+#define RSB_MB_MEMSET		0x05
+#define RSB_MB_LINEAR_CHASE	0x06
+#define RSB_MB_MORTON_CHASE	0x07
+
+#define RSB_MB_N		0x09
+#define RSB_MB_FLUSH		0xAAAA
+#else
 enum{
-RSB_MB_INVALID		=0x99,
 RSB_MB_READ		=0x00,
 RSB_MB_WRITE		=0x01,
 RSB_MB_RW		=0x02,
@@ -50,7 +63,7 @@ RSB_MB_MORTON_CHASE	=0x09,
 RSB_MB_N		=0x0A,
 RSB_MB_FLUSH		=0xAAAA
 };
-
+#endif
 /**<
  * The available memory tests.
  */
@@ -66,8 +79,6 @@ struct rsb_mbw_sm_t
 	rsb_time_t t;			/**< time, in seconds */
 	rsb_flags_t btype;		/**< measurement type */
 };
-
-#define RSB_MAX_TIMES_T INT_MAX
 
 /*!
  * \ingroup gr_internals
@@ -99,45 +110,15 @@ struct rsb_mbw_cm_t
 	long extra_level;		/**< number of additional measurements */
 };
 
-/*!
- * \ingroup gr_internals
- * \brief  export sample type
- */
-struct rsb_mbw_es_t
-{
-	double bw; // bandwidth
-	rsb_int_t sz,lvl; // size, level
-	rsb_flags_t mbt; // test type
-};
-
-/*!
- * \ingroup gr_internals
- * \brief  export table type
- */
-struct rsb_mbw_et_t
-{
-	struct rsb_mbw_es_t * et; // export sample type
-	rsb_int_t sn; // samples number
-};
-
-#define RSB_FLUSH_TIMES 10	/* minimum number of scans for a "cache flush" intended array scan */
-#define RSB_MEMSCAN_MIN_TIMES  2/* minimum number of scans for an array during a memory-bandwidth benchmarking */
+#define RSB_FLUSH_TIMES 10	/* minimum number of scannes for a "cache flush" intended array scan */
+#define RSB_MEMSCAN_MIN_TIMES 10/* minimum number of scans for an array during a memory-bandwidth benchmarking */
 #define RSB_MEMSCAN_MAX_TIMES RSB_MAX_SIGNED(int) /* minimum number of scans for an array during a memory-bandwidth benchmarking */
 #define RSB_MEMSCAN_TIME  1.0	/* max allowable time scanning of an array during a memory-bandwidth benchmark */
-#define RSB_MEMSCAN_EXTRA_LEVELS  2	/*  */
-#define RSB_MEMSCAN_DEFAULT_LEVELS rsb__get_cache_levels_num() + RSB_MEMSCAN_EXTRA_LEVELS
 
 rsb_err_t rsb__mem_hier_timings(struct rsb_mbw_cm_t * cm);
-/* rsb_err_t rsb__print_mem_hier_timings(struct rsb_mbw_cm_t * cm); */
-rsb_err_t rsb__memory_benchmark(struct rsb_mbw_et_t * mbetp);
+rsb_err_t rsb__print_mem_hier_timings(struct rsb_mbw_cm_t * cm);
+rsb_err_t rsb__memory_benchmark(void);
 rsb_err_t rsb__flush_cache(size_t fs);
-
-rsb_err_t rsb__mbw_es_fill(struct rsb_mbw_et_t * mbet, const struct rsb_mbw_cm_t * cm);
-rsb_err_t rsb__mbw_es_free(struct rsb_mbw_et_t * mbet);
-rsb_err_t rsb__mbw_es_print(const struct rsb_mbw_et_t * mbetp);
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
-rsb_err_t rsb__mbw_es_clone(struct rsb_mbw_et_t * mbetcp, const struct rsb_mbw_et_t * mbetsp);
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 #ifdef __cplusplus
 }

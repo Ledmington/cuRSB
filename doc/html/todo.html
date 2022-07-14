@@ -19,7 +19,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">librsb
-   &#160;<span id="projectnumber">1.3.0.1</span>
+   &#160;<span id="projectnumber">1.2.0.11</span>
    </div>
   </td>
  </tr>
@@ -68,15 +68,9 @@ $(function() {
 <dt><a class="anchor" id="_todo000014"></a>Global <a class="el" href="namespaceblas__sparse.html#a700e8b151004b9c8829a1fe4fd331465">blas_sparse::zuscr_variable_block_begin</a>  (Mb, Nb, K, L, A, istat)</dt>
 <dd>Shall make <code>A</code> <code>intent(inout)</code> as well.  </dd>
 <dt><a class="anchor" id="_todo000001"></a>Global <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm</a>  (struct rsb_mtx_t **mtxOpp, rsb_real_t *sfp, rsb_int_t *tnp, rsb_int_t maxr, rsb_time_t maxt, rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t *mtxAp, rsb_coo_idx_t nrhs, rsb_flags_t order, const void *Bp, rsb_nnz_idx_t ldB, const void *betap, void *Cp, rsb_nnz_idx_t ldC)</dt>
-<dd>Autotuning functionality is still object of much research. Need support for lightweight, threads-only optimization.  </dd>
+<dd>In the future, autotuning functionality shall improve considerably. Need support for lightweight, threads-only optimization. May support strided vectors in the future.  </dd>
 <dt><a class="anchor" id="_todo000002"></a>Global <a class="el" href="group__rsb__doc__rsb.html#ga8d7a05bbc165bd6ac20e8e23487a5871">rsb_tune_spsm</a>  (struct rsb_mtx_t **mtxOpp, rsb_real_t *sfp, rsb_int_t *tnp, rsb_int_t maxr, rsb_time_t maxt, rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t *mtxAp, rsb_coo_idx_t nrhs, rsb_flags_t order, const void *Bp, rsb_nnz_idx_t ldB, const void *betap, void *Cp, rsb_nnz_idx_t ldC)</dt>
-<dd>Autotuning functionality is still object of much research. Need support for lightweight, threads-only optimization.  </dd>
-<dt><a class="anchor" id="_todo000015"></a>Class <a class="el" href="classRsbMatrix.html">RsbMatrix&lt; NT &gt;</a>  </dt>
-<dd>While the <code><a class="el" href="rsb_8h.html" title="This file declares the user interface functions and data structures for the librsb library (see The l...">rsb.h</a></code> interface is stable, the <code><a class="el" href="rsb_8hpp.html" title="Classes RsbLib and RsbMatrix provide native C++ access to librsb. ">rsb.hpp</a></code> interface is neither stable, nor complete: early users' feedback is very welcome. <br />
-Shall all <img class="formulaInl" alt="$ \alpha $" src="form_11.png"/> and <img class="formulaInl" alt="$ \beta $" src="form_51.png"/> be passed by values only? This is natural and fits C++. But <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_tune_spmm()</a> / <a class="el" href="group__rsb__doc__rsb.html#ga8d7a05bbc165bd6ac20e8e23487a5871">rsb_tune_spsm()</a> have more parameters with a nullptr-like `default' value: how to deal with them in <a class="el" href="classRsbMatrix.html#a789dabdb1d2ad4962fe5c38829415741">RsbMatrix::tune_spmm()</a> / <a class="el" href="classRsbMatrix.html#a3b0fb107e8cb4b8639d9effe4f0d8f84">RsbMatrix::tune_spsm()</a> without introducing too many special cases ? <br />
-Similarly for the consistency of <a class="el" href="classRsbMatrix.html#a0f19bd8925576e8801d0cf3f829e5680">RsbMatrix::get_flags_t()</a>, <a class="el" href="classRsbMatrix.html#ad0d3e2effb3bdd01444fc24ec8ba1d68">RsbMatrix::get_type_t()</a>, <a class="el" href="classRsbMatrix.html#a2c332a32e2fa19aba1a88cb208acd478">RsbMatrix::get_info_coo_t()</a>, and similar: shall they throw an exception if given a flag not matching the return type ? <br />
-Or maybe keeping only <a class="el" href="classRsbMatrix.html#ab15bb0736d07936eb72d46cfe2e7c0e4">RsbMatrix::get_info()</a>, with per-type reference overloads ? <br />
-Furthermore: if working under C++20, shall <b><a class="el" href="classRsbLib.html" title="Class initializing/finalizing librsb state. ">RsbLib</a></b> avoid pointer-based interfaces completely (using <code>std::span</code> only)? </dd>
+<dd>In the future, autotuning functionality shall improve considerably. Need support for lightweight, threads-only optimization. May support strided vectors in the future. </dd>
 </dl>
 </div></div><!-- contents -->
 <!-- start footer part -->

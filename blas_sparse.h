@@ -151,8 +151,6 @@ enum blas_rsb_ext_type {
             blas_rsb_spmv_t_autotuning_on   = 6664,	/*!< Turn on executing threads autotuning for transposed #BLAS_dusmv, #BLAS_zusmv, #BLAS_susmv, #BLAS_cusmv. See #blas_rsb_spmv_autotuning_on. (EXPERIMENTAL) */
             blas_rsb_spmv_t_autotuning_off  = 6665,	/*!< Turn on executing threads autotuning for transposed #BLAS_dusmv, #BLAS_zusmv, #BLAS_susmv, #BLAS_cusmv. See #blas_rsb_spmv_autotuning_on. (EXPERIMENTAL) */
             blas_rsb_autotune_next_operation= 6666,	/*!< Turn on executing threads autotuning for the next operation among #BLAS_dusmv, #BLAS_zusmv, #BLAS_susmv, #BLAS_cusmv). See #blas_rsb_spmv_autotuning_on. (EXPERIMENTAL) */
-            blas_rsb_rep_rec         = 9993,	/*!< Request/check for recursive representation. */
-            blas_rsb_rep_hwi         = 9994,	/*!< Request/check for half-word indices. */
             blas_rsb_rep_rsb         = 9995,	/*!< Request/check for RSB representation. */
             blas_rsb_rep_csr         = 9996,	/*!< Request/check for CSR representation. */
             blas_rsb_rep_coo         = 9997,	/*!< Request/check for COO representation. */
@@ -171,165 +169,165 @@ extern "C" {
 #endif /* __cplusplus */
 
                /* Level 1 Computational Routines */
-int BLAS_susdot(const enum blas_conj_type conj, const int nnz, const float * x,
-		const int *indx, const float * y, const int incy, float * r,
-		const enum blas_base_type index_base);
-void blas_susdot_(const enum blas_conj_type*conj,const int*nnz,const float *x,const int *indx,const float *y,const int*incy,float *r,const enum blas_base_type*index_base,int*istat);
-int BLAS_dusdot(const enum blas_conj_type conj, const int nnz, const double * x,
-		const int *indx, const double * y, const int incy, double * r,
-		const enum blas_base_type index_base);
-void blas_dusdot_(const enum blas_conj_type*conj,const int*nnz,const double *x,const int *indx,const double *y,const int*incy,double *r,const enum blas_base_type*index_base,int*istat);
-int BLAS_cusdot(const enum blas_conj_type conj, const int nnz, const void *x,
-		const int *indx, const void *y, const int incy, void *r,
-		const enum blas_base_type index_base);
-void blas_cusdot_(const enum blas_conj_type*conj,const int*nnz,const void *x,const int *indx,const void *y,const int*incy,void *r,const enum blas_base_type*index_base,int*istat);
-int BLAS_zusdot(const enum blas_conj_type conj, const int nnz, const void *x,
-		const int *indx, const void *y, const int incy, void *r,
-		const enum blas_base_type index_base);
-void blas_zusdot_(const enum blas_conj_type*conj,const int*nnz,const void *x,const int *indx,const void *y,const int*incy,void *r,const enum blas_base_type*index_base,int*istat);
+int BLAS_susdot(enum blas_conj_type conj, int nnz, const float * x,
+		const int *indx, const float * y, int incy, float * r,
+		enum blas_base_type index_base);
+void blas_susdot_(enum blas_conj_type*conj,int*nnz,const float *x,const int *indx,const float *y,int*incy,float *r,enum blas_base_type*index_base,int*istat);
+int BLAS_dusdot(enum blas_conj_type conj, int nnz, const double * x,
+		const int *indx, const double * y, int incy, double * r,
+		enum blas_base_type index_base);
+void blas_dusdot_(enum blas_conj_type*conj,int*nnz,const double *x,const int *indx,const double *y,int*incy,double *r,enum blas_base_type*index_base,int*istat);
+int BLAS_cusdot(enum blas_conj_type conj, int nnz, const void *x,
+		const int *indx, const void *y, int incy, void *r,
+		enum blas_base_type index_base);
+void blas_cusdot_(enum blas_conj_type*conj,int*nnz,const void *x,const int *indx,const void *y,int*incy,void *r,enum blas_base_type*index_base,int*istat);
+int BLAS_zusdot(enum blas_conj_type conj, int nnz, const void *x,
+		const int *indx, const void *y, int incy, void *r,
+		enum blas_base_type index_base);
+void blas_zusdot_(enum blas_conj_type*conj,int*nnz,const void *x,const int *indx,const void *y,int*incy,void *r,enum blas_base_type*index_base,int*istat);
 
-int BLAS_susaxpy(const int nnz, float  alpha, const float * x, const int *indx,
-                 float * y, const int incy, const enum blas_base_type index_base);
-void blas_susaxpy_(const int*nnz,float*alpha,const float *x,const int *indx,float *y,const int*incy,const enum blas_base_type*index_base,int*istat);
-int BLAS_dusaxpy(const int nnz, double  alpha, const double * x, const int *indx,
-                 double * y, const int incy, const enum blas_base_type index_base);
-void blas_dusaxpy_(const int*nnz,double*alpha,const double *x,const int *indx,double *y,const int*incy,const enum blas_base_type*index_base,int*istat);
-int BLAS_cusaxpy(const int nnz, const void * alpha, const void *x, const int *indx,
-                 void *y, const int incy, const enum blas_base_type index_base);
-void blas_cusaxpy_(const int*nnz,const void *alpha,const void *x,const int *indx,void *y,const int*incy,const enum blas_base_type*index_base,int*istat);
-int BLAS_zusaxpy(const int nnz, const void * alpha, const void *x, const int *indx,
-                 void *y, const int incy, const enum blas_base_type index_base);
-void blas_zusaxpy_(const int*nnz,const void *alpha,const void *x,const int *indx,void *y,const int*incy,const enum blas_base_type*index_base,int*istat);
+int BLAS_susaxpy(int nnz, float  alpha, const float * x, const int *indx,
+                 float * y, int incy, enum blas_base_type index_base);
+void blas_susaxpy_(int*nnz,float*alpha,const float *x,const int *indx,float *y,int*incy,enum blas_base_type*index_base,int*istat);
+int BLAS_dusaxpy(int nnz, double  alpha, const double * x, const int *indx,
+                 double * y, int incy, enum blas_base_type index_base);
+void blas_dusaxpy_(int*nnz,double*alpha,const double *x,const int *indx,double *y,int*incy,enum blas_base_type*index_base,int*istat);
+int BLAS_cusaxpy(int nnz, const void * alpha, const void *x, const int *indx,
+                 void *y, int incy, enum blas_base_type index_base);
+void blas_cusaxpy_(int*nnz,const void *alpha,const void *x,const int *indx,void *y,int*incy,enum blas_base_type*index_base,int*istat);
+int BLAS_zusaxpy(int nnz, const void * alpha, const void *x, const int *indx,
+                 void *y, int incy, enum blas_base_type index_base);
+void blas_zusaxpy_(int*nnz,const void *alpha,const void *x,const int *indx,void *y,int*incy,enum blas_base_type*index_base,int*istat);
 
-int BLAS_susga(const int nnz, const float * y, const int incy, float * x, const int *indx,
-              const enum blas_base_type index_base);
-void blas_susga_(const int*nnz,const float *y,const int*incy,float *x,const int *indx,const enum blas_base_type*index_base,int*istat);
-int BLAS_dusga(const int nnz, const double * y, const int incy, double * x, const int *indx,
-              const enum blas_base_type index_base);
-void blas_dusga_(const int*nnz,const double *y,const int*incy,double *x,const int *indx,const enum blas_base_type*index_base,int*istat);
-int BLAS_cusga(const int nnz, const void *y, const int incy, void *x, const int *indx,
-              const enum blas_base_type index_base);
-void blas_cusga_(const int*nnz,const void *y,const int*incy,void *x,const int *indx,const enum blas_base_type*index_base,int*istat);
-int BLAS_zusga(const int nnz, const void *y, const int incy, void *x, const int *indx,
-              const enum blas_base_type index_base);
-void blas_zusga_(const int*nnz,const void *y,const int*incy,void *x,const int *indx,const enum blas_base_type*index_base,int*istat);
+int BLAS_susga(int nnz, const float * y, int incy, float * x, const int *indx,
+              enum blas_base_type index_base);
+void blas_susga_(int*nnz,const float *y,int*incy,float *x,const int *indx,enum blas_base_type*index_base,int*istat);
+int BLAS_dusga(int nnz, const double * y, int incy, double * x, const int *indx,
+              enum blas_base_type index_base);
+void blas_dusga_(int*nnz,const double *y,int*incy,double *x,const int *indx,enum blas_base_type*index_base,int*istat);
+int BLAS_cusga(int nnz, const void *y, int incy, void *x, const int *indx,
+              enum blas_base_type index_base);
+void blas_cusga_(int*nnz,const void *y,int*incy,void *x,const int *indx,enum blas_base_type*index_base,int*istat);
+int BLAS_zusga(int nnz, const void *y, int incy, void *x, const int *indx,
+              enum blas_base_type index_base);
+void blas_zusga_(int*nnz,const void *y,int*incy,void *x,const int *indx,enum blas_base_type*index_base,int*istat);
 
-int BLAS_susgz(const int nnz, float * y, const int incy, float * x, const int *indx,
-              const enum blas_base_type index_base);
-void blas_susgz_(const int*nnz,float *y,const int*incy,float *x,const int *indx,const enum blas_base_type*index_base,int*istat);
-int BLAS_dusgz(const int nnz, double * y, const int incy, double * x, const int *indx,
-              const enum blas_base_type index_base);
-void blas_dusgz_(const int*nnz,double *y,const int*incy,double *x,const int *indx,const enum blas_base_type*index_base,int*istat);
-int BLAS_cusgz(const int nnz, void *y, const int incy, void *x, const int *indx,
-              const enum blas_base_type index_base);
-void blas_cusgz_(const int*nnz,void *y,const int*incy,void *x,const int *indx,const enum blas_base_type*index_base,int*istat);
-int BLAS_zusgz(const int nnz, void *y, const int incy, void *x, const int *indx,
-              const enum blas_base_type index_base);
-void blas_zusgz_(const int*nnz,void *y,const int*incy,void *x,const int *indx,const enum blas_base_type*index_base,int*istat);
+int BLAS_susgz(int nnz, float * y, int incy, float * x, const int *indx,
+              enum blas_base_type index_base);
+void blas_susgz_(int*nnz,float *y,int*incy,float *x,const int *indx,enum blas_base_type*index_base,int*istat);
+int BLAS_dusgz(int nnz, double * y, int incy, double * x, const int *indx,
+              enum blas_base_type index_base);
+void blas_dusgz_(int*nnz,double *y,int*incy,double *x,const int *indx,enum blas_base_type*index_base,int*istat);
+int BLAS_cusgz(int nnz, void *y, int incy, void *x, const int *indx,
+              enum blas_base_type index_base);
+void blas_cusgz_(int*nnz,void *y,int*incy,void *x,const int *indx,enum blas_base_type*index_base,int*istat);
+int BLAS_zusgz(int nnz, void *y, int incy, void *x, const int *indx,
+              enum blas_base_type index_base);
+void blas_zusgz_(int*nnz,void *y,int*incy,void *x,const int *indx,enum blas_base_type*index_base,int*istat);
 
-int BLAS_sussc(const int nnz, const float * x, float * y, const int incy, const int *indx,
-              const enum blas_base_type index_base);
-void blas_sussc_(const int*nnz,const float *x,float *y,const int*incy,const int *indx,const enum blas_base_type*index_base,int*istat);
-int BLAS_dussc(const int nnz, const double * x, double * y, const int incy, const int *indx,
-              const enum blas_base_type index_base);
-void blas_dussc_(const int*nnz,const double *x,double *y,const int*incy,const int *indx,const enum blas_base_type*index_base,int*istat);
-int BLAS_cussc(const int nnz, const void *x, void *y, const int incy, const int *indx,
-              const enum blas_base_type index_base);
-void blas_cussc_(const int*nnz,const void *x,void *y,const int*incy,const int *indx,const enum blas_base_type*index_base,int*istat);
-int BLAS_zussc(const int nnz, const void *x, void *y, const int incy, const int *indx,
-              const enum blas_base_type index_base);
-void blas_zussc_(const int*nnz,const void *x,void *y,const int*incy,const int *indx,const enum blas_base_type*index_base,int*istat);
+int BLAS_sussc(int nnz, const float * x, float * y, int incy, const int *indx,
+              enum blas_base_type index_base);
+void blas_sussc_(int*nnz,const float *x,float *y,int*incy,const int *indx,enum blas_base_type*index_base,int*istat);
+int BLAS_dussc(int nnz, const double * x, double * y, int incy, const int *indx,
+              enum blas_base_type index_base);
+void blas_dussc_(int*nnz,const double *x,double *y,int*incy,const int *indx,enum blas_base_type*index_base,int*istat);
+int BLAS_cussc(int nnz, const void *x, void *y, int incy, const int *indx,
+              enum blas_base_type index_base);
+void blas_cussc_(int*nnz,const void *x,void *y,int*incy,const int *indx,enum blas_base_type*index_base,int*istat);
+int BLAS_zussc(int nnz, const void *x, void *y, int incy, const int *indx,
+              enum blas_base_type index_base);
+void blas_zussc_(int*nnz,const void *x,void *y,int*incy,const int *indx,enum blas_base_type*index_base,int*istat);
 
                /* Level 2 Computational Routines */
 
-int BLAS_susmv(const enum blas_trans_type transA, float alpha,
-    const blas_sparse_matrix A, const float * x, const int incx, float * y, const int incy);
+int BLAS_susmv(enum blas_trans_type transA, float alpha,
+    blas_sparse_matrix A, const float * x, int incx, float * y, int incy);
 
-void blas_susmv_(const enum blas_trans_type*transA,float*alpha,const blas_sparse_matrix*A,const float *x,const int*incx,float *y,const int*incy,int*istat);
+void blas_susmv_(enum blas_trans_type*transA,float*alpha,blas_sparse_matrix*A,const float *x,int*incx,float *y,int*incy,int*istat);
 
-int BLAS_dusmv(const enum blas_trans_type transA, double alpha,
-    const blas_sparse_matrix A, const double * x, const int incx, double * y, const int incy);
+int BLAS_dusmv(enum blas_trans_type transA, double alpha,
+    blas_sparse_matrix A, const double * x, int incx, double * y, int incy);
 
-void blas_dusmv_(const enum blas_trans_type*transA,double*alpha,const blas_sparse_matrix*A,const double *x,const int*incx,double *y,const int*incy,int*istat);
+void blas_dusmv_(enum blas_trans_type*transA,double*alpha,blas_sparse_matrix*A,const double *x,int*incx,double *y,int*incy,int*istat);
 
-int BLAS_cusmv(const enum blas_trans_type transA, const void *alpha,
-    const blas_sparse_matrix A, const void *x, const int incx, void *y, const int incy);
+int BLAS_cusmv(enum blas_trans_type transA, const void *alpha,
+    blas_sparse_matrix A, const void *x, int incx, void *y, int incy);
 
-void blas_cusmv_(const enum blas_trans_type*transA,const void *alpha,const blas_sparse_matrix*A,const void *x,const int*incx,void *y,const int*incy,int*istat);
+void blas_cusmv_(enum blas_trans_type*transA,const void *alpha,blas_sparse_matrix*A,const void *x,int*incx,void *y,int*incy,int*istat);
 
-int BLAS_zusmv(const enum blas_trans_type transA, const void *alpha,
-    const blas_sparse_matrix A, const void *x, const int incx, void *y, const int incy);
+int BLAS_zusmv(enum blas_trans_type transA, const void *alpha,
+    blas_sparse_matrix A, const void *x, int incx, void *y, int incy);
 
-void blas_zusmv_(const enum blas_trans_type*transA,const void *alpha,const blas_sparse_matrix*A,const void *x,const int*incx,void *y,const int*incy,int*istat);
+void blas_zusmv_(enum blas_trans_type*transA,const void *alpha,blas_sparse_matrix*A,const void *x,int*incx,void *y,int*incy,int*istat);
 
 
 int BLAS_sussv(enum blas_trans_type transT, float alpha,
-    const blas_sparse_matrix T, float * x, const int incx);
+    blas_sparse_matrix T, float * x, int incx);
 
-void blas_sussv_(enum blas_trans_type*transT,float*alpha,const blas_sparse_matrix*T,float *x,const int*incx,int*istat);
+void blas_sussv_(enum blas_trans_type*transT,float*alpha,blas_sparse_matrix*T,float *x,int*incx,int*istat);
 
 int BLAS_dussv(enum blas_trans_type transT, double alpha,
-    const blas_sparse_matrix T, double * x, const int incx);
+    blas_sparse_matrix T, double * x, int incx);
 
-void blas_dussv_(enum blas_trans_type*transT,double*alpha,const blas_sparse_matrix*T,double *x,const int*incx,int*istat);
+void blas_dussv_(enum blas_trans_type*transT,double*alpha,blas_sparse_matrix*T,double *x,int*incx,int*istat);
 
 int BLAS_cussv(enum blas_trans_type transT, const void *alpha,
-    const blas_sparse_matrix T, void *x, const int incx);
+    blas_sparse_matrix T, void *x, int incx);
 
-void blas_cussv_(enum blas_trans_type*transT,const void *alpha,const blas_sparse_matrix*T,void *x,const int*incx,int*istat);
+void blas_cussv_(enum blas_trans_type*transT,const void *alpha,blas_sparse_matrix*T,void *x,int*incx,int*istat);
 
 int BLAS_zussv(enum blas_trans_type transT, const void *alpha,
-    const blas_sparse_matrix T, void *x, const int incx);
+    blas_sparse_matrix T, void *x, int incx);
 
-void blas_zussv_(enum blas_trans_type*transT,const void *alpha,const blas_sparse_matrix*T,void *x,const int*incx,int*istat);
+void blas_zussv_(enum blas_trans_type*transT,const void *alpha,blas_sparse_matrix*T,void *x,int*incx,int*istat);
 
 
                /* Level 3 Computational Routines */
 
-int BLAS_susmm(const enum blas_order_type order, const enum blas_trans_type transA,
-   const int nrhs, float alpha, const blas_sparse_matrix A, const float * b, const int ldb,
-       float *  c, const int ldc);
+int BLAS_susmm(enum blas_order_type order, enum blas_trans_type transA,
+   int nrhs, float alpha, blas_sparse_matrix A, const float * b, int ldb,
+       float *  c, int ldc);
 
-void blas_susmm_(const enum blas_order_type*order,const enum blas_trans_type*transA,const int*nrhs,float*alpha,const blas_sparse_matrix*A,const float *b,const int*ldb,float *c,const int*ldc,int*istat);
+void blas_susmm_(enum blas_order_type*order,enum blas_trans_type*transA,int*nrhs,float*alpha,blas_sparse_matrix*A,const float *b,int*ldb,float *c,int*ldc,int*istat);
 
-int BLAS_dusmm(const enum blas_order_type order, const enum blas_trans_type transA,
-   const int nrhs, double alpha, const blas_sparse_matrix A, const double * b, const int ldb,
-       double *  c, const int ldc);
+int BLAS_dusmm(enum blas_order_type order, enum blas_trans_type transA,
+   int nrhs, double alpha, blas_sparse_matrix A, const double * b, int ldb,
+       double *  c, int ldc);
 
-void blas_dusmm_(const enum blas_order_type*order,const enum blas_trans_type*transA,const int*nrhs,double*alpha,const blas_sparse_matrix*A,const double *b,const int*ldb,double *c,const int*ldc,int*istat);
+void blas_dusmm_(enum blas_order_type*order,enum blas_trans_type*transA,int*nrhs,double*alpha,blas_sparse_matrix*A,const double *b,int*ldb,double *c,int*ldc,int*istat);
 
-int BLAS_cusmm(const enum blas_order_type order, const enum blas_trans_type transA,
-   const int nrhs, const void *alpha, const blas_sparse_matrix A, const void *b, const int ldb,
-       void * c, const int ldc);
+int BLAS_cusmm(enum blas_order_type order, enum blas_trans_type transA,
+   int nrhs, const void *alpha, blas_sparse_matrix A, const void *b, int ldb,
+       void * c, int ldc);
 
-void blas_cusmm_(const enum blas_order_type*order,const enum blas_trans_type*transA,const int*nrhs,const void *alpha,const blas_sparse_matrix*A,const void *b,const int*ldb,void *c,const int*ldc,int*istat);
+void blas_cusmm_(enum blas_order_type*order,enum blas_trans_type*transA,int*nrhs,const void *alpha,blas_sparse_matrix*A,const void *b,int*ldb,void *c,int*ldc,int*istat);
 
-int BLAS_zusmm(const enum blas_order_type order, const enum blas_trans_type transA,
-   const int nrhs, const void *alpha, const blas_sparse_matrix A, const void *b, const int ldb,
-       void * c, const int ldc);
+int BLAS_zusmm(enum blas_order_type order, enum blas_trans_type transA,
+   int nrhs, const void *alpha, blas_sparse_matrix A, const void *b, int ldb,
+       void * c, int ldc);
 
-void blas_zusmm_(const enum blas_order_type*order,const enum blas_trans_type*transA,const int*nrhs,const void *alpha,const blas_sparse_matrix*A,const void *b,const int*ldb,void *c,const int*ldc,int*istat);
+void blas_zusmm_(enum blas_order_type*order,enum blas_trans_type*transA,int*nrhs,const void *alpha,blas_sparse_matrix*A,const void *b,int*ldb,void *c,int*ldc,int*istat);
 
 
-int BLAS_sussm(const enum blas_order_type order, const enum blas_trans_type transT,
-               const int nrhs, float alpha, const blas_sparse_matrix T, float * b, const int ldb);
+int BLAS_sussm(enum blas_order_type order, enum blas_trans_type transT,
+               int nrhs, float alpha, blas_sparse_matrix T, float * b, int ldb);
 
-void blas_sussm_(const enum blas_order_type*order,const enum blas_trans_type*transT,const int*nrhs,float*alpha,const blas_sparse_matrix*T,float *b,const int*ldb,int*istat);
+void blas_sussm_(enum blas_order_type*order,enum blas_trans_type*transT,int*nrhs,float*alpha,blas_sparse_matrix*T,float *b,int*ldb,int*istat);
 
-int BLAS_dussm(const enum blas_order_type order, const enum blas_trans_type transT,
-               const int nrhs, double alpha, const blas_sparse_matrix T, double * b, const int ldb);
+int BLAS_dussm(enum blas_order_type order, enum blas_trans_type transT,
+               int nrhs, double alpha, blas_sparse_matrix T, double * b, int ldb);
 
-void blas_dussm_(const enum blas_order_type*order,const enum blas_trans_type*transT,const int*nrhs,double*alpha,const blas_sparse_matrix*T,double *b,const int*ldb,int*istat);
+void blas_dussm_(enum blas_order_type*order,enum blas_trans_type*transT,int*nrhs,double*alpha,blas_sparse_matrix*T,double *b,int*ldb,int*istat);
 
-int BLAS_cussm(const enum blas_order_type order, const enum blas_trans_type transT,
-               const int nrhs, const void *alpha, const blas_sparse_matrix T, void *b, const int ldb);
+int BLAS_cussm(enum blas_order_type order, enum blas_trans_type transT,
+               int nrhs, const void *alpha, blas_sparse_matrix T, void *b, int ldb);
 
-void blas_cussm_(const enum blas_order_type*order,const enum blas_trans_type*transT,const int*nrhs,const void *alpha,const blas_sparse_matrix*T,void *b,const int*ldb,int*istat);
+void blas_cussm_(enum blas_order_type*order,enum blas_trans_type*transT,int*nrhs,const void *alpha,blas_sparse_matrix*T,void *b,int*ldb,int*istat);
 
-int BLAS_zussm(const enum blas_order_type order, const enum blas_trans_type transT,
-               const int nrhs, const void *alpha, const blas_sparse_matrix T, void *b, const int ldb);
+int BLAS_zussm(enum blas_order_type order, enum blas_trans_type transT,
+               int nrhs, const void *alpha, blas_sparse_matrix T, void *b, int ldb);
 
-void blas_zussm_(const enum blas_order_type*order,const enum blas_trans_type*transT,const int*nrhs,const void *alpha,const blas_sparse_matrix*T,void *b,const int*ldb,int*istat);
+void blas_zussm_(enum blas_order_type*order,enum blas_trans_type*transT,int*nrhs,const void *alpha,blas_sparse_matrix*T,void *b,int*ldb,int*istat);
 
 
                /* Handle Management Routines */
@@ -473,14 +471,14 @@ void blas_uscr_end_(blas_sparse_matrix*A,int*istat);
 int BLAS_usds(blas_sparse_matrix A);
 void blas_usds_(blas_sparse_matrix*A,int*istat);
 
-int BLAS_susrows_scale(blas_sparse_matrix A,const float *  d, const enum blas_trans_type trans);
-void blas_susrows_scale_(blas_sparse_matrix*A,const float *d,const enum blas_trans_type*trans,int*istat);
-int BLAS_dusrows_scale(blas_sparse_matrix A,const double *  d, const enum blas_trans_type trans);
-void blas_dusrows_scale_(blas_sparse_matrix*A,const double *d,const enum blas_trans_type*trans,int*istat);
-int BLAS_cusrows_scale(blas_sparse_matrix A,const void * d, const enum blas_trans_type trans);
-void blas_cusrows_scale_(blas_sparse_matrix*A,const void *d,const enum blas_trans_type*trans,int*istat);
-int BLAS_zusrows_scale(blas_sparse_matrix A,const void * d, const enum blas_trans_type trans);
-void blas_zusrows_scale_(blas_sparse_matrix*A,const void *d,const enum blas_trans_type*trans,int*istat);
+int BLAS_susrows_scale(blas_sparse_matrix A,const float *  d, enum blas_trans_type trans);
+void blas_susrows_scale_(blas_sparse_matrix*A,const float *d,enum blas_trans_type*trans,int*istat);
+int BLAS_dusrows_scale(blas_sparse_matrix A,const double *  d, enum blas_trans_type trans);
+void blas_dusrows_scale_(blas_sparse_matrix*A,const double *d,enum blas_trans_type*trans,int*istat);
+int BLAS_cusrows_scale(blas_sparse_matrix A,const void * d, enum blas_trans_type trans);
+void blas_cusrows_scale_(blas_sparse_matrix*A,const void *d,enum blas_trans_type*trans,int*istat);
+int BLAS_zusrows_scale(blas_sparse_matrix A,const void * d, enum blas_trans_type trans);
+void blas_zusrows_scale_(blas_sparse_matrix*A,const void *d,enum blas_trans_type*trans,int*istat);
 
 int BLAS_susget_diag(blas_sparse_matrix A,float *  d);
 void blas_susget_diag_(blas_sparse_matrix*A,float *d,int*istat);
@@ -491,23 +489,23 @@ void blas_cusget_diag_(blas_sparse_matrix*A,void *d,int*istat);
 int BLAS_zusget_diag(blas_sparse_matrix A,void * d);
 void blas_zusget_diag_(blas_sparse_matrix*A,void *d,int*istat);
 
-int BLAS_susget_rows_nnz(blas_sparse_matrix A, const int fr, const int lr, int * nnzp);
-void blas_susget_rows_nnz_(blas_sparse_matrix*A,const int*fr,const int*lr,int *nnzp,int*istat);
-int BLAS_dusget_rows_nnz(blas_sparse_matrix A, const int fr, const int lr, int * nnzp);
-void blas_dusget_rows_nnz_(blas_sparse_matrix*A,const int*fr,const int*lr,int *nnzp,int*istat);
-int BLAS_cusget_rows_nnz(blas_sparse_matrix A, const int fr, const int lr, int * nnzp);
-void blas_cusget_rows_nnz_(blas_sparse_matrix*A,const int*fr,const int*lr,int *nnzp,int*istat);
-int BLAS_zusget_rows_nnz(blas_sparse_matrix A, const int fr, const int lr, int * nnzp);
-void blas_zusget_rows_nnz_(blas_sparse_matrix*A,const int*fr,const int*lr,int *nnzp,int*istat);
+int BLAS_susget_rows_nnz(blas_sparse_matrix A, int fr, int lr, int * nnzp);
+void blas_susget_rows_nnz_(blas_sparse_matrix*A,int*fr,int*lr,int *nnzp,int*istat);
+int BLAS_dusget_rows_nnz(blas_sparse_matrix A, int fr, int lr, int * nnzp);
+void blas_dusget_rows_nnz_(blas_sparse_matrix*A,int*fr,int*lr,int *nnzp,int*istat);
+int BLAS_cusget_rows_nnz(blas_sparse_matrix A, int fr, int lr, int * nnzp);
+void blas_cusget_rows_nnz_(blas_sparse_matrix*A,int*fr,int*lr,int *nnzp,int*istat);
+int BLAS_zusget_rows_nnz(blas_sparse_matrix A, int fr, int lr, int * nnzp);
+void blas_zusget_rows_nnz_(blas_sparse_matrix*A,int*fr,int*lr,int *nnzp,int*istat);
 
-int BLAS_susget_rows_sparse(blas_sparse_matrix A, float *  VA, int * IA, int * JA, int * nnz, const int fr, const int lr);
-void blas_susget_rows_sparse_(blas_sparse_matrix*A,float *VA,int *IA,int *JA,int *nnz,const int*fr,const int*lr,int*istat);
-int BLAS_dusget_rows_sparse(blas_sparse_matrix A, double *  VA, int * IA, int * JA, int * nnz, const int fr, const int lr);
-void blas_dusget_rows_sparse_(blas_sparse_matrix*A,double *VA,int *IA,int *JA,int *nnz,const int*fr,const int*lr,int*istat);
-int BLAS_cusget_rows_sparse(blas_sparse_matrix A, void * VA, int * IA, int * JA, int * nnz, const int fr, const int lr);
-void blas_cusget_rows_sparse_(blas_sparse_matrix*A,void *VA,int *IA,int *JA,int *nnz,const int*fr,const int*lr,int*istat);
-int BLAS_zusget_rows_sparse(blas_sparse_matrix A, void * VA, int * IA, int * JA, int * nnz, const int fr, const int lr);
-void blas_zusget_rows_sparse_(blas_sparse_matrix*A,void *VA,int *IA,int *JA,int *nnz,const int*fr,const int*lr,int*istat);
+int BLAS_susget_rows_sparse(blas_sparse_matrix A, float *  VA, int * IA, int * JA, int * nnz, int fr, int lr);
+void blas_susget_rows_sparse_(blas_sparse_matrix*A,float *VA,int *IA,int *JA,int *nnz,int*fr,int*lr,int*istat);
+int BLAS_dusget_rows_sparse(blas_sparse_matrix A, double *  VA, int * IA, int * JA, int * nnz, int fr, int lr);
+void blas_dusget_rows_sparse_(blas_sparse_matrix*A,double *VA,int *IA,int *JA,int *nnz,int*fr,int*lr,int*istat);
+int BLAS_cusget_rows_sparse(blas_sparse_matrix A, void * VA, int * IA, int * JA, int * nnz, int fr, int lr);
+void blas_cusget_rows_sparse_(blas_sparse_matrix*A,void *VA,int *IA,int *JA,int *nnz,int*fr,int*lr,int*istat);
+int BLAS_zusget_rows_sparse(blas_sparse_matrix A, void * VA, int * IA, int * JA, int * nnz, int fr, int lr);
+void blas_zusget_rows_sparse_(blas_sparse_matrix*A,void *VA,int *IA,int *JA,int *nnz,int*fr,int*lr,int*istat);
 
 int BLAS_susget_matrix_nnz(blas_sparse_matrix A,int * nnz);
 void blas_susget_matrix_nnz_(blas_sparse_matrix*A,int *nnz,int*istat);
@@ -518,55 +516,53 @@ void blas_cusget_matrix_nnz_(blas_sparse_matrix*A,int *nnz,int*istat);
 int BLAS_zusget_matrix_nnz(blas_sparse_matrix A,int * nnz);
 void blas_zusget_matrix_nnz_(blas_sparse_matrix*A,int *nnz,int*istat);
 
-int BLAS_susget_infinity_norm(blas_sparse_matrix A,float * in, const enum blas_trans_type trans);
-void blas_susget_infinity_norm_(blas_sparse_matrix*A,float *in,const enum blas_trans_type*trans,int*istat);
-int BLAS_dusget_infinity_norm(blas_sparse_matrix A,double * in, const enum blas_trans_type trans);
-void blas_dusget_infinity_norm_(blas_sparse_matrix*A,double *in,const enum blas_trans_type*trans,int*istat);
-int BLAS_cusget_infinity_norm(blas_sparse_matrix A,void *in, const enum blas_trans_type trans);
-void blas_cusget_infinity_norm_(blas_sparse_matrix*A,void *in,const enum blas_trans_type*trans,int*istat);
-int BLAS_zusget_infinity_norm(blas_sparse_matrix A,void *in, const enum blas_trans_type trans);
-void blas_zusget_infinity_norm_(blas_sparse_matrix*A,void *in,const enum blas_trans_type*trans,int*istat);
+int BLAS_susget_infinity_norm(blas_sparse_matrix A,float * in, enum blas_trans_type trans);
+void blas_susget_infinity_norm_(blas_sparse_matrix*A,float *in,enum blas_trans_type*trans,int*istat);
+int BLAS_dusget_infinity_norm(blas_sparse_matrix A,double * in, enum blas_trans_type trans);
+void blas_dusget_infinity_norm_(blas_sparse_matrix*A,double *in,enum blas_trans_type*trans,int*istat);
+int BLAS_cusget_infinity_norm(blas_sparse_matrix A,void *in, enum blas_trans_type trans);
+void blas_cusget_infinity_norm_(blas_sparse_matrix*A,void *in,enum blas_trans_type*trans,int*istat);
+int BLAS_zusget_infinity_norm(blas_sparse_matrix A,void *in, enum blas_trans_type trans);
+void blas_zusget_infinity_norm_(blas_sparse_matrix*A,void *in,enum blas_trans_type*trans,int*istat);
 
-int BLAS_susset_elements(blas_sparse_matrix A,const int * ia, const int *ja, const float *  va, const int nnz);
-void blas_susset_elements_(blas_sparse_matrix*A,const int *ia,const int *ja,const float *va,const int*nnz,int*istat);
-int BLAS_dusset_elements(blas_sparse_matrix A,const int * ia, const int *ja, const double *  va, const int nnz);
-void blas_dusset_elements_(blas_sparse_matrix*A,const int *ia,const int *ja,const double *va,const int*nnz,int*istat);
-int BLAS_cusset_elements(blas_sparse_matrix A,const int * ia, const int *ja, const void * va, const int nnz);
-void blas_cusset_elements_(blas_sparse_matrix*A,const int *ia,const int *ja,const void *va,const int*nnz,int*istat);
-int BLAS_zusset_elements(blas_sparse_matrix A,const int * ia, const int *ja, const void * va, const int nnz);
-void blas_zusset_elements_(blas_sparse_matrix*A,const int *ia,const int *ja,const void *va,const int*nnz,int*istat);
+int BLAS_susset_elements(blas_sparse_matrix A,const int * ia, const int *ja, const float *  va, int nnz);
+void blas_susset_elements_(blas_sparse_matrix*A,const int *ia,const int *ja,const float *va,int*nnz,int*istat);
+int BLAS_dusset_elements(blas_sparse_matrix A,const int * ia, const int *ja, const double *  va, int nnz);
+void blas_dusset_elements_(blas_sparse_matrix*A,const int *ia,const int *ja,const double *va,int*nnz,int*istat);
+int BLAS_cusset_elements(blas_sparse_matrix A,const int * ia, const int *ja, const void * va, int nnz);
+void blas_cusset_elements_(blas_sparse_matrix*A,const int *ia,const int *ja,const void *va,int*nnz,int*istat);
+int BLAS_zusset_elements(blas_sparse_matrix A,const int * ia, const int *ja, const void * va, int nnz);
+void blas_zusset_elements_(blas_sparse_matrix*A,const int *ia,const int *ja,const void *va,int*nnz,int*istat);
 
-int BLAS_susset_element(blas_sparse_matrix A,const int i, const int j, float *  v);
-void blas_susset_element_(blas_sparse_matrix*A,const int*i,const int*j,float *v,int*istat);
-int BLAS_dusset_element(blas_sparse_matrix A,const int i, const int j, double *  v);
-void blas_dusset_element_(blas_sparse_matrix*A,const int*i,const int*j,double *v,int*istat);
-int BLAS_cusset_element(blas_sparse_matrix A,const int i, const int j, void * v);
-void blas_cusset_element_(blas_sparse_matrix*A,const int*i,const int*j,void *v,int*istat);
-int BLAS_zusset_element(blas_sparse_matrix A,const int i, const int j, void * v);
-void blas_zusset_element_(blas_sparse_matrix*A,const int*i,const int*j,void *v,int*istat);
+int BLAS_susset_element(blas_sparse_matrix A,int i, int j, float *  v);
+void blas_susset_element_(blas_sparse_matrix*A,int*i,int*j,float *v,int*istat);
+int BLAS_dusset_element(blas_sparse_matrix A,int i, int j, double *  v);
+void blas_dusset_element_(blas_sparse_matrix*A,int*i,int*j,double *v,int*istat);
+int BLAS_cusset_element(blas_sparse_matrix A,int i, int j, void * v);
+void blas_cusset_element_(blas_sparse_matrix*A,int*i,int*j,void *v,int*istat);
+int BLAS_zusset_element(blas_sparse_matrix A,int i, int j, void * v);
+void blas_zusset_element_(blas_sparse_matrix*A,int*i,int*j,void *v,int*istat);
 
-int BLAS_susget_element(blas_sparse_matrix A,const int i, const int j, float *  v);
-void blas_susget_element_(blas_sparse_matrix*A,const int*i,const int*j,float *v,int*istat);
-int BLAS_dusget_element(blas_sparse_matrix A,const int i, const int j, double *  v);
-void blas_dusget_element_(blas_sparse_matrix*A,const int*i,const int*j,double *v,int*istat);
-int BLAS_cusget_element(blas_sparse_matrix A,const int i, const int j, void * v);
-void blas_cusget_element_(blas_sparse_matrix*A,const int*i,const int*j,void *v,int*istat);
-int BLAS_zusget_element(blas_sparse_matrix A,const int i, const int j, void * v);
-void blas_zusget_element_(blas_sparse_matrix*A,const int*i,const int*j,void *v,int*istat);
-
-
+int BLAS_susget_element(blas_sparse_matrix A,int i, int j, float *  v);
+void blas_susget_element_(blas_sparse_matrix*A,int*i,int*j,float *v,int*istat);
+int BLAS_dusget_element(blas_sparse_matrix A,int i, int j, double *  v);
+void blas_dusget_element_(blas_sparse_matrix*A,int*i,int*j,double *v,int*istat);
+int BLAS_cusget_element(blas_sparse_matrix A,int i, int j, void * v);
+void blas_cusget_element_(blas_sparse_matrix*A,int*i,int*j,void *v,int*istat);
+int BLAS_zusget_element(blas_sparse_matrix A,int i, int j, void * v);
+void blas_zusget_element_(blas_sparse_matrix*A,int*i,int*j,void *v,int*istat);
 
 
 
 
-#define BLAS_ussp rsb__wp__BLAS_ussp
-#define BLAS_usgp rsb__wp__BLAS_usgp
+
+
+#define BLAS_ussp rsb_wp__BLAS_ussp
+#define BLAS_usgp rsb_wp__BLAS_usgp
 int BLAS_ussp( blas_sparse_matrix A, int pname );
 int BLAS_usgp( blas_sparse_matrix A, int pname );
+blas_sparse_matrix rsb_load_spblas_matrix_file_as_matrix_market(const rsb_char_t * filename, rsb_type_t typecode ); /* This is a librsb extension. */
 
-
-
-blas_sparse_matrix rsb_blas_file_mtx_load(const rsb_char_t * filename, rsb_type_t typecode ); /* This is a librsb extension. */
 
 
 struct rsb_mtx_t * rsb_blas_get_mtx(blas_sparse_matrix A);

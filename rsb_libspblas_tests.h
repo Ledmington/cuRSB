@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -35,12 +35,10 @@ struct rsb_tester_options_t{
 	rsb_bool_t wqt; /* want quiet testing */
 	rsb_bool_t wqc; /* want quiet conditionally (on no tty) */
 	rsb_bool_t wcs; /* want clear screen */
-	rsb_bool_t wvr; /* want verbose reporting */
-	rsb_bool_t wnl; /* want no limits testing */
 };
 rsb_err_t rsb_blas_tester_options_init(struct rsb_tester_options_t * top);
-rsb_err_t rsb_blas_mini_tester(const struct rsb_tester_options_t * top);
-rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * top);
+rsb_err_t rsb_blas_mini_tester(void);
+rsb_err_t rsb_blas_bigger_matrices_tester(struct rsb_tester_options_t * top);
 rsb_err_t rsb_blas_limit_cases_tester(void);
 rsb_err_t rsb_blas_runtime_limits_tester(void);
 #endif /* LIBSPBLAS_TESTS_H_INCLUDED */

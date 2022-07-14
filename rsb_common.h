@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -42,9 +42,6 @@ extern "C" {
  * Manipulate this file at your own risk.
  *
  */
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 600 /* fileno ... */
-#endif /* _XOPEN_SOURCE */
 #include <stdlib.h>	/* bsearch, calloc, malloc */
 #include <stdio.h>	/* printf */
 
@@ -61,15 +58,11 @@ extern "C" {
 #ifdef RSB_HAVE_UNISTD_H
 #include <unistd.h>	/* getopt, gethostname (some system don't have it here!) */
 #endif /* RSB_HAVE_UNISTD_H */
-#ifdef RSB_HAVE_GETOPT_LONG
-#ifdef RSB_HAVE_GETOPT_H
+#ifdef RSB_HAVE_GETOPT_H 
+/* RSB_HAVE_GETOPT_LONG */
 #include <getopt.h>	/* getopt_long is not always available (e.g.: on AIX, or any non GNU system) */
-#endif /* RSB_HAVE_GETOPT_H */
-           typedef struct option rsb_option_t;
-           struct rsb_option_struct {
-           	struct option ro;
-           };
-#else /* RSB_HAVE_GETOPT_LONG */
+typedef struct option rsb_option;
+#else /* RSB_HAVE_GETOPT_H  */
 /*#undef required_argument*/
 /*#undef no_argument*/
 /*#undef optional_argument*/
@@ -79,21 +72,18 @@ extern "C" {
        extern char *optarg;
        extern int optind, opterr, optopt;
 
-           struct rsb_option {
+           struct rsb_option_struct {
                const char *name;
                int         has_arg;
                int        *flag;
                int         val;
            };
-           typedef struct rsb_option rsb_option_t;
-           struct rsb_option_struct {
-               struct rsb_option ro;
-           };
 /*!
  * \ingroup gr_internals
  * \brief An internal, helper structure.
  */
-#endif /* RSB_HAVE_GETOPT_LONG */
+typedef struct rsb_option_struct rsb_option;
+#endif /* RSB_HAVE_GETOPT_H */
 #include <ctype.h>	/*isdigit*/
 
 /*
@@ -102,11 +92,9 @@ extern "C" {
 #define RSB_WITH_MM
 /*#undef RSB_WITH_MM*/
 
-#ifndef __cplusplus
 #ifdef RSB_WITH_MM
 #include "rsb_mmio.h"
 #endif /* RSB_WITH_MM */
-#endif /* __cplusplus */
 
 
 /* the NDEBUG and DEBUG symbols will affect lot of checking code */
@@ -147,7 +135,6 @@ typedef int rsb_int;
 #define RSB_FORTRAN_VERBOSE_CALLS 0		/**< */
 #define RSB_EXPERIMENTAL_WANT_PURE_BCSS 0	/**< EXPERIMENTAL : for BCSR, will prevent from allocating VBR arrays */
 #define RSB_EXPERIMENTAL_USE_PURE_BCSS  1	/**< EXPERIMENTAL : for BCSR, will prevent from using VBR arrays   */
-#define RSB_WANT_BCSC_LEAVES  0	/** */
 #define RSB_EXPERIMENTAL_USE_PURE_BCSS_FOR_CONSTRUCTOR  1	/**< EXPERIMENTAL : for BCSR, will prevent from using VBR arrays   */
 
 #define RSB_WANT_OMP_RECURSIVE_SPSV						1 	/**< EXPERIMENTAL  */
@@ -194,11 +181,6 @@ typedef int rsb_int;
 #define RSB_WANT_EARLY_PARALLEL_REGION_JUMPOUT_SPMV	1
 #define RSB_WANT_SM_TO_THREAD_MOD_MAPPING		1
 #define RSB_WANT_EARLY_PARALLEL_REGION_JUMPOUT_SPSV	1
-#define RSB_WANT_RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING 0
-
-#if defined(RSB_HAVE_GZFREAD) /* Binary input hack */
-#define RSB_WANT_EXPERIMENTAL_BINARY_COO 1
-#endif /* RSB_HAVE_GZFREAD */
 
 #define RSB_WANT_BITMAP 0
 	/** if RSB_WANT_BITMAP, should att to rsb_mtx_t:
@@ -261,7 +243,7 @@ struct rsb_options_t{
 	Do this only when debugging/developing, because it will slow down the code a lot, 
 */
 
-#define RSB_WANT_DEBUG_PARANOID_ASSERTS 1	/**< if 1, will activate a number of assert() calls which won't change the code flow but will check for anomalous error conditions */
+#define RSB_WANT_DEBUG_PARANOID_ASSERTS 0	/**< if 1, will activate a number of assert() calls which won't change the code flow but will check for anomalous error conditions */
 #if RSB_WANT_DEBUG_PARANOID_ASSERTS
 #define RSB_DEBUG_ASSERT(e) assert(e)
 #else /* RSB_WANT_DEBUG_PARANOID_ASSERTS */
@@ -617,11 +599,7 @@ struct rsb_options_t{
 	(BLOCKROWSVAR)=GET_BLOCK_HEIGHT(_i,(M));	/* the current block rows    count */			\
 	(BLOCKCOLSVAR)=GET_BLOCK_WIDTH( _j,(M)); 	/* the current block rows    count */			\
 	(BP)=(rsb_byte_t*)(RSB_BLOCK_ADDRESS((M),_k));										
-#if RSB_WANT_DBC
 #define RSB_GOT_LAST_BLOCK_POINTER(M)	( _lastk >= (M)->block_count )
-#else
-#define RSB_GOT_LAST_BLOCK_POINTER(M)	( _lastk >= (M)->nnz )
-#endif
 
 
 #define RSB_POINT_IN_BOX(R0,C0,RH,CW,R,C)	( ((R)>=(R0)) && (R)<((R0)+(RH)) && ((C)>=(C0)) && (C)<((C0)+(CW)) )
@@ -682,9 +660,6 @@ struct rsb_options_t{
 		(smi)<(MTXAP)->all_leaf_matrices_n;					\
 			++(smi),submatrix=(MTXAP)->all_leaf_matrices[smi].mtxlp)	\
 */
-
-#define RSB_SUBMATRIX_FOREACH_LEAF_IDX(MTXAP,smi) 				\
-	for(	smi = 0; smi < (MTXAP)->all_leaf_matrices_n ; ++smi)
 
 /* The following is correct, even if less elegant because of the bad style of assignment. */
 #define RSB_SUBMATRIX_FOREACH_LEAF(MTXAP,submatrix,smi) 				\
@@ -753,11 +728,11 @@ struct rsb_options_t{
 #define RSB_BCSC_MATRIX_FOREACH_BLOCK(matrix,blockpointer,bri,bci,blockindex,baserow,basecolumn)	\
 	RSB_BCSS_MATRIX_FOREACH_BLOCK(matrix,blockpointer,bci,bri,blockindex,basecolumn,baserow,matrix->bc,matrix->br)
 
-#define RSB_CONST_ENOUGH_BYTES_FOR_ANY_TYPE RSB_MAX(RSB__MAX_SIZEOF,32)	/** max currently supported sizeof */
+#define RSB_CONST_ENOUGH_BYTES_FOR_ANY_TYPE 32 /** should adapt this in case of need */
 #define RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE (RSB_CONST_ENOUGH_BYTES_FOR_ANY_TYPE/sizeof(rsb_aligned_t))	/** should adapt this in case of need */
 
 
-#define RSB_INTERNAL_FLAG_CSR_SORTING_MASK (RSB_FLAG_QUAD_PARTITIONING) /* TODO: abandon this */
+#define RSB_INTERNAL_FLAG_CSR_SORTING_MASK (RSB_FLAG_QUAD_PARTITIONING | RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING)
 
 #define RSB_DO_FLAGS_EXTRACT_STORAGE(F)	 ( \
 		/*((F) & RSB_FLAG_WANT_LINKED_STORAGE) */ 0 | \
@@ -837,6 +812,7 @@ rsb_err_t rsb_do_spmv(rsb_trans_t transA, const void *alphap, const struct rsb_m
 #define RSB_XCOO_VADD(X,V,LI,UI) {rsb_coo_idx_t i; for(i=(LI);RSB_LIKELY((i)<(UI));++i)(X)[(i)]+=(V);}
 #define RSB_XCOO_IREN	/* TODO: to write one */
 
+#define RSB_NNZ_OF(MTXAP) ((MTXAP)?((MTXAP)->nnz):0)
 #define RSB_TYPED_OFF_PTR(TYPECODE,VA,OFF) (((rsb_byte_t*)(VA))+(((size_t)(RSB_SIZEOF(TYPECODE))*(OFF))))
 #define RSB_COO_LT(I1,J1,I2,J2) ( (I1) < (I2) || ( (I1) == (I2) && ( (J1) < (J2) ) ) )
 #define RSB_COO_GT(I1,J1,I2,J2) RSB_COO_LT(I2,J2,I1,J1)
@@ -871,7 +847,6 @@ struct rsb_memory_level_t
 #define RSB_MIN_THREAD_BZERO_BYTES 8192		/* minimal count of nonzeros to bzero for a thread during parallel bzero */
 #define RSB_MIN_THREAD_XAXPY_NNZ 256 /* 1024 */		/* minimal count of elements for a parallel vector-vector operation */
 #define RSB_MIN_THREAD_SORT_NNZ 256		/* minimal count of nonzeros to sort for a thread during parallel sort */
-#define RSB_MIN_NNZ_FOR_PARALLEL_ADD_TO_DENSE 100000
 
 #define RSB_POWER_OF_2(N) (1<<(N))
 #define RSB_FRAC(Q,D) (((Q)+((D)-1))/(D))
@@ -887,9 +862,6 @@ struct rsb_memory_level_t
 #define RSB_WANT_LIBRSB_TIMER 0
 #endif
 
-#define RSB_WANT_SPMV_TRACE RSB_ALLOW_INTERNAL_GETENVS /* internal, undocumented */
-#define RSB_WANT_COO2RSB_THREADS RSB_ALLOW_INTERNAL_GETENVS /* internal, undocumented */
-#define RSB_WANT_CACHE_TIMER_GRANULARITY 1 /* internal, undocumented */
 
 /*!
  * \ingroup gr_internals
@@ -903,7 +875,6 @@ struct rsb_session_handle_t
 	 * */
 	size_t allocated_memory;			/* total of allocated memory, in bytes */
 	size_t allocations_count;		/* total number of current allocations */
-	size_t allocations_cumulative;		/* cumulative number of memory allocations */
 	#endif /* RSB_DISABLE_ALLOCATOR_WRAPPER */
 	size_t min_leaf_matrix_bytes;		/*  */
 	size_t avg_leaf_matrix_bytes;		/*  */
@@ -941,29 +912,13 @@ struct rsb_session_handle_t
 	rsb_time_t etime;
 #endif /* RSB_WANT_LIBRSB_TIMER */
 	rsb_int_t verbose_tuning;		/*  */
-#if RSB_USE_LIBRSBPP
-	rsb_int_t use_rsbpp; /*  */
-#endif /* RSB_USE_LIBRSBPP */
-#if RSB_USE_MKL
-	rsb_int_t use_mkl; /*  */
-#endif /* RSB_USE_MKL */
-#if RSB_WANT_SPMV_TRACE
-	rsb_int_t want_spmv_trace; /* allow EPS plots as traces from SpMV / SpMM's */
-#endif /* RSB_WANT_SPMV_TRACE */
-#ifdef RSB_WANT_COO2RSB_THREADS
-	size_t coo2rsb_threads; /* */
-#endif /* RSB_WANT_COO2RSB_THREADS */
-#ifdef RSB_WANT_CACHE_TIMER_GRANULARITY
-	rsb_time_t timer_granularity; /* */
-#endif /* RSB_WANT_CACHE_TIMER_GRANULARITY */
 };
 
 #define RSB_INTERNALS_COMMON_HEAD_DECLS extern struct rsb_session_handle_t rsb_global_session_handle;
 #define RSB_DO_ERROR_CUMULATE(ERRVAL,ERRFLAG) RSB_DO_FLAG_ADD((ERRVAL),(ERRFLAG))
 
 #define RSB_IF_NOT_NULL_CAST_TO(P,TYPE,FALLBACK) ((P)?*(TYPE*)(P):(FALLBACK))
-#define RSB_SET_TO_CASTED(V,P,TYPE) {(V)=*(TYPE*)(P);}
-#define RSB_IF_NOT_NULL_SET_TO_CASTED(V,P,TYPE) {if((P)!=NULL)RSB_SET_TO_CASTED(V,P,TYPE)}
+#define RSB_IF_NOT_NULL_SET_TO_CASTED(V,P,TYPE) {if((P)!=NULL){(V)=*(TYPE*)(P);}}
 #define RSB_IF_NOT_NULL_GET_TO_CASTED(V,P,TYPE) {if((P)!=NULL){*(TYPE*)(P)=(V);}}
 #define RSB_IF_NOT_NULL_GET_SET_TO_CASTED(V,P,TYPE,F,ERRVAL)	{	\
 	switch(F){							\
@@ -981,11 +936,7 @@ struct rsb_session_handle_t
 #define RSB_BLAS_ERROR_WRONG_USGP_ARG RSB_BLAS_ERROR			/* TODO: spread usage of this throughout the code */
 
 #define RSB_SET_IF_NOT_NULL(P,V) if((P)!=NULL)*(P)=V
-#ifdef RSB_WANT_LONG_IDX_TYPE 
-typedef RSB_WANT_LONG_IDX_TYPE rsb_blas_int_t;
-#else /* RSB_WANT_LONG_IDX_TYPE */
-typedef int                    rsb_blas_int_t;
-#endif /* RSB_WANT_LONG_IDX_TYPE */
+typedef int rsb_blas_int_t;
 typedef double rsb_aligned_t;	/* see RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE and RSB_CONST_ENOUGH_BYTES_FOR_ANY_TYPE */
 
 
@@ -994,30 +945,19 @@ typedef double rsb_aligned_t;	/* see RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE and R
 /*!
  Macros to get indices types liminal values, configuration-dependent.
 */
- #define RSB_COO_HALF_BITS_SIZE	((sizeof(rsb_half_idx_t)*RSB_CHAR_BIT)) /* new: assuming RSB_COO_HALF_BITS_SIZE	refers to rsb_half_idx_t */
- /*#define RSB_COO_HALF_BITS_SIZE	((sizeof(rsb_coo_idx_t)*RSB_CHAR_BIT)/2) */ /* old: assuming rsb_half_idx_t is half of rsb_coo_idx_t */
+ #define RSB_COO_HALF_BITS_SIZE	((sizeof(rsb_coo_idx_t)*RSB_CHAR_BIT)/2)
 
 #define RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS {int ___foo=1;++___foo;}/* will avoid things like error: label at end of compound statement */
 
 #if RSB_WANT_ZLIB_SUPPORT
-#define RSB_FOPEN(X,Y) (FILE*)gzopen((X),(Y))
-#define RSB_FCLOSE(X) gzclose((gzFile)(X))
-#define RSB_GETC(X) gzgetc((gzFile)X)
-#define RSB_UNGETC(X,Y) gzungetc(X,(gzFile)Y)
-#define RSB_FREAD(BUF,SIZE,NITEMS,FILE) gzfread(BUF,SIZE,NITEMS,FILE)
+#define RSB_FOPEN(X,Y) gzopen((X),(Y))
+#define RSB_FCLOSE(X) gzclose(X)
 #else /* RSB_WANT_ZLIB_SUPPORT */
 #define RSB_FOPEN(X,Y) fopen((X),(Y))
 #define RSB_FCLOSE(X) fclose(X)
-#define RSB_GETC(X) getc(X)
-#define RSB_UNGETC ungetc
-#define RSB_FREAD(BUF,SIZE,NITEMS,FILE) fread(BUF,SIZE,NITEMS,FILE)
 #endif /* RSB_WANT_ZLIB_SUPPORT */
 
-#define RSB_EMPTY_FILE_FILLER \
-	static void foo(void);		\
-	static void baz(void);		\
-	static void baz(void){foo();}	\
-	static void foo(void){baz();}	/* We want: no empty translation unit; no used function.. */
+#define RSB_EMPTY_FILE_FILLER static int foo(void){return 0;}
 
 #define RSB_DECLARE_COO_ARRAYS_FROM_MATRIX(IA,JA,MATRIX,TYPE) 	\
 		TYPE *IA=(TYPE*)(MATRIX)->bpntr;			\
@@ -1084,7 +1024,7 @@ typedef double rsb_aligned_t;	/* see RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE and R
 /*!
  * \brief Auxiliary structure for a coo-stored matrix (usually for temporary operations).
  * */
-struct rsb_coo_mtx_t{
+struct rsb_coo_matrix_t{
 	rsb_coo_idx_t * IA, * JA;/** row and columns indices */
 	rsb_coo_idx_t nr,nc;	/** matrix (declared) nonzeros */
 	rsb_nnz_idx_t nnz;	/** matrix rows, columns */
@@ -1109,8 +1049,8 @@ struct rsb_coo_mtx_t{
 		(COOP)->IA=(MTXAP)->bpntr;	\
 		(COOP)->JA=(MTXAP)->bindx;	}
 
-#define RSB_FLAG_ANY_SYMMETRY				(RSB_FLAG_HERMITIAN|RSB_FLAG_SYMMETRIC)
-#define RSB_FLAG_ALL_STRUCTURAL_FLAGS	(RSB_FLAG_ANY_SYMMETRY|RSB_FLAG_DIAGONAL|RSB_FLAG_TRIANGULAR|RSB_FLAG_UNIT_DIAG_IMPLICIT)
+#define RSB_FLAG_SOME_SYMMETRY				(RSB_FLAG_HERMITIAN|RSB_FLAG_SYMMETRIC)
+#define RSB_FLAG_ALL_STRUCTURAL_FLAGS	(RSB_FLAG_SOME_SYMMETRY|RSB_FLAG_DIAGONAL|RSB_FLAG_TRIANGULAR|RSB_FLAG_UNIT_DIAG_IMPLICIT)
 #define RSB_FLAG_ALL_DUPLICATE_FLAGS	(RSB_FLAG_DUPLICATES_KEEP_LAST|RSB_FLAG_DUPLICATES_SUM)
 #define RSB_DUMMY_ID		rsb_dummy_id
 #define RSB_DUMMY_MTX		(NULL)
@@ -1151,7 +1091,6 @@ else \
 if(RSB_DO_FLAG_HAS((V),RSB_FLAG_LOWER)) \
 	RSB_DO_FLAG_ADD((V),RSB_FLAG_UPPER),RSB_DO_FLAG_DEL((V),RSB_FLAG_LOWER); \
 }
-#define RSB__ERR_FLAG_DEL(V,F)	RSB_DO_FLAG_DEL((V),(F))
 #define RSB_PERR_GOTO(LABEL,...) {RSB_ERROR(__VA_ARGS__);goto LABEL;}
 #define RSB_SERR_GOTO(LABEL)     {goto LABEL;}
 
@@ -1193,8 +1132,8 @@ typedef rsb_flags_t rsb_order_t;
 
 
 #if 0
-/** if set, the matrix .. (remember to unindent it if active) */
- #define RSB_FLAG_WANT_RECURSIVELY_NON_UNIFORM_AUTO_BLOCKING 0x000200	/* experimental, but works well */
+/** if set, the matrix ..  */ 
+#define RSB_FLAG_WANT_RECURSIVELY_NON_UNIFORM_AUTO_BLOCKING 0x000200	/* experimental, but works well */
 #endif /* 0 */
 
 /** if set, the matrix will take possession of partitioning arrays p_r and p_c on input. if unset, a copy will be made	*/ 
@@ -1235,8 +1174,8 @@ typedef rsb_flags_t rsb_order_t;
 /*#define RSB_FLAG_RECURSIVE_SHRINK_BOUNDING_BOX		0x40000000*/
 
 #if 0
-/* only flags left :  (remember to unindent it if active)*/
- #define RSB_FLAG_ALLOW_PARALLEL_OPERATION		0x40000000		/* NEW : UNUSED */
+/* only flags left :  */
+#define RSB_FLAG_ALLOW_PARALLEL_OPERATION		0x40000000		/* NEW : UNUSED */
 #endif /* 0 */
 
 #if 0
@@ -1265,7 +1204,7 @@ struct rsb_mtx_partitioning_info_t
 };
 
 
-typedef signed   long rsb_long_t;
+typedef signed   long rsb_long_t;		/* FIXME :internals, (still) unused */
 
 #define	RSB_OP_FLAG_DIAGONAL_OVERRIDE_EXPLICIT__VAL 0x10
 #define RSB_OP_FLAG_WANT_SERIAL__VAL 0x2
@@ -1286,12 +1225,6 @@ enum rsb_op_flags_t { 	RSB_OP_FLAG_DEFAULT=0x1, /* normal operation */
        			RSB_OP_FLAG_DIAGONAL_OVERRIDE_EXPLICIT_SERIAL=RSB_OP_FLAG_DIAGONAL_OVERRIDE_EXPLICIT_SERIAL_VAL,
        			RSB_OP_FLAG_WANT_TRACE_PLOT=0x10
 			};
-
-struct rsb_optrace_t {
-	/*! Submatrices operation time */
-	rsb_time_t t0, t1;
-	rsb_int_t th_id;
-};
 
 #define RSB_BLOCK_ROWMAJOR_ADDRESS(P,LDP,NR,NC,R,C,ES) \
 	((rsb_char_t*)P)+((size_t)(ES))*((LDP)*(R)+(C))
@@ -1315,7 +1248,7 @@ struct rsb_optrace_t {
 #define RSB_DO_THREADS_PUSH(RNT)	{if((RNT)>0)rsb_set_num_threads(RNT); /* push */}
 #define RSB_DO_THREADS_POP(RNT,ORNT)	{if((RNT)>0)rsb_set_num_threads(ORNT); /* pop */}
 
-#if defined(RSB_WANT_RSB_NUM_THREADS) && (RSB_WANT_RSB_NUM_THREADS>1) /* Notice this branch is disabled (RSB_WANT_RSB_NUM_THREADS can't be >1), but RSB_NUM_THREADS is effective at rsb_lib_init() level */
+#if defined(RSB_WANT_RSB_NUM_THREADS) && (RSB_WANT_RSB_NUM_THREADS>0) 
 #define RSB_NUM_THREADS_DECL	const char * rnt_str = getenv("RSB_NUM_THREADS"); rsb_int_t ornt = rsb_get_num_threads(), rnt = (rnt_str? rsb__util_atoi(rnt_str) :0);
 #define RSB_NUM_THREADS_PUSH	{RSB_DO_THREADS_PUSH(rnt); /* push */}
 #define RSB_NUM_THREADS_POP	{RSB_DO_THREADS_POP(rnt,ornt); /* pop */}
@@ -1324,8 +1257,6 @@ struct rsb_optrace_t {
 #define RSB_NUM_THREADS_PUSH
 #define RSB_NUM_THREADS_POP
 #endif /* defined(RSB_WANT_RSB_NUM_THREADS) && (RSB_WANT_RSB_NUM_THREADS>0) */
-
-#define RSB__ENOUGH_NNZ_FOR_PARALLEL_SORT (RSB_MIN_THREAD_SORT_NNZ*rsb_get_num_threads())
 
 #if defined(RSB_BLAS_WANT_EXPERIMENTAL_TUNING)
 #define RSB_SPB_THREADS_PUSH	{RSB_DO_THREADS_PUSH(rnt); /* push */}
@@ -1353,35 +1284,46 @@ struct rsb_optrace_t {
 #define RSB_ERRMSG_BADCOO "bad input coo elements"
 #define RSB_INFOMSG_SAK "is a swiss army knife for testing the library functionality and performance"
 
-#define RSB_STDOUT_MATRIX_ESSENTIALS(M,MN,TN) RSB_STDOUT("%s\t%c\t%c\t%zd\t%zd\t%zd\t%zd",(const rsb_char_t*)rsb__basename(MN),rsb__do_get_symmetry_char(M),RSB_TRANSPOSITION_AS_CHAR(transA),(rsb_printf_int_t)(TN),(rsb_printf_int_t)(M)->nr,(rsb_printf_int_t)(M)->nc,(rsb_printf_int_t)(M)->nnz)
-#define RSB_FPRINTF_MATRIX_ESSENTIALS(FD,M,MN,TN) RSB_FPRINTF(FD,"%s\t%c\t%c\t%zd\t%zd\t%zd\t%zd",(const rsb_char_t*)rsb__basename(MN),rsb__do_get_symmetry_char(M),RSB_TRANSPOSITION_AS_CHAR(transA),(rsb_printf_int_t)(TN),(rsb_printf_int_t)(M)->nr,(rsb_printf_int_t)(M)->nc,(rsb_printf_int_t)(M)->nnz)
+#define RSB_WANT_COO_BEGIN 1 
+
+#if RSB_WANT_COO_BEGIN 
+#define RSB_MTX_HBDF(MTXAP) ((MTXAP)->RSB_MTX_BMF==RSB_MTX_BMV)
+#define RSB_MTX_HBDFH(MTXAP) ((MTXAP)->RSB_MTX_BDF)
+#define RSB_MTX_BDF nnz
+#define RSB_MTX_BMF nr
+#define RSB_MTX_BMV -1
+#endif /* RSB_WANT_COO_BEGIN */
+
+#define RSB_STDOUT_MATRIX_ESSENTIALS(M,MN,TN) RSB_STDOUT("%s\t%c\t%c\t%d\t%d\t%d\t%d",(const rsb_char_t*)rsb__basename(MN),rsb__do_get_symmetry_char(M),RSB_TRANSPOSITION_AS_CHAR(transA),TN,(M)->nr,(M)->nc,(M)->nnz)
+#define RSB_FPRINTF_MATRIX_ESSENTIALS(FD,M,MN,TN) RSB_FPRINTF(FD,"%s\t%c\t%c\t%d\t%d\t%d\t%d",(const rsb_char_t*)rsb__basename(MN),rsb__do_get_symmetry_char(M),RSB_TRANSPOSITION_AS_CHAR(transA),TN,(M)->nr,(M)->nc,(M)->nnz)
 #define RSB_FPINV(FPV) (1.0/(FPV))
 #define RSB_MILLION_I 1000000
 #define RSB_MILLION_F 1000000.0
 #define RSB_CLEARTERM_STRING "\x1B\x4D"
-#define RSB_MARKER_INT_VALUE (RSB_MAX_VALUE_FOR_TYPE(rsb_int_t)-RSB_NNZ_BLK_MAX)
 /*#define RSB_MAX_SHORTIDX_MATRIX_DIM (RSB_MAX_VALUE_FOR_TYPE(rsb_half_idx_t)-RSB_NNZ_BLK_MAX)*/
 #define RSB_MAX_SHORTIDX_MATRIX_DIM (RSB_MAX_VALUE_FOR_TYPE(rsb_half_idx_t))
 #define RSB_BENCH_PROG_OPTS \
-	    {"nthreads",	required_argument, NULL, 0x6E} /* n */
+	    {"nthreads",	required_argument, NULL, 0x6E},/* n */  
 #define RSB_MAX_ALLOCATABLE_MEMORY_CHUNK \
 ((size_t)((sizeof(void*)==sizeof(unsigned int))? RSB_MAX_VALUE_FOR_TYPE(unsigned int):RSB_MAX_VALUE_FOR_TYPE(size_t)))
 #define RSB_DOES_TRANSPOSE(TRANSA) ((TRANSA)!=RSB_TRANSPOSITION_N)
 #define RSB_DOES_NOT_TRANSPOSE(TRANSA) (!RSB_DOES_TRANSPOSE(TRANSA))
 #define RSB_DOES_CONJUGATE(TRANSA) ((TRANSA)==RSB_TRANSPOSITION_C)
 #define RSB_DOES_NOT_CONJUGATE(TRANSA) (!RSB_DOES_CONJUGATE(TRANSA))
-#define RSB_ELSE_IF_TRANSPOSE(NR,NC,TRANSA) (RSB_DOES_TRANSPOSE((TRANSA))?(NC):(NR))
+#define RSB_MTX_TRANSPOSED_ROWS(MTX,TRANSA) (RSB_DOES_TRANSPOSE((TRANSA))?(MTX)->nc:(MTX)->nr)
+#define RSB_MTX_TRANSPOSED_COLS(MTX,TRANSA) (RSB_DOES_TRANSPOSE((TRANSA))?(MTX)->nr:(MTX)->nc)
+#define RSB_MTX_DIAG_SIZE(MTX) RSB_MIN( (MTX)->nc,(MTX)->nr )
+#define RSB_MTX_DIAG_SIZE_BLK(MTX)  RSB_MTX_DIAG_SIZE_BLK(MTX) + RSB_NNZ_BLK_MAX
 
 #define RSB_ALLOW_ZERO_DIM RSB_MIN_MATRIX_DIM == 0
+#define RSB_ANY_MTX_DIM_ZERO(MTXAP) ((MTXAP) && (((MTXAP)->nr==0)||(MTXAP)->nc==0))
 
 #if defined(RSB_WANT_OMP_RECURSIVE_KERNELS) && (RSB_WANT_OMP_RECURSIVE_KERNELS>0)
 #define RSB_NT rsb_global_session_handle.rsb_g_threads
 #define RSB_NTC num_threads(RSB_NT)
-#define RSB__GET_MAX_THREADS() RSB_MIN(omp_get_max_threads(),RSB_NT) /* for use after rsb_lib_init */
 #else
 #define RSB_NT
 #define RSB_NTC
-#define RSB__GET_MAX_THREADS() RSB_NT /* for use after rsb_lib_init */
 #endif
 #define RSB_STORE_IDXSA 1
 
@@ -1394,38 +1336,6 @@ struct rsb_optrace_t {
 		*(DSTP) = (SRCV);		/* FIXME: move this declaration elsewhere */
 
 #define RSB_ASSIGN_IF(DSTP,SRCV) RSB_ASSIGN_IF_DP(DSTP,SRCV)
-
-#define RSB_RSBENCH_MAX_MTXFILES 256
-#define RSB_FAF_CHKDUP 0x01
-#define RSB_FAF_CHKFNP 0x02
-#define RSB_FAF_VRBSRC 0x04
-#define RSB_FAF_CHKREC 0x08
-#define RSB_FAF_VRBADD 0x10
-#define RSB_FAF_CHKMTX 0x20
-#define RSB_FAF_CHKEXS 0x40
-#define RSB_FAF_CHKGSS 0x80
-#define RSB_FAF_DEFAULTS RSB_FAF_CHKFNP|RSB_FAF_CHKDUP|RSB_FAF_CHKREC|RSB_FAF_VRBADD|RSB_FAF_CHKMTX|RSB_FAF_CHKEXS|RSB_FAF_CHKGSS 
-
-#define RSB__ERR_ZERO_INF_NORM RSB_ERR_CAST(0x40000)
-#define RSB__ERR_UNSUPPORTED_SYMM     RSB_ERR_UNSUPPORTED_TYPE
-#define RSB__ERR_UNSUPPORTED_TRANSA   RSB_ERR_UNSUPPORTED_TYPE
-#define RSB__ERR_UNSUPPORTED_IDX_TYPE RSB_ERR_UNSUPPORTED_FEATURE
-#define RSB__ERR_UNSUPPORTED_DIAG     RSB_ERR_UNSUPPORTED_FEATURE
-#define RSB__ERR_NO_SYM_SPSV          RSB_ERR_BADARGS
-#define RSB__ERR_CANTUPDATE_DIAGI     RSB_ERR_CAST(0x80000)
-
-#define RSB_MARF_NOFLAGS	(0x00000000)			/*!< */
-#define RSB_MARF_EPS_T	(0x00000200)			/*!< #rsb_marf_t Flag value for for limiting the rsb__dump_postscript_recursion_from_mtx_t plot to the submatrices times pointed by *otv and info from *pv. */
-#define RSB_MARF_EPS_O	(0x00000400)			/*!< #rsb_marf_t Combine this with RSB_MARF_EPS_L to get operands as well. */
-#define RSB_MARF_EPS_NO_TEXT	(0x00000800)			/*!< #rsb_marf_t No text in EPS. */
-#define RSB_MARF_LATEX_RECURSION	(0x00001000)			/*!< #rsb_marf_t Matrix recursion as LaTeX. */
-
-rsb_err_t rsb__adddir(rsb_char_t ** filenameap, rsb_int_t * filenamenp, const rsb_char_t * matrixpath, rsb_flags_t faflags);
-void rsb__setenv(const rsb_char_t * var_val);
-rsb_real_t rsb__getenv_real_t(const char*envv, const rsb_real_t altv);
-rsb_int_t rsb__getenv_int_t(const char*envv, const rsb_int_t altv);
-const rsb_char_t * rsb__getenv_str(const char*envv, const rsb_char_t* altv);
-rsb_char_t rsb__getenv_char(const char *envv, const rsb_char_t altv);
 
 #ifdef RSB_HAVE_ASSERT_H 
 #ifdef RSB_USE_ASSERT
@@ -1441,7 +1351,6 @@ rsb_char_t rsb__getenv_char(const char *envv, const rsb_char_t altv);
 #include "rsb_init.h"		/* initialization functions */
 #include "rsb_rec.h"		/* recursion handling functions */
 #include "rsb_permute.h"	/* permutation functions */
-#include "rsb_strmif.h"		
 #include "rsb_srt.h"		/* sorting functions */
 #include "rsb_mergesort.h"	/* sorting functions */
 #include "rsb_merge.h"		/* merging functions */
@@ -1486,7 +1395,6 @@ rsb_char_t rsb__getenv_char(const char *envv, const rsb_char_t altv);
 #include "rsb_swt.h"		/* switching format functions */
 #include "rsb_lock.h"		/* */
 #include "rsb_partition.h"	/* custom partitioning stuff (OBSOLETE) */
-#ifndef __cplusplus
 #include "rsb_krnl.h"		/* kernels rsb_krnlers */
 #include "rsb_krnl_vb.h"	/* vb specific functions */
 /* #include "libspblas_tests.h" */	/*  */
@@ -1496,7 +1404,6 @@ rsb_char_t rsb__getenv_char(const char *envv, const rsb_char_t altv);
 #include "rsb_bench.h"		/* performance info gathering code (OBSOLETE) */
 #include "rsb_spgemm.h"		/* sparse matrices multiplication */
 #include "rsb_spgemm_csr.h"	/* sparse matrices multiplication */
-#endif  /* __cplusplus */
 #include "rsb_spsum_misc.h"	/* sum of Sparse Matrices */
 #include "rsb_spsum.h"		/* Sum of Sparse Matrices */
 #include "rsb_spsv.h"		/* */

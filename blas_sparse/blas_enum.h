@@ -132,8 +132,6 @@ enum blas_rsb_ext_type {
             blas_rsb_spmv_t_autotuning_on   = 6664,	/*!< Turn on executing threads autotuning for transposed #BLAS_dusmv, #BLAS_zusmv, #BLAS_susmv, #BLAS_cusmv. See #blas_rsb_spmv_autotuning_on. (EXPERIMENTAL) */
             blas_rsb_spmv_t_autotuning_off  = 6665,	/*!< Turn on executing threads autotuning for transposed #BLAS_dusmv, #BLAS_zusmv, #BLAS_susmv, #BLAS_cusmv. See #blas_rsb_spmv_autotuning_on. (EXPERIMENTAL) */
             blas_rsb_autotune_next_operation= 6666,	/*!< Turn on executing threads autotuning for the next operation among #BLAS_dusmv, #BLAS_zusmv, #BLAS_susmv, #BLAS_cusmv). See #blas_rsb_spmv_autotuning_on. (EXPERIMENTAL) */
-            blas_rsb_rep_rec         = 9993,	/*!< Request/check for recursive representation. */
-            blas_rsb_rep_hwi         = 9994,	/*!< Request/check for half-word indices. */
             blas_rsb_rep_rsb         = 9995,	/*!< Request/check for RSB representation. */
             blas_rsb_rep_csr         = 9996,	/*!< Request/check for CSR representation. */
             blas_rsb_rep_coo         = 9997,	/*!< Request/check for COO representation. */

@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -30,6 +30,10 @@ If not, see <http://www.gnu.org/licenses/>.
 
 rsb_err_t rsb__util_is_valid_coo_array(const rsb_coo_idx_t * p, rsb_nnz_idx_t n)
 {
+	/*!
+		\ingroup gr_internals
+		FIXME : document.
+	*/
 	register rsb_nnz_idx_t k;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
@@ -46,21 +50,45 @@ err:
 		return errval;
 }
 
-static rsb_err_t rsb__util_are_valid_coo_arrays(const rsb_coo_idx_t * p, const rsb_coo_idx_t * q, rsb_nnz_idx_t n)
+rsb_err_t rsb__util_are_valid_coo_arrays(const rsb_coo_idx_t * p, const rsb_coo_idx_t * q, rsb_nnz_idx_t n)
 {
+	/*!
+		\ingroup gr_internals
+		FIXME : document.
+	*/
 	return
 		(rsb__util_is_valid_coo_array(p,n)==RSB_ERR_NO_ERROR && 
 		 rsb__util_is_valid_coo_array(q,n)==RSB_ERR_NO_ERROR ) ?
 		RSB_ERR_NO_ERROR : RSB_ERR_GENERIC_ERROR;
 }
 
-#define RSB_WANT_PINFO 0
+rsb_err_t rsb__util_is_sorted_coo_as_row_major(const void *VA, const rsb_coo_idx_t *IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags )
+{
+	/*!
+		\ingroup gr_internals
+	*/
+	RSB_DO_FLAG_DEL(flags,RSB_INTERNAL_FLAG_CSR_SORTING_MASK);	/* NEW */
 
-static rsb_err_t rsb__util_is_sorted_coo(const rsb_coo_idx_t *MIndx, const rsb_coo_idx_t * mIndx, rsb_nnz_idx_t nnz, rsb_type_t typecode/*, const struct rsb_mtx_partitioning_info_t * pinfop**/, rsb_flags_t flags )
+	if(!RSB_DO_FLAG_HAS(flags,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER))
+		return rsb__util_is_sorted_coo(VA,IA,JA,nnz,typecode,pinfop,flags);
+	else
+		return rsb__util_is_sorted_coo(VA,JA,IA,nnz,typecode,pinfop,flags);
+}
+
+rsb_err_t rsb__util_is_sorted_coo(const void *VA, const rsb_coo_idx_t *MIndx, const rsb_coo_idx_t * mIndx, rsb_nnz_idx_t nnz, rsb_type_t typecode, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags )
 {
 	/*!
 	 * \ingroup gr_internals
 	 * A function to check if a nonzeros array is block-sorted.
+	 *
+	 *	When calling this routine, make sure
+	 *	mIndx==IA
+	 *	MIndx==JA
+	 *	when !(flags & RSB_FLAG_WANT_COLUMN_MAJOR_ORDER)
+	 *	and 
+	 *	mIndx==JA
+	 *	MIndx==IA
+	 *	when flags & RSB_FLAG_WANT_COLUMN_MAJOR_ORDER 
 	 *
 	 *  FIXME : does it work with recursive ordering ?
 	 * \return 0 if sorted, an error code in the other cases.
@@ -71,70 +99,65 @@ static rsb_err_t rsb__util_is_sorted_coo(const rsb_coo_idx_t *MIndx, const rsb_c
 	rsb_nnz_idx_t k = 0;
 //	const rsb_coo_idx_t *IA = NULL,*JA = NULL;
 	const rsb_coo_idx_t *Mbndx = NULL,*mbndx = NULL;
-#if RSB_WANT_PINFO
 	rsb_coo_idx_t Mdim = 0,mdim = 0;
-#endif /* RSB_WANT_PINFO */
-#if RSB_WANT_RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING /* like RSB_OBSOLETE_QUARANTINE */
-	cosnt rsb_bool_t want_recursive_sort = flags & RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING;
-	rsb_coo_idx_t Mb = 1;
-	rsb_coo_idx_t Kb = 1;
-#endif
-
-	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER))
-	{
-		RSB_ERROR(RSB_ERRM_ES);
-		return RSB_ERR_UNSUPPORTED_FEATURE;
-	}
+	rsb_bool_t want_recursive_sort = flags & RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING;
+	rsb_coo_idx_t Mb = 1; rsb_coo_idx_t Kb = 1;
 	
-	if( !mIndx || !MIndx || nnz < 0 )
-	{
-		RSB_ERROR(RSB_ERRM_ES);
+	if(!VA || !mIndx || !MIndx || nnz < 0 || 0==(RSB_NUMERICAL_TYPE_SIZE(typecode)) )
 		return RSB_ERR_BADARGS;
-	}
-
-	if( 0 == (RSB_NUMERICAL_TYPE_SIZE(typecode)) )
-	{
-		RSB_ERROR(RSB_ERRM_ES);
+	if( 0==(RSB_NUMERICAL_TYPE_SIZE(typecode)) )
 		return RSB_ERR_UNSUPPORTED_TYPE;
-	}
 
 #if !RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS
 	if(!pinfop)
-	{
-		RSB_ERROR(RSB_ERRM_ES);
 		return RSB_ERR_BADARGS;
-	}
 #endif /* RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS */
 	if(nnz<2)
-	{
-		RSB_ERROR(RSB_ERRM_ES);
 		return RSB_ERR_NO_ERROR;
-	}
 
-#if RSB_WANT_PINFO
-	if(pinfop)
+	if(!(flags & RSB_FLAG_WANT_COLUMN_MAJOR_ORDER))
 	{
-		Mbndx = pinfop->rpntr;
-		mbndx = pinfop->cpntr;
-		Mdim = pinfop->M_b;
-		mdim = pinfop->K_b;
+		if(pinfop)
+		{
+			Mbndx = pinfop->rpntr;
+			mbndx = pinfop->cpntr;
+			Mdim = pinfop->M_b;
+			mdim = pinfop->K_b;
+		}
+		else
+		{
+			Mbndx = MIndx;
+			mbndx = mIndx;
+		}
+
+//		JA = mIndx;
+//		IA = MIndx;
 	}
 	else
-#endif /* RSB_WANT_PINFO */
 	{
-		Mbndx = MIndx;
-		mbndx = mIndx;
+		if(pinfop)
+		{
+			Mbndx = pinfop->cpntr;
+			mbndx = pinfop->rpntr;
+			Mdim = pinfop->K_b;
+			mdim = pinfop->M_b;
+		}
+		else
+		{
+			Mbndx = MIndx;
+			mbndx = mIndx;
+		}
+
+//		IA = mIndx;
+//		JA =MIndx;
 	}
 
-#if RSB_WANT_PINFO
         if(pinfop && ( !pinfop->rpntr || !pinfop->cpntr ) )
         {
                 //errval = RSB_ERR_INTERNAL_ERROR;
                 goto oops;
         }
-#endif /* RSB_WANT_PINFO */
 	
-#if RSB_WANT_RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING /* like RSB_OBSOLETE_QUARANTINE */
 	if(rsb__have_fixed_blocks_matrix_flags(flags) && mbndx && Mbndx)
 	{
 			/* FIXME */
@@ -144,7 +167,6 @@ static rsb_err_t rsb__util_is_sorted_coo(const rsb_coo_idx_t *MIndx, const rsb_c
 
 	if( want_recursive_sort && !rsb__have_fixed_blocks_matrix_flags(flags) )
 	{
-		RSB_ERROR(RSB_ERRM_ES);
 		return RSB_ERR_UNIMPLEMENTED_YET;
 	}
 	
@@ -155,6 +177,12 @@ static rsb_err_t rsb__util_is_sorted_coo(const rsb_coo_idx_t *MIndx, const rsb_c
 
 		rsb_coo_idx_t Idim = (pinfop->nr+(Mb-1))/Mb;
 		rsb_coo_idx_t Jdim = (pinfop->nc+(Kb-1))/Kb;
+
+		if((flags & RSB_FLAG_WANT_COLUMN_MAJOR_ORDER))
+		{
+			Idim = (pinfop->nc+(Mb-1))/Mb;
+			Jdim = (pinfop->nr+(Kb-1))/Kb;
+		}
 
 		while( (1<<ml) < Idim ) ml++;
 		while( (1<<kl) < Jdim ) kl++;
@@ -177,8 +205,6 @@ static rsb_err_t rsb__util_is_sorted_coo(const rsb_coo_idx_t *MIndx, const rsb_c
 			goto oops;
 		goto ok;
 	}
-#endif /* RSB_WANT_RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING */
-
 #if 0
 	{
 		rsb_nnz_idx_t i;
@@ -202,9 +228,7 @@ static rsb_err_t rsb__util_is_sorted_coo(const rsb_coo_idx_t *MIndx, const rsb_c
 		k = 0;
 		i = 0;j = 0;
 
-#if RSB_WANT_PINFO
 		if(!pinfop)/* 1x1 */
-#endif /* RSB_WANT_PINFO */
 		for( k=1;k<nnz;++k )
 		{
 /*			RSB_DEBUG_ASSERT( MIndx[k-1] >= 0 );
@@ -233,7 +257,6 @@ static rsb_err_t rsb__util_is_sorted_coo(const rsb_coo_idx_t *MIndx, const rsb_c
 				goto oops1;
 			}
 		}
-#if RSB_WANT_PINFO
 		else
 		for( k=0;k<nnz;++k )
 		{
@@ -274,29 +297,51 @@ static rsb_err_t rsb__util_is_sorted_coo(const rsb_coo_idx_t *MIndx, const rsb_c
 				goto oops;
 			}
 		}
-#endif /* RSB_WANT_PINFO */
 #else
 		/* quite slow */
-		JA = mIndx;
-		IA = MIndx;
-		for(i=0;i<pinfop->M_b;++i)
-		for(j=0;j<pinfop->K_b;++j)
+		if(!(flags & RSB_FLAG_WANT_COLUMN_MAJOR_ORDER))
 		{
-			if(k>=nnz)
-				goto k_nnz;/* 'premature' exit : empty last block */
-
-			if(IA[k]<pinfop->rpntr[i] /* || ( IA[k]>=pinfop->rpntr[i] && JA[k]<pinfop->cpntr[j] )*/ )
+			JA = mIndx;
+			IA = MIndx;
+			for(i=0;i<pinfop->M_b;++i)
+			for(j=0;j<pinfop->K_b;++j)
 			{
-				RSB_ERROR("nnz %d : %d < %d (block row %d)\n",k,IA[k],pinfop->rpntr[i],i);
-				RSB_ERROR("nnz %d : %d <?%d (block col %d)\n",k, JA[k],pinfop->cpntr[i],j);
-				goto oops;/* this block should have been seen before */
+				if(k>=nnz)
+					goto k_nnz;/* 'premature' exit : empty last block */
+	
+				if(IA[k]<pinfop->rpntr[i] /* || ( IA[k]>=pinfop->rpntr[i] && JA[k]<pinfop->cpntr[j] )*/ )
+				{
+					RSB_ERROR("nnz %d : %d < %d (block row %d)\n",k,IA[k],pinfop->rpntr[i],i);
+					RSB_ERROR("nnz %d : %d <?%d (block col %d)\n",k, JA[k],pinfop->cpntr[i],j);
+					goto oops;/* this block should have been seen before */
+				}
+	
+				/* if any, scan nnz's in this block */
+				while(	k<nnz &&
+					JA[k]>=pinfop->cpntr[j] && JA[k]< pinfop->cpntr[j+1] &&
+					IA[k]>=pinfop->rpntr[i] &&  IA[k]< pinfop->rpntr[i+1] ) ++k;
+				/* to the next block, even if this did not match */
 			}
+		}
+		else
+		{
+			IA = mIndx;
+			JA = MIndx;
+			for(j=0;j<pinfop->K_b;++j)
+			for(i=0;i<pinfop->M_b;++i)
+			{
+				if(k>=nnz)
+					goto k_nnz;/* 'premature' exit : empty last block */
 
-			/* if any, scan nnz's in this block */
-			while(	k<nnz &&
-				JA[k]>=pinfop->cpntr[j] && JA[k]< pinfop->cpntr[j+1] &&
-				IA[k]>=pinfop->rpntr[i] &&  IA[k]< pinfop->rpntr[i+1] ) ++k;
-			/* to the next block, even if this did not match */
+				if(JA[k]<pinfop->cpntr[j] /* || ( IA[k]>=pinfop->rpntr[i] && JA[k]<pinfop->cpntr[j] )*/ )
+					goto oops;/* this block should have been seen before */
+	
+				/* if any, scan nnz's in this block */
+				while(	k<nnz &&
+					IA[k]>=pinfop->rpntr[i] && IA[k]< pinfop->rpntr[i+1] &&
+					JA[k]>=pinfop->cpntr[j] &&  JA[k]< pinfop->cpntr[j+1] ) ++k;
+				/* to the next block, even if this did not match */
+			}
 		}
 #endif
 	}
@@ -319,36 +364,21 @@ k_nnz:
 	}
 ok:
 	return RSB_ERR_NO_ERROR;
-#if RSB_WANT_PINFO
 oops:
-#endif /* RSB_WANT_PINFO */
-	RSB_ERROR(	"block sorting does not seem to be ok:\n"
-		 	"resurgent block ?\n"
-			"element %zd %zd encountered at %zd'th (out of %zd) nnz's block (%zd %zd) (%zd - %zd , %zd - %zd)\n",
+		RSB_ERROR("block sorting does not seem to be ok:\n");
+		RSB_ERROR("resurgent block ?\n");
+		RSB_ERROR("element %zd %zd encountered at %zd'th (out of %zd) nnz's block (%zd %zd) (%zd - %zd , %zd - %zd)\n",
 		(size_t)MIndx[k],(size_t)mIndx[k],(size_t)k,(size_t)nnz, (size_t)i,(size_t)j,(size_t)Mbndx[i],(size_t)Mbndx[i+1]-1,(size_t)mbndx[j],(size_t)mbndx[j+1]-1);
 	goto err;
 oops1:
-	RSB_ERROR("block sorting does not seem to be ok..\n");
+		RSB_ERROR("block sorting does not seem to be ok..\n");
 err:
 	return RSB_ERR_GENERIC_ERROR;
 }
 
-rsb_err_t rsb__util_is_sorted_coo_as_row_major(const rsb_coo_idx_t *IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags )
+rsb_err_t rsb__util_is_valid_coo_struct(const struct rsb_coo_matrix_t*coop)
 {
-	// Note: TOOD: swap names of these two functions.
-	RSB_DO_FLAG_DEL(flags,RSB_INTERNAL_FLAG_CSR_SORTING_MASK);	/* NEW */
-
-	if(!RSB_DO_FLAG_HAS(flags,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER))
-		return rsb__util_is_sorted_coo(IA,JA,nnz,typecode,flags);
-	else
-	{
-		RSB_DO_FLAG_DEL(flags,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER);
-		return rsb__util_is_sorted_coo(JA,IA,nnz,typecode,flags);
-	}
-}
-
-rsb_err_t rsb__util_is_valid_coo_struct(const struct rsb_coo_mtx_t*coop)
-{
+	/* FIXME: new, unfinished */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 	if((!coop) || (!RSB_IS_VALID_NNZ_INDEX(coop->nnz)) || (!RSB_IS_VALID_COO_INDEX(coop->nr)) || (!RSB_IS_VALID_COO_INDEX(coop->nc)))

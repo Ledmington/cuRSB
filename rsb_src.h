@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -31,7 +31,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_SEARCH_H_INCLUDED
 
 #include "rsb_swt.h"	/* rsb_half_idx_t */
-#include "rsb_common.h"	/* rsb_coo_mtx_t */
+#include "rsb_common.h"	/* rsb_coo_matrix_t */
 
 rsb_nnz_idx_t rsb__nnz_split_nnz_bsearch(const rsb_nnz_idx_t*A,const rsb_nnz_idx_t S,const rsb_nnz_idx_t n);
 rsb_nnz_idx_t rsb__nnz_split_coo_bsearch(const rsb_coo_idx_t*A,const rsb_coo_idx_t S,const rsb_nnz_idx_t n);

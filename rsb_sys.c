@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -26,7 +26,6 @@ If not, see <http://www.gnu.org/licenses/>.
  * @brief System, or standard library related functions.
  * */
 
-#include "rsb_common.h"
 #include <unistd.h>	/* sysconf */
 #include "rsb_internals.h"
 #include "rsb.h"
@@ -58,10 +57,6 @@ If not, see <http://www.gnu.org/licenses/>.
 #if RSB_WITH_HWLOC
 #include <hwloc.h>
 #endif	/* RSB_WITH_HWLOC */
-#ifdef RSB_HAVE_EXECINFO_H
-#include <execinfo.h>
-#endif /* RSB_HAVE_EXECINFO_H */
-#include <stdint.h> /* int64_t / uint64_t / uintptr_t */
 
 /* set the following to 0 to get some real fun */
 #define RSB_WANT_RANDOM_MALLOC_FAULT_INJECTION 0
@@ -76,27 +71,16 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_MEM_DEBUG 0 /* verbosity */
 #define RSB_MEM_DEBUG_REALLOC 0 /* verbosity */
 #define RSB_CHEAP_DEBUG 0 /* cheap extra checks on suspect memory wrapper related values */
-#define RSB_DEBUG_MARKER_AFTER_FREE RSB_MEM_DBG /* double free protection */
-#define RSB_DEBUG_SHRED_AFTER_FREE RSB_MEM_DBG /* protection against of re-use of freed areas */
+#define RSB_DEBUG_MARKER_AFTER_FREE 0 /* double free protection */
+#define RSB_DEBUG_SHRED_AFTER_FREE 0 /* protection against of re-use of freed areas */
 #define RSB_SHRED_BYTE /* 0xFF */ 0xF0 /* byte value to use when shredding memory */
 #define RSB_SHRED_WORD ( RSB_SHRED_BYTE | ( RSB_SHRED_BYTE<<8 ) | ( RSB_SHRED_BYTE<<16 ) | ( RSB_SHRED_BYTE<<24 ) )
 #define RSB_FREE_MARKER 0xDEADBEEF /* ( 3735928559) */ /* a marker for detecting double free */
 #define RSB_OVW_MARKER  0xBEEFBABE /* (-1091585346) */ /* a marker for detecting accidental overwrites */
-#if RSB_MEM_DBG 
-#define RSB_MW_ODMO (-3) /* memory wrapper overwrite detection marker offset (set 0 to deactivate, set to a non-*MW* overlapping value to activate) */
-#else /* RSB_MEM_DBG */
 #define RSB_MW_ODMO ( 0) /* memory wrapper overwrite detection marker offset (set 0 to deactivate, set to a non-*MW* overlapping value to activate) */
-#endif /* RSB_MEM_DBG */
 #define RSB_MW_SHMO (-1) /* memory wrapper shift marker offset */
 #define RSB_MW_SZMO (-2) /* memory wrapper size  marker offset */
 #define RSB_MW_ESLC (-RSB_MIN(RSB_MIN(RSB_MW_ODMO,RSB_MW_ODMO),RSB_MIN(RSB_MW_SZMO,RSB_MW_SHMO))) /* memory wrapper extra 'sizeof' locations count */
-
-#if RSB_DEBUG_SHRED_AFTER_FREE
-/* prevent previously shredded and freed, and now re-allocated *data to cause false alarm if unused before next free */
-#define RSB_UNSHRED_FRESH(P,SIZE) if((P) && (SIZE)>0) memset((P), ~RSB_SHRED_BYTE, (SIZE));
-#else
-#define RSB_UNSHRED_FRESH(P,SIZE)
-#endif /* RSB_DEBUG_SHRED_AFTER_FREE */
 
 #define RSB_MD_ASSERT RSB_ASSERT  /* memory debug assert macro */
 
@@ -104,18 +88,15 @@ If not, see <http://www.gnu.org/licenses/>.
 #include <string.h>	/* memset */
 #endif
 
-#if RSB_USE_GETRUSAGE
-#ifdef RSB_HAVE_SYS_RESOURCE_H
-#include <sys/resource.h>	/* getrusage */
-#endif
-#ifdef RSB_HAVE_SYS_TIME_H
-#include <sys/time.h>	/* getrusage */
-#endif
+#ifdef RSB_HAVE_SYS_RESOURCE_H 
+#define RSB_USE_RUSAGE 1
+#else
+#define RSB_USE_RUSAGE 0
 #endif
 
-#ifdef RSB_HAVE_SYS_UTSNAME_H 
-#include <sys/utsname.h>	/* uname */
-#endif /* RSB_HAVE_SYS_UTSNAME_H  */
+#if RSB_USE_RUSAGE
+#include <sys/resource.h>	/* getrusage */
+#endif
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
@@ -173,7 +154,6 @@ size_t rsb__get_g_rsb_allocations_count(void)
 
 #if 1
 
-#ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
 static void * rsb_aligned_free(void *p)
 {
 	/*!
@@ -192,7 +172,7 @@ static void * rsb_aligned_free(void *p)
 	if( p == NULL )
 		return p;
 	#if RSB_DEBUG_SHRED_AFTER_FREE
-	if( (((uintptr_t)p) & RSB_SHRED_WORD ) == RSB_SHRED_WORD ) /* shred-area read pointer detection */
+	if( (((rsb_int_t)p) & RSB_SHRED_WORD ) == RSB_SHRED_WORD ) /* shred-area read pointer detection */
 	{
 		RSB_STDERR("Warning: it is likely that pointer %p is invalid and was read from a previously freed area. Expect a crash now.\n",p);
 		RSB_MD_ASSERT(0);
@@ -214,11 +194,11 @@ static void * rsb_aligned_free(void *p)
 	#endif /* RSB_DEBUG_MARKER_AFTER_FREE */
 	if( RSB_MW_ODMO && ((size_t*)p)[RSB_MW_ODMO] != RSB_OVW_MARKER ) 
 	{
-		RSB_STDERR("Warning: memory at %p has been overwritten (marker value is %0llx instead of 0x%0llx) ! Expect crashes.\n",p,(long long unsigned)((size_t*)p)[RSB_MW_ODMO],(long long unsigned)RSB_OVW_MARKER );
+		RSB_STDERR("Warning: memory at %p has been overwritten (marker value is %x instead of 0x%0zx) ! Expect crashes.\n",p,((size_t*)p)[RSB_MW_ODMO],RSB_OVW_MARKER );
 		RSB_MD_ASSERT(0);
 	}
 	#if RSB_DEBUG_SHRED_AFTER_FREE
-	if( ( size >= sizeof(rsb_int_t) ) && ( ((uintptr_t)p) == RSB_SHRED_WORD ) ) /* shredded area re-free detection */
+	if( ( size >= sizeof(rsb_int_t) ) && ( *(rsb_int_t*)p == RSB_SHRED_WORD ) ) /* shredded area re-free detection */
 	{
 		RSB_STDERR("Warning: it is possible that %zd-byte area at %p was recently freed (points to {0x%x, ...). May expect a crash now.\n",size,p,*(rsb_int_t*)p);
 		/* RSB_MD_ASSERT(0); */
@@ -238,7 +218,6 @@ static void * rsb_aligned_free(void *p)
 	return p;
 #endif /* RSB_DISABLE_ALLOCATOR_WRAPPER */
 }
-#endif /* RSB_DISABLE_ALLOCATOR_WRAPPER */
 
 void * rsb__realloc(void *rsb_data, size_t size)
 {
@@ -278,9 +257,11 @@ void * rsb__do_realloc(void *rsb_data, size_t size, size_t alignment)
 		rsb_global_session_handle.allocations_count--;
 
 	if(size>osize)
+#pragma omp atomic
 		rsb_global_session_handle.allocated_memory+=size-osize;
 	else
 	if(p) /* a free shall be performed */
+#pragma omp atomic
 		rsb_global_session_handle.allocated_memory-=osize-size;
 #endif /* RSB_DISABLE_ALLOCATOR_WRAPPER */
 	p = realloc(p,size+extra);/* if freeing, either p or NULL will be returned */
@@ -342,7 +323,7 @@ void * rsb__aligned_malloc(size_t size, size_t alignment)
 	 * */
 #ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
 	void * p;
-	const size_t extra = sizeof(size_t)*RSB_MW_ESLC+alignment;
+	size_t extra = sizeof(size_t)*RSB_MW_ESLC+alignment;
 	size_t off;
 	size_t shift;
 
@@ -371,36 +352,30 @@ void * rsb__aligned_malloc(size_t size, size_t alignment)
 	rsb_global_session_handle.allocated_memory+=size;
 #pragma omp atomic
 	rsb_global_session_handle.allocations_count++;
-#pragma omp atomic
-	rsb_global_session_handle.allocations_cumulative++;
 	off=((size_t)(((size_t*)p)+RSB_MW_ESLC))%(alignment); /* to the return address from ((size_t*)p)+RSB_MW_ESLC */
 	shift = (alignment-off);
 	p = ((size_t*)p)+RSB_MW_ESLC;	/* we make room for the markers */
 	p = (( char *)p)+(shift);
 	((size_t*)p)[RSB_MW_SHMO] = shift;
 	((size_t*)p)[RSB_MW_SZMO] = size;
-	if( RSB_MW_ODMO )
-		((size_t*)p)[RSB_MW_ODMO] = RSB_OVW_MARKER; 
-	RSB_UNSHRED_FRESH(p,size);
+	if( RSB_MW_ODMO ) ((size_t*)p)[RSB_MW_ODMO] = RSB_OVW_MARKER; 
 	return p;
 #else /* RSB_DISABLE_ALLOCATOR_WRAPPER */
-	void * p = NULL;
 	#if RSB_HAVE_POSIX_MEMALIGN 
+	void * p = NULL;
         size_t ca = sizeof(void*); /* corrected alignment */
         while(ca<alignment)
                 ca*=2;
         alignment = ca; /* "The address  of  the  allocated  memory  will be a multiple of alignment, which must be a power of two and a multiple of sizeof(void *)." */                                                                                      
 	if(posix_memalign(&p, alignment, size))
-		;/* failure dealt elseqhere */
+		return p; /* failure */
 	else
-		; /* success */
+		return p; /* success */
 	#elif RSB_HAVE_MEMALIGN 
-	p = memalign( alignment, size);
+	return memalign( alignment, size);
 	#else
-	p = malloc(size); /* no platform support for aligned alloc */
+	return malloc(size); /* no platform support for aligned alloc */
 	#endif
-	RSB_UNSHRED_FRESH(p,size);
-	return p;
 #endif /* RSB_DISABLE_ALLOCATOR_WRAPPER */
 }
 
@@ -451,9 +426,13 @@ void * rsb__malloc(size_t size)
 	data = rsb__aligned_malloc(size,1);
 #else /* RSB_DISABLE_ALLOCATOR_WRAPPER */
 	data = malloc(size);
-	RSB_UNSHRED_FRESH(data,size);
 #endif /* RSB_DISABLE_ALLOCATOR_WRAPPER */
 #endif /* RSB_WANT_DOUBLE_ALIGNED */
+#if RSB_DEBUG_SHRED_AFTER_FREE
+	 /* prevent previously shredded and freed, and now re-allocated *data to cause false alarm if unused before next free */
+	if(data && size>0)
+		memset(data, ~RSB_SHRED_BYTE, size);
+#endif /* RSB_DEBUG_SHRED_AFTER_FREE */
 	#if RSB_MEM_DEBUG
 	RSB_STDERR("allocated %zu bytes to %p (in hex:0x%0zx bytes)\n",size,data,size);
 	#endif /* RSB_MEM_DEBUG */
@@ -570,8 +549,6 @@ void * rsb__malloc(size_t size)
 	rsb_global_session_handle.allocated_memory+=size;
 #pragma omp atomic
 	rsb_global_session_handle.allocations_count++;
-#pragma omp atomic
-	rsb_global_session_handle.allocations_cumulative++;
 #ifdef RSB_WANT_DOUBLE_ALIGNED
 	/*
 	 * WARNING : We determine the current 64 bits p alignment, so we are interested in the last 5 bits,
@@ -601,7 +578,7 @@ void * rsb__malloc(size_t size)
 /* END OF DEAD CODE */
 #endif /* 1 */
 
-rsb_time_t rsb__do_time(void)
+rsb_time_t rsb_do_time(void)
 {
 	/*!
 	   \ingroup gr_internals
@@ -663,12 +640,14 @@ rsb_time_t rsb__timer_granularity(void)
 	/*!
 	   \ingroup gr_internals
 
-	 * Estimate the granularity of the timing function (that is, its overhead) by measuring it.
-         * This value is important to set minimal benchmarking times.
-	 * No guarantee of return if the timing function is broken.
+	 * Tries to estimate the granularity of the timing function (that is, its overhead) by measuring it.
+         * This value will be important when estimating minimal times for various self benchmarking operations.
+         * 
+	 * A test measuring the average and deviation of this parameter may be also useful.
+	 * It does not guarantee return with a broken timing function.
 	 * */
 	register double t = RSB_TIME_ZERO, t0 = RSB_TIME_ZERO;
-	const int times = RSB_TIMER_GRANULARITY_TEST_TIMES;
+	int times = RSB_TIMER_GRANULARITY_TEST_TIMES;
 	register int i = times;
 
 #if 0
@@ -711,7 +690,7 @@ ret:
 #endif
 }
 
-rsb_err_t rsb__printf_memory_allocation_info(FILE *os)
+rsb_err_t rsb__print_memory_allocation_info(void)
 {
 #ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
 /*!
@@ -719,21 +698,13 @@ rsb_err_t rsb__printf_memory_allocation_info(FILE *os)
 
  * A global memory counter, used for debugging purposes.
  * */
-	RSB_FPRINTF(os,"rsb_global_session_handle.allocated_memory       \t:%zu\n",(rsb_printf_int_t)rsb_global_session_handle.allocated_memory);
-	RSB_FPRINTF(os,"rsb_global_session_handle.allocations_count  \t:%zu\n",(rsb_printf_int_t)rsb_global_session_handle.allocations_count);
-	RSB_FPRINTF(os,"rsb_global_session_handle.allocations_cumulative \t:%zu\n",(rsb_printf_int_t)rsb_global_session_handle.allocations_cumulative);
+#if RSB_ALLOW_STDOUT
+	RSB_STDOUT("rsb_global_session_handle.allocated_memory       \t:%zu\n",(rsb_printf_int_t)rsb_global_session_handle.allocated_memory);
+	RSB_STDOUT("rsb_global_session_handle.allocations_count  \t:%zu\n",(rsb_printf_int_t)rsb_global_session_handle.allocations_count);
 	return RSB_ERR_NO_ERROR; 
+#endif /* RSB_ALLOW_STDOUT */
 #endif /* RSB_DISABLE_ALLOCATOR_WRAPPER */
 	return RSB_ERR_UNSUPPORTED_FEATURE;
-}
-
-rsb_err_t rsb__print_memory_allocation_info(void)
-{
-	rsb_err_t errval = RSB_ERR_UNSUPPORTED_FEATURE;
-#if RSB_ALLOW_STDOUT
-	errval = rsb__printf_memory_allocation_info(stdout);
-#endif /* RSB_ALLOW_STDOUT */
-	return errval;
 }
 
 void * rsb__calloc(size_t n)
@@ -821,9 +792,7 @@ long rsb__get_lnc_size(int n)
 #ifdef _H_SYSTEMCFG
 			cs=_system_configuration.dcache_size;
 #endif /* _H_SYSTEMCFG */
-#if RSB_WITH_HWLOC
 			if(cs == 0) cs = rsb__get_lnc_size_hwloc(n);
-#endif	/* RSB_WITH_HWLOC */
 		}
 		break;
 		case 2:
@@ -836,9 +805,7 @@ long rsb__get_lnc_size(int n)
 #ifdef _H_SYSTEMCFG
 			cs=_system_configuration.L2_cache_size;
 #endif /* _H_SYSTEMCFG */
-#if RSB_WITH_HWLOC
 			if(cs == 0) cs = rsb__get_lnc_size_hwloc(n);
-#endif	/* RSB_WITH_HWLOC */
 		}
 		break;
 		case 3:
@@ -851,9 +818,7 @@ long rsb__get_lnc_size(int n)
 #ifdef _H_SYSTEMCFG
 	//		cs=_system_configuration.L3_cache_size; // Does not exist :(
 #endif /* _H_SYSTEMCFG */
-#if RSB_WITH_HWLOC
 			if(cs == 0) cs = rsb__get_lnc_size_hwloc(n);
-#endif	/* RSB_WITH_HWLOC */
 		}
 		break;
 		default :
@@ -875,7 +840,6 @@ long rsb__get_l1c_size(void)
 	return rsb__get_lnc_size(1);
 }
 
-#if RSB_WANT_EXPERIMENTS_CODE
 long rsb__get_l2c_size(void)
 {
 	/*!
@@ -886,9 +850,7 @@ long rsb__get_l2c_size(void)
 	 * */
 	return rsb__get_lnc_size(2);
 }
-#endif /* RSB_WANT_EXPERIMENTS_CODE */
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 long rsb__get_l3c_size(void)
 {
 	/*!
@@ -920,7 +882,6 @@ long rsb__know_cache_sizes(void)
 	 * */
 	return rsb__get_cache_levels_num() > 0;
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 long rsb__get_first_level_c_size(void)
 {
@@ -1026,9 +987,9 @@ rsb_int_t rsb__get_cache_levels_num(void)
 	return l;
 }
 
-int rsb__getopt_long(
+int rsb_getopt_long(
 	int argc, char * const argv[], const char *optstring,
-	const rsb_option_t *longopts, int *longindex)
+	const rsb_option *longopts, int *longindex)
 {
 	/*!
 	   \ingroup internals
@@ -1038,11 +999,7 @@ int rsb__getopt_long(
 #ifdef RSB_HAVE_GETOPT_LONG
 	return getopt_long(argc,argv,optstring,longopts,longindex);
 #else /* RSB_HAVE_GETOPT_LONG */
-#ifdef RSB_HAVE_GETOPT
 	return getopt(argc,argv,optstring);	/* a remedy */
-#else /* RSB_HAVE_GETOPT */
-#error  Neither of getopt() nor getopt_long() detected!
-#endif /* RSB_HAVE_GETOPT */
 #endif /* RSB_HAVE_GETOPT_LONG */
 }
 
@@ -1307,8 +1264,9 @@ rsb_int_t rsb__set_num_threads(rsb_int_t tn)
 	return (rsb_int_t) rtn;
 }
 
-#if defined(RSB_HAVE_EXECINFO_H) && RSB_OUT_ERR_VERBOSITY>=2
-void rsb__print_trace(void)
+#if 0
+#include <execinfo.h>
+void rsb_print_trace (void)
 {
 	/* according to a glibc docs example */
 	void *array[10];
@@ -1322,9 +1280,9 @@ void rsb__print_trace(void)
 		printf ("%s\n", strings[i]);
 	free (strings);
 }
-#endif /* RSB_HAVE_EXECINFO_H */
+#endif
 
-#if RSB_USE_GETRUSAGE
+#if RSB_USE_RUSAGE
 static rsb_time_t rsb_rstv(struct timeval*tvp)
 {
         register double t = 0.0;
@@ -1343,11 +1301,7 @@ rsb_err_t rsb__getrusage(void)
 
 	RSB_STDOUT("getrusage() stats:\n");
 	/*("ru_ixrss : %ld (integral shared memory size)\n",usage.ru_ixrss);*/
-#ifdef __APPLE__
-	/* ru_maxrss not necessarily available; unit might also differ... */
-#else
 	RSB_STDOUT("ru_maxrss: %ld (maximum resident set size -- MB)\n",usage.ru_maxrss / RSB_K);
-#endif
 	RSB_STDOUT("ru_stime : %0.4lgs (system CPU time used)\n",rsb_rstv(&usage.ru_stime));
 	RSB_STDOUT("ru_utime : %0.4lgs (user CPU time used)\n",rsb_rstv(&usage.ru_utime));
 #if 0
@@ -1357,12 +1311,12 @@ rsb_err_t rsb__getrusage(void)
 
 	return gru == 0 ? RSB_ERR_NO_ERROR : RSB_ERR_GENERIC_ERROR;
 }
-#else /* RSB_USE_GETRUSAGE */
+#else /* RSB_USE_RUSAGE */
 rsb_err_t rsb__getrusage(void)
 {
 	return RSB_ERR_NO_ERROR;
 }
-#endif /* RSB_USE_GETRUSAGE */
+#endif /* RSB_USE_RUSAGE */
 
 const rsb_char_t * rsb__getenv(const rsb_char_t * name)
 {
@@ -1411,7 +1365,6 @@ static hwloc_uint64_t rsb__hwloc_max_cs_at_level(hwloc_topology_t topology, hwlo
 #endif /* HWLOC_API_VERSION >= 0x00020000 */
 #endif /* RSB_WITH_HWLOC */
 
-#if RSB_WITH_HWLOC
 long rsb__get_lnc_size_hwloc(int n)
 {
 	/* Gets cache size using hwloc.h. EXPERIMENTAL */
@@ -1439,45 +1392,6 @@ long rsb__get_lnc_size_hwloc(int n)
     	hwloc_topology_destroy(topology);
 #endif	/* RSB_WITH_HWLOC */
 	return size;
-}
-#endif	/* RSB_WITH_HWLOC */
-
-void rsb__strcpy_hostname(rsb_char_t * buf)
-{
-	char * setaname = NULL;
-	const size_t len = RSB_MAX_HOSTNAME_LEN;
-	char name[len+1];
-	name[0] = name[len] = RSB_NUL;
-#if 0 /* gethostname is POSIX.1-2001 but not C99 */
-#if RSB_HAVE_GETHOSTNAME
-	if ( setaname == NULL && 0 == gethostname(name, len) && name[0] )
-		setaname = &name[0];
-#endif /* RSB_HAVE_GETHOSTNAME */
-#endif /* 0 */
-#ifdef RSB_HAVE_SYS_UTSNAME_H 
-	if ( setaname == NULL )
-	{
-		struct utsname un;
-		if(uname(&un)==0)
-		{
-			strncpy(name,un.nodename,len);
-			setaname = &name[0];
-		}
-#if 0
-           struct utsname {
-               char sysname[];
-               char nodename[];
-               char release[];
-               char version[];
-               char machine[];
-           #ifdef _GNU_SOURCE
-               char domainname[];
-           #endif /* _GNU_SOURCE */
-           };
-#endif
-	}
-#endif /* RSB_HAVE_SYS_UTSNAME_H */
-	strcpy(buf,name);
 }
 
 /* @endcond */

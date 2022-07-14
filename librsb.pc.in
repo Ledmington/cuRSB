@@ -1,4 +1,4 @@
-# Copyright (C) 2013-2021 Michele Martone
+# Copyright (C) 2013-2016 Michele Martone
 # librsb.pc file created by librsb
 
 prefix="@prefix@"
@@ -10,6 +10,6 @@ version="@LIBRSB_MAIN_RELEASE@"
 Name: librsb
 Description: The Recursive Sparse Blocks sparse matrix library
 Version: ${version}
-Libs: -L${libdir} -lrsb @RSB_RSBPP_LIBS@
+Libs: -L${libdir} -lrsb
 Libs.private: @LIBS@ @OPENMP_FCFLAGS@
 Cflags: -I${includedir} 

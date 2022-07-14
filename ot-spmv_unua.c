@@ -1,1 +1,1 @@
-int f_spmv_unua(void){return 0;}
+static int f(){return 0;}

@@ -28,7 +28,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 #include "rsb_common.h"
 #define RSB_WANT_PRINT_WARNING_ON_DISCARDED_NNZ 0
-RSB_INTERNALS_COMMON_HEAD_DECLS
+extern struct rsb_session_handle_t rsb_global_session_handle;
 
 struct rsb_mtx_t * rsb__mtx_alloc_inner(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t roff, rsb_coo_idx_t coff, rsb_type_t typecode, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_blk_idx_t Mb, rsb_blk_idx_t Kb, rsb_flags_t flags, rsb_err_t * errvalp)
 {
@@ -50,23 +50,19 @@ struct rsb_mtx_t * rsb__mtx_alloc_inner(void *VA, rsb_coo_idx_t * IA, rsb_coo_id
 	{
 		/* as a special case, we detect the m and k boundaries, if nnz>0 and m or k are zero */
 		/* TODO: shall use rsb__util_coo_alloc_copy_and_stats instead */
-		if(m==0 && IA) {m = rsb__util_find_coo_max_index_val(IA,nnz)+roff+1;}
-		if(k==0 && JA) {k = rsb__util_find_coo_max_index_val(JA,nnz)+coff+1;}
+		if(m==0 && IA) {m = rsb__util_find_max_index_val(IA,nnz)+roff+1;}
+		if(k==0 && JA) {k = rsb__util_find_max_index_val(JA,nnz)+coff+1;}
 		//printf("rc %d %d %d \n",m,k,nnz);
 	}
 
+	
 	if( RSB_DO_FLAG_HAS(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE))
 	{
 		RSB_PERR_GOTO(err,"!\n");
 	}
 
-	if(RSB__FLAG_HAS_UNSPECIFIED_TRIANGLE(flags))
-		RSB_DO_FLAG_ADD(flags,rsb__do_detect_and_add_triangular_flags(IA,JA,nnz,flags));
-	
-	if(roff && IA)
-		rsb__util_coo_array_add(IA,nnz,roff);
-	if(coff && JA)
-		rsb__util_coo_array_add(JA,nnz,coff);
+	if(roff && IA) rsb__util_coo_array_add(IA,nnz,roff);
+	if(coff && JA) rsb__util_coo_array_add(JA,nnz,coff);
 
 	RSB_DO_FLAG_ADD(flags,RSB_FLAG_SORT_INPUT);
 	RSB_DO_FLAG_ADD(flags,RSB_FLAG_OWN_PARTITIONING_ARRAYS);	/* this is in order to free p_r and p_c with the matrix itself, and ignore original flag on this topic */
@@ -89,18 +85,11 @@ struct rsb_mtx_t * rsb__mtx_alloc_inner(void *VA, rsb_coo_idx_t * IA, rsb_coo_id
 			)
 	{
 		if(!RSB_DO_FLAG_HAS(flags,RSB_FLAG_NON_ROOT_MATRIX))
-		{
-			mtxAp = rsb__allocate_recursive_sparse_matrix_from_row_major_coo(VA,IA,JA,m,k,nnz,typecode,NULL,flags,errvalp);
-			if(errvalp && RSB_SOME_ERROR(*errvalp))
-				RSB_ERROR("%s\n", rsb__get_errstr_ptr(*errvalp));
-			return mtxAp;
-		}
+			return	rsb__allocate_recursive_sparse_matrix_from_row_major_coo(VA,IA,JA,m,k,nnz,typecode,NULL,flags,errvalp);
 	}
 #if RSB_WANT_RSB_AS_ONLY_ALLOWED_FORMAT
 	errval = RSB_ERR_INTERNAL_ERROR;
-	RSB_ERROR("Trying to call unsupported parameters combination (nr:%ld nc:%ld nnz:%ld)!\n",(long int)m,(long int)k,(long int)nnz);
-	rsb__debug_print_flags(flags);
-	RSB_PERR_GOTO(err,RSB_ERRM_INTERNAL_ERROR );
+	RSB_PERR_GOTO(err,"trying to call obsolete code!\n");
 #endif /* RSB_WANT_RSB_AS_ONLY_ALLOWED_FORMAT */
 
 	if(mtxAp)
@@ -115,7 +104,8 @@ err:
 rsb_err_t rsb__do_cleanup_nnz(void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t roff, rsb_coo_idx_t coff, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t *onnzp, rsb_type_t typecode, rsb_flags_t flags)
 {
 	/* 
-	 * onnzp can be NULL
+	 * TODO: this check should be done at leaf level only. are we sure we are leaf here ?
+	 * ... no. but why at leaf level only ?
 	 * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
@@ -125,7 +115,7 @@ rsb_err_t rsb__do_cleanup_nnz(void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA,
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_UNIT_DIAG_IMPLICIT))
 	{
 		rsb_nnz_idx_t discarded = 0, gap = 0;
-		errval = rsb__weed_out_diagonal(VA,IA,JA,nnz,typecode,&gap,&discarded);
+		errval = rsb_weed_out_diagonal(VA,IA,JA,nnz,typecode,&gap,&discarded);
 		if(RSB_SOME_ERROR(errval))
 		{
 			RSB_PERR_GOTO(err,"failed compacting non diagonal elements !\n");
@@ -173,7 +163,7 @@ rsb_err_t rsb__do_cleanup_nnz(void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA,
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_DISCARD_ZEROS))
 	{
 		rsb_nnz_idx_t discarded = 0, gap = 0;
-		errval = rsb__util_compact_nonzeros(VA,IA,JA,nnz,typecode,&gap,&discarded,RSB_FLAG_NOFLAGS);
+		errval = rsb_util_compact_nonzeros(VA,IA,JA,nnz,typecode,&gap,&discarded,RSB_FLAG_NOFLAGS);
 		if(RSB_SOME_ERROR(errval))
 		{
 			RSB_PERR_GOTO(err,"failed compacting nonzeros!\n");
@@ -189,7 +179,7 @@ rsb_err_t rsb__do_cleanup_nnz(void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA,
 	if(1)
 	{
 		rsb_nnz_idx_t discarded = 0, gap = 0;
-		errval = rsb__do_util_compact_out_of_range(VA,IA,JA,nnz,roff,coff,m,k,typecode,&gap,&discarded);
+		errval = rsb_do_util_compact_out_of_range(VA,IA,JA,nnz,roff,coff,m,k,typecode,&gap,&discarded);
 		if(RSB_SOME_ERROR(errval))
 		{
 			RSB_PERR_GOTO(err,"failed compacting out of range!\n");
@@ -202,7 +192,7 @@ rsb_err_t rsb__do_cleanup_nnz(void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA,
 		nnz -= discarded;
 	}
 ok:
-	RSB_SET_IF_NOT_NULL(onnzp,nnz);
+	*onnzp = nnz;
 err:
 	RSB_DO_ERR_RETURN(errval)
 }

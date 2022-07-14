@@ -8,7 +8,7 @@
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -42,15 +42,19 @@ If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #endif /* __cplusplus */
 
+#define RSB_WANT_OMP        1
+#define RSB_MAX_OMP_THREADS 4
+
+
 #include "rsb_common.h"
-
-
-
-
+rsb_err_t rsb_do_csr_ilu0_DOUBLE(struct rsb_coo_matrix_t * coop);
+rsb_err_t rsb_do_csr_ilu0_FLOAT(struct rsb_coo_matrix_t * coop);
+rsb_err_t rsb_do_csr_ilu0_FLOAT_COMPLEX(struct rsb_coo_matrix_t * coop);
+rsb_err_t rsb_do_csr_ilu0_DOUBLE_COMPLEX(struct rsb_coo_matrix_t * coop);
 
 rsb_err_t rsb__prec_ilu0(struct rsb_mtx_t * mtxAp);
 
-rsb_err_t rsb__prec_csr_ilu0(struct rsb_coo_mtx_t * coop);
+rsb_err_t rsb__prec_csr_ilu0(struct rsb_coo_matrix_t * coop);
 
 #ifdef __cplusplus
 }

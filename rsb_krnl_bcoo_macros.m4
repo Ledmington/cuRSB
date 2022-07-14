@@ -5,7 +5,7 @@ dnl
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- For block coordinates format.
+ But for block compressed sparse stripes format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 dnl
@@ -39,11 +39,7 @@ foreach(`symmetry',RSB_M4_MATRIX_SYMMETRY,`dnl
 foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`dnl
 foreach(`citype',RSB_M4_MATRIX_COORDINATE_TYPES,`dnl
 foreach(`uplo',RSB_M4_MATRIX_UPLO_TYPES,`dnl
-ifelse(RSB_M4_NOT(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_NOT_UNSYMMETRIC(symmetry))),1,`dnl
 RSB_M4_BCOO_KERNEL_FUNCTION(`all',type,matrix_storage,transposition,symmetry,rowsu,colsu,unrolling,mop,citype,diagonal,uplo)
-',`dnl
-dnl	no_symm_spsx
-')dnl
 ')dnl
 ')dnl
 ')dnl
@@ -70,13 +66,7 @@ foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`dnl
 foreach(`citype',RSB_M4_MATRIX_COORDINATE_TYPES,`dnl
 foreach(`diagonal',RSB_M4_MATRIX_DIAGONAL_TYPES,`dnl
 foreach(`uplo',RSB_M4_MATRIX_UPLO_TYPES,`dnl
-ifelse(RSB_M4_NOT(RSB_M4_AND(RSB_M4_IS_FORMAT_BCXX(matrix_storage),RSB_M4_IS_SPXX_KERNEL_MOP(mop))),1,`dnl skip_register_block_dispatcher
-ifelse(RSB_M4_NOT(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_NOT_UNSYMMETRIC(symmetry))),1,`dnl
 RSB_M4_BCOO_KERNEL_SIZE_DISPATCH_FUNCTION(`all',type,matrix_storage,transposition,symmetry,unrolling,,,mop,citype,diagonal,uplo)
-',`dnl
-dnl	no_symm_spsx
-')dnl
-')dnl skip_register_block_dispatcher
 ')dnl
 ')dnl
 ')dnl
@@ -154,8 +144,6 @@ dnl
 pushdef(`tsymmetry',`ifelse(symmetry,RSB_M4_SYMBOL_HERMITIAN,`RSB_M4_TRANSPOSE_SYMMETRY(symmetry)',symmetry)')dnl
 dnl
 pushdef(`toskipbecauseofsymmetry',`RSB_M4_AND(RSB_M4_IS_SPMX_KERNEL_MOP(mop),RSB_M4_NOT(RSB_M4_IS_COMPLEX_TYPE(mtype)),RSB_M4_IS_NOT_UNSYMMETRIC(symmetry),RSB_M4_NOT(RSB_M4_SAME(transposition,RSB_M4_TRANS_N)))')dnl
-pushdef(`no_spsx_symm',`RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_NOT_UNSYMMETRIC(symmetry))')`'dnl
-pushdef(`gen_no_body',`RSB_M4_OR(no_spsx_symm,0)')`'dnl
 dnl
 dnl
 ifelse(RSB_M4_ARE_KERNEL_GENERATION_PARMS_ALLOWED(want_what,mtype,matrix_storage,transposition,symmetry,unrolling,,,mop,citype,diagonal,uplo),`1',`dnl
@@ -206,13 +194,10 @@ dnl
 dnl
 ')dnl
 dnl
-dnl	Common Variables Declaration Section BEGIN
-dnl	
-ifelse(gen_no_body,`0',`dnl 
 ifelse(toskipbecauseofsymmetry,0,`dnl
 dnl
-dnl	The i,j type has to be the same as the arrays one.
-dnl	If not, mismatch on the copied bytes will occur.
+dnl	the i,j type has to be the same as the arrays one.
+dnl	if not, mismatch on the copied bytes will occur.
 ifelse(RSB_M4_AND(RSB_M4_NOT(RSB_M4_IS_RC_BIASED_KERNEL_MOP(mop)),RSB_M4_NOT(RSB_M4_AND(RSB_M4_IS_ACC_WRITING_KERNEL_MOP(mop),RSB_M4_NOT(RSB_M4_IS_NOT_UNSYMMETRIC(symmetry))))),`1',`dnl
 ifelse(RSB_M4_IS_STRIDED_KERNEL_MOP(mop),1,`dnl
 	register rsb_coo_idx_t i=0,j=0;
@@ -247,11 +232,6 @@ ifelse(RSB_M4_IS_STRIDED_KERNEL_MOP(mop),`0',`dnl
 ')dnl
 dnl
 dnl
-dnl
-dnl	Common Variables Declaration Section END
-dnl	
-dnl	SPMV Section BEGIN
-dnl	
 ifelse(RSB_M4_AND(RSB_M4_IS_SPMX_KERNEL_MOP(mop)),1,`dnl
 dnl
 
@@ -371,29 +351,11 @@ dnl
 	',RSB_M4_SIMPLE_LOOP_UNROLL_DEFAULT_FACTOR_SMALL)
 ')dnl
 dnl
-dnl	BEGIN CONDITIONAL DEBUG SECTION
-dnl
-ifelse(RSB_M4_DEBUG,`1',`	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in fid\n");
-',`')dnl
-dnl
-dnl	END CONDITIONAL DEBUG SECTION
-dnl
 	return RSB_ERR_NO_ERROR;
 ')dnl
-dnl
-dnl	SPMV Section END
-dnl
 ')dnl
-')dnl gen_no_body
-dnl
-dnl	SPSV Section BEGIN
 dnl
 ifelse(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop)),1,`dnl
-ifelse(no_spsx_symm,`1',`dnl no_spsx_symm
-dnl	FIXME: shall trim code generator earlier on.
-	return RSB_M4_IMPOSSIBLE_IMPLEMENTATION_ERROR;
-',`dnl no_spsx_symm
-dnl
 dnl
 dnl	FIXME: and roff and coff ?
 dnl
@@ -481,24 +443,14 @@ ifelse(is_an_externally_backward_kernel,1,`dnl
 ')dnl
 ')dnl
 	}
-dnl
-dnl	BEGIN CONDITIONAL DEBUG SECTION
-dnl
-ifelse(RSB_M4_DEBUG,`1',`	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in fid\n");
-',`')dnl
-dnl
-dnl	END CONDITIONAL DEBUG SECTION
-dnl
 	return RSB_ERR_NO_ERROR;
+dnl err:
+dnl	return RSB_ERR_BADARGS;
 dnl
 popdef(`is_an_externally_backward_kernel')dnl
 popdef(`is_vector_updating_spsv')dnl
 dnl
-')`'dnl no_spsx_symm
 ')dnl
-dnl
-dnl	SPSV Section END
-dnl
 dnl
 dnl ifelse(RSB_M4_NOT(RSB_M4_IS_SPXX_TWO_VECTORS_OPERATING_KERNEL_MOP(mop)),1,`dnl
 dnl 	return RSB_ERR_UNIMPLEMENTED_YET;
@@ -589,9 +541,7 @@ dnl
 dnl
 ')dnl
 dnl
-dnl
-popdef(`gen_no_body')dnl
-popdef(`no_spsx_symm')dnl
+
 popdef(`toskipbecauseofsymmetry')dnl
 popdef(`htransposition')dnl
 popdef(`ttransposition')dnl
@@ -720,53 +670,47 @@ dnl
 	RSB_M4_DEBUGINFO(``$0'')dnl
 dnl	/*!  \ingroup rsb_doc_kernels
 	/*
-	 * Select kernel function for operation "mop".
-ifelse(RSB_M4_MAXIMAL_CONFIGURED_BLOCK_SIZE,`1',`',`dnl
+	 * This function will dispatch the specialized looped kernel function for 
+	 * performing the desired matrix operation ("mop") for the current fixed
+	 * block size.
+	 *
+	 * \return \rsb_errval_inp_param_msg
+ifelse(RSB_M4_IS_FORMAT_BCOO(matrix_storage),1,`dnl
 	 *
 	 * Since this is strictly blocked code, you should allow the rhs and the out
 	 * vector to accept a small overflow not bigger, respectively, than
 	 *       mod(blockrows-mod(matrixrows,blockrows),blockrows)
 	 * and
 	 *       mod(blockcols-mod(matrixcols,blockcols),blockcols)
+dnl	 *
+dnl	 * Note: We assume this quantity is the same for each block.
+dnl	 *
+dnl	 * WARNING : EXPERIMENTAL FUNCTION
+dnl	 * for block bigger than ~12x12 it seems that inline matrix multiplication code slows down the whole thing
 ')dnl
-	 *
-	 * \return \rsb_errval_inp_param_msg
 	 */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-ifelse(RSB_M4_MAXIMAL_CONFIGURED_BLOCK_SIZE,`1',`dnl
-dnl 		non-unitary blocking error shall get caught earlier than this, so no check needed
-',`dnl
 	register rsb_coo_idx_t columns,rows;
-
-#if !RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	if(cpntr && rpntr)
 	{
 		columns=cpntr[1]-cpntr[0];
 		rows   =rpntr[1]-rpntr[0];
-		RSB_ASSERT(columns==1 && rows==1);
 	}
 	else
-#endif /* RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS */
 dnl #if RSB_EXPERIMENTAL_WANT_PURE_BCOO
 ifelse(RSB_M4_WANT_20110206_BOUNDED_BOX_PATCH,1,`dnl
 dnl 20110206	set the following 
-		columns = rows=1;
+		columns = rows=1;	/* experimental, for the bounded box patch */
 ',`dnl
 dnl 20110206	and commented the following 
 		columns=bc,rows=br;
-')dnl
-		RSB_ASSERT(columns==1 && rows==1);
 ')dnl
 dnl #else
 dnl 		columns = rows=1;
 dnl #endif
 
-dnl
 ifelse(RSB_M4_IS_FORMAT_BCOO(matrix_storage),1,`dnl
 pushdef(`args',`RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCOO_KERNEL_SIZE_DISPATCH_FUNCTION(`ARGS',mtype,matrix_storage,transposition,symmetry,unrolling,,,mop,citype,diagonal,uplo))')dnl
-ifelse(RSB_M4_MAXIMAL_CONFIGURED_BLOCK_SIZE,`1',`dnl
-	errval = RSB_M4_BCOO_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,symmetry,1,1,unrolling,mop,citype,diagonal,uplo)( args );
-',`dnl
 switch(rows)
 {
 foreach(`rowsu',RSB_M4_ROWS_UNROLL,`dnl
@@ -794,7 +738,6 @@ foreach(`colsu',RSB_M4_COLUMNS_UNROLL,`dnl
 	errval = RSB_ERR_UNSUPPORTED_OPERATION;
 #endif /* RSB_WANT_LOOPING_KERNELS */
 };
-')dnl
 popdef(`args')dnl
 ')dnl
 	dnl errval = RSB_ERR_UNSUPPORTED_TYPE;

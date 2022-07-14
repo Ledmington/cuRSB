@@ -20,7 +20,7 @@
 ## octave-based tester : generates a program with hard coded matrices, right hand sides, and result vectors.
 # Assumes that octave/matlab computations are correct.
 
-# Requires octave-4.4 or newer.
+# Requires octave-3.6 or newer.
 #
 # NOTE : we have scarce control on the nonzero density!
 # NOTE : this tester is largely superseded by ./rsbench -Q
@@ -283,7 +283,7 @@ if nargin >= 5
 	op=argv()(5){1};
 	if strcmp(op,"main")
 		main=1;
-		op="";
+		op=0;
 	endif
 endif
 
@@ -310,7 +310,7 @@ function a=want_op(o)
 	global main;
 	#a=strfind(ops,o)
 	#a=0;
-	#a=(strmatch(op,o))
+	#a=(strcmp(op,o))
 	a=0;
 	a=strfind(strcat(oops,","),o);
 	if a
@@ -345,7 +345,6 @@ if main
 	printf("int main%s()\n{\n",op);
 	printf("rsb_err_t errval=RSB_ERR_NO_ERROR;int fi,Ri,Ti,Ci;int octave_failed_tests=0;\n");
 	for oi=1:size(ops,1)
-		printf("int main_%s(void);\n",ops(oi,:)); # avoid implicit declaration
 		printf("if((octave_failed_tests+=main_%s()))\n\tgoto err;\n",ops(oi,:));
 	endfor
 	if main
@@ -470,14 +469,13 @@ for bci=1:length(cua)
 	ts="int";
 	printf("%s\n",dump_c_coo(a,ts,"c"))
 	printf("\nif((mtxAp=rsb_mtx_alloc_from_coo_const(VA,IA,JA,nnz,typecode,nr,nc,Mb,Kb,flags,&errval))==NULL)\ngoto err;");
-	printf("\nprintf(\"testing matrix of type %%s\\t\",rsb__sprint_matrix_implementation_code2(mtxAp,buf,flags));\n");
-	printf("\n%s","rsb__fprint_matrix_implementation_code(mtxAp,buf,flags,stdout);\n");
+	printf("\nprintf(\"testing matrix of type %%s\\t%%s\\n\",rsb__sprint_matrix_implementation_code2(mtxAp,buf,flags),rsb__sprint_matrix_implementation_code(mtxAp,\"*\",flags,buf));\n");
 
 	if want_here_op("v")
 	printf("/* begin spmv_uaua test */\n");
 	dump_spmv(1,a,br,bc,transi)
 #	printf("\nif((mtxAp=rsb_allocate_bcsr_sparse_matrix(VA,IA,JA,nnz,typecode,nr,nc,Mb,Kb))==NULL)\ngoto err;");
-	printf("\n\tif((errval=rsb_spmv(mtxAp,B,X))                    !=RSB_ERR_NO_ERROR)\n\t\tgoto err;\n");
+	printf("\nif((errval=rsb_spmv(mtxAp,B,X))                    !=RSB_ERR_NO_ERROR)\ngoto err;");
 	printf("\n#error internal error: wrong code generator parameters!");
 	printf("\nif(memcmp(X,R,sizeof(%s)*nr))",ts);
 	printf("\n{\n");
@@ -565,8 +563,6 @@ for bci=1:length(cua)
 	printf("}\n");
 	endif
 #
-	mvec=0;
-	lang="c";
 	if want_here_op("spsv")
 	printf("/* begin spsv test */\n");
 	printf("{\n");
@@ -582,10 +578,10 @@ for bci=1:length(cua)
 		alpha=av(ai);
 #		beta=bv(bi);
 		beta=0;
-		printf("%s",dump_spsv(a,mdi,br,bc,alpha,mvec,transi,ts,incx,incy,lang));
+		printf("%s",dump_spsv(a,mdi,br,bc,alpha,1,transi,ts,incx,incy));
 #		printf("\nint alpha=%d,beta=%d;",alpha,beta);
 		printf("\nint alpha=%d;",alpha);
-		printf("\n\tif((errval=rsb_spsv(trans,&alpha,mtxAp,y,1,y,1))  !=RSB_ERR_NO_ERROR)\n\t\tgoto err;\n");
+		printf("\nif((errval=rsb_spsv(trans,&alpha,mtxAp,x,1,y,1))  !=RSB_ERR_NO_ERROR)\ngoto err;");
 		printf(check_spsv(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy));
 #		printf("\nif(memcmp(y,cy,sizeof(%s)*nr))",ts);
 #		printf("\n{\n");
@@ -611,10 +607,10 @@ for bci=1:length(cua)
 	printf("{\n");
 		alpha=av(ai);
 		beta =bv(bi);
-		printf(dump_csmm(a,mti,mdi,br,bc,alpha,mvec,beta,transi,ts,incx,incy,lang));
+		printf(dump_csmm(a,mti,mdi,br,bc,alpha,beta,transi,ts,incx,incy));
 		printf("\nint alpha=%d,beta=%d;",alpha,beta);
 #		printf("\nif((errval=rsb_csmm(mtxAp,x,y,&alpha,&beta))  !=RSB_ERR_NO_ERROR\ngoto err;");
-		printf("\n\tif((errval=rsb_spmv(trans,&alpha,mtxAp,x,1,&beta,y,1))  !=RSB_ERR_NO_ERROR)\n\t\tgoto err;\n");
+		printf("\nif((errval=rsb_spmv(trans,&alpha,mtxAp,x,1,&beta,y,1))  !=RSB_ERR_NO_ERROR)\ngoto err;");
 		printf(check_csmm(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy));
 	printf("} \n");
 	endfor
@@ -662,7 +658,6 @@ for bci=1:length(cua)
 #
 	endif
 #
-	if false
 	if want_here_op("transposition")
 	printf("if(0)/* FIXME: rsb_sym_transpose is still not mature enough */");
 	printf("{");
@@ -689,7 +684,6 @@ for bci=1:length(cua)
 	printf("\n { printf(\"skipping transposition test: unsupported\\n\");}");
 	printf("/* end transpose test */\n");
 	printf("}");
-	endif
 	endif
 #
 	if want_here_op("scale")
@@ -736,6 +730,6 @@ if main
 	printf("return octave_failed_tests?-1:0;\nerr:rsb_perror(NULL,errval);return -1;\n}\n");
 else
 	printf("return octave_failed_tests;\n  err:rsb_perror(NULL,errval);return -1;\n \n");
-	printf("                              goto ferr/*only here as a token use of ferr*/;ferr:rsb_perror(NULL,errval);return -1;\n}\n");
+	printf("                              ferr:rsb_perror(NULL,errval);return -1;\n}\n");
 endif
 

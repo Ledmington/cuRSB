@@ -37,6 +37,8 @@ extern "C" {
 
 /* FIXME: the following constants need a systematization... */
 #define RSB_AUT0_TUNING_DEFAULT_TIME 10.0
+#define RSB_CONST_AT_OP_SAMPLES_MIN  3 /* measurement steps in the autotuning (inner benchmarking loop) */
+#define RSB_CONST_AT_OP_SAMPLES_MAX 10 /* measurement steps in the autotuning (inner benchmarking loop) */
 #define RSB_AUT0_TUNING_SILENT 0
 #define RSB_AUT0_TUNING_VERBOSE 1
 #define RSB_AUT0_TUNING_QUATSCH 2
@@ -47,21 +49,17 @@ extern "C" {
 #define RSB_AT_THREADS_AUTO 0 /* see RSB_THREADS_AUTO (different meaning): this one may be used for auto+overwrite */
 #define RSB_CONST_AUTO_TUNING_ROUNDS 1
 #define RSB_CONST_MAX_TUNING_SUBROUNDS 5
-#define RSB_CONST_AT_OP_SAMPLES_MIN  3 /* measurement steps in the autotuning (inner benchmarking loop) */
-#define RSB_CONST_AT_OP_SAMPLES_MAX 10 /* measurement steps in the autotuning (inner benchmarking loop) */
+#if RSB_ATTEMPTING_MERGING_11_AND_12_AT
+#define RSB_CONST_DEF_MS_AT_AUTO_STEPS 6 /* 1.2 (merged/split clone) based autotuning */
+#else
+#define RSB_CONST_DEF_MS_AT_AUTO_STEPS 0 /* 1.1 (full clone) based autotuning */
+#endif
 #define RSB_CONST_MAX_TUNING_SAMPLES ((RSB_CONST_MAX_TUNING_ROUNDS)*(1+RSB_CONST_MAX_TUNING_SUBROUNDS))
 #define RSB_AT_WANT_BEST_TIME 1 /* Autotuning shall base on 'best time' for a given (matrix, op, sampling run) */
 #define RSB_DT_SAME_THREADS_TNP(TNP) ( (TNP)==NULL || *(TNP)== 0 ) /* On tnp==NULL will use the default thread count. */
 #define RSB_DT_THREADS_TUNE_TNP(TNP) ( (TNP)!=NULL && *(TNP) < 0 ) /* On tnp!=NULL && *tnp<0  will probe different thread counts. */
 #define RSB_DT_SPEC_THREADS_TNP(TNP) ( (TNP)!=NULL && *(TNP) > 0 ) /* On tnp!=NULL && *tnp>0  will use the given thread count. */
 #define RSB_AT_DESTROYS_MTX 1 /* whether autotuning is allowed to destroy a suboptimal matrix after tuning */
-
-#define RSB_MERGED_V11_AND_V12_AUTOTUNING 1
-#if RSB_MERGED_V11_AND_V12_AUTOTUNING
-#define RSB_CONST_DEF_MS_AT_AUTO_STEPS 6 /* 1.2 (merge/split clone) based autotuning */
-#else
-#define RSB_CONST_DEF_MS_AT_AUTO_STEPS 0 /* 1.1 (full clone) based autotuning */
-#endif
 
 #define RSB_FINISH_MIN_T(CUR_T,MIN_T,NOS) ( (MIN_T) > 0.0 ? ( (CUR_T) >  (MIN_T) ) : (NOS) )
 #define RSB_FINISH_MIN_I(CUR_I,MIN_I,NOS) ( (MIN_I) > 0   ? ( (CUR_I) >= (MIN_I) ) : (NOS) )
@@ -77,7 +75,7 @@ extern "C" {
 	  RSB_REPEAT_MIN_I((CUR_I),(MIN_I),0) \
        	) || \
 	( /* conditions necessary for continuation */ \
-	  (! ( RSB_FINISH_MIN_I((CUR_I),(MIN_I),1) && RSB_FINISH_MIN_T((CUR_T),(MIN_T),1) && ! RSB_WANT_REPEAT_TILL_MAXTIMES ) ) &&  \
+           (! ( RSB_FINISH_MIN_I((CUR_I),(MIN_I),1) && RSB_FINISH_MIN_T((CUR_T),(MIN_T),1) && ! RSB_WANT_REPEAT_TILL_MAXTIMES ) ) &&  \
 	  RSB_REPEAT_MAX_I((CUR_I),(MAX_I),1) && \
 	  RSB_REPEAT_MAX_T((CUR_T),(MAX_T),1) && \
 	1 ) )
@@ -86,21 +84,7 @@ extern "C" {
 	  RSB_REPEAT_MAX_T((CUR_T),(MAX_T),0)  \
  )
 
-/* A substitute for obsolete RSB_REPEAT_MAX_T. 
- * To be called repeatedly after each loop.
- *
- * Input constants:
- *  IT: time before loop
- *  JF: value to use if DT is zero (e.g. due to timer caching)
- * Input variables:
- *  DT: delta time time (must be initialized to IT)
- *  TI: loop counter (must be initialized to 0)
- *  SS: square sum (must be initialized to 0)
- * Output variables:
- *  CT: current time
- *  TT: total time
- *  BT: best time
- * */
+/* A substitute for obsolete RSB_REPEAT_MAX_T. */
 #define RSB_SAMPLE_STAT(IT,CT,DT,TT,BT,WT,SS,JF,TI) { \
 		(CT) = rsb_time(); \
 		(DT) = (CT) - (DT); \
@@ -170,11 +154,10 @@ void rsb__tattr_init(struct rsb_tattr_t* TTRP, const struct rsb_mtx_t*MTXAP, rsb
 void rsb__tattr_sets(struct rsb_tattr_t* ttrp, rsb_int_t dnt, rsb_int_t nt, rsb_time_t tpo, rsb_int_t bnt, rsb_int_t nits);
 void rsb__attr_dump(struct rsb_attr_t*TTRP);
 
-rsb_err_t rsb__tune_spxx( struct rsb_mtx_t ** mtxOpp, rsb_real_t *tsfp, rsb_int_t *tnp, rsb_int_t maxr, rsb_int_t maxms, rsb_int_t maxss, rsb_int_t mintimes, rsb_int_t maxtimes, rsb_time_t maxt, rsb_trans_t transA, const void * alphap, const struct rsb_mtx_t * mtxAp, rsb_coo_idx_t nrhs, rsb_flags_t order, const void * Bp, rsb_nnz_idx_t ldB, const void * betap, void * Cp, rsb_nnz_idx_t ldC, enum rsb_op_t op, rsb_int_t*epsp, rsb_time_t*otpopp, rsb_time_t*btpopp, int verbose, const char * fprfn, const char * mtxns, struct rsb_attr_t *attrp, struct rsb_ts_t*otposp, struct rsb_ts_t*btposp );
+rsb_err_t rsb__tune_spxx( struct rsb_mtx_t ** mtxOpp, rsb_real_t *tsfp, rsb_int_t *tnp, rsb_int_t maxr, rsb_int_t maxms, rsb_int_t maxss, rsb_int_t mintimes, rsb_int_t maxtimes, rsb_time_t maxt, rsb_trans_t transA, const void * alphap, const struct rsb_mtx_t * mtxAp, rsb_coo_idx_t nrhs, rsb_flags_t order, const void * Bp, rsb_nnz_idx_t ldB, const void * betap, void * Cp, rsb_nnz_idx_t ldC, enum rsb_op_t op, rsb_int_t*epsp, rsb_time_t*otpopp, rsb_time_t*btpopp, int verbose, const char * mtxns, struct rsb_attr_t *attrp, struct rsb_ts_t*otposp, struct rsb_ts_t*btposp );
 rsb_err_t rsb__do_tune_spmm(struct rsb_mtx_t ** mtxOpp, rsb_real_t *sfp, rsb_int_t *tnp, rsb_int_t maxr, rsb_time_t maxt, rsb_trans_t transA, const void * alphap, const struct rsb_mtx_t * mtxAp, rsb_coo_idx_t nrhs, rsb_flags_t order, const void * Bp, rsb_nnz_idx_t ldB, const void * betap, void * Cp, rsb_nnz_idx_t ldC);
 rsb_err_t rsb__do_tune_spsm(struct rsb_mtx_t ** mtxOpp, rsb_real_t *sfp, rsb_int_t *tnp, rsb_int_t maxr, rsb_time_t maxt, rsb_trans_t transA, const void * alphap, const struct rsb_mtx_t * mtxAp, rsb_coo_idx_t nrhs, rsb_flags_t order, const void * Bp, rsb_nnz_idx_t ldB, const void * betap, void * Cp, rsb_nnz_idx_t ldC);
 rsb_err_t rsb__do_bench_spxm(rsb_time_t *tpop, rsb_int_t *timesp, rsb_trans_t transA, const void * alphap, const struct rsb_mtx_t * mtxAp, rsb_coo_idx_t nrhs, rsb_flags_t order, const void * Bp, rsb_nnz_idx_t ldB, const void * betap, void * Cp, rsb_nnz_idx_t ldC, rsb_time_t maxdt, rsb_int_t mintimes, enum rsb_op_t op, rsb_int_t maxtimes, int verbose, rsb_int_t *tnp, struct rsb_ts_t * tstp);
-rsb_err_t rsb__mtx_ms_check(struct rsb_mtx_t ** mtxOpp);
 
 #ifdef __cplusplus
 }

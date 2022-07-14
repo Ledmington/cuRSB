@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -53,8 +53,7 @@ rsb_nnz_idx_t rsb__nnz_split_hcoo_bsearch(const rsb_half_idx_t *A, const rsb_hal
 		return l;
 
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_COO_INDEX(S));
-	RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(n));
-	RSB_DEBUG_ASSERT(n>1);
+	RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(n>0));
 
 	do
 	{
@@ -98,7 +97,7 @@ rsb_nnz_idx_t rsb__nnz_split_nnz_bsearch(const rsb_nnz_idx_t*A,const rsb_nnz_idx
 	 *
 	 * Performs a binary search in the given sorted array to find the first
   	 * element which is >= S, and returns its index.
-	 * \note : n<=0 is not allowed
+	 * \note : n=0 is not allowed
 	*/
 	register rsb_nnz_idx_t l=0,h=n-1,mid;
 
@@ -112,8 +111,7 @@ rsb_nnz_idx_t rsb__nnz_split_nnz_bsearch(const rsb_nnz_idx_t*A,const rsb_nnz_idx
 		return l;
 
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_COO_INDEX(S));
-	RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(n));
-	RSB_DEBUG_ASSERT(n>0);
+	RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(n>0));
 
 	do
 	{
@@ -157,7 +155,7 @@ rsb_nnz_idx_t rsb__nnz_split_coo_bsearch(const rsb_coo_idx_t*A,const rsb_coo_idx
 	 *
 	 * Performs a binary search in the given sorted array to find the first
   	 * element which is >= S, and returns its index.
-	 * \note : n<=0 is not allowed
+	 * \note : n=0 is not allowed
 	*/
 	register rsb_nnz_idx_t l=0,h=n-1,mid;
 
@@ -171,8 +169,7 @@ rsb_nnz_idx_t rsb__nnz_split_coo_bsearch(const rsb_coo_idx_t*A,const rsb_coo_idx
 		return l;
 
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_COO_INDEX(S));
-	RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(n));
-	RSB_DEBUG_ASSERT(n>0);
+	RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(n>0));
 
 	do
 	{

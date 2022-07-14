@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -30,7 +30,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
-rsb_err_t rsb__limiter_init(struct rsb_limiter* lsp, const rsb_time_t max_time, const rsb__times_t max_times) 
+rsb_err_t rsb_limiter_init(struct rsb_limiter* lsp, const rsb_time_t max_time, const rsb__times_t max_times) 
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
@@ -72,7 +72,7 @@ rsb_err_t rsb__limiter_init_from_str(struct rsb_limiter* lsp, const char *tls)
 		lst.max_times = rsb__util_atoi(tls);
 		lst.max_time  = RSB_TIME_ZERO;
 	}
-	errval = rsb__limiter_init(lsp,lst.max_time,lst.max_times); 
+	errval = rsb_limiter_init(lsp,lst.max_time,lst.max_times); 
 	goto ret;
 err:
 	errval = RSB_ERR_BADARGS;
@@ -115,7 +115,7 @@ rsb_bool_t rsb__limiter_continue(const struct rsb_limiter* lsp)
 rsb_err_t rsb__limiter_info(const struct rsb_limiter* lsp)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	const rsb_char_t*const tis="Timer info: ";
+	const rsb_char_t*tis="Timer info: ";
 
 	if(!lsp) { errval = RSB_ERR_BADARGS;goto err; }
 	if( lsp->max_time > RSB_TIME_ZERO )

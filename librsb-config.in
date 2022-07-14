@@ -1,9 +1,9 @@
-#!@SHEBANG_SHELL@
+#! /bin/sh
 
 # librsb-config
-# provide configuration info for librsb.
+# provides configuration info for librsb.
 
-# Copyright (C) 2010-2022 Michele Martone
+# Copyright (C) 2010-2016 Michele Martone
 # Modeled after libpng-config, Copyright (C) 2002, 2004, 2006, 2007 Glenn Randers-Pehrson
 
 version="@LIBRSB_MAIN_RELEASE@ "
@@ -13,26 +13,21 @@ libdir="@libdir@"
 cc="@CC@"
 fc="@FC@"
 cxx="@CXX@"
+#includedir="@includedir@/librsb@LIBRSB_MAJOR@@LIBRSB_MINOR@"
+#includedir="@includedir@/@LIBRSB_MAJOR@@LIBRSB_MINOR@"
 includedir="@includedir@/"
-ldflags="@LDFLAGS@"
-# Note: if using -lrsbpp explicitly and -stdc++ is there, optional -lasan needs to precede -stdc++ (in RSB_RSBPP_LIBS)
-libs="-lrsb"
-extra_libs="@LIBS@ @OPENMP_CFLAGS@ @LIBRSB_MKL_LIBS@ @RSB_RSBPP_LIBS@"
-all_libs="-lrsb"
-fclibs="@FCLIBS@"
+#libs="-lrsb@LIBRSB_MAJOR@@LIBRSB_MINOR@"
+libs="-lrsb "
+#all_libs="-lrsb@LIBRSB_MAJOR@@LIBRSB_MINOR@ @LIBS@"
+#all_libs="-lrsb @LIBS@"
+extra_libs="@LIBS@ @OPENMP_FCFLAGS@ "
+all_libs="-lrsb "
 I_opts="-I${includedir} "
 L_opts="-L${libdir} "
-if test x"@lt_cv_prog_gnu_ld@" == x"no" ; then # lt_cv_prog_gnu_ld as detected by configure.
-	R_opts=""; # e.g. AIX ld, ...
-else
-	R_opts="-Wl,-rpath -Wl,${libdir}";
-fi
+R_opts="-Wl,-rpath -Wl,${libdir} "
 cppflags=""
-fcflags="@LIBRSB_CONFIG_FFLAGS@"
 ccopts=""
-cxxflags="@CXXFLAGS@"
 ldopts=""
-link="@EXAMPLES_MAKE_SH_LINK@"
 
 usage()
 {
@@ -45,21 +40,17 @@ Known values for OPTION are:
   --libdir        print path to directory containing library
   --libs          print library linking information
   --extra_libs    print extra linking information (e.g.: dependency libs)
-  --ccopts        print compiler options (no-op)
+  --ccopts        print compiler options
   --cc            print C compiler
   --fc            print Fortran compiler
   --cxx           print C++ compiler
-  --cppflags      print C pre-processor flags (no-op)
+  --cppflags      print pre-processor flags
   --cflags        print preprocessor flags, I_opts, and compiler options
-  --cxxflags      print preprocessor flags, I_opts, and C++ compiler options
-  --fcflags       print Fortran compilation and preprocessor flags
   --I_opts        print "-I" include options
   --L_opts        print linker "-L" flags for dynamic linking
   --R_opts        print dynamic linker "-R" or "-rpath" flags
-  --ldopts        print linker options (no-op)
-  --link          print suggested linker command
+  --ldopts        print linker options
   --ldflags       print linker flags (ldopts, L_opts, R_opts, and libs)
-  --fclibs        print build-time detected fortran libs
   --static        revise subsequent outputs for static linking
   --help          print this help and exit
   --version       print version information
@@ -72,18 +63,15 @@ if test $# -eq 0; then
     usage 1
 fi
 
-OUT='' # want one line of output
-
 while test $# -gt 0; do
     case "$1" in
 
     --prefix)
-        OUT="${OUT} ${prefix}"
+        echo -n ${prefix}
         ;;
 
     --version)
-        OUT="${OUT} ${version}"
-        echo ${OUT}
+        echo -n ${version}
         exit 0
         ;;
 
@@ -92,75 +80,59 @@ while test $# -gt 0; do
         ;;
 
     --ccopts)
-        OUT="${OUT} ${ccopts}"
+        echo -n ${ccopts}
         ;;
 
     --cc)
-        OUT="${OUT} ${cc}"
+        echo -n ${cc}
         ;;
 
     --fc)
-        OUT="${OUT} ${fc}"
+        echo -n ${fc}
         ;;
 
     --cxx)
-        OUT="${OUT} ${cxx}"
+        echo -n ${cxx}
         ;;
 
     --cppflags)
-        OUT="${OUT} ${cppflags}"
+        echo -n ${cppflags}
         ;;
 
     --cflags)
-        OUT="${OUT} ${I_opts} ${cppflags} ${ccopts}"
-        ;;
-
-    --cxxflags)
-        OUT="${OUT} ${I_opts} ${cxxflags}"
-        ;;
-
-    --fcflags)
-        OUT="${OUT} ${fcflags}"
+        echo -n ${I_opts} ${cppflags} ${ccopts}
         ;;
 
     --libdir)
-        OUT="${OUT} ${libdir}"
+        echo -n ${libdir}
         ;;
 
     --libs)
-        OUT="${OUT} ${libs}"
-        ;;
-
-    --fclibs)
-        OUT="${OUT} ${fclibs}"
+        echo -n ${libs}
         ;;
 
     --extra_libs)
-        OUT="${OUT} ${extra_libs}"
+        echo -n ${extra_libs}
         ;;
 
     --I_opts)
-        OUT="${OUT} ${I_opts}"
+        echo -n ${I_opts}
         ;;
 
     --L_opts)
-        OUT="${OUT} ${L_opts}"
+        echo -n ${L_opts}
         ;;
 
     --R_opts)
-        OUT="${OUT} ${R_opts}"
+        echo -n ${R_opts}
         ;;
 
-    --link)
-	OUT="${OUT} ${link}"
-	;;
-
     --ldopts)
-	OUT="${OUT} ${ldopts}"
+    	echo -n ${ldopts}
 	;;
 
     --ldflags)
-        OUT="${OUT} ${ldopts} ${L_opts} ${R_opts} ${libs} ${ldflags}"
+        echo -n ${ldopts} ${L_opts} ${R_opts} ${libs}
         ;;
 
     --static)
@@ -174,8 +146,9 @@ while test $# -gt 0; do
         exit 1
         ;;
     esac
+    if test $# -gt 1; then echo -n \  ; fi
     shift
 done
-echo ${OUT}
+echo
 
 exit 0

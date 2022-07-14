@@ -7,7 +7,7 @@
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -37,16 +37,18 @@ If not, see <http://www.gnu.org/licenses/>.
 
 rsb_err_t rsb__do_add_submatrix_to_dense(const struct rsb_mtx_t * mtxAp, const void *alphap, void * Bp, rsb_nnz_idx_t ldb, rsb_nnz_idx_t nr, rsb_nnz_idx_t nc, rsb_bool_t rowmajor)
 {
-	if(!mtxAp || !Bp || !alphap )
-		goto err;
+	rsb_nnz_idx_t n;
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	rsb_coo_idx_t	roff=0, coff=0;
+
+	if(!mtxAp || !Bp || !alphap ) {errval = RSB_ERR_BADARGS; goto err;}
+	roff=mtxAp->roff, coff=mtxAp->coff;
 
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE 
 	if( mtxAp->typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
 	{
 {
-	rsb_nnz_idx_t n;
-	const rsb_coo_idx_t roff=mtxAp->roff, coff=mtxAp->coff;
-	const double *VA=mtxAp->VA;
+	double *VA=mtxAp->VA;
 
 	if(rsb__is_coo_matrix(mtxAp))
 	{
@@ -120,9 +122,7 @@ rsb_err_t rsb__do_add_submatrix_to_dense(const struct rsb_mtx_t * mtxAp, const v
 	if( mtxAp->typecode == RSB_NUMERICAL_TYPE_FLOAT  )
 	{
 {
-	rsb_nnz_idx_t n;
-	const rsb_coo_idx_t roff=mtxAp->roff, coff=mtxAp->coff;
-	const float *VA=mtxAp->VA;
+	float *VA=mtxAp->VA;
 
 	if(rsb__is_coo_matrix(mtxAp))
 	{
@@ -196,9 +196,7 @@ rsb_err_t rsb__do_add_submatrix_to_dense(const struct rsb_mtx_t * mtxAp, const v
 	if( mtxAp->typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
 	{
 {
-	rsb_nnz_idx_t n;
-	const rsb_coo_idx_t roff=mtxAp->roff, coff=mtxAp->coff;
-	const float complex *VA=mtxAp->VA;
+	float complex *VA=mtxAp->VA;
 
 	if(rsb__is_coo_matrix(mtxAp))
 	{
@@ -272,9 +270,7 @@ rsb_err_t rsb__do_add_submatrix_to_dense(const struct rsb_mtx_t * mtxAp, const v
 	if( mtxAp->typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
 	{
 {
-	rsb_nnz_idx_t n;
-	const rsb_coo_idx_t roff=mtxAp->roff, coff=mtxAp->coff;
-	const double complex *VA=mtxAp->VA;
+	double complex *VA=mtxAp->VA;
 
 	if(rsb__is_coo_matrix(mtxAp))
 	{

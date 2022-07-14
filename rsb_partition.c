@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -34,7 +34,7 @@ If not, see <http://www.gnu.org/licenses/>.
 /* void qsort(void *base, size_t nmemb, size_t size,
 	int(*compar)(const void *, const void *)); */
 
-RSB_INTERNALS_COMMON_HEAD_DECLS
+extern struct rsb_session_handle_t rsb_global_session_handle;
 #if 0
 /* 20121001 old code, declaring static vars */
 /**

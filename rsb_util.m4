@@ -9,7 +9,6 @@ define(`LIBMMVBR_INCLUDED_TYPES_M4',`1')dnl
 dnl `PACK' format will be experimented with in the future :)
 include(`rsb_misc.m4')dnl
 include(`do_unroll.m4')dnl
-include(`libspblas_macros.m4')dnl RSB_M4_SPBLAS...
 /**
  * @file
  * @brief
@@ -26,6 +25,15 @@ dnl
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+ifdef(`RSB_M4_WANT_OMP',dnl
+dnl	FIXME : this should be moved elsewhere
+`#define RSB_WANT_OMP        '1
+`#define RSB_MAX_OMP_THREADS 'RSB_M4_MAX_OMP_THREADS
+ifdef(`ONLY_WANT_HEADERS',`',`dnl
+#include <omp.h>       /* OpenMP parallelism (EXPERIMENTAL) */
+')
+)dnl
 
 dnl
 #include "rsb_common.h"
@@ -74,7 +82,7 @@ err:
 dnl
 
 dnl
-const void * rsb__util_increase_by_one(void *p, rsb_nnz_idx_t n, rsb_type_t typecode)dnl
+const void * rsb__util_increase_by_one(void *p, rsb_nnz_idx_t n, rsb_flags_t typecode)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 foreach(`mtype',RSB_M4_TYPES,`dnl
@@ -89,7 +97,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
 
 dnl
-void rsb__util_set_area_to_fraction_of_integer(void *p, const int alphai, rsb_type_t typecode)dnl
+void rsb__util_set_area_to_fraction_of_integer(void *p, const int alphai, rsb_flags_t typecode)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/*
@@ -107,7 +115,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
 
 dnl
-void rsb__util_set_area_to_negated_fraction(void *p, const void *alpha, rsb_type_t typecode)dnl
+void rsb__util_set_area_to_negated_fraction(void *p, const void *alpha, rsb_flags_t typecode)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/*
@@ -125,7 +133,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
 
 dnl
-void rsb__util_set_area_to_converted_integer(void *p, rsb_type_t typecode, const rsb_int n)dnl
+void rsb__util_set_area_to_converted_integer(void *p, rsb_flags_t typecode, const rsb_int n)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 foreach(`mtype',RSB_M4_TYPES,`dnl
@@ -195,8 +203,6 @@ err:
 dnl
 
 dnl
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
-dnl
 rsb_err_t rsb__vector_diff(void * c, const void * a, const void * b, rsb_type_t type, size_t n)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
@@ -226,9 +232,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 	return RSB_ERR_UNSUPPORTED_TYPE	;
 	return RSB_ERR_NO_ERROR;
 }
-')
-dnl
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+')dnl
 dnl
 
 dnl
@@ -300,8 +304,6 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
 
 dnl
-ifelse(1,0,`dnl
-dnl
 ifdef(`ONLY_WANT_HEADERS',`',`dnl
 static rsb_err_t rsb_vector_norm_square_strided(void * c, const void * a, rsb_type_t type, size_t n, rsb_nnz_idx_t inc)
 {
@@ -318,7 +320,6 @@ static rsb_err_t rsb_vector_norm_square_strided(void * c, const void * a, rsb_ty
 	size_t i;
 	if(inc==1)
 		return rsb_vector_norm_square(c,a,type,n);
-dnl
 foreach(`mtype',RSB_M4_TYPES,`dnl
 `#ifdef 'RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)
 	if( type == RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) )
@@ -333,11 +334,8 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 #endif
 ')dnl
 	return RSB_ERR_UNSUPPORTED_TYPE	;
-dnl
 	return RSB_ERR_NO_ERROR;
 }
-')dnl
-dnl
 ')dnl
 dnl
 
@@ -360,7 +358,6 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 		return RSB_ERR_BADARGS;
 	if(inc==1)
 		return rsb_vector_norm(c,a,type,n);
-ifelse(1,0,`dnl
 foreach(`mtype',RSB_M4_TYPES,`dnl
 `#ifdef 'RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)
 	if( type == RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) )
@@ -373,11 +370,6 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 #endif
 ')dnl
 		errval = RSB_ERR_UNSUPPORTED_TYPE;
-dnl
-',`
-	errval = RSB_ERR_INTERNAL_ERROR;
-')dnl
-dnl
 	RSB_DO_ERR_RETURN(errval)
 }
 ')dnl
@@ -398,8 +390,6 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 	 * \return \rsberrcodemsg
 	 * */
 	size_t i;
-	/* See also rsb__cblas_Xnrm2 */
-
 foreach(`mtype',RSB_M4_TYPES,`dnl
 `#ifdef 'RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)
 	if( type == RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) )
@@ -459,7 +449,6 @@ dnl	{
 dnl		cblas_ddot(n,a,1,a,1)
 dnl	}
 dnl
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 ifdef(`ONLY_WANT_HEADERS',`',`dnl
 static rsb_err_t rsb__vector_mult_sum(const void * a, const void * b, void * c, rsb_type_t type, size_t n, const int inca, const int incb)
 {
@@ -517,9 +506,6 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 	return RSB_ERR_NO_ERROR;
 }
 ')dnl
-dnl
-
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 dnl
 
 dnl
@@ -1001,7 +987,7 @@ dnl
 dnl
 
 dnl
-rsb_err_t rsb__util_set_array_to_converted_integer(void *p, rsb_type_t typecode, const rsb_nnz_idx_t n, const rsb_nnz_idx_t incp, const rsb_int v)
+rsb_err_t rsb__util_set_array_to_converted_integer(void *p, rsb_flags_t typecode, const rsb_nnz_idx_t n, const rsb_nnz_idx_t incp, const rsb_int v)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/*!
@@ -1031,7 +1017,7 @@ rsb_err_t rsb__vectors_left_sum_reduce_and_zero(void * d, void * s, const rsb_ty
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/*!
-	 * d[off:off+n-1] <- d[off:off+n-1] + s[off:off+n-1] 
+	 * d[off:off+n-1] <- s[off:off+n-1] 
 	 * s[off:off+n-1] <- 0
          *
 	 * \param array	an array pointer
@@ -1220,54 +1206,6 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 dnl
 
 dnl
-rsb_err_t rsb__do_are_similar(const void * ap, const void * bp, rsb_nnz_idx_t n,rsb_type_t typecode, rsb_nnz_idx_t incx, rsb_nnz_idx_t incy)
-ifdef(`ONLY_WANT_HEADERS',`;',`dnl
-{
-	/*!
-         *
-	 * \param array	an array pointer
-	 * \param type	a valid type code
-	 *
-	 * \return \rsberrcodemsg
-	 *
-	 * For cases like 1+0I differing from 1-0I .
-	 * */
-foreach(`mtype',RSB_M4_TYPES,`dnl
-`#ifdef 'RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)
-	if( typecode == RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) )
-	{
-		rsb_nnz_idx_t i;
-		const mtype *a = ap;
-		const mtype *b = bp;
-		const RSB_M4_REALT(mtype) threshold = RSB_M4_THRESHOLD_VALUE(mtype);
-
-		for(i=0;i<n;++i)
-		{
-			const mtype av = a[incx*(i)];
-			const mtype bv = b[incy*(i)];
-			if( av - bv )
-			{
-				const mtype aav = RSB_M4_ABS(mtype,av);
-				const mtype abv = RSB_M4_ABS(mtype,bv);
-				if( av && RSB_M4_ABS(mtype,(aav - abv)) / RSB_M4_ABS(mtype,av) > threshold )
-					goto differing;
-				if( bv && RSB_M4_ABS(mtype,(aav - abv)) / RSB_M4_ABS(mtype,bv) > threshold )
-					goto differing;
-			}
-		}
-		return RSB_ERR_NO_ERROR;
-	}
-	else
-#endif
-')dnl
-	return RSB_ERR_UNSUPPORTED_TYPE;
-differing:
-	return RSB_ERR_GENERIC_ERROR;
-}
-')dnl
-dnl
-
-dnl
 rsb_err_t rsb__do_are_same(const void * ap, const void * bp, rsb_nnz_idx_t n,rsb_type_t typecode, rsb_nnz_idx_t incx, rsb_nnz_idx_t incy)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
@@ -1278,7 +1216,7 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 	 *
 	 * \return \rsberrcodemsg
 	 *
-	 * For cases like 1+0I differing from 1-0I use rsb__do_are_similar.
+	 * For cases like 1+0I differing from 1-0I ..
 	 * */
 foreach(`mtype',RSB_M4_TYPES,`dnl
 `#ifdef 'RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)
@@ -1657,7 +1595,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
 
 dnl
-rsb_err_t rsb__debug_print_vectors_diff_fd(const void * v1, const void * v2, size_t n, rsb_type_t type, size_t incx, size_t incy, int onlyfirst, FILE*fd)dnl
+rsb_err_t rsb__debug_print_vectors_diff(const void * v1, const void * v2, size_t n, rsb_type_t type, size_t incx, size_t incy, int onlyfirst)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/*! 
@@ -1668,17 +1606,14 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 	size_t i, differing = 0;
 	if(!v1 || !v2)return RSB_ERR_BADARGS;
 
-	/*RSB_STDERR("\t vectors diff :\n"); */
-	RSB_FPRINTF(fd,"\t vectors diff :\n");
+	RSB_STDERR("\t vectors diff :\n");
 	
 foreach(`mtype',RSB_M4_TYPES,`dnl
 `#ifdef 'RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)
 	if( type == RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) )
 	{
-		const mtype *v1p = v1,*v2p = v2;
-		const RSB_M4_REALT(mtype) th = RSB_M4_THRESHOLD_VALUE(mtype);
+		const mtype *v1p = v1,*v2p = v2; RSB_M4_REALT(mtype) th = 0.0001;
 		for(i=0;i<n ;++i) 
-		ifelse(mtype,`long double complex',`if(creall(v1p[i*incx])-creall(v2p[i*incy])>th)/*FIXME : incomplete check*/',`dnl
 		ifelse(mtype,`double complex',`if(creal(v1p[i*incx])-creal(v2p[i*incy])>th)/*FIXME : incomplete check*/',`dnl
 		ifelse(mtype,`float complex',`if(crealf(v1p[i*incx])-crealf(v2p[i*incy])>th)/*FIXME : incomplete check*/',`dnl
 		ifelse(mtype,`complex',       `if(creal(v1p[i*incx])-creal(v2p[i*incy])>th)/*FIXME : incomplete check*/',`dnl
@@ -1690,16 +1625,13 @@ if(fabs((double)(v1p[i*incx]-v2p[i*incy]))>th)/*FIXME : incomplete check*/
 ')dnl
 ')dnl
 ')dnl
-')dnl
 {		differing++;
 		if((onlyfirst==0)||(onlyfirst>differing))
-		RSB_FPRINTF(fd,"%zd : "RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_PRINTF_STRING(mtype)" "RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_PRINTF_STRING(mtype)"\n",(rsb_printf_int_t)i,dnl
-		ifelse(mtype,`long double complex',`creall(v1p[i*incx]),cimagl(v1p[i*incx]),creall(v2p[i*incy]),cimagl(v2p[i*incy])',`dnl
+		RSB_STDOUT("%zd : "RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_PRINTF_STRING(mtype)" "RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_PRINTF_STRING(mtype)"\n",(rsb_printf_int_t)i,dnl
 		ifelse(mtype,`double complex',`creal(v1p[i*incx]),cimag(v1p[i*incx]),creal(v2p[i*incy]),cimag(v2p[i*incy])',`dnl
 		ifelse(mtype,`float complex',`crealf(v1p[i*incx]),cimagf(v1p[i*incx]),crealf(v2p[i*incy]),cimagf(v2p[i*incy])',`dnl
 		ifelse(mtype,`complex',`creal(v1p[i*incx]),cimag(v1p[i*incx]),creal(v2p[i*incy]),cimag(v2p[i*incy])',`dnl
 v1p[i*incx],v2p[i*incy]`'dnl
-')dnl
 ')dnl
 ')dnl
 ')dnl
@@ -1710,20 +1642,11 @@ v1p[i*incx],v2p[i*incy]`'dnl
 #endif
 ')dnl
 	return RSB_ERR_UNSUPPORTED_TYPE	;
-	if(differing>onlyfirst)RSB_FPRINTF(fd,"...(for a total of %zd differing entries)...\n",(rsb_printf_int_t)(differing-onlyfirst));
+	if(differing>onlyfirst)RSB_STDOUT("...(for a total of %zd differing entries)...\n",(rsb_printf_int_t)(differing-onlyfirst));
 	return RSB_ERR_NO_ERROR;
 #else
 	return RSB_ERR_UNSUPPORTED_FEATURE; 
 #endif
-}
-')dnl
-dnl
-
-dnl
-rsb_err_t rsb__debug_print_vectors_diff(const void * v1, const void * v2, size_t n, rsb_type_t type, size_t incx, size_t incy, int onlyfirst)dnl
-ifdef(`ONLY_WANT_HEADERS',`;',`dnl
-{
-	return rsb__debug_print_vectors_diff_fd(v1, v2, n, type, incx, incy, onlyfirst, RSB_DEFAULT_STREAM);
 }
 ')dnl
 dnl
@@ -1743,12 +1666,10 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 	{
 		const mtype *v1p = v;
 		RSB_STDOUT(RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_PRINTF_STRING(mtype),dnl
-		ifelse(mtype,`long double complex',`creall(v1p[0]),cimagl(v1p[0])',`dnl
 		ifelse(mtype,`double complex',`creal(v1p[0]),cimag(v1p[0])',`dnl
 		ifelse(mtype,`float complex',`crealf(v1p[0]),cimagf(v1p[0])',`dnl
 		ifelse(mtype,`complex',`creal(v1p[0]),cimag(v1p[0])',`dnl
 v1p[0]`'dnl
-')dnl
 ')dnl
 ')dnl
 ')dnl
@@ -1779,7 +1700,7 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 	const char * ts = RSB_IS_MATRIX_TYPE_COMPLEX(type)?"complex":"real";
 	const char * ss = RSB_SYMMETRY_STRING(RSB_FLAG_NOFLAGS);
 	
-	if( n <= 0 )
+	if( n < 0 )
 		goto errb;
 
 	if(!v1 || !stream)
@@ -1796,12 +1717,10 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 		if(want_header)RSB_FPRINTF(stream,"%%%%MatrixMarket matrix array %s %s\n%zd %zd\n",ts,ss,(rsb_printf_int_t)n,(rsb_printf_int_t)1);
 		for(i=0;i<n;++i) 
 		RSB_FPRINTF(stream,RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_PRINTF_STRING(mtype) "\n",dnl
-		ifelse(mtype,`long double complex',`creall(v1p[i*inc]),cimagl(v1p[i*inc])',`dnl
 		ifelse(mtype,`double complex',`creal(v1p[i*inc]),cimag(v1p[i*inc])',`dnl
 		ifelse(mtype,`float complex',`crealf(v1p[i*inc]),cimagf(v1p[i*inc])',`dnl
 		ifelse(mtype,`complex',`creal(v1p[i*inc]),cimag(v1p[i*inc])',`dnl
 v1p[i*inc]`'dnl
-')dnl
 ')dnl
 ')dnl
 ')dnl
@@ -1885,7 +1804,6 @@ dnl
 dnl
 dnl
 
-#ifdef RSB_WANT_OSKI_BENCHMARKING 
 rsb_err_t rsb__do_account_sorted_optimized_css(
 	 const rsb_coo_idx_t * MIndx, const rsb_coo_idx_t * mIndx,
 	 const rsb_coo_idx_t Mdim, const rsb_coo_idx_t mdim,
@@ -1922,11 +1840,7 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 ')dnl
 dnl
 
-#endif /* RSB_WANT_OSKI_BENCHMARKING */
-
 dnl
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
-
 rsb_err_t rsb__do_account_sorted_optimized(
 	 struct rsb_mtx_t * mtxAp,
 	 const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA,
@@ -1958,9 +1872,9 @@ dnl	rsb_nnz_idx_t *bindx = mtxAp->bindx;
 	rsb_nnz_idx_t k = 0;	/* will index a nnz sized array */
 	int K = 0;
 	
-dnl	if(0)
-dnl	//if( flags & RSB_FLAG_SHOULD_DEBUG )
-dnl		errval = rsb__do_account_sorted( mtxAp, IA, JA, nnz, pinfop, elements_per_block_row, blocks_per_block_row);
+	if(0)
+	//if( flags & RSB_FLAG_SHOULD_DEBUG )
+		errval = rsb__do_account_sorted( mtxAp, IA, JA, nnz, pinfop, elements_per_block_row, blocks_per_block_row);
 
 	if(nnz==0)
 	{
@@ -2000,6 +1914,7 @@ foreach(`matrix_storage',RSB_M4_MATRIX_STORAGE,`dnl
 {
 	k = mI = MI = 0;K = 0;
 #if RSB_EXPERIMENTAL_USE_PURE_BCSS_FOR_CONSTRUCTOR
+/*	rsb__get_blocking_size(mtxAp, &blockrows, &blockcolumns);*/
 	rsb__get_physical_blocking_size(mtxAp, &blockrows, &blockcolumns);
 	RSB_ASSERT( blockrows && blockcolumns);
 #else
@@ -2121,12 +2036,8 @@ dnl
 ')dnl
 dnl
 
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-
 dnl
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
-dnl
-static rsb_err_t rsb__do_insert_sorted_optimized_css( struct rsb_mtx_t * mtxAp, const void *VA, const rsb_coo_idx_t * MIndx, const rsb_coo_idx_t * mIndx, const rsb_nnz_idx_t nnz)
+rsb_err_t rsb__do_insert_sorted_optimized_css( struct rsb_mtx_t * mtxAp, const void *VA, const rsb_coo_idx_t * MIndx, const rsb_coo_idx_t * mIndx, const rsb_nnz_idx_t nnz)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/**
@@ -2155,11 +2066,6 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 ')dnl
 dnl
 
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-dnl
-
-dnl
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 dnl
 rsb_err_t rsb__do_insert_sorted_optimized( struct rsb_mtx_t * mtxAp, const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, const rsb_nnz_idx_t nnz, const struct rsb_mtx_partitioning_info_t * pinfop)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
@@ -2193,8 +2099,8 @@ dnl	rsb_nnz_idx_t *bpntr = mtxAp->bpntr;
 		return RSB_ERR_NO_ERROR;
 	}
 
-dnl	if(0)
-dnl		return rsb__do_insert_sorted( mtxAp, VA, IA, JA, nnz, pinfop);
+	if(0)
+		return rsb__do_insert_sorted( mtxAp, VA, IA, JA, nnz, pinfop);
 
 #if RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS
 	if(!pinfop)
@@ -2232,6 +2138,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 	mtype * dst = mtxAp->VA;
 	k = mI = MI = 0;K = 0;
 #if RSB_EXPERIMENTAL_USE_PURE_BCSS_FOR_CONSTRUCTOR
+/*	rsb__get_blocking_size(mtxAp, &blockrows, &blockcolumns);*/
 	rsb__get_physical_blocking_size(mtxAp, &blockrows, &blockcolumns);
 	RSB_ASSERT( blockrows && blockcolumns);
 #else
@@ -2441,10 +2348,7 @@ dnl
 ')dnl
 dnl
 
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-
 dnl
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__dump_block(rsb_type_t type, const void * VA, rsb_blk_idx_t roff, rsb_blk_idx_t coff, rsb_blk_idx_t rows, rsb_blk_idx_t cols )
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
@@ -2488,11 +2392,7 @@ RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_PRINTF_ARG(mtype,`((mtype*)VA)[cols*i+j]'));
 ')dnl
 dnl
 
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 dnl
-
-dnl
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__dump_blocks(const struct rsb_mtx_t *mtxAp)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
@@ -2529,9 +2429,6 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 #endif
 }
 ')dnl
-dnl
-
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 dnl
 
 dnl
@@ -2660,13 +2557,11 @@ foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 dnl
 
 dnl
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
-dnl
 ifdef(`1',`0',`dnl
-rsb_err_t rsb__do_coo_sum( struct rsb_coo_mtx_t*coocp, const void *alphap, const struct rsb_coo_mtx_t*cooap, const void *betap,  const struct rsb_coo_mtx_t*coobp)
+rsb_err_t rsb__do_coo_sum( struct rsb_coo_matrix_t*coocp, const void *alphap, const struct rsb_coo_matrix_t*cooap, const void *betap,  const struct rsb_coo_matrix_t*coobp)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
-	struct rsb_coo_mtx_t cooa = *cooap, coob = *coobp, cooc = *coocp;
+	struct rsb_coo_matrix_t cooa = *cooap, coob = *coobp, cooc = *coocp;
 	rsb_nnz_idx_t /*rnz = 0,*/an, bn, cn;
 
 foreach(`mtype',RSB_M4_TYPES,`dnl
@@ -2722,12 +2617,9 @@ dnl
 ')dnl
 dnl
 
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-dnl
-
 dnl
 dnl
-rsb_err_t rsb__cor_merge_dups(rsb_type_t typecode, void* RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t offB, rsb_nnz_idx_t nnzB, rsb_nnz_idx_t nnzC, const int wv, int wp, rsb_nnz_idx_t *onzp, struct rsb_coo_mtx_t*RSB_RESTRICT coop)
+rsb_err_t rsb__cor_merge_dups(rsb_type_t typecode, void* RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t offB, rsb_nnz_idx_t nnzB, rsb_nnz_idx_t nnzC, const int wv, int wp, rsb_nnz_idx_t *onzp, struct rsb_coo_matrix_t*RSB_RESTRICT coop)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/**
@@ -2739,9 +2631,9 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 	rsb_coo_idx_t * IC = NULL, *JC = NULL;
 	rsb_coo_idx_t * IT = NULL, *JT = NULL;
 	rsb_nnz_idx_t bi = 0, ci = 0, ti = 0;
-	rsb_nnz_idx_t b0 = 0, c0 = 0;
+	rsb_nnz_idx_t b0 = 0, c0 = 0, t0 = 0;
 	rsb_nnz_idx_t onz = 0;
-	struct rsb_coo_mtx_t coo;
+	struct rsb_coo_matrix_t coo;
 	size_t es = RSB_SIZEOF(typecode);
 
 	if( nnzB == 0 || nnzC == 0 )
@@ -2786,6 +2678,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 	mtype * vC = VC;
 
 again`_'RSB_M4_CHOPSPACES(mtype):
+	t0 = ti;
 
        	if   ( bi<nnzB && ci<nnzC && RSB_COO_LT(IB[bi],JB[bi],IC[ci],JC[ci]) )
 	{
@@ -2805,6 +2698,7 @@ again`_'RSB_M4_CHOPSPACES(mtype):
 	}
 
 	/* FIXME: this works as RSB_FLAG_DUPLICATES_SUM but should support either merge, last, first, ...  */
+	t0 = ti;
        	if   ( bi<nnzB && ci<nnzC && RSB_COO_EQ(IB[bi],JB[bi],IC[ci],JC[ci]) )
 	{
 		IT[ti] = IB[bi];
@@ -2824,6 +2718,7 @@ again`_'RSB_M4_CHOPSPACES(mtype):
 		++onz;
 	}
 
+	t0 = ti;
        	if   ( bi<nnzB && ci<nnzC && RSB_COO_GT(IB[bi],JB[bi],IC[ci],JC[ci]) )
 	{
 		IT[ti] = IC[ci];
@@ -2953,7 +2848,7 @@ ifelse(RSB_M4_AND(RSB_M4_IS_COMPLEX_TYPE(mtypeb)),1,`dnl
 dnl
 
 dnl
-rsb_err_t rsb__util_csc2csr(const void *RSB_RESTRICT VA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, void *RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_type_t typecode, const rsb_coo_idx_t offi, const rsb_coo_idx_t offo, rsb_flags_t*flagsp)
+rsb_err_t rsb_util_csc2csr(const void *RSB_RESTRICT VA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, void *RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_type_t typecode, const rsb_coo_idx_t offi, const rsb_coo_idx_t offo, rsb_flags_t*flagsp)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/*!
@@ -2981,7 +2876,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 	}
 	else 
 ')dnl
-		return RSB_ERR_UNSUPPORTED_TYPE;
+		return RSB_ERR_UNSUPPORTED_TYPE	;
 	for(nc=0;nc<k;++nc)
 	for(nzi=JA[nc]-offi;nzi<JA[nc+1]-offi;++nzi)
 	{
@@ -3009,7 +2904,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
 
 dnl
-rsb_err_t rsb__util_coo_copy_and_stats(const void *RSB_RESTRICT VA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, void *RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, rsb_coo_idx_t*m, rsb_coo_idx_t*k, const rsb_nnz_idx_t nnz, const rsb_type_t typecode, const rsb_coo_idx_t offi, const rsb_coo_idx_t offo, rsb_flags_t iflags, rsb_flags_t*flagsp)
+rsb_err_t rsb_util_coo_copy_and_stats(const void *RSB_RESTRICT VA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, void *RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, rsb_coo_idx_t*m, rsb_coo_idx_t*k, const rsb_nnz_idx_t nnz, const rsb_type_t typecode, const rsb_coo_idx_t offi, const rsb_coo_idx_t offo, rsb_flags_t iflags, rsb_flags_t*flagsp)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/*!
@@ -3070,9 +2965,6 @@ dnl	')
 	if( RSB_XOR(upptrin,lowtrin) )
 		RSB_DO_FLAG_ADD(flags,RSB_FLAG_TRIANGULAR);
 	if(flagsp) RSB_DO_FLAG_ADD(*flagsp,flags);
-	if(flagsp)
-		if(RSB_DO_FLAG_HAS_INTERSECTION(*flagsp,RSB_FLAG_ANY_SYMMETRY))
-			maxi = maxj = RSB_MAX(maxi,maxj);
 	if(m) *m = maxi+1;
 	if(k) *k = maxj+1;
 done:
@@ -3082,7 +2974,7 @@ done:
 dnl
 
 dnl
-rsb_err_t rsb__util_coo_copy(const void *RSB_RESTRICT VA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, void *RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode, const rsb_coo_idx_t offi, const rsb_coo_idx_t offo)
+rsb_err_t rsb_util_coo_copy(const void *RSB_RESTRICT VA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, void *RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode, const rsb_coo_idx_t offi, const rsb_coo_idx_t offo)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/*!
@@ -3332,8 +3224,6 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
 
 dnl
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
-dnl
 rsb_err_t rsb__cblas_Xdotu_sub(rsb_type_t type, size_t n, const void * x, rsb_nnz_idx_t incx, const void * y, rsb_nnz_idx_t incy, void *dotu)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
@@ -3343,8 +3233,6 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 }
 ')dnl
 dnl
-
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 dnl
 rsb_err_t rsb__cblas_Xscal(rsb_type_t type, size_t n, const void * alphap, void * a, size_t stride)dnl
@@ -3360,7 +3248,6 @@ dnl
 
 dnl
 dnl
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__coo_insertion_sort(rsb_type_t typecode, void* VB, rsb_coo_idx_t * IB, rsb_coo_idx_t * JB, rsb_nnz_idx_t offA, rsb_nnz_idx_t nnzA)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
@@ -3393,26 +3280,18 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 ')dnl
 dnl
 
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-dnl
-
 void rsb__coo_to_lr( void * RSB_RESTRICT VBu, rsb_coo_idx_t*RSB_RESTRICT IB, rsb_coo_idx_t*RSB_RESTRICT JB, void * RSB_RESTRICT VAu, rsb_coo_idx_t*RSB_RESTRICT IA, rsb_coo_idx_t*RSB_RESTRICT JA, rsb_coo_idx_t mj, rsb_nnz_idx_t nnzA, rsb_nnz_idx_t nzoffB, rsb_nnz_idx_t nzoffA, rsb_nnz_idx_t*RSB_RESTRICT nzlp, rsb_nnz_idx_t*RSB_RESTRICT nzrp, rsb_coo_idx_t iadd, rsb_coo_idx_t jadd, rsb_type_t typecode)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/*
-	 * Given COO arrays matrices A and (temporary) B, store the coefficients left of the mj-th column before the one coming after it, respecting their original ordering.
+	 * Given COO arrays matrices A an (temporary) B, stores the coefficients left of the mj-th column before the one coming after it, respecting the row major ordering.
 	 * A serial function.
-	 * Each of arrays VAu, IA, JA fit nzoffA+nnzA elements.
-	 * Each of arrays VBu, IB, JB fit nzoffB+nnzA elements.
-	 * *nzlp will be set to the count of the elements left  of mj.
-	 * *nzrp will be set to the count of the elements right of mj.
-	 * iadd will be added to the each of the nnzA IA element.
-	 * jadd will be added to the each of the nnzA JA element which is >= mj.
 	 * */
 	rsb_nnz_idx_t nzl = 0, nzr = 0, nzi = 0;
 
 	RSB_DEBUG_ASSERT(IA!=IB);
 	RSB_DEBUG_ASSERT(JA!=JB);
+	RSB_DEBUG_ASSERT(mtxAp);
 
 	IA += nzoffA;
 	JA += nzoffA;
@@ -3426,25 +3305,24 @@ switch(typecode)
 foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 case RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type)	:
 {
-	type * VA = ((type *)VAu) + nzoffA; 
-	type * VB = ((type *)VBu) + nzoffB; 
-
+	type * VA = VAu; 
+	type * VB = VBu; 
 	RSB_DEBUG_ASSERT(VA!=VB);
 
-	/* visit IA, JA, VA */
+	VA += nzoffA;
+	VB += nzoffB;
+
 	for(nzi=0;nzi<nnzA;++nzi)
 	{
 		if( JA[nzi] < mj )
 		{
-			/* elements left of mj go to the beginning of IB,JB,VB */
 			IB[nzl] = IA[nzi] + iadd;
-			JB[nzl] = JA[nzi];
+			JB[nzl] = JA[nzi] ;
 			VB[nzl] = VA[nzi];
 			nzl++;
 		}
 		else
 		{
-			/* elements right of mj go to the end of IB,JB,VB, reversed */
 			nzr++;
 			IB[nnzA-nzr] = IA[nzi] + iadd;
 			JB[nnzA-nzr] = JA[nzi] + jadd;
@@ -3452,10 +3330,7 @@ case RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type)	:
 		}
 	}
 
-	/* first nzl elements lay left of mj; the last nzr are right of mj, reversed */
-	RSB_DEBUG_ASSERT( nzl+nzr == nnzA );
-
-	/* copy left elements back to A */
+	/* copy left quadrant back to A */
 	for(nzi=0;nzi<nzl ;++nzi)
 	{
 		IA[nzi] = IB[nzi];
@@ -3463,7 +3338,7 @@ case RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type)	:
 		VA[nzi] = VB[nzi];
 	}
 	
-	/* copy right elements back to A, reversed to original relative order */
+	/* copy right quadrant back to A */
 	for(     ;nzi<nnzA;++nzi)
 	{
 		IA[nzi] = IB[nnzA-(1+nzi-nzl)];
@@ -3481,439 +3356,6 @@ case RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type)	:
 	*nzlp = nzl;
 	*nzrp = nzr;
 }')dnl
-dnl
-
-dnl
-rsb_err_t rsb__util_testall(void)
-ifdef(`ONLY_WANT_HEADERS',`;',`dnl
-{
-dnl
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	rsb_blk_idx_t inc;
-dnl
-	RSB_STDOUT("MTX PRINT TEST BEGIN\n");
-foreach(`mtype',RSB_M4_TYPES,`dnl
-{
-	const mtype iVA [] = {1,2};
-	const rsb_coo_idx_t iIA[] = {0,1};
-	const rsb_coo_idx_t iJA[] = {0,1};
-	mtype oVA [] = {-1,-2};
-	rsb_coo_idx_t oJA[] = {-1,-2};
-	rsb_coo_idx_t oIA[] = {-1,-2};
-	rsb_coo_idx_t m=0,k=0;
-	const rsb_nnz_idx_t nnz=2;
-	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	const rsb_coo_idx_t offi=0, offo=0;
-	mtype exp = RSB_M4_ZERO(mtype);
-	const mtype alpha = 2;
-	mtype res = 1;
- 	rsb_flags_t iflags=RSB_FLAG_NOFLAGS, *flagsp=&iflags;
-
-	inc = 1;
-
-	// {-1,-2} -> {+1,+2}
-	errval = rsb__util_coo_copy_and_stats(iVA, iIA, iJA, oVA, oIA, oJA, &m, &k, nnz, typecode, offi, offo, iflags, flagsp);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	// {+1,+2} -> {+1,+2}
-	errval = rsb__util_coo_copy_and_stats(iVA, iIA, iJA, oVA, oIA, oJA, NULL, NULL, nnz, typecode, offi, offo, iflags, NULL);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__util_vector_sum_strided(&res,oVA,typecode,nnz,inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=3) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	// {+1,+2} -> {+2,+4}
-	errval = rsb__cblas_Xscal(typecode, nnz, &alpha, oVA, inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__util_vector_sum_strided(&res,oVA,typecode,nnz,inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=6) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	// {+2,+4} -> {+4,+8}
-	errval = rsb_strided_vector_scale(oVA,&alpha,typecode,nnz,inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__util_vector_sum_strided(&res,oVA,typecode,nnz,inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=12) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	// {+4,+8} -> {+2,+1}
-	oVA[0] /= 2; // avoid pow roundoff errors
-	oVA[1] /= 8; // avoid pow roundoff errors
-	errval = rsb__util_vector_pow(oVA, typecode, &alpha, nnz);
-	// {+2,+1} -> {+4,+1}
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__util_vector_sum_strided(&res,oVA,typecode,nnz,inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=5) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	// {+4,+1} -> {+1,+1}
-	errval = rsb__util_vector_pow(oVA, typecode, &exp, nnz);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	// {+1,+1} -> {+2,+1}
-	errval = rsb_strided_vector_scale(oVA, &alpha, typecode, nnz*0+1, inc*2); // test for inc==2
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__util_vector_sum_strided(&res,oVA,typecode,nnz,inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=3) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__test_print_coo_mm(typecode, iflags, oIA, oJA, oVA, m, k, nnz, RSB_BOOL_TRUE, RSB_DEFAULT_STREAM);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-}
-')
-dnl
-	RSB_STDOUT("MTX PRINT TEST END\n");
-
-foreach(`mtype',RSB_M4_TYPES,`dnl
-for(inc=1;inc<=2;++inc)
-{
-	const rsb_type_t type = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	const mtype VA [] = {1,0,2,0,3,0};
-	const mtype VAL[17] = {1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1};
-	mtype nrm2[2] = {0,-1};
-	const rsb_nnz_idx_t n = sizeof(VA)/(sizeof(VA[0])*inc);
-
-	// TODO: maybe get rid of redundance here.
-	errval = rsb__util_vector_sum_strided(&nrm2[0], VA, type, n, inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	errval = rsb__cblas_Xnrm2(type, n, VA, inc, &nrm2[1]);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(nrm2[0]!=nrm2[0]) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	errval = rsb__cblas_Xnrm2(type, 17, VAL, 1, &nrm2[1]);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(roundf(nrm2[1]) != 4 ) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-}
-
-for(inc=1;inc<=2;++inc)
-{
-	const rsb_type_t type = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	mtype VA [] = {+1,-1,+3,-3,+4,-4};
-	const mtype VAU[] = {+0,+0,+3,-3,+4,-4};
-	const mtype VAA[] = {+0,+0,+3,-3,+0,+0};
-	mtype soad = RSB_M4_ZERO(mtype);
-	const rsb_nnz_idx_t n = sizeof(VA)/(sizeof(VA[0])*inc);
-	#if defined(__INTEL_COMPILER) /* meant to circumvent e.g. icc -O2 -fp-model fast=2 (observed on 19.1.2.254 or 2021.3.0) */
-	        const mtype lthr = 3 * 0.95, hthr = 3 * 1.05;
-	#else
-	        const mtype lthr = 3, hthr = 3;
-	#endif
-
-	errval = rsb__util_drop_to_zero_if_under_threshold(VA,type,n,&lthr);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	errval = rsb__vector_sum_of_abs_diffs(&soad,VA,VAU,type,n);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(soad) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__util_drop_to_zero_if_above_threshold(VA,type,n,&hthr);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	errval = rsb__vector_sum_of_abs_diffs(&soad,VA,VAA,type,n);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(soad) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-}
-')dnl
-
-dnl
-RSB_STDOUT("DIFF PRINT TEST BEGIN\n");
-foreach(`mtype',RSB_M4_TYPES,`dnl
-{
-	const rsb_type_t type = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	const mtype VAU[] = {+0,+0,+3,-3,+4,-4};
-	const mtype VAA[] = {+0,+0,+3,-3,+0,+0};
-	const rsb_nnz_idx_t n = sizeof(VAU)/(sizeof(VAU[0]));
-
-	// TODO: beef this test up; add e.g. quiet option to rsb__debug_print_vectors_diff
-	errval = rsb__debug_print_vectors_diff(VAU,VAA,n,type,1,1,0);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-}
-')dnl
-dnl
-
-dnl
-foreach(`mtype',RSB_M4_TYPES,`dnl
-for(inc=1;inc<=2;++inc)
-{
-	const rsb_type_t type = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	const mtype VAU[] = {+0,+0,+3,-3,+4,-4};
-	const mtype VAA[] = {+0,+0,+3,-3,+0,+0};
-	const rsb_nnz_idx_t n = sizeof(VAU)/(sizeof(VAU[0])*inc);
-
-	errval = rsb__debug_print_vectors(VAU,VAA,n,1,inc,type);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	errval = rsb__debug_print_vector(VAU,n,type,inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-}
-')dnl
-RSB_STDOUT("DIFF PRINT TEST END\n");
-dnl
-
-dnl
-foreach(`mtype',RSB_M4_TYPES,`dnl
-{
-	const int inc = 1;
-	const rsb_type_t type = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	mtype v1[] = {+1,+0,+5,-2,+4,-6};
-	mtype v2[] = {+2,+0,+3,-2,+0,+0};
-	const rsb_nnz_idx_t off = 1;
-	const rsb_nnz_idx_t n = sizeof(v1)/(sizeof(v1[0])*inc)-off;
-	const mtype zero = RSB_M4_ZERO(mtype), sum = 2;
-	mtype res = zero;
-	rsb_nnz_idx_t cnt;
-
-	cnt = rsb__util_count_positive(v1,type,n+off);
-	if(cnt!=3) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	
-	cnt = rsb__util_count_negative(v1,type,n+off);
-	if(cnt!=2) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	
-	errval = rsb__vectors_left_sum_reduce_and_zero(v1,v2,type,n,inc,off);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__util_vector_sum_strided(&res,v1+off,type,n,inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=sum) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__util_vector_sum_strided(&res,v2+off,type,n,inc);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=zero) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-}
-')dnl
-dnl
-
-dnl
-#if RSB_WITH_SPARSE_BLAS_INTERFACE
-foreach(`mtype',RSB_M4_SPBLAS_MATRIX_SUPPORTED_TYPES,`dnl
-{
-	/* BLAS types and interfaces only here  */
-	const int incy = 1;
-	const rsb_type_t type = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	const mtype x[] = {+1,+0,+5,-2,+4,-6};
-	mtype y[] = {+2,+0,+3,-2,+0,+0};
-	mtype w[] = {+0,+0,+0,+0,+0,+0};
-	const rsb_blas_int_t indx[] = {0,1,2,3,3,3};
-	const rsb_nnz_idx_t nz = sizeof(indx)/(sizeof(indx[0]));
-	const rsb_nnz_idx_t ny = sizeof(y)/(sizeof(y[0]));
-	const mtype zero = RSB_M4_ZERO(mtype);
-	mtype alpha = 2;
-	mtype dotr = zero;
-	mtype res = zero;
-#if RSB_WANT_SPARSE_BLAS_LEVEL_1
-	int istat;
-dnl	rsb_blas_int_t istat;
-#endif
-	const enum blas_base_type bzb = blas_zero_base;
-	const enum blas_conj_type bc = blas_conj;
-
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=3) errval = RSB_ERR_INTERNAL_ERROR;
-
-#if RSB_WANT_SPARSE_BLAS_LEVEL_1
-	RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`dot',`u',`ID',`0',`f90')(&bc, &nz, x, &(indx[0]), y, &incy, &dotr, &bzb, &istat);
-dnl	istat=RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`dot',`u',`ID',`0',`lang_c')(bc, nz, x, indx, y, incy, &dotr, bzb);
-#else
-	errval = rsb__BLAS_Xusdot(type, bj, nz, x, indx, y, incy, &dotr, bzb);
-#endif
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(dotr!=25) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-#if RSB_WANT_SPARSE_BLAS_LEVEL_1
-ifelse(RSB_M4_IS_COMPLEX_TYPE(mtype),`1',`dnl
-dnl	istat=RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`axpy',`u',`ID',`0',`lang_c')(nz,&alpha, x, indx, y, incy, bzb);
-	RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`axpy',`u',`ID',`0',`f90')(&nz,&alpha, x, &(indx[0]), y, &incy, &bzb, &istat);
-',`dnl
-dnl	istat=RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`axpy',`u',`ID',`0',`lang_c')(nz, alpha, x, indx, y, incy, bzb);
-	RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`axpy',`u',`ID',`0',`f90')(&nz,&alpha, x, &(indx[0]), y, &incy, &bzb, &istat);
-')dnl
-#else
-	errval = rsb__BLAS_Xusaxpy(type, nz, &alpha, x, indx, y, incy, bzb);
-#endif
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// {+2,+0,+3,-2,+0,+0} => {+4,+0,+13,-6,-4,-4} 
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	alpha=-alpha;
-	errval = rsb__BLAS_Xusaxpy(type, nz, &alpha, x, indx, y, incy, bzb);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// {+2,+0,+3,-2,+0,+0} <= {+4,+0,+13,-6,-4,-4} 
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=3) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-#if RSB_WANT_SPARSE_BLAS_LEVEL_1
-dnl	istat=RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`ga',`u',`ID',`0',`lang_c')(nz, x, incy, y, indx, bzb);
-	RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`ga',`u',`ID',`0',`f90')(&nz, x, &incy, y, &(indx[0]), &bzb, &istat);
-#else
-	errval = rsb__BLAS_Xusga(type, nz, x, incy, y, indx, bzb);
-#endif
-	errval=RSB_BLAS_ERROR_TO_RSB_ERROR(istat);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// {+2,+0,+3,-2,+0,+0} => {+1,+0,+5,-2,-2,-2} 
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=0) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	y[3]=-3;
-#if RSB_WANT_SPARSE_BLAS_LEVEL_1
-	RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`gz',`u',`ID',`0',`f90')(&nz, y, &incy, w, &(indx[0]), &bzb, &istat);
-dnl	istat=RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`gz',`u',`ID',`0',`lang_c')(nz, y, incy, w, indx, bzb);
-#else
-	errval = rsb__BLAS_Xusgz(type, nz, y, incy, w, indx, bzb);
-#endif
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// w: {0,0,0,0,0,0} => {+1,+0,+5,-3,+0,+0} // the two zeroes becaue of usgz zeroing after first copy
-	// y: {+1,+0,+5,-2,-2,-2} => {+0,+0,+0,+0,-2,-2}
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=-4) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	errval = rsb__util_vector_sum_strided(&res,w,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=3) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-#if RSB_WANT_SPARSE_BLAS_LEVEL_1
-dnl	istat=RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`sc',`u',`ID',`0',`lang_c')(nz,x,y,incy,indx,bzb);
-	RSB_M4_SPBLAS_MATRIX_ALL_L1_FUNCTION(mtype,`sc',`u',`ID',`0',`f90')(&nz,x,y,&incy,&(indx[0]),&bzb,&istat);
-#else
-	errval = rsb__BLAS_Xussc(type,nz,x,y,incy,indx,bzb); 
-#endif
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// y: {+0,+0,+0,+0,-2,-2} => {+1,+0,+5,-6,-2,-2}
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=-4) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-}
-')dnl
-#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-dnl
-
-dnl
-foreach(`mtype',RSB_M4_TYPES,`dnl
-{
-	const int incy = 1;
-	const rsb_type_t type = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	const mtype x[] = {+1,+0,+5,-2,+4,-6};
-	mtype y[] = {+2,+0,+3,-2,+0,+0};
-	mtype w[] = {+0,+0,+0,+0,+0,+0};
-	const rsb_blas_int_t indx[] = {0,1,2,3,3,3};
-	const rsb_nnz_idx_t nz = sizeof(indx)/(sizeof(indx[0]));
-	const rsb_nnz_idx_t ny = sizeof(y)/(sizeof(y[0]));
-	const mtype zero = RSB_M4_ZERO(mtype);
-	mtype alpha = 2;
-	mtype dotr = zero;
-	mtype res = zero;
-
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=3) errval = RSB_ERR_INTERNAL_ERROR;
-
-	errval = rsb__BLAS_Xusdot(type, blas_conj, nz, x, indx, y, incy, &dotr, blas_zero_base);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(dotr!=25) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__BLAS_Xusaxpy(type, nz, &alpha, x, indx, y, incy, blas_zero_base);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// {+2,+0,+3,-2,+0,+0} => {+4,+0,+13,-6,-4,-4} 
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	alpha=-alpha;
-	errval = rsb__BLAS_Xusaxpy(type, nz, &alpha, x, indx, y, incy, blas_zero_base);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// {+2,+0,+3,-2,+0,+0} <= {+4,+0,+13,-6,-4,-4} 
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=3) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__BLAS_Xusga(type, nz, x, incy, y, indx, blas_zero_base);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// {+2,+0,+3,-2,+0,+0} => {+1,+0,+5,-2,-2,-2} 
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=0) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	y[3]=-3;
-	errval = rsb__BLAS_Xusgz(type, nz, y, incy, w, indx, blas_zero_base);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// w: {0,0,0,0,0,0} => {+1,+0,+5,-3,+0,+0} // the two zeroes becaue of usgz zeroing after first copy
-	// y: {+1,+0,+5,-2,-2,-2} => {+0,+0,+0,+0,-2,-2}
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=-4) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	errval = rsb__util_vector_sum_strided(&res,w,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=3) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-
-	errval = rsb__BLAS_Xussc(type,nz,x,y,incy,indx,blas_zero_base); 
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	// y: {+0,+0,+0,+0,-2,-2} => {+1,+0,+5,-6,-2,-2}
-	errval = rsb__util_vector_sum_strided(&res,y,type,ny,incy);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=-4) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-}
-')dnl
-dnl
-
-dnl
-foreach(`stype',RSB_M4_TYPES,`dnl
-foreach(`dtype',RSB_M4_TYPES,`dnl
-{
-	const rsb_type_t stypecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(stype);
-	const rsb_type_t dtypecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(dtype);
-	const stype x[] = {+1,+0,+5,-2,+4,-6};
-	dtype y[] = {+2,+0,+3,-2,+0,+0};
-	const rsb_nnz_idx_t nnz = sizeof(y)/(sizeof(y[0]));
-	stype alpha = 2;
-	dtype res = RSB_M4_ZERO(dtype);
-
-	errval = rsb__do_copy_converted_scaled(x, y, &alpha, stypecode, dtypecode, nnz, RSB_TRANSPOSITION_N);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	errval = rsb__util_vector_sum_strided(&res,y,dtypecode,nnz,1);
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-	if(res!=4) errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES) }
-}
-')
-')
-dnl
-
-err:
-	return errval;;
-}
-')
-dnl
-ifdef(`ONLY_WANT_HEADERS',`dnl
-`#define 'RSB__MAX_SIZEOF`	( \'dnl
-foreach(`type',RSB_M4_SPBLAS_MATRIX_SUPPORTED_TYPES,`
-	RSB_MAX(sizeof(type),\')
-	`0'foreach(`type',RSB_M4_SPBLAS_MATRIX_SUPPORTED_TYPES,`)'))
-',`')dnl
-dnl
 dnl
 
 dnl

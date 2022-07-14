@@ -7,5 +7,5 @@ EXTRA_DIST= \
 all: blas_enum.F90
 
 blas_enum.F90: blas_enum.h
-	( echo '! This file has been auto-generated from blas_enum.h.'; cat blas_enum.h  | $(GREP) '^[[:space:]]*blas' | $(SED) 's/[,};/].*//g;s/[[:space:]]*//g;s/^/        INTEGER,PARAMETER :: /' ) > $@
+	( echo '! This file has been auto-generated from blas_enum.h.'; cat blas_enum.h  | grep '^\s*blas' | sed 's/[,};/].*//g;s/\s*//g;s/^/        INTEGER,PARAMETER :: /' ) > $@
 

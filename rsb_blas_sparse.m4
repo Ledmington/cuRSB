@@ -1,5 +1,5 @@
 ! 
-! Copyright (C) 2008-2021 Michele Martone
+! Copyright (C) 2008-2015 Michele Martone
 ! 
 ! This file is part of librsb.
 ! 
@@ -30,7 +30,7 @@ dnl !! @cond INNERDOC
 dnl ! author: Michele Martone
 !
 !> @file
-!! @brief Implementation of the Fortran Sparse BLAS interface to \librsb (see \ref rsb_doc_sparse_blas).
+!! @brief This file implements the Fortran Sparse BLAS interface to \librsb.
 !!
 ifelse(`0',`1',`
 !! Supported types are: foreach(`mtype',RSB_M4_SBLAS_MATRIX_SUPPORTED_TYPES,` RSB_M4_C2F_TYPE(mtype)').
@@ -89,24 +89,6 @@ ifelse(`0',`1',`
 ',`dnl
 include(`blas_sparse/blas_enum.F90')dnl
 ')dnl
-
-dnl ifelse(RSB_M4_LONG_IDX,`0',`dnl
-dnl         INTEGER,PARAMETER :: RSB_BLAS_IDX_KIND=4
-dnl         INTEGER,PARAMETER :: RSB_BLAS_IST_KIND=8 ! for istat
-dnl ',`dnl
-dnl         INTEGER,PARAMETER :: RSB_BLAS_IDX_KIND=8
-dnl         INTEGER,PARAMETER :: RSB_BLAS_IST_KIND=4 ! for istat
-dnl ')dnl
-dnl dnl
-#ifdef RSB_WANT_LONG_IDX_TYPE
-        INTEGER,PARAMETER :: RSB_BLAS_IDX_KIND=8
-        INTEGER,PARAMETER :: RSB_BLAS_IST_KIND=8 ! for istat
-#define C_RSB_INT_KND_ C_INT64_T
-#else
-        INTEGER,PARAMETER :: RSB_BLAS_IDX_KIND=4
-        INTEGER,PARAMETER :: RSB_BLAS_IST_KIND=4 ! for istat
-#define C_RSB_INT_KND_ C_INT
-#endif
 dnl
 ifelse(RSB_M4_WANT_BLAS_SPARSE_INTERFACE,`1',`',`
         INTERFACE
@@ -142,7 +124,7 @@ dnl
          SUBROUTINE RSB_M4_SBLAS_INTERFACE_RADIX`'ds(A,istat)
            IMPLICIT NONE
            INTEGER,INTENT(IN)::A
-           INTEGER(KIND=RSB_BLAS_IST_KIND)::istat
+           INTEGER::istat
 ifelse(RSB_M4_WANT_BLAS_SPARSE_INTERFACE,`1',`',`
            istat=blas_sparse_const_success
 `#if defined(RSB_HAVE_RSB_KERNELS)'
@@ -240,17 +222,6 @@ dnl          !> RSB_M4_SBLAS_SUBROUTINE_HELP_COMMENT(pmop,mtype)
           IMPLICIT NONE
 RSB_M4_SBLAS_SUBROUTINE_INFO_DECLARATION(istat)dnl
 RSB_M4_SBLAS_SUBROUTINE_ARGS_DECLARATION(pmop,mtype)dnl
-dnl
-dnl ifelse(RSB_M4_IS_L3_MOP(pmop),`0',`
-dnl RSB_M4_SBLAS_SUBROUTINE_INFO_DECLARATION(istat)dnl
-dnl RSB_M4_SBLAS_SUBROUTINE_ARGS_DECLARATION(pmop,mtype)dnl
-dnl ')
-dnl ifelse(RSB_M4_IS_L3_MOP(pmop),`1',`
-dnl ! FIXME: need 2D arrays decls here (pmop).
-dnl RSB_M4_SBLAS_SUBROUTINE_INFO_DECLARATION(istat)dnl
-dnl RSB_M4_SBLAS_SUBROUTINE_ARGS_DECLARATION(pmop`_2d',mtype)dnl
-dnl ')
-dnl
 ifelse(RSB_M4_WANT_BLAS_SPARSE_INTERFACE,`1',`',`
 ifelse(`0',`1',`
 dnl `#if ( defined(RSB_HAVE_RSB_KERNELS)' && RSB_M4_HAVE_TYPE(mtype))

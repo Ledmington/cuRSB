@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -77,10 +77,10 @@ static rsb_err_t gen_mm(rsb_coo_idx_t r, rsb_coo_idx_t c, rsb_nnz_idx_t nnz)
 	while(duplicates);
 
 	printf("%s","%%MatrixMarket matrix coordinate real general\n");
-	printf("%zd %zd %zd\n",(rsb_printf_int_t)r,(rsb_printf_int_t)c,(rsb_printf_int_t)nnz);
+	printf("%d %d %d\n",r,c,nnz);
 	for(k=0;k<nnz;++k)
 	{
-		printf("%6zd %6zd %20g\n",(rsb_printf_int_t)(IA[k]+1),(rsb_printf_int_t)(JA[k]+1),VA[k]);
+		printf("%6d %6d %20g\n",IA[k]+1,JA[k]+1,VA[k]);
 	}
 
 	RSB_CONDITIONAL_FREE(IA);
@@ -94,7 +94,7 @@ err:
 	return RSB_ERR_GENERIC_ERROR;
 }
 
-rsb_option_t options[] = {
+rsb_option options[] = {
     {"nnz",     required_argument, NULL, 'n'},  
     {"cols",     required_argument, NULL, 'c'},  
     {"rows",     required_argument, NULL, 'r'},  
@@ -114,10 +114,8 @@ int rsb_genmm_main(int argc,char *argv[])
 	rsb_coo_idx_t rows=0,cols=0;
 	rsb_nnz_idx_t nnz=0;
 	double want_percentage=0.0;
-	rsb_coo_idx_t g_want_banded = 0;
-	rsb_bool_t g_want_lower = 0;
+	rsb_bool_t g_want_banded = 0;
 	rsb_bool_t g_diagonal = 0;
-	rsb_coo_idx_t g_want_spacing=1;
 	rsb_type_t typecode = RSB_NUMERICAL_TYPE_DEFAULT_INTEGER;
 
 	g_allow_duplicates = 0;
@@ -128,13 +126,13 @@ int rsb_genmm_main(int argc,char *argv[])
 	}
     	for (;;)
 	{
-		c = rsb__getopt_long(argc, argv, "gDb:dr:c:n:ls:", options, &opt_index);
+		c = rsb_getopt_long(argc, argv, "gDb:dr:c:n:", options, &opt_index);
 		if (c == -1)break;
 
 		switch (c)
 		{
 			case 'b':
-			g_want_banded = rsb__util_atoi_km10(optarg);
+			g_want_banded = rsb__util_atoi(optarg);
 			g_want_banded++;/* just a trick */
 			break;
 			case 'D':
@@ -144,41 +142,18 @@ int rsb_genmm_main(int argc,char *argv[])
 			g_allow_duplicates = 1;
 			break;
 			case 'c':
-			cols = rsb__util_atoi_km10(optarg);
-			break;
-			case 'l':
-			g_want_lower = 1;
+			cols = rsb__util_atoi(optarg);
 			break;
 			case 'n':
-			nnz = rsb__util_atoi_km10(optarg);
+			nnz = rsb__util_atoi(optarg);
 			if(*optarg && optarg[strlen(optarg)-1]=='%')want_percentage=nnz;
 			break;
 			case 'r':
-			rows = rsb__util_atoi_km10(optarg);
+			rows = rsb__util_atoi(optarg);
 			break;
 			case 'g':
 			break;
-			case 's':
-			g_want_spacing = rsb__util_atoi_km10(optarg);
-			break;
 		}
-	}
-
-	if( g_want_lower )
-	{
-		struct rsb_mtx_t * mtxAp;
-
-		if(rows==0)
-			rows=cols;
-
-		if( g_want_banded != 0 )
-			errval = rsb__generate_blocked_banded_mtx(rows,g_want_spacing,g_want_banded-1,0,&mtxAp,typecode);
-		else
-			errval = rsb__generate_blocked_banded_mtx(rows,g_want_spacing,rows-1,0,&mtxAp,typecode);
-		if(!mtxAp) goto err;
-		rsb__do_file_mtx_save(mtxAp,NULL);
-		RSB_MTX_FREE(mtxAp);
-		return 0;
 	}
 
 	if( g_want_banded != 0 )
@@ -231,7 +206,7 @@ int rsb_genmm_main(int argc,char *argv[])
 		return RSB_PROGRAM_ERROR;
 	}
 	errval = gen_mm(rows,cols,nnz);
-	return RSB_ERR_TO_PROGRAM_ERROR(errval | rsb_lib_exit(NULL));
+	return RSB_ERR_TO_PROGRAM_ERROR(errval | rsb_lib_exit(RSB_NULL_EXIT_OPTIONS));
 err:	
 	fprintf(stderr,"some error occurred during matrix generation\n");
 	/* no deallocation, though */

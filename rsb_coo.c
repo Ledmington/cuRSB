@@ -40,7 +40,8 @@ static rsb_nnz_idx_t rsb_weed_out_duplicates_unsorted(rsb_coo_idx_t *RSB_RESTRIC
 	 * returns the true nnz after weeding out duplicates
 	 *
 	 * \note : basic, unoptimized implementation.
-	 * \note : if needed, could enhance this routine by restructuring and using rsb__util_compact_marked_coo_array
+	 * \note : there is no test routine for this function.
+	 * \note : if needed, could enhance this routine by restructuring and using rsb_util_compact_marked_coo_array
 	 */
 	rsb_nnz_idx_t i,k,dups = 0;
 	size_t el_size = 0;
@@ -136,7 +137,7 @@ static rsb_nnz_idx_t rsb_weed_out_duplicates_from_sorted(rsb_coo_idx_t *RSB_REST
 
 		if(fd==marker)
 		{
-			/* if there (at k) we have the first duplicates sequence, we store its index just after */
+			/* if there (at k) we have the first duplicate sequence, we keep its index just after */
 			fd = k+1;
 		}
 		else
@@ -144,7 +145,7 @@ static rsb_nnz_idx_t rsb_weed_out_duplicates_from_sorted(rsb_coo_idx_t *RSB_REST
 			/* if this is not the first one, we advertise this sequence index in JA[ld] */
 			JA[ld] = k+1;
 		}
-		/* we write the current sequence length in I[k+1] */
+		/* we write the current one length in I[k+1] */
 		IA[k+1] = ldc;
 
 		/* we advance */
@@ -164,7 +165,7 @@ static rsb_nnz_idx_t rsb_weed_out_duplicates_from_sorted(rsb_coo_idx_t *RSB_REST
 	JA[ld] = marker;
 
 	/* ok, we are ready for compacting the sequence */
-	rsb__util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fd,&moved,&moves);
+	rsb_util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fd,&moved,&moves);
 	//RSB_INFO("%d nnz - %d dups\n",nnz,dups);
 	nnz -= dups;
 	goto ret;
@@ -190,7 +191,7 @@ ret:
 	return nnz;
 }
 
-rsb_nnz_idx_t rsb__weed_out_duplicates(rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, void *RSB_RESTRICT VA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_flags_t flags)
+rsb_nnz_idx_t rsb_weed_out_duplicates(rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, void *RSB_RESTRICT VA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_flags_t flags)
 {
 	/*!
 	 * \ingroup gr_internals
@@ -204,7 +205,7 @@ rsb_nnz_idx_t rsb__weed_out_duplicates(rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_i
 		return rsb_weed_out_duplicates_unsorted(IA,JA,VA,nnz,typecode);
 }
 
-rsb_nnz_idx_t rsb__check_for_zeros(const void * VA, rsb_nnz_idx_t nnz, rsb_type_t typecode)
+rsb_nnz_idx_t rsb_check_for_zeros(const void * VA, rsb_nnz_idx_t nnz, rsb_type_t typecode)
 {
 	/*!
 	 * \ingroup gr_internals
@@ -229,7 +230,7 @@ rsb_nnz_idx_t rsb__check_for_zeros(const void * VA, rsb_nnz_idx_t nnz, rsb_type_
 	return zeros;
 }
 
-rsb_nnz_idx_t rsb__check_for_nonzeros(const void * VA, rsb_nnz_idx_t nnz, rsb_type_t typecode)
+rsb_nnz_idx_t rsb_check_for_nonzeros(const void * VA, rsb_nnz_idx_t nnz, rsb_type_t typecode)
 {
 	/*!
 	 * \ingroup gr_internals
@@ -237,30 +238,22 @@ rsb_nnz_idx_t rsb__check_for_nonzeros(const void * VA, rsb_nnz_idx_t nnz, rsb_ty
 	 *
 	 * Note : basic, unoptimized implementation.
 	 */
-	return nnz-rsb__check_for_zeros(VA,nnz,typecode);
+	return nnz-rsb_check_for_zeros(VA,nnz,typecode);
 }
 
-rsb_err_t rsb__util_compact_marked_coo_array( rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, void *RSB_RESTRICT VA, rsb_nnz_idx_t nnz, size_t el_size, rsb_coo_idx_t fd, rsb_nnz_idx_t * movedp, rsb_nnz_idx_t * movesp)
+rsb_err_t rsb_util_compact_marked_coo_array( rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, void *RSB_RESTRICT VA, rsb_nnz_idx_t nnz, size_t el_size, rsb_coo_idx_t fd, rsb_nnz_idx_t * movedp, rsb_nnz_idx_t * movesp)
 {
 	/*!
 		\ingroup gr_internals
 		\return the number of moved elements
 		The same technique could be used for in-place BCSR element displacement.
-		Compacts IA,JA,VA, deleting [x] and expecting:
-		
-		    ...@fd|<- 1.....D ->|   @N |< 2>|           @NNZ
-		IA: ...[D][x][x]...[x][x][*][2][x][x][*][*][*]...[*]
-		JA: ...[N][x][x]...[x][x][*][M][x][x][*][*][*]...[*]
-		VA: ...[*][x][x]...[x][x][*][*][x][x][*][*][*]...[*]
-		
-		M is a marker value.
-		Note: an improvement would be to make jumps in JA to be relative instead of absolute.
 	*/
 	rsb_nnz_idx_t k = 0,moved = 0,moves = 0;
 	const rsb_coo_idx_t marker = RSB_MARKER_COO_VALUE; 	
 	rsb_coo_idx_t nld = 0,ld = 0;
 	rsb_byte_t* vp = VA;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	rsb_coo_idx_t ldc,lnd;
 
 	RSB_DEBUG_ASSERT(IA);
 	RSB_DEBUG_ASSERT(JA );
@@ -269,27 +262,25 @@ rsb_err_t rsb__util_compact_marked_coo_array( rsb_coo_idx_t *RSB_RESTRICT IA, rs
 	if(!IA || !JA || RSB_INVALID_NNZ_INDEX(nnz) )
 		return RSB_ERR_BADARGS;
 
-	for( ld=fd,k=fd ; RSB_LIKELY(JA[ld] != marker ); ld=nld )
+	for( ld=fd,k=fd ; RSB_LIKELY(JA[ld]!=marker); ld=nld )
 	{
-		const rsb_coo_idx_t ldc = IA[ld];       /* local marked count */
-		const rsb_coo_idx_t lnd = JA[ld]-(ld+ldc);      /* local non marked */
+		rsb_coo_idx_t ldc,lnd;
+		ldc = IA[ld];
 		nld = JA[ld];
+		lnd = nld-(ld+ldc);	/* local marked count, local non marked */
 
 		RSB_DEBUG_ASSERT(fd >=0);
 		RSB_DEBUG_ASSERT(ld >=0);
 		RSB_DEBUG_ASSERT(ld <nnz);
 		RSB_DEBUG_ASSERT(ldc>0);
 		RSB_DEBUG_ASSERT(lnd>=0);
-		
-		if(0)
-		RSB_INFO("k : %ld  ld : %ld  lnd : %ld  ldc : %ld  JA[ld] : %ld   nld : %ld\n", (long)k,(long)ld,(long)lnd,(long)ldc,(long)JA[ld],(long)nld);
-		if(0)
-		RSB_INFO("(%zd .. %zd) <- (%zd .. %zd)\n", 
+//		RSB_INFO("k : %d  ld : %d  lnd : %d  ldc : %d  JA[ld] : %d   nld : %d\n", k,ld,lnd,ldc,JA[ld],nld);
+/*		RSB_INFO("(%zd .. %zd) <- (%zd .. %zd)\n", 
 			(rsb_printf_int_t)(k),
 			(rsb_printf_int_t)(k+(lnd-1)),
 			(rsb_printf_int_t)(ldc+ld),
 			(rsb_printf_int_t)(ldc+ld+(lnd-1))
-			);
+			);*/
 
 		RSB_MEMMOVE(IA+k,IA+ld+ldc,(lnd) * sizeof(rsb_coo_idx_t));
 		RSB_MEMMOVE(JA+k,JA+ld+ldc,(lnd) * sizeof(rsb_coo_idx_t));
@@ -299,32 +290,23 @@ rsb_err_t rsb__util_compact_marked_coo_array( rsb_coo_idx_t *RSB_RESTRICT IA, rs
 		moves++;
 	}
 	
-	if( RSB_LIKELY(JA[ld] == marker ) )
+	/* JA[ld]==marker (last marked sequence ) */
+	ldc = IA[ld],lnd = (nnz-(ld+ldc));	/* local marked count, local non marked */
+//	RSB_INFO("k : %d  ld : %d  lnd : %d  ldc : %d  JA[ld] : %d   nld : %d\n", k,ld,lnd,ldc,JA[ld],nld);
+
+	if(lnd)
 	{
-		/* JA[ld]==marker (last marked sequence ) */
-		const rsb_coo_idx_t ldc = IA[ld];
-		const rsb_coo_idx_t lnd = (nnz-(ld+ldc));	/* local marked count, local non marked */
-
-		if(0)
-		RSB_INFO("k : %ld  ld : %ld  lnd : %ld  ldc : %ld  JA[ld] : %ld   nld : %ld\n", (long)k,(long)ld,(long)lnd,(long)ldc,(long)JA[ld],(long)nld);
-	
-		RSB_DEBUG_ASSERT(lnd>=0);
-		if(lnd)
-		{
-			RSB_MEMMOVE(IA+k,IA+ld+ldc,lnd * sizeof(rsb_coo_idx_t));
-			RSB_MEMMOVE(JA+k,JA+ld+ldc,lnd * sizeof(rsb_coo_idx_t));
-			RSB_MEMMOVE(vp+(el_size*k),vp+el_size*(ld+ldc), lnd * el_size);
+		RSB_MEMMOVE(IA+k,IA+ld+ldc,lnd * sizeof(rsb_coo_idx_t));
+		RSB_MEMMOVE(JA+k,JA+ld+ldc,lnd * sizeof(rsb_coo_idx_t));
+		RSB_MEMMOVE(vp+(el_size*k),vp+el_size*(ld+ldc), lnd * el_size);
 			moved += (lnd);
-			moves++;
-
-			if(0)
-			RSB_INFO("(%zd .. %zd) <- (%zd .. %zd)\n", 
-				(rsb_printf_int_t)(k),
-				(rsb_printf_int_t)(k+(lnd-1)),
-				(rsb_printf_int_t)(ldc+ld),
-				(rsb_printf_int_t)(ldc+ld+(lnd-1))
-				);
-		}
+		moves++;
+/*		RSB_INFO("(%zd .. %zd) <- (%zd .. %zd)\n", 
+			(rsb_printf_int_t)(k),
+			(rsb_printf_int_t)(k+(lnd-1)),
+			(rsb_printf_int_t)(ldc+ld),
+			(rsb_printf_int_t)(ldc+ld+(lnd-1))
+			);*/
 	}
 	if(movesp)
 		*movesp = moves;
@@ -332,7 +314,7 @@ rsb_err_t rsb__util_compact_marked_coo_array( rsb_coo_idx_t *RSB_RESTRICT IA, rs
 		*movedp = moved;
 
 	if(0)
-		RSB_STDERR("performed %zd moves, moved %zd elements out of %zd\n",(rsb_printf_int_t)moves,(rsb_printf_int_t)moved,(rsb_printf_int_t)nnz);
+	RSB_STDERR("performed %zd moves, moved %zd elements out of %zd\n",(rsb_printf_int_t)moves,(rsb_printf_int_t)moved,(rsb_printf_int_t)nnz);
 
 	RSB_DEBUG_ASSERT(moved>=0 );
 	RSB_DEBUG_ASSERT(moved<=nnz);
@@ -385,13 +367,13 @@ static rsb_err_t rsb_do_util_compact_nonzeros(void *RSB_RESTRICT VA, rsb_coo_idx
 		dzeros += iod;
 
 		if(verbose)
-			RSB_STDOUT("zero: %ld:  r: %ld  c: %ld (%ld x, diag=%c)\n",(long int)(k+lzc),(long int)(IA[k+lzc]),(long int)(JA[k+lzc]),(long int)(lzc),iod?'y':'n');
+			RSB_STDOUT("zero: %d:  r: %d  c: %d (%d x, diag=%c)\n",k+lzc,IA[k+lzc],JA[k+lzc],lzc,iod?'y':'n');
 		while( k+lzc<nnz && RSB_IS_ELEMENT_ZERO(((rsb_byte_t*)VA)+el_size*(k+lzc),typecode) )
 		{
 			iod = (IA[k+lzc]==JA[k+lzc])?1:0;
 			/* we look for more zeros */
 			if(verbose)
-				RSB_STDOUT("zero: %ld:  r: %ld  c: %ld (%ld x, diag=%c)\n",(long int)(k+lzc),(long int)IA[k+lzc],(long int)JA[k+lzc],(long int)lzc,iod?'y':'n');
+				RSB_STDOUT("zero: %d:  r: %d  c: %d (%d x, diag=%c)\n",k+lzc,IA[k+lzc],JA[k+lzc],lzc,iod?'y':'n');
 			++lzc;
 		}
 		holes += (k+1+lzc!=nnz);	/* we do not count bottom duplicates as a hole */
@@ -429,7 +411,7 @@ static rsb_err_t rsb_do_util_compact_nonzeros(void *RSB_RESTRICT VA, rsb_coo_idx
 		JA[lz] = marker;
 
 		/* ok, we are ready for compacting the sequence */
-		errval = rsb__util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fz,&moved,&moves);
+		errval = rsb_util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fz,&moved,&moves);
 /*		if(moves!=holes) // will trigger false positive error in cases like (0,0)  <- (1,1)
 		{
 			RSB_ERROR("%zd != %zd\n",(rsb_printf_int_t)moves,(rsb_printf_int_t)holes);
@@ -445,7 +427,7 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__do_util_compact_out_of_range(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t roff, rsb_coo_idx_t  coff, rsb_coo_idx_t Mdim, rsb_coo_idx_t mdim, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp )
+rsb_err_t rsb_do_util_compact_out_of_range(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t roff, rsb_coo_idx_t  coff, rsb_coo_idx_t Mdim, rsb_coo_idx_t mdim, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp )
 {
 	/*!
 	 * \ingroup gr_internals
@@ -526,7 +508,7 @@ rsb_err_t rsb__do_util_compact_out_of_range(void *RSB_RESTRICT VA, rsb_coo_idx_t
 		JA[lz] = marker;
 
 		/* ok, we are ready for compacting the sequence */
-		errval = rsb__util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fz,&moved,&moves);
+		errval = rsb_util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fz,&moved,&moves);
 /*		if(moves!=holes) // will trigger false positive error in cases like (0,0)  <- (1,1)
 		{
 			RSB_ERROR("%zd != %zd\n",(rsb_printf_int_t)moves,(rsb_printf_int_t)holes);
@@ -542,7 +524,7 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__util_compact_nonzeros(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp, rsb_flags_t flags )
+rsb_err_t rsb_util_compact_nonzeros(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp, rsb_flags_t flags )
 {
 	/*!
 	 * \ingroup gr_internals
@@ -580,7 +562,6 @@ rsb_err_t rsb__weed_out_non_lowtri(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RES
 	/*!
 	 * \ingroup gr_internals
 	 *
-	 * FIXME: remove gapp argument.
 	 * */
 	size_t el_size = RSB_NUMERICAL_TYPE_SIZE(typecode);	/* missing unsupported typecode check */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -603,7 +584,7 @@ rsb_err_t rsb__weed_out_non_lowtri(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RES
 		rsb_coo_idx_t lzc; /* local zeros count */
 		lzc = 1;
 
-		while( RSB_UNLIKELY( k+lzc<nnz && IA[k+lzc] < JA[k+lzc] ) )
+		while( k+lzc<nnz && (RSB_UNLIKELY(IA[k+lzc]< JA[k+lzc])) )
 		{
 			/* we look for more zeros */
 			++lzc;
@@ -645,7 +626,7 @@ rsb_err_t rsb__weed_out_non_lowtri(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RES
 		JA[lz] = marker;
 
 		/* ok, we are ready for compacting the sequence */
-		errval = rsb__util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fz,&moved,&moves);
+		errval = rsb_util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fz,&moved,&moves);
 /*		if(moves!=holes) // will trigger false positive error in cases like (0,0)  <- (1,1)
 		{
 			RSB_ERROR("%zd != %zd\n",(rsb_printf_int_t)moves,(rsb_printf_int_t)holes);
@@ -661,7 +642,7 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__weed_out_diagonal(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp )
+rsb_err_t rsb_weed_out_diagonal(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RESTRICT IA, rsb_coo_idx_t *RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp )
 {
 	/*!
 	 * \ingroup gr_internals
@@ -690,7 +671,7 @@ rsb_err_t rsb__weed_out_diagonal(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RESTR
 		rsb_coo_idx_t lzc; /* local zeros count */
 		lzc = 1;
 
-		while( k+lzc<nnz && IA[k+lzc] == JA[k+lzc] )
+		while( k+lzc<nnz && (RSB_UNLIKELY(IA[k+lzc]==JA[k+lzc])) )
 		{
 			/* we look for more zeros */
 			++lzc;
@@ -732,7 +713,7 @@ rsb_err_t rsb__weed_out_diagonal(void *RSB_RESTRICT VA, rsb_coo_idx_t *RSB_RESTR
 		JA[lz] = marker;
 
 		/* ok, we are ready for compacting the sequence */
-		errval = rsb__util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fz,&moved,&moves);
+		errval = rsb_util_compact_marked_coo_array(IA,JA,VA,nnz,el_size,fz,&moved,&moves);
 /*		if(moves!=holes) // will trigger false positive error in cases like (0,0)  <- (1,1)
 		{
 			RSB_ERROR("%zd != %zd\n",(rsb_printf_int_t)moves,(rsb_printf_int_t)holes);

@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -46,7 +46,7 @@ struct rsb_limiter
 	rsb__times_t max_times;
 	rsb__times_t times;
 };
-rsb_err_t rsb__limiter_init(struct rsb_limiter* lsp, const rsb_time_t max_time, const rsb__times_t max_times);
+rsb_err_t rsb_limiter_init(struct rsb_limiter* lsp, const rsb_time_t max_time, const rsb__times_t max_times);
 rsb_err_t rsb__limiter_init_from_str(struct rsb_limiter* lsp, const char *tls);
 rsb_err_t rsb__limiter_step(struct rsb_limiter* lsp);
 rsb_bool_t rsb__limiter_done(const struct rsb_limiter* lsp);

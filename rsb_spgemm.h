@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -30,7 +30,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef RSB_SPGEMM_H_INCLUDED
 #define RSB_SPGEMM_H_INCLUDED
-#include "rsb_internals.h"	/* rsb_coo_mtx_t */
+#include "rsb_internals.h"	/* rsb_coo_matrix_t */
 rsb_err_t rsb__do_spgemm_test_code(const int argc, char * const argv[]);
 struct rsb_mtx_t * rsb__do_matrix_mul(rsb_type_t typecode, rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t * mtxAp, rsb_trans_t transB, const void *betap, const struct rsb_mtx_t * mtxBp, rsb_err_t * errvalp);
 rsb_err_t rsb__do_spgemm_to_dense(rsb_type_t typecode, rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t * mtxAp, rsb_trans_t transB, const void *betap, const struct rsb_mtx_t * mtxBp, rsb_coo_idx_t ldc, rsb_coo_idx_t nr, rsb_coo_idx_t nc, rsb_bool_t isccolmajor, void *cVA, rsb_time_t * dtp, size_t * opsp);

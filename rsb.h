@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -21,7 +21,7 @@ If not, see <http://www.gnu.org/licenses/>.
 */
 /*! 
  *  \file
- *  \brief  This file declares the user interface functions and data structures for the \librsb library (see \ref rsb_doc_rsb).
+ *  \brief  This file declares the user interface functions and data structures for the \librsb library.
  *  \author Michele Martone
  * */
 /*!
@@ -36,31 +36,29 @@ If not, see <http://www.gnu.org/licenses/>.
  In order to use \librsb, there is no need for the user to know the RSB
  layout and algorithms: this documentation should be sufficient.
  \n
- \librsb is dual-interfaced; it supports:
+ This library is dual-interfaced; it supports:
  a native (`RSB') interface (with identifiers prefixed by `rsb_' or `RSB_'),
  and a (mostly complete) Sparse BLAS interface, as a wrapper around the RSB interface.
  \n
  Many computationally intensive operations are implemented with thread
  parallelism, by using OpenMP.
  \n
- Thread parallelism can be turned off at configure time, if desired, or controlled
+ Thread parallelism can be turned off at configure time, if desired, or limited
  at execution time.
  \n
  Many of the computational kernels source code files (mostly internals) were
  automatically generated.
  \n
- This user documentation concerns the end user API only.
+ This user documentation concerns the end user API only; that is, neither the
+ internals, nor the code generator.
  \n
  
- This library was born as \b research \b software.
- \n
- Over the years it has been stabilized and its \b test \b suite expanded considerably.
- \n
- There are projects making available \librsb in Octave, Python or Julia;
- you might want to check them out as well.
+ You should consult the remaining documentation (e.g. the README file, code 
+ comments) to find information about how to modify the generator or the 
+ library internals.
 
- \n
- For a first approach, see the \ref rsb_doc_examples  documentation
+ This library is research software and as such, still \b experimental.  
+ For a first approach, we suggest to go through the \ref rsb_doc_examples  documentation
  section, or the \ref examples_section "quick start examples" section on this page.
  
  \n
@@ -68,13 +66,10 @@ If not, see <http://www.gnu.org/licenses/>.
  resides in the \link rsb_types.h rsb_types.h \endlink file. 
 
  A C/C++ user can use the native API of RSB by including the \link rsb.h rsb.h \endlink header.
- \n
  The same interface is available in Fortran via the ISO C Binding interface, specified in \link rsb.F90 rsb.F90\endlink.
  \n
- An \b experimental \b  C++ API is available in (optional) \ref rsb.hpp.
- \n
  
- The C header file for \ref rsb_doc_sparse_blas  is \link blas_sparse.h blas_sparse.h\endlink (notice there is no native C++ equivalent).
+ The C header file for the \ref rsb_doc_sparse_blas  is \link blas_sparse.h blas_sparse.h\endlink.
 
  \author Michele Martone < michelemartone AT users DOT sourceforge DOT net >
  
@@ -83,12 +78,12 @@ If not, see <http://www.gnu.org/licenses/>.
 
  \anchor examples_section 
 
- For a quick startup, consider the following three example programs.
+ For a quick startup, consider the following two programs.
 
- The first, using the RSB interface (for native C++, please see the optional rsblib/examples/example.cpp):
+ The first, using the internal RSB interface:
  \include examples/hello.c
 
- The second, using the Sparse BLAS interface:
+ And the second, using the Sparse BLAS interface:
  \include examples/hello-spblas.c
 
  For more, see the \ref rsb_doc_examples  section.
@@ -96,23 +91,18 @@ If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*!
- \defgroup rsb_doc_rsb The librsb library interface (rsb.h, optional ones rsb.hpp and rsb.F90)
+ \defgroup rsb_doc_rsb The librsb library interface (rsb.h, rsb.F90)
  \brief
- \n
  The reference documentation of the \librsb library comes in both HTML and Unix man pages formats.
- \n
  The following sections/man pages are available: \ref rsb_doc_rsb ; \ref rsb_doc_sparse_blas ; \ref rsb_doc_examples.
 
 
  In general, users of this library are interested in high performance sparse matrix computations on cache based shared memory parallel computers.
- \n
- For this, \librsb offers a native C interface (here documented) and a Fortran one (in \ref rsb.F90, equivalent to the C declaration headers from \ref rsb.h), in addition to the Sparse BLAS one (both C and Fortran, documented).
- \n
- Please refer to optional <rsb.hpp> for the C++ API.
+ For this, \librsb offers a native C interface (here documented) and a Fortran one (in \ref rsb.F90, equivalent to the C declaration headers from \ref rsb.h), in addition to a the Sparse BLAS one (both C and Fortran, documented).
 
  Configuration, build, and installation instructions are contained in the \c README file distributed in the sources archive.
 
- <b> Typical C program structure </b>
+ <b> Typical program structure </b>
 
  \li initialize \librsb with #rsb_lib_init()
  \li (in any order)
@@ -125,7 +115,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
  <b> Important usage notes </b>
 
- <b> General C program structure </b>
+ <b> General program structure </b>
  Before calling any \librsb function, a program is required to initialize \librsb's internal status.
  This is done by calling #rsb_lib_init() .
  Afterwards, any \librsb function can be safely used.
@@ -162,69 +152,23 @@ If not, see <http://www.gnu.org/licenses/>.
  There are different \c ./configure  options you may look at for tuning or customizing the library.
 
 
+
  \defgroup rsb_doc_examples	Example programs and code 
- \brief	Examples of usage of \librsb in C (<rsb.h> and <blas_sparse.h>), C++ (optional <rsb.hpp>), Fortran (<rsb.F90> and <rsb_blas_sparse.F90>).
+ \brief	Examples of usage of \librsb.
 
  	The following fully working example programs illustrate correct ways of using the library.
- 
- - First example in C, using <rsb.h>: \ref examples_hello_c.
- - First example in C, using <blas_sparse.h>: \ref examples_hello_spblas_c.
- - Autotuning example in C, using <rsb.h>: \ref examples_autotune_c.
- - I/O example in C, using <blas_sparse.h>: \ref examples_io_spblas_c.
- - Example transposing a matrix in C, using <rsb.h> in C: \ref examples_transpose_c.
- - Example showing the power method in C, using <rsb.h> in C: \ref examples_power_c.
- - Example in Fortran, using <rsb_blas_sparse.F90>: \ref examples_fortran_F90.
- - Example in Fortran, using <rsb.F90>: \ref examples_fortran_rsb_fi_F90.
- - Example in C, using <rsb.h>: \ref examples_backsolve_c.
- - Misc example snippets in C, using <rsb.h>: \ref examples_snippets_c.
- - Benchmark invocation from shell script: \ref examples_bench_sh.
-
-Once installed \librsb, the script displayed here (\ref examples/make.sh) should be sufficient to build these examples:
+	The script displayed here should be sufficient to build them.
  \include examples/make.sh
 
- \anchor  examples_hello_c
-          examples/hello.c:
  \include examples/hello.c
-
- \anchor  examples_hello_spblas_c
-          examples/hello-spblas.c:
  \include examples/hello-spblas.c
-
- \anchor  examples_autotune_c
-          examples/autotune.c:
+ \include examples/hello-spblas.c
  \include examples/autotune.c
-
- \anchor  examples_io_spblas_c
-          examples/io-spblas.c:
  \include examples/io-spblas.c
-
- \anchor  examples_transpose_c
-          examples/transpose.c:
  \include examples/transpose.c
-
- \anchor  examples_power_c
-          examples/power.c:
  \include examples/power.c
-
- \anchor  examples_fortran_F90
-          examples/fortran.F90:
  \include examples/fortran.F90
-
- \anchor  examples_fortran_rsb_fi_F90
-          examples/fortran_rsb_fi.F90:
  \include examples/fortran_rsb_fi.F90
-
- \anchor  examples_backsolve_c
-          examples/backsolve.c:
- \include examples/backsolve.c
-
- \anchor  examples_snippets_c
-
- \anchor  examples_bench_sh
-          examples/bench.sh:
- \include examples/bench.sh
-
- Most of the snippets in the documentation come from examples/snippets.c.
 */
 
 /*!
@@ -244,9 +188,9 @@ The user should be aware of the following:
 \li According to the standard, the complex type functions for C accept scalar values by reference rather than by copy; equivalent functions for other types do not do so, so this may cause confusion. Be careful.
 \li Error checking is weak; so for instance, passing a function the handle of a matrix of mismatching type will not be detected as an error, although it's incorrect.
 \li According to the standard, VBR and BCSR styled constructors are supported, although these are interfaces for \librsb's own matrix representation.
-\li Here functions for both Fortran and C are listed. The Fortran functions are declared and documented with the C notation. We may provide a better documentation in a future release.
+\li Here we list functions for both Fortran and C functions. However, the Fortran functions are declared and documented with the C notation.  We may provide a better documentation in a subsequent release.
 \li Each identifier documented here suffixed by \c _  (e.g.: #blas_susdot_()) can be used from Fortran with the name stripped by that suffix (so in this case, \c blas_susdot).
-We may provide a proper fix to this inconvenience in a subsequent release.
+We will provide a proper fix to this inconvenience in a subsequent release.
 \li Each Fortran program using \librsb's Sparse BLAS Implementation shall \c use  modules \c blas_sparse  and \c rsb.
 \li Also Fortran programs have to call #rsb_lib_init() and #rsb_lib_exit() e.g.:
 \verbatim
@@ -286,41 +230,23 @@ We may provide a proper fix to this inconvenience in a subsequent release.
 \endcode
 */
 
+/*
+ * External interface to our implementation.
+ *
+ * This is the only header file which should be included for using this library.
+ *
+ * It defines its API (Application Programming Interface).
+ * */
 #ifndef RSB_RSB_H_INCLUDED
 #define RSB_RSB_H_INCLUDED
 
-#if ( defined(__cplusplus) && (__cplusplus>=201103L) )
-#include <cstdlib>	/* size_t */
-#else  /* __cplusplus */
-#include <stdlib.h>	/* size_t */
-#endif /* __cplusplus */
-
-/*! \internal
- NOTE: user programs should never include explicitly rsb_types.h.
- */
-#ifndef RSB_WANT_NO_RSB_TYPES_H
-#include "rsb_types.h"
-#endif /* RSB_WANT_NO_RSB_TYPES_H */
-
-#ifdef RSB_WANT_LONG_IDX_TYPE
-/* The user wants a long type for indices. */
-#if ( defined(__cplusplus) && (__cplusplus>=201103L) )
-#include <cstdint>
-#else  /* __cplusplus */
-#include <stdint.h>
-#endif /* __cplusplus */
-#endif /* RSB_WANT_LONG_IDX_TYPE */
-
-#if RSB_HAVE_ANY_COMPLEX_TYPE
-#ifdef __cplusplus
-#include <complex>	/* std::complex */
-#else
-#include <complex.h>	/* ISO C99 */
-#endif /* __cplusplus */
-#endif /* RSB_HAVE_ANY_COMPLEX_TYPE */
-
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#include <stdlib.h>	/* size_t */
+#if 0
+#include <stdint.h>	/* uint16_t,..  */
 #endif
 
 /*!
@@ -343,11 +269,7 @@ typedef signed int rsb_blk_idx_t;
  * Should not overflow when indexing matrix elements by coordinates.
  * Legal values when specifying a matrix size should be within #RSB_MIN_MATRIX_DIM and #RSB_MAX_MATRIX_DIM 
  * */
-#ifdef RSB_WANT_LONG_IDX_TYPE 
-typedef RSB_WANT_LONG_IDX_TYPE rsb_coo_idx_t;	
-#else /* RSB_WANT_LONG_IDX_TYPE */
-typedef signed int rsb_coo_idx_t;	
-#endif /* RSB_WANT_LONG_IDX_TYPE */
+typedef signed int rsb_coo_idx_t;
 
 /*!
  * The nnz counter index type.
@@ -356,11 +278,7 @@ typedef signed int rsb_coo_idx_t;
  * On most common archs sizeof(long)>=sizeof(int).
  * Legal values when specifying a matrix size should be within #RSB_MIN_MATRIX_NNZ and #RSB_MAX_MATRIX_NNZ 
  * */
-#ifdef RSB_WANT_LONG_IDX_TYPE 
-typedef RSB_WANT_LONG_IDX_TYPE rsb_nnz_idx_t;	
-#else /* RSB_WANT_LONG_IDX_TYPE */
 typedef signed int rsb_nnz_idx_t;	
-#endif /* RSB_WANT_LONG_IDX_TYPE */
 
 /* We would like the following typedefs to be long, but
    they should be compatible with many int functions */
@@ -373,7 +291,7 @@ typedef signed int rsb_nnz_idx_t;
 typedef signed int rsb_flags_t;
 
 /*!
- A type for specifying numerical type codes (See \ref matrix_type_symbols_section for a list of valid values, corresponding to \ref matrix_supported_numerical_types_section).
+ A type for specifying numerical type codes (See \ref matrix_type_symbols_section for a list of valid values).
  */
 typedef char rsb_type_t;
 
@@ -399,7 +317,7 @@ typedef rsb_flags_t rsb_bool_t;
  */
 typedef rsb_flags_t rsb_trans_t;
 
-/*!  A floating point numerical type for certain functions e.g. \ref rsb_tune_spmm. Not to be used for sparse matrices! For that, see \ref matrix_type_symbols_section. */
+/*!  A floating point numerical type.  */
 typedef double rsb_real_t;
 
 /*!
@@ -578,7 +496,7 @@ typedef rsb_real_t rsb_time_t;
 #define RSB_FLAG_LOWER_SYMMETRIC 			(RSB_FLAG_SYMMETRIC | RSB_FLAG_LOWER)
 
 /*! Combined flags for a diagonal matrix. */
-#define RSB_FLAG_DIAGONAL 				(RSB_FLAG_UPPER_TRIANGULAR | RSB_FLAG_LOWER_TRIANGULAR)
+#define RSB_FLAG_DIAGONAL 				(RSB_FLAG_UPPER | RSB_FLAG_LOWER)
 
 /*! Combined flags for a symmetric, upper-stored matrix. */
 #define RSB_FLAG_UPPER_SYMMETRIC 			(RSB_FLAG_SYMMETRIC | RSB_FLAG_UPPER)
@@ -630,7 +548,7 @@ rsb_err_t rsb_perror(void *stream, rsb_err_t errval);
 /*! An error occurred which is not apparently caused by a user's fault (internal error). */
 #define RSB_ERR_INTERNAL_ERROR		RSB_ERR_CAST(0x010)
 
-/*! The user supplied corrupt or inconsistent data as argument. */
+/*! The user supplied some corrupt data as argument. */
 #define RSB_ERR_BADARGS			RSB_ERR_CAST(0x020)
 
 /*! There is not enough dynamical memory to perform the requested operation. */
@@ -642,16 +560,16 @@ rsb_err_t rsb_perror(void *stream, rsb_err_t errval);
 /*! The requested operation could not be executed, or index overflow will happen. */
 #define RSB_ERR_LIMITS			RSB_ERR_CAST(0x200)
 
-/*! A Fortran-specific error occurred. */
+/*! A Fortran specific error occurred. */
 #define RSB_ERR_FORTRAN_ERROR		RSB_ERR_GENERIC_ERROR
 
-/*! The requested feature is not available because it was opted out or not configured at build time. */
+/*! The requested feature (e.g.:blocking) is not available because it was opted out or not configured at build time. */
 #define RSB_ERR_UNSUPPORTED_FEATURE	RSB_ERR_CAST(0x400)
 
 /*! A file containing user set configuration was not present. */
 #define RSB_ERR_NO_USER_CONFIGURATION	RSB_ERR_CAST(0x800)
 
-/*! User-supplied data (e.g.: from file) was corrupt. */
+/*! User supplied data (e.g.: from file) was corrupt. */
 #define RSB_ERR_CORRUPT_INPUT_DATA	RSB_ERR_CAST(0x1000)
 
 /*! Memory hierarchy info failed to be detected. You can bypass this by setting a meaningful \c RSB_USER_SET_MEM_HIERARCHY_INFO environment variable. */
@@ -668,9 +586,6 @@ rsb_err_t rsb_perror(void *stream, rsb_err_t errval);
 
 /*! Probable memory leak (user did not deallocate librsb structures before calling rsb_lib_exit()). */
 #define RSB_ERR_MEMORY_LEAK	RSB_ERR_CAST(0x20000)
-
-/*! Element not found by rsb_mtx_get_vals() or rsb_mtx_set_vals(). */
-#define RSB_ERR_ELEMENT_NOT_FOUND RSB_ERR_CAST(0x40000000)
 
 /*! Collation of "unsupported" type errors. */
 #define RSB_ERRS_UNSUPPORTED_FEATURES	(RSB_ERR_UNSUPPORTED_FEATURE|RSB_ERR_NO_STREAM_OUTPUT_CONFIGURED_OUT)
@@ -698,7 +613,7 @@ rsb_err_t rsb_perror(void *stream, rsb_err_t errval);
 enum rsb_opt_t
 {
 /*! #RSB_IO_WANT_VERBOSE_INIT prompts for a verbose initialization of the library: messages will be written
- * to the file descriptor (\c FILE*) pointed by the value pointer when calling \ref rsb_lib_init  or \ref rsb_lib_reinit.
+ * to the file descriptor (\c FILE*) pointed by the value pointer when calling \ref rsb_lib_init.
  */
   RSB_IO_WANT_VERBOSE_INIT =0x000001	/* (FILE*) */
 ,
@@ -972,8 +887,14 @@ rsb_err_t rsb_file_vec_save(const rsb_char_t * filename, rsb_type_t typecode, co
 rsb_err_t rsb_file_mtx_get_dims(const rsb_char_t * filename, rsb_coo_idx_t* nrp, rsb_coo_idx_t *ncp, rsb_coo_idx_t *nzp, rsb_flags_t*flagsp);
 #define rsb_file_mtx_get_dimensions rsb_file_mtx_get_dims /*!< \deprecated #rsb_file_mtx_get_dimensions has been deprecated: use #rsb_file_mtx_get_dims. */
 rsb_err_t rsb_coo_sort(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnzA, rsb_coo_idx_t nrA, rsb_coo_idx_t ncA,  rsb_type_t typecode, rsb_flags_t flagsA );
-rsb_err_t rsb_coo_cleanup(rsb_coo_idx_t* nnzp, void* VA, rsb_coo_idx_t* IA, rsb_coo_idx_t* JA, rsb_nnz_idx_t nnzA, rsb_coo_idx_t nrA, rsb_coo_idx_t ncA, rsb_type_t typecode, rsb_flags_t flagsA );
 rsb_time_t rsb_time(void);
+
+/*! \internal
+ NOTE: user programs should never include explicitly rsb_types.h.
+ */
+#ifndef RSB_WANT_NO_RSB_TYPES_H
+#include "rsb_types.h"
+#endif /* RSB_WANT_NO_RSB_TYPES_H */
 
 /*! \ingroup rsb_doc_misc rsb_doc_rsb
  Use #RSB_SIZEOF macro to get the size (in bytes) of a type supported by the library (e.g.: when allocating numerical vectors).

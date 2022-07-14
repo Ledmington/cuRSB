@@ -8,7 +8,7 @@
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -39,8 +39,13 @@ If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #endif /* __cplusplus */
 
+#define RSB_WANT_OMP        1
+#define RSB_MAX_OMP_THREADS 4
+#include <omp.h>       /* OpenMP parallelism (EXPERIMENTAL) */
+
+
 #include "rsb_common.h"
-static rsb_err_t rsb_do_csr_ilu0_DOUBLE(struct rsb_coo_mtx_t * coop){
+rsb_err_t rsb_do_csr_ilu0_DOUBLE(struct rsb_coo_matrix_t * coop){
 	/**
 	 * \ingroup gr_internals
 		FIXME: INCOMPLETE, EXPERIMENTAL, TEMPORARILY HERE
@@ -94,7 +99,7 @@ out:
 }
 	RSB_DO_ERR_RETURN(errval)
 }
-static rsb_err_t rsb_do_csr_ilu0_FLOAT(struct rsb_coo_mtx_t * coop){
+rsb_err_t rsb_do_csr_ilu0_FLOAT(struct rsb_coo_matrix_t * coop){
 	/**
 	 * \ingroup gr_internals
 		FIXME: INCOMPLETE, EXPERIMENTAL, TEMPORARILY HERE
@@ -148,7 +153,7 @@ out:
 }
 	RSB_DO_ERR_RETURN(errval)
 }
-static rsb_err_t rsb_do_csr_ilu0_FLOAT_COMPLEX(struct rsb_coo_mtx_t * coop){
+rsb_err_t rsb_do_csr_ilu0_FLOAT_COMPLEX(struct rsb_coo_matrix_t * coop){
 	/**
 	 * \ingroup gr_internals
 		FIXME: INCOMPLETE, EXPERIMENTAL, TEMPORARILY HERE
@@ -202,7 +207,7 @@ out:
 }
 	RSB_DO_ERR_RETURN(errval)
 }
-static rsb_err_t rsb_do_csr_ilu0_DOUBLE_COMPLEX(struct rsb_coo_mtx_t * coop){
+rsb_err_t rsb_do_csr_ilu0_DOUBLE_COMPLEX(struct rsb_coo_matrix_t * coop){
 	/**
 	 * \ingroup gr_internals
 		FIXME: INCOMPLETE, EXPERIMENTAL, TEMPORARILY HERE
@@ -259,36 +264,14 @@ out:
 
 rsb_err_t rsb__prec_ilu0(struct rsb_mtx_t * mtxAp){
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	struct rsb_coo_mtx_t coo;
+	struct rsb_coo_matrix_t coo;
 
-	if(!mtxAp)
-	{
-		RSB_ERROR(RSB_ERRM_ES);
-		errval = RSB_ERR_BADARGS;
-		goto err;
-	}
-
-	if(     !rsb__is_terminal_recursive_matrix(mtxAp) ||
-		!rsb__is_css_matrix(mtxAp) ||
-		(mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES) ||
-		rsb__is_symmetric(mtxAp) ||
-		!rsb__is_square(mtxAp) ||
-		rsb__submatrices(mtxAp)!=1 ||
+	if(!mtxAp || !rsb__is_terminal_recursive_matrix(mtxAp) ||
+		 !rsb__is_css_matrix(mtxAp) || (mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES) ||
+		 /*mtxAp->typecode != RSB_NUMERICAL_TYPE_DOUBLE  || */!rsb__is_square(mtxAp) || rsb__is_symmetric(mtxAp) ||
  		RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_UNIT_DIAG_IMPLICIT)
 		)
 	{
-		if(!rsb__is_terminal_recursive_matrix(mtxAp))
-			RSB_ERROR(RSB_ERRM_NT);
-		if(!rsb__is_css_matrix(mtxAp))
-			RSB_ERROR("not a CSR matrix!\n");
-		/*if(rsb__is_root_matrix(mtxAp)!=RSB_BOOL_TRUE)
-			RSB_ERROR("non-root matrix!\n");*/
-		if( rsb__submatrices(mtxAp)!=1)
-			RSB_ERROR("non-single submatrix (%d)!\n",rsb__submatrices(mtxAp));
-		if( rsb__is_symmetric(mtxAp))
-			RSB_ERROR("matrix is symmetric!\n");
-		if(!rsb__is_square(mtxAp))
-			RSB_ERROR(RSB_ERRM_NON_SQUARE);
 		RSB_ERROR(RSB_ERRM_ES);
 		errval = RSB_ERR_BADARGS;
 		goto err;
@@ -322,8 +305,8 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__prec_csr_ilu0(struct rsb_coo_mtx_t * coop){
-	// FIXME: temporary
+rsb_err_t rsb__prec_csr_ilu0(struct rsb_coo_matrix_t * coop){
+	// FIXME: termporary
 	if(coop->nr==1)
 		goto err;
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE 

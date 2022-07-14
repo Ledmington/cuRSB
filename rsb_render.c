@@ -35,9 +35,9 @@ If not, see <http://www.gnu.org/licenses/>.
  * 	  - remove extra headers dumpout
  * */
 
-#include "rsb_internals.h"	/* rsb_coo_mtx_t */
+#include "rsb_internals.h"	/* rsb_coo_matrix_t */
 
-rsb_err_t rsb__do_print_postscript_header(FILE*fd, rsb_marf_t rflags, int width, int height, float csw, float csh)
+rsb_err_t rsb__do_print_postscript_header(FILE*fd, int width, int height, float csw, float csh)
 {
 	/**
 	   \ingroup gr_internals
@@ -46,7 +46,6 @@ rsb_err_t rsb__do_print_postscript_header(FILE*fd, rsb_marf_t rflags, int width,
 
 	   FIXME: this duplicates functionality from rsb_eps.c.
 	*/
-	const int ex = (RSB_DO_FLAG_HAS(rflags,RSB_MARF_EPS_O)) ? width / RSB_OPS_RENDERING_EXTRA_FRAC : 0; // extra x
 #if RSB_ALLOW_STDOUT
 	RSB_FPRINTF(fd,
 "%%!PS-Adobe-3.0 EPSF-3.0\n"
@@ -55,7 +54,7 @@ rsb_err_t rsb__do_print_postscript_header(FILE*fd, rsb_marf_t rflags, int width,
 "%%%%CreationDate: \n"
 "%%%%DocumentData: Clean7Bit\n"
 "%%%%Origin: 0 0\n"
-"%%%%BoundingBox: %d 0 %d %d\n"
+"%%%%BoundingBox: 0 0 %d %d\n"
 "%%%%LanguageLevel: 2 \n"
 "%%%%Pages: 1\n"
 "%%%%Page: 1 1\n"
@@ -73,8 +72,7 @@ rsb_err_t rsb__do_print_postscript_header(FILE*fd, rsb_marf_t rflags, int width,
 "\n"
 "0 0 moveto\n"
 "\n",
-(int)(-ex),
-(int)(width+ex), (int)height,
+(int)width, (int)height,
 csw,csh,csw
 );
 		RSB_FPRINTF(fd,"save /$LIBRSB_DICT 3 dict def $LIBRSB_DICT begin /M {moveto} bind def /Z {gsave currentpoint lineto %g setlinewidth 1 setlinecap stroke grestore} bind def /D {M Z} bind def /K {0.5 0.5 setrgbcolor} bind def\n",1.0);
@@ -289,7 +287,7 @@ rsb_err_t rsb__mtx_as_pixmap_resize(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t 
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
 
-	*rnnz = rsb__weed_out_duplicates(IA,JA,VA,nnz,typecode,RSB_FLAG_DUPLICATES_SUM/*RSB_FLAG_DUPLICATES_DEFAULT_HANDLE*/|RSB_FLAG_SORTED_INPUT);
+	*rnnz = rsb_weed_out_duplicates(IA,JA,VA,nnz,typecode,RSB_FLAG_DUPLICATES_SUM/*RSB_FLAG_DUPLICATES_DEFAULT_HANDLE*/|RSB_FLAG_SORTED_INPUT);
 
 	/* missing error handling here */	
 err:

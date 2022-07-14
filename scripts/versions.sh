@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2008-2022 Michele Martone
+# Copyright (C) 2008-2015 Michele Martone
 # 
 # This file is part of librsb.
 # 
@@ -20,20 +20,22 @@
 
 # should dump out versions of programs used to build our library with success.
 # this info once collected wull be useful in case of debugging and compatibility issues.
-
-# Note: unused.
+# FIXME : unfinished :)
 
 grep=grep
+which=which
+test=test
 mf=Makefile
 null=/dev/null
 sed=sed
 
-command -v $grep > $null || exit
-command -v $sed  > $null || exit
+$which $grep 2>&1 > $null || exit
+$which $sed  2>&1 > $null || exit
 
 se='s/^.*=\s//g'
 s="$sed $se" 
 tr='tr "\n"   "_" '
+#tr=cat
 e=echo
 
 v=--version
@@ -44,3 +46,4 @@ $e
 $e
 `$grep '^OCTAVE =' $mf | $s` $v | $tr
 $e
+

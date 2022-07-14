@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -239,8 +239,8 @@ static rsb_err_t rsb_do_spsv_recursive_serial(const struct rsb_mtx_t * mtxAp, co
 			//	if(y!=x)
 			//		RSB_DO_ERROR_CUMULATE(errval,rsb__xcopy(offy,x,0,0,sroff,mtxAp->el_size));
 				// FIXME : the following lines should be equivalent, but they aren't . why ?
-				RSB_DO_ERROR_CUMULATE(errval,rsb__do_spmv_recursive_serial(submatrix,offx,offy,&mone[0],NULL,1,1,transl RSB_INNER_NRHS_SPMV_ARGS_IDS));
-			//	RSB_DO_ERROR_CUMULATE(errval,rsb__do_spmv_recursive_parallel(submatrix,offx,offy,&mone[0],NULL,1,1,transl));
+				RSB_DO_ERROR_CUMULATE(errval,rsb_do_spmv_recursive_serial(submatrix,offx,offy,&mone[0],NULL,1,1,transl RSB_INNER_NRHS_SPMV_ARGS_IDS));
+			//	RSB_DO_ERROR_CUMULATE(errval,rsb_do_spmv_recursive_parallel(submatrix,offx,offy,&mone[0],NULL,1,1,transl));
 				//RSB_DO_ERROR_CUMULATE(errval,rsb_spmv_unua(submatrix,offx,offy,transl));
 			//	RSB_STDOUT("offx %g offy %g\n",*(double*)offx,*(double*)offy);
 			}
@@ -269,7 +269,7 @@ static rsb_err_t rsb_do_spsv_recursive_serial(const struct rsb_mtx_t * mtxAp, co
 			else
 			if(i==1 && op_flags != RSB_OP_FLAG_INFINITE_PARALLELISM_EMULATE)
 			{
-				RSB_DO_ERROR_CUMULATE(errval,rsb__do_spmv_recursive_serial(submatrix,offx,offy,&mone[0],NULL,1,1,transl RSB_INNER_NRHS_SPMV_ARGS_IDS));
+				RSB_DO_ERROR_CUMULATE(errval,rsb_do_spmv_recursive_serial(submatrix,offx,offy,&mone[0],NULL,1,1,transl RSB_INNER_NRHS_SPMV_ARGS_IDS));
 			}
 			if(errval != RSB_ERR_NO_ERROR)goto err;
 		}}
@@ -355,7 +355,6 @@ void rsb__submatrices_exclude_nontriangular(struct rsb_translated_matrix_t * all
 	*all_leaf_matrices_np=all_leaf_matrices_n;
 }
 
-#if RSB_WANT_OMP_RECURSIVE_KERNELS
 static rsb_err_t rsb__do_spsv_uxua_recursive_parallel(const struct rsb_mtx_t * mtxAp, const void * x, void * y, const void * alphap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transl, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPSV_ARGS)
 {
 	/**
@@ -718,16 +717,16 @@ again:
 				(!RSB_BITMAP_GET(lock.bmap,1,lock.subms,0,n) && op == rsb_op_nop)||
 				( RSB_BITMAP_GET(lock.bmap,1,lock.subms,0,n) && op != rsb_op_nop)
 				)
-		RSB_STDOUT("%zd/%zd [%zd~%zd,%zd~%zd] on th.%zd -> op %zd (dr:%zd) (done:%zd)\n",(rsb_printf_int_t)n,(rsb_printf_int_t)all_leaf_matrices_n,
-				(rsb_printf_int_t)all_leaf_matrices[n].roff, (rsb_printf_int_t)(all_leaf_matrices[n].roff+submatrix->nr-1),
-				(rsb_printf_int_t)all_leaf_matrices[n].coff, (rsb_printf_int_t)(all_leaf_matrices[n].coff+submatrix->nc-1),
-				(rsb_printf_int_t)th_id,(rsb_printf_int_t)op,(rsb_printf_int_t)lock.dr,(rsb_printf_int_t)dm);
+		RSB_STDOUT("%d/%d [%d~%d,%d~%d] on th.%d -> op %d (dr:%d) (done:%d)\n",n,all_leaf_matrices_n,
+				all_leaf_matrices[n].roff, all_leaf_matrices[n].roff+submatrix->nr-1,
+				all_leaf_matrices[n].coff, all_leaf_matrices[n].coff+submatrix->nc-1,
+				th_id,op,lock.dr,dm);
 
 		switch(op){
 		case rsb_op_spsvl:
 		{
 			/* diagonal blocks */
-			if(RSB__TRSV_OUT__)RSB_STDOUT("spsv on %zd on %zd \n",(rsb_printf_int_t)n,(rsb_printf_int_t)th_id);
+			if(RSB__TRSV_OUT__)RSB_STDOUT("spsv on %d on %d \n",n,th_id);
 			RSB_DO_ERROR_CUMULATE(errval,rsb_do_spsv_terminal(submatrix,trhs,tout,&pone[0],incx,incy,transl RSB_OUTER_NRHS_SPSV_ARGS_IDS));
 			//RSB_DO_ERROR_CUMULATE(errval,rsb_do_spsv_terminal(submatrix,trhs,tout,alphap,incx,incy,transl RSB_OUTER_NRHS_SPSV_ARGS_IDS));
                        	#pragma omp critical (rsb_spsv_crs)
@@ -743,9 +742,9 @@ again:
 		case rsb_op_spmv:
 		{
 			/* antidiagonal blocks */
-			if(RSB__TRSV_OUT__)RSB_STDOUT("spmv on %zd on %zd \n",(rsb_printf_int_t)n,(rsb_printf_int_t)th_id);
+			if(RSB__TRSV_OUT__)RSB_STDOUT("spmv on %d on %d \n",n,th_id);
 			//RSB_DO_ERROR_CUMULATE(errval,rsb_spmv_unua(submatrix,trhs,tout,transl));
-			RSB_DO_ERROR_CUMULATE(errval,rsb__do_spmv_non_recursive(submatrix,trhs,tout,&mone[0],NULL,incx,incy,transl RSB_OUTER_NRHS_SPSV_ARGS_IDS));
+			RSB_DO_ERROR_CUMULATE(errval,rsb_do_spmv_non_recursive(submatrix,trhs,tout,&mone[0],NULL,incx,incy,transl RSB_OUTER_NRHS_SPSV_ARGS_IDS));
                        	#pragma omp critical (rsb_spsv_crs)
 			{rsb__do_lock_release(&lock,th_id);++lock.dm;dm=lock.dm;}
 		}
@@ -790,7 +789,6 @@ err:
 #endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 	RSB_DO_ERR_RETURN(errval)
 }
-#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 
 rsb_err_t rsb__do_spsv_general(rsb_trans_t transl, const void * alphap, const struct rsb_mtx_t * mtxAp, const void * x, rsb_coo_idx_t incx, void * y, rsb_coo_idx_t incy, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPSV_ARGS)
 {
@@ -873,11 +871,7 @@ err:
 
 rsb_err_t rsb__do_spsv(rsb_trans_t transT, const void * alphap, const struct rsb_mtx_t * mtxTp, const void * Xp, rsb_coo_idx_t incX, void * Yp, rsb_coo_idx_t incY)
 {
-	enum rsb_op_flags_t op_flags = RSB_OP_FLAG_DEFAULT;
-#if RSB_ALLOW_INTERNAL_GETENVS
-	op_flags = rsb__getenv_int_t("RSB_SPSV_OP_FLAG", op_flags);
-#endif /* RSB_ALLOW_INTERNAL_GETENVS*/
-	return rsb__do_spsv_general(transT,alphap,mtxTp,Xp,incX,Yp,incY,op_flags RSB_DEFAULT_OUTER_NRHS_SPSV_ARGS	);
+	return rsb__do_spsv_general(transT,alphap,mtxTp,Xp,incX,Yp,incY,RSB_OP_FLAG_DEFAULT RSB_DEFAULT_OUTER_NRHS_SPSV_ARGS	);
 }
 
 /* @endcond */

@@ -146,8 +146,6 @@ enum blas_rsb_ext_type {
             blas_rsb_spmv_t_autotuning_on   = 6664,	/*!< Turn on executing threads autotuning for transposed #BLAS_dusmv, #BLAS_zusmv, #BLAS_susmv, #BLAS_cusmv. See #blas_rsb_spmv_autotuning_on. (EXPERIMENTAL) */
             blas_rsb_spmv_t_autotuning_off  = 6665,	/*!< Turn on executing threads autotuning for transposed #BLAS_dusmv, #BLAS_zusmv, #BLAS_susmv, #BLAS_cusmv. See #blas_rsb_spmv_autotuning_on. (EXPERIMENTAL) */
             blas_rsb_autotune_next_operation= 6666,	/*!< Turn on executing threads autotuning for the next operation among #BLAS_dusmv, #BLAS_zusmv, #BLAS_susmv, #BLAS_cusmv). See #blas_rsb_spmv_autotuning_on. (EXPERIMENTAL) */
-            blas_rsb_rep_rec         = 9993,	/*!< Request/check for recursive representation. */
-            blas_rsb_rep_hwi         = 9994,	/*!< Request/check for half-word indices. */
             blas_rsb_rep_rsb         = 9995,	/*!< Request/check for RSB representation. */
             blas_rsb_rep_csr         = 9996,	/*!< Request/check for CSR representation. */
             blas_rsb_rep_coo         = 9997,	/*!< Request/check for COO representation. */
@@ -168,11 +166,11 @@ RSB_INTERNALS_COMMON_HEAD_DECLS
 /* @endcond */
                /* Level 1 Computational Routines */
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susdot rsb__wp_BLAS_susdot
+#define BLAS_susdot rsb_wp_BLAS_susdot
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susdot(const enum blas_conj_type conj, const int nnz, const float * x,
-		const int *indx, const float * y, const int incy, float * r,
-		const enum blas_base_type index_base)
+int BLAS_susdot(enum blas_conj_type conj, int nnz, const float * x,
+		const int *indx, const float * y, int incy, float * r,
+		enum blas_base_type index_base)
 {
 
 	/*!
@@ -189,9 +187,9 @@ int BLAS_susdot(const enum blas_conj_type conj, const int nnz, const float * x,
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susdot_ rsb__wp_blas_susdot_
+#define blas_susdot_ rsb_wp_blas_susdot_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susdot_(const enum blas_conj_type*conj,const int*nnz,const float *x,const int *indx,const float *y,const int*incy,float *r,const enum blas_base_type*index_base,int*istat)
+void blas_susdot_(enum blas_conj_type*conj,int*nnz,const float *x,const int *indx,const float *y,int*incy,float *r,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -205,11 +203,11 @@ void blas_susdot_(const enum blas_conj_type*conj,const int*nnz,const float *x,co
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusdot rsb__wp_BLAS_dusdot
+#define BLAS_dusdot rsb_wp_BLAS_dusdot
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusdot(const enum blas_conj_type conj, const int nnz, const double * x,
-		const int *indx, const double * y, const int incy, double * r,
-		const enum blas_base_type index_base)
+int BLAS_dusdot(enum blas_conj_type conj, int nnz, const double * x,
+		const int *indx, const double * y, int incy, double * r,
+		enum blas_base_type index_base)
 {
 
 	/*!
@@ -226,9 +224,9 @@ int BLAS_dusdot(const enum blas_conj_type conj, const int nnz, const double * x,
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusdot_ rsb__wp_blas_dusdot_
+#define blas_dusdot_ rsb_wp_blas_dusdot_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusdot_(const enum blas_conj_type*conj,const int*nnz,const double *x,const int *indx,const double *y,const int*incy,double *r,const enum blas_base_type*index_base,int*istat)
+void blas_dusdot_(enum blas_conj_type*conj,int*nnz,const double *x,const int *indx,const double *y,int*incy,double *r,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -242,11 +240,11 @@ void blas_dusdot_(const enum blas_conj_type*conj,const int*nnz,const double *x,c
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusdot rsb__wp_BLAS_cusdot
+#define BLAS_cusdot rsb_wp_BLAS_cusdot
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusdot(const enum blas_conj_type conj, const int nnz, const void *x,
-		const int *indx, const void *y, const int incy, void *r,
-		const enum blas_base_type index_base)
+int BLAS_cusdot(enum blas_conj_type conj, int nnz, const void *x,
+		const int *indx, const void *y, int incy, void *r,
+		enum blas_base_type index_base)
 {
 
 	/*!
@@ -263,9 +261,9 @@ int BLAS_cusdot(const enum blas_conj_type conj, const int nnz, const void *x,
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusdot_ rsb__wp_blas_cusdot_
+#define blas_cusdot_ rsb_wp_blas_cusdot_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusdot_(const enum blas_conj_type*conj,const int*nnz,const void *x,const int *indx,const void *y,const int*incy,void *r,const enum blas_base_type*index_base,int*istat)
+void blas_cusdot_(enum blas_conj_type*conj,int*nnz,const void *x,const int *indx,const void *y,int*incy,void *r,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -279,11 +277,11 @@ void blas_cusdot_(const enum blas_conj_type*conj,const int*nnz,const void *x,con
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusdot rsb__wp_BLAS_zusdot
+#define BLAS_zusdot rsb_wp_BLAS_zusdot
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusdot(const enum blas_conj_type conj, const int nnz, const void *x,
-		const int *indx, const void *y, const int incy, void *r,
-		const enum blas_base_type index_base)
+int BLAS_zusdot(enum blas_conj_type conj, int nnz, const void *x,
+		const int *indx, const void *y, int incy, void *r,
+		enum blas_base_type index_base)
 {
 
 	/*!
@@ -300,9 +298,9 @@ int BLAS_zusdot(const enum blas_conj_type conj, const int nnz, const void *x,
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusdot_ rsb__wp_blas_zusdot_
+#define blas_zusdot_ rsb_wp_blas_zusdot_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusdot_(const enum blas_conj_type*conj,const int*nnz,const void *x,const int *indx,const void *y,const int*incy,void *r,const enum blas_base_type*index_base,int*istat)
+void blas_zusdot_(enum blas_conj_type*conj,int*nnz,const void *x,const int *indx,const void *y,int*incy,void *r,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -317,10 +315,10 @@ void blas_zusdot_(const enum blas_conj_type*conj,const int*nnz,const void *x,con
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susaxpy rsb__wp_BLAS_susaxpy
+#define BLAS_susaxpy rsb_wp_BLAS_susaxpy
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susaxpy(const int nnz, float  alpha, const float * x, const int *indx,
-                 float * y, const int incy, const enum blas_base_type index_base)
+int BLAS_susaxpy(int nnz, float  alpha, const float * x, const int *indx,
+                 float * y, int incy, enum blas_base_type index_base)
 {
 
 	/*!
@@ -337,9 +335,9 @@ int BLAS_susaxpy(const int nnz, float  alpha, const float * x, const int *indx,
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susaxpy_ rsb__wp_blas_susaxpy_
+#define blas_susaxpy_ rsb_wp_blas_susaxpy_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susaxpy_(const int*nnz,float*alpha,const float *x,const int *indx,float *y,const int*incy,const enum blas_base_type*index_base,int*istat)
+void blas_susaxpy_(int*nnz,float*alpha,const float *x,const int *indx,float *y,int*incy,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -353,10 +351,10 @@ void blas_susaxpy_(const int*nnz,float*alpha,const float *x,const int *indx,floa
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusaxpy rsb__wp_BLAS_dusaxpy
+#define BLAS_dusaxpy rsb_wp_BLAS_dusaxpy
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusaxpy(const int nnz, double  alpha, const double * x, const int *indx,
-                 double * y, const int incy, const enum blas_base_type index_base)
+int BLAS_dusaxpy(int nnz, double  alpha, const double * x, const int *indx,
+                 double * y, int incy, enum blas_base_type index_base)
 {
 
 	/*!
@@ -373,9 +371,9 @@ int BLAS_dusaxpy(const int nnz, double  alpha, const double * x, const int *indx
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusaxpy_ rsb__wp_blas_dusaxpy_
+#define blas_dusaxpy_ rsb_wp_blas_dusaxpy_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusaxpy_(const int*nnz,double*alpha,const double *x,const int *indx,double *y,const int*incy,const enum blas_base_type*index_base,int*istat)
+void blas_dusaxpy_(int*nnz,double*alpha,const double *x,const int *indx,double *y,int*incy,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -389,10 +387,10 @@ void blas_dusaxpy_(const int*nnz,double*alpha,const double *x,const int *indx,do
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusaxpy rsb__wp_BLAS_cusaxpy
+#define BLAS_cusaxpy rsb_wp_BLAS_cusaxpy
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusaxpy(const int nnz, const void * alpha, const void *x, const int *indx,
-                 void *y, const int incy, const enum blas_base_type index_base)
+int BLAS_cusaxpy(int nnz, const void * alpha, const void *x, const int *indx,
+                 void *y, int incy, enum blas_base_type index_base)
 {
 
 	/*!
@@ -409,9 +407,9 @@ int BLAS_cusaxpy(const int nnz, const void * alpha, const void *x, const int *in
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusaxpy_ rsb__wp_blas_cusaxpy_
+#define blas_cusaxpy_ rsb_wp_blas_cusaxpy_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusaxpy_(const int*nnz,const void *alpha,const void *x,const int *indx,void *y,const int*incy,const enum blas_base_type*index_base,int*istat)
+void blas_cusaxpy_(int*nnz,const void *alpha,const void *x,const int *indx,void *y,int*incy,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -425,10 +423,10 @@ void blas_cusaxpy_(const int*nnz,const void *alpha,const void *x,const int *indx
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusaxpy rsb__wp_BLAS_zusaxpy
+#define BLAS_zusaxpy rsb_wp_BLAS_zusaxpy
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusaxpy(const int nnz, const void * alpha, const void *x, const int *indx,
-                 void *y, const int incy, const enum blas_base_type index_base)
+int BLAS_zusaxpy(int nnz, const void * alpha, const void *x, const int *indx,
+                 void *y, int incy, enum blas_base_type index_base)
 {
 
 	/*!
@@ -445,9 +443,9 @@ int BLAS_zusaxpy(const int nnz, const void * alpha, const void *x, const int *in
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusaxpy_ rsb__wp_blas_zusaxpy_
+#define blas_zusaxpy_ rsb_wp_blas_zusaxpy_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusaxpy_(const int*nnz,const void *alpha,const void *x,const int *indx,void *y,const int*incy,const enum blas_base_type*index_base,int*istat)
+void blas_zusaxpy_(int*nnz,const void *alpha,const void *x,const int *indx,void *y,int*incy,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -462,10 +460,10 @@ void blas_zusaxpy_(const int*nnz,const void *alpha,const void *x,const int *indx
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susga rsb__wp_BLAS_susga
+#define BLAS_susga rsb_wp_BLAS_susga
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susga(const int nnz, const float * y, const int incy, float * x, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_susga(int nnz, const float * y, int incy, float * x, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -482,9 +480,9 @@ int BLAS_susga(const int nnz, const float * y, const int incy, float * x, const 
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susga_ rsb__wp_blas_susga_
+#define blas_susga_ rsb_wp_blas_susga_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susga_(const int*nnz,const float *y,const int*incy,float *x,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_susga_(int*nnz,const float *y,int*incy,float *x,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -498,10 +496,10 @@ void blas_susga_(const int*nnz,const float *y,const int*incy,float *x,const int 
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusga rsb__wp_BLAS_dusga
+#define BLAS_dusga rsb_wp_BLAS_dusga
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusga(const int nnz, const double * y, const int incy, double * x, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_dusga(int nnz, const double * y, int incy, double * x, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -518,9 +516,9 @@ int BLAS_dusga(const int nnz, const double * y, const int incy, double * x, cons
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusga_ rsb__wp_blas_dusga_
+#define blas_dusga_ rsb_wp_blas_dusga_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusga_(const int*nnz,const double *y,const int*incy,double *x,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_dusga_(int*nnz,const double *y,int*incy,double *x,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -534,10 +532,10 @@ void blas_dusga_(const int*nnz,const double *y,const int*incy,double *x,const in
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusga rsb__wp_BLAS_cusga
+#define BLAS_cusga rsb_wp_BLAS_cusga
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusga(const int nnz, const void *y, const int incy, void *x, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_cusga(int nnz, const void *y, int incy, void *x, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -554,9 +552,9 @@ int BLAS_cusga(const int nnz, const void *y, const int incy, void *x, const int 
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusga_ rsb__wp_blas_cusga_
+#define blas_cusga_ rsb_wp_blas_cusga_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusga_(const int*nnz,const void *y,const int*incy,void *x,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_cusga_(int*nnz,const void *y,int*incy,void *x,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -570,10 +568,10 @@ void blas_cusga_(const int*nnz,const void *y,const int*incy,void *x,const int *i
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusga rsb__wp_BLAS_zusga
+#define BLAS_zusga rsb_wp_BLAS_zusga
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusga(const int nnz, const void *y, const int incy, void *x, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_zusga(int nnz, const void *y, int incy, void *x, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -590,9 +588,9 @@ int BLAS_zusga(const int nnz, const void *y, const int incy, void *x, const int 
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusga_ rsb__wp_blas_zusga_
+#define blas_zusga_ rsb_wp_blas_zusga_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusga_(const int*nnz,const void *y,const int*incy,void *x,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_zusga_(int*nnz,const void *y,int*incy,void *x,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -607,10 +605,10 @@ void blas_zusga_(const int*nnz,const void *y,const int*incy,void *x,const int *i
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susgz rsb__wp_BLAS_susgz
+#define BLAS_susgz rsb_wp_BLAS_susgz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susgz(const int nnz, float * y, const int incy, float * x, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_susgz(int nnz, float * y, int incy, float * x, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -627,9 +625,9 @@ int BLAS_susgz(const int nnz, float * y, const int incy, float * x, const int *i
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susgz_ rsb__wp_blas_susgz_
+#define blas_susgz_ rsb_wp_blas_susgz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susgz_(const int*nnz,float *y,const int*incy,float *x,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_susgz_(int*nnz,float *y,int*incy,float *x,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -643,10 +641,10 @@ void blas_susgz_(const int*nnz,float *y,const int*incy,float *x,const int *indx,
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusgz rsb__wp_BLAS_dusgz
+#define BLAS_dusgz rsb_wp_BLAS_dusgz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusgz(const int nnz, double * y, const int incy, double * x, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_dusgz(int nnz, double * y, int incy, double * x, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -663,9 +661,9 @@ int BLAS_dusgz(const int nnz, double * y, const int incy, double * x, const int 
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusgz_ rsb__wp_blas_dusgz_
+#define blas_dusgz_ rsb_wp_blas_dusgz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusgz_(const int*nnz,double *y,const int*incy,double *x,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_dusgz_(int*nnz,double *y,int*incy,double *x,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -679,10 +677,10 @@ void blas_dusgz_(const int*nnz,double *y,const int*incy,double *x,const int *ind
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusgz rsb__wp_BLAS_cusgz
+#define BLAS_cusgz rsb_wp_BLAS_cusgz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusgz(const int nnz, void *y, const int incy, void *x, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_cusgz(int nnz, void *y, int incy, void *x, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -699,9 +697,9 @@ int BLAS_cusgz(const int nnz, void *y, const int incy, void *x, const int *indx,
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusgz_ rsb__wp_blas_cusgz_
+#define blas_cusgz_ rsb_wp_blas_cusgz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusgz_(const int*nnz,void *y,const int*incy,void *x,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_cusgz_(int*nnz,void *y,int*incy,void *x,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -715,10 +713,10 @@ void blas_cusgz_(const int*nnz,void *y,const int*incy,void *x,const int *indx,co
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusgz rsb__wp_BLAS_zusgz
+#define BLAS_zusgz rsb_wp_BLAS_zusgz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusgz(const int nnz, void *y, const int incy, void *x, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_zusgz(int nnz, void *y, int incy, void *x, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -735,9 +733,9 @@ int BLAS_zusgz(const int nnz, void *y, const int incy, void *x, const int *indx,
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusgz_ rsb__wp_blas_zusgz_
+#define blas_zusgz_ rsb_wp_blas_zusgz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusgz_(const int*nnz,void *y,const int*incy,void *x,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_zusgz_(int*nnz,void *y,int*incy,void *x,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -752,10 +750,10 @@ void blas_zusgz_(const int*nnz,void *y,const int*incy,void *x,const int *indx,co
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_sussc rsb__wp_BLAS_sussc
+#define BLAS_sussc rsb_wp_BLAS_sussc
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_sussc(const int nnz, const float * x, float * y, const int incy, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_sussc(int nnz, const float * x, float * y, int incy, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -772,9 +770,9 @@ int BLAS_sussc(const int nnz, const float * x, float * y, const int incy, const 
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_sussc_ rsb__wp_blas_sussc_
+#define blas_sussc_ rsb_wp_blas_sussc_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_sussc_(const int*nnz,const float *x,float *y,const int*incy,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_sussc_(int*nnz,const float *x,float *y,int*incy,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -788,10 +786,10 @@ void blas_sussc_(const int*nnz,const float *x,float *y,const int*incy,const int 
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dussc rsb__wp_BLAS_dussc
+#define BLAS_dussc rsb_wp_BLAS_dussc
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dussc(const int nnz, const double * x, double * y, const int incy, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_dussc(int nnz, const double * x, double * y, int incy, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -808,9 +806,9 @@ int BLAS_dussc(const int nnz, const double * x, double * y, const int incy, cons
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dussc_ rsb__wp_blas_dussc_
+#define blas_dussc_ rsb_wp_blas_dussc_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dussc_(const int*nnz,const double *x,double *y,const int*incy,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_dussc_(int*nnz,const double *x,double *y,int*incy,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -824,10 +822,10 @@ void blas_dussc_(const int*nnz,const double *x,double *y,const int*incy,const in
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cussc rsb__wp_BLAS_cussc
+#define BLAS_cussc rsb_wp_BLAS_cussc
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cussc(const int nnz, const void *x, void *y, const int incy, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_cussc(int nnz, const void *x, void *y, int incy, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -844,9 +842,9 @@ int BLAS_cussc(const int nnz, const void *x, void *y, const int incy, const int 
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cussc_ rsb__wp_blas_cussc_
+#define blas_cussc_ rsb_wp_blas_cussc_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cussc_(const int*nnz,const void *x,void *y,const int*incy,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_cussc_(int*nnz,const void *x,void *y,int*incy,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -860,10 +858,10 @@ void blas_cussc_(const int*nnz,const void *x,void *y,const int*incy,const int *i
 	return;
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zussc rsb__wp_BLAS_zussc
+#define BLAS_zussc rsb_wp_BLAS_zussc
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zussc(const int nnz, const void *x, void *y, const int incy, const int *indx,
-              const enum blas_base_type index_base)
+int BLAS_zussc(int nnz, const void *x, void *y, int incy, const int *indx,
+              enum blas_base_type index_base)
 {
 
 	/*!
@@ -880,9 +878,9 @@ int BLAS_zussc(const int nnz, const void *x, void *y, const int incy, const int 
 #endif /* RSB_WANT_SPARSE_BLAS_LEVEL_1 */
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zussc_ rsb__wp_blas_zussc_
+#define blas_zussc_ rsb_wp_blas_zussc_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zussc_(const int*nnz,const void *x,void *y,const int*incy,const int *indx,const enum blas_base_type*index_base,int*istat)
+void blas_zussc_(int*nnz,const void *x,void *y,int*incy,const int *indx,enum blas_base_type*index_base,int*istat)
 {
 
 	/*!
@@ -899,10 +897,10 @@ void blas_zussc_(const int*nnz,const void *x,void *y,const int*incy,const int *i
                /* Level 2 Computational Routines */
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susmv rsb__wp_BLAS_susmv
+#define BLAS_susmv rsb_wp_BLAS_susmv
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susmv(const enum blas_trans_type transA, float alpha,
-    const blas_sparse_matrix A, const float * x, const int incx, float * y, const int incy)
+int BLAS_susmv(enum blas_trans_type transA, float alpha,
+    blas_sparse_matrix A, const float * x, int incx, float * y, int incy)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -917,9 +915,9 @@ int BLAS_susmv(const enum blas_trans_type transA, float alpha,
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susmv_ rsb__wp_blas_susmv_
+#define blas_susmv_ rsb_wp_blas_susmv_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susmv_(const enum blas_trans_type*transA,float*alpha,const blas_sparse_matrix*A,const float *x,const int*incx,float *y,const int*incy,int*istat)
+void blas_susmv_(enum blas_trans_type*transA,float*alpha,blas_sparse_matrix*A,const float *x,int*incx,float *y,int*incy,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -931,10 +929,10 @@ void blas_susmv_(const enum blas_trans_type*transA,float*alpha,const blas_sparse
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusmv rsb__wp_BLAS_dusmv
+#define BLAS_dusmv rsb_wp_BLAS_dusmv
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusmv(const enum blas_trans_type transA, double alpha,
-    const blas_sparse_matrix A, const double * x, const int incx, double * y, const int incy)
+int BLAS_dusmv(enum blas_trans_type transA, double alpha,
+    blas_sparse_matrix A, const double * x, int incx, double * y, int incy)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -949,9 +947,9 @@ int BLAS_dusmv(const enum blas_trans_type transA, double alpha,
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusmv_ rsb__wp_blas_dusmv_
+#define blas_dusmv_ rsb_wp_blas_dusmv_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusmv_(const enum blas_trans_type*transA,double*alpha,const blas_sparse_matrix*A,const double *x,const int*incx,double *y,const int*incy,int*istat)
+void blas_dusmv_(enum blas_trans_type*transA,double*alpha,blas_sparse_matrix*A,const double *x,int*incx,double *y,int*incy,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -963,10 +961,10 @@ void blas_dusmv_(const enum blas_trans_type*transA,double*alpha,const blas_spars
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusmv rsb__wp_BLAS_cusmv
+#define BLAS_cusmv rsb_wp_BLAS_cusmv
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusmv(const enum blas_trans_type transA, const void *alpha,
-    const blas_sparse_matrix A, const void *x, const int incx, void *y, const int incy)
+int BLAS_cusmv(enum blas_trans_type transA, const void *alpha,
+    blas_sparse_matrix A, const void *x, int incx, void *y, int incy)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -981,9 +979,9 @@ int BLAS_cusmv(const enum blas_trans_type transA, const void *alpha,
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusmv_ rsb__wp_blas_cusmv_
+#define blas_cusmv_ rsb_wp_blas_cusmv_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusmv_(const enum blas_trans_type*transA,const void *alpha,const blas_sparse_matrix*A,const void *x,const int*incx,void *y,const int*incy,int*istat)
+void blas_cusmv_(enum blas_trans_type*transA,const void *alpha,blas_sparse_matrix*A,const void *x,int*incx,void *y,int*incy,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -995,10 +993,10 @@ void blas_cusmv_(const enum blas_trans_type*transA,const void *alpha,const blas_
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusmv rsb__wp_BLAS_zusmv
+#define BLAS_zusmv rsb_wp_BLAS_zusmv
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusmv(const enum blas_trans_type transA, const void *alpha,
-    const blas_sparse_matrix A, const void *x, const int incx, void *y, const int incy)
+int BLAS_zusmv(enum blas_trans_type transA, const void *alpha,
+    blas_sparse_matrix A, const void *x, int incx, void *y, int incy)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1013,9 +1011,9 @@ int BLAS_zusmv(const enum blas_trans_type transA, const void *alpha,
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusmv_ rsb__wp_blas_zusmv_
+#define blas_zusmv_ rsb_wp_blas_zusmv_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusmv_(const enum blas_trans_type*transA,const void *alpha,const blas_sparse_matrix*A,const void *x,const int*incx,void *y,const int*incy,int*istat)
+void blas_zusmv_(enum blas_trans_type*transA,const void *alpha,blas_sparse_matrix*A,const void *x,int*incx,void *y,int*incy,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1028,10 +1026,10 @@ void blas_zusmv_(const enum blas_trans_type*transA,const void *alpha,const blas_
 
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_sussv rsb__wp_BLAS_sussv
+#define BLAS_sussv rsb_wp_BLAS_sussv
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_sussv(enum blas_trans_type transT, float alpha,
-    const blas_sparse_matrix T, float * x, const int incx)
+    blas_sparse_matrix T, float * x, int incx)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1046,9 +1044,9 @@ int BLAS_sussv(enum blas_trans_type transT, float alpha,
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_sussv_ rsb__wp_blas_sussv_
+#define blas_sussv_ rsb_wp_blas_sussv_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_sussv_(enum blas_trans_type*transT,float*alpha,const blas_sparse_matrix*T,float *x,const int*incx,int*istat)
+void blas_sussv_(enum blas_trans_type*transT,float*alpha,blas_sparse_matrix*T,float *x,int*incx,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1060,10 +1058,10 @@ void blas_sussv_(enum blas_trans_type*transT,float*alpha,const blas_sparse_matri
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dussv rsb__wp_BLAS_dussv
+#define BLAS_dussv rsb_wp_BLAS_dussv
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_dussv(enum blas_trans_type transT, double alpha,
-    const blas_sparse_matrix T, double * x, const int incx)
+    blas_sparse_matrix T, double * x, int incx)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1078,9 +1076,9 @@ int BLAS_dussv(enum blas_trans_type transT, double alpha,
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dussv_ rsb__wp_blas_dussv_
+#define blas_dussv_ rsb_wp_blas_dussv_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dussv_(enum blas_trans_type*transT,double*alpha,const blas_sparse_matrix*T,double *x,const int*incx,int*istat)
+void blas_dussv_(enum blas_trans_type*transT,double*alpha,blas_sparse_matrix*T,double *x,int*incx,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1092,10 +1090,10 @@ void blas_dussv_(enum blas_trans_type*transT,double*alpha,const blas_sparse_matr
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cussv rsb__wp_BLAS_cussv
+#define BLAS_cussv rsb_wp_BLAS_cussv
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cussv(enum blas_trans_type transT, const void *alpha,
-    const blas_sparse_matrix T, void *x, const int incx)
+    blas_sparse_matrix T, void *x, int incx)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1110,9 +1108,9 @@ int BLAS_cussv(enum blas_trans_type transT, const void *alpha,
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cussv_ rsb__wp_blas_cussv_
+#define blas_cussv_ rsb_wp_blas_cussv_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cussv_(enum blas_trans_type*transT,const void *alpha,const blas_sparse_matrix*T,void *x,const int*incx,int*istat)
+void blas_cussv_(enum blas_trans_type*transT,const void *alpha,blas_sparse_matrix*T,void *x,int*incx,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1124,10 +1122,10 @@ void blas_cussv_(enum blas_trans_type*transT,const void *alpha,const blas_sparse
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zussv rsb__wp_BLAS_zussv
+#define BLAS_zussv rsb_wp_BLAS_zussv
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zussv(enum blas_trans_type transT, const void *alpha,
-    const blas_sparse_matrix T, void *x, const int incx)
+    blas_sparse_matrix T, void *x, int incx)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1142,9 +1140,9 @@ int BLAS_zussv(enum blas_trans_type transT, const void *alpha,
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zussv_ rsb__wp_blas_zussv_
+#define blas_zussv_ rsb_wp_blas_zussv_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zussv_(enum blas_trans_type*transT,const void *alpha,const blas_sparse_matrix*T,void *x,const int*incx,int*istat)
+void blas_zussv_(enum blas_trans_type*transT,const void *alpha,blas_sparse_matrix*T,void *x,int*incx,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1159,11 +1157,11 @@ void blas_zussv_(enum blas_trans_type*transT,const void *alpha,const blas_sparse
                /* Level 3 Computational Routines */
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susmm rsb__wp_BLAS_susmm
+#define BLAS_susmm rsb_wp_BLAS_susmm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susmm(const enum blas_order_type order, const enum blas_trans_type transA,
-   const int nrhs, float alpha, const blas_sparse_matrix A, const float * b, const int ldb,
-       float *  c, const int ldc)
+int BLAS_susmm(enum blas_order_type order, enum blas_trans_type transA,
+   int nrhs, float alpha, blas_sparse_matrix A, const float * b, int ldb,
+       float *  c, int ldc)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1178,9 +1176,9 @@ int BLAS_susmm(const enum blas_order_type order, const enum blas_trans_type tran
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susmm_ rsb__wp_blas_susmm_
+#define blas_susmm_ rsb_wp_blas_susmm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susmm_(const enum blas_order_type*order,const enum blas_trans_type*transA,const int*nrhs,float*alpha,const blas_sparse_matrix*A,const float *b,const int*ldb,float *c,const int*ldc,int*istat)
+void blas_susmm_(enum blas_order_type*order,enum blas_trans_type*transA,int*nrhs,float*alpha,blas_sparse_matrix*A,const float *b,int*ldb,float *c,int*ldc,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1192,11 +1190,11 @@ void blas_susmm_(const enum blas_order_type*order,const enum blas_trans_type*tra
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusmm rsb__wp_BLAS_dusmm
+#define BLAS_dusmm rsb_wp_BLAS_dusmm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusmm(const enum blas_order_type order, const enum blas_trans_type transA,
-   const int nrhs, double alpha, const blas_sparse_matrix A, const double * b, const int ldb,
-       double *  c, const int ldc)
+int BLAS_dusmm(enum blas_order_type order, enum blas_trans_type transA,
+   int nrhs, double alpha, blas_sparse_matrix A, const double * b, int ldb,
+       double *  c, int ldc)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1211,9 +1209,9 @@ int BLAS_dusmm(const enum blas_order_type order, const enum blas_trans_type tran
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusmm_ rsb__wp_blas_dusmm_
+#define blas_dusmm_ rsb_wp_blas_dusmm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusmm_(const enum blas_order_type*order,const enum blas_trans_type*transA,const int*nrhs,double*alpha,const blas_sparse_matrix*A,const double *b,const int*ldb,double *c,const int*ldc,int*istat)
+void blas_dusmm_(enum blas_order_type*order,enum blas_trans_type*transA,int*nrhs,double*alpha,blas_sparse_matrix*A,const double *b,int*ldb,double *c,int*ldc,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1225,11 +1223,11 @@ void blas_dusmm_(const enum blas_order_type*order,const enum blas_trans_type*tra
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusmm rsb__wp_BLAS_cusmm
+#define BLAS_cusmm rsb_wp_BLAS_cusmm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusmm(const enum blas_order_type order, const enum blas_trans_type transA,
-   const int nrhs, const void *alpha, const blas_sparse_matrix A, const void *b, const int ldb,
-       void * c, const int ldc)
+int BLAS_cusmm(enum blas_order_type order, enum blas_trans_type transA,
+   int nrhs, const void *alpha, blas_sparse_matrix A, const void *b, int ldb,
+       void * c, int ldc)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1244,9 +1242,9 @@ int BLAS_cusmm(const enum blas_order_type order, const enum blas_trans_type tran
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusmm_ rsb__wp_blas_cusmm_
+#define blas_cusmm_ rsb_wp_blas_cusmm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusmm_(const enum blas_order_type*order,const enum blas_trans_type*transA,const int*nrhs,const void *alpha,const blas_sparse_matrix*A,const void *b,const int*ldb,void *c,const int*ldc,int*istat)
+void blas_cusmm_(enum blas_order_type*order,enum blas_trans_type*transA,int*nrhs,const void *alpha,blas_sparse_matrix*A,const void *b,int*ldb,void *c,int*ldc,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1258,11 +1256,11 @@ void blas_cusmm_(const enum blas_order_type*order,const enum blas_trans_type*tra
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusmm rsb__wp_BLAS_zusmm
+#define BLAS_zusmm rsb_wp_BLAS_zusmm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusmm(const enum blas_order_type order, const enum blas_trans_type transA,
-   const int nrhs, const void *alpha, const blas_sparse_matrix A, const void *b, const int ldb,
-       void * c, const int ldc)
+int BLAS_zusmm(enum blas_order_type order, enum blas_trans_type transA,
+   int nrhs, const void *alpha, blas_sparse_matrix A, const void *b, int ldb,
+       void * c, int ldc)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1277,9 +1275,9 @@ int BLAS_zusmm(const enum blas_order_type order, const enum blas_trans_type tran
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusmm_ rsb__wp_blas_zusmm_
+#define blas_zusmm_ rsb_wp_blas_zusmm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusmm_(const enum blas_order_type*order,const enum blas_trans_type*transA,const int*nrhs,const void *alpha,const blas_sparse_matrix*A,const void *b,const int*ldb,void *c,const int*ldc,int*istat)
+void blas_zusmm_(enum blas_order_type*order,enum blas_trans_type*transA,int*nrhs,const void *alpha,blas_sparse_matrix*A,const void *b,int*ldb,void *c,int*ldc,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1292,10 +1290,10 @@ void blas_zusmm_(const enum blas_order_type*order,const enum blas_trans_type*tra
 
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_sussm rsb__wp_BLAS_sussm
+#define BLAS_sussm rsb_wp_BLAS_sussm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_sussm(const enum blas_order_type order, const enum blas_trans_type transT,
-               const int nrhs, float alpha, const blas_sparse_matrix T, float * b, const int ldb)
+int BLAS_sussm(enum blas_order_type order, enum blas_trans_type transT,
+               int nrhs, float alpha, blas_sparse_matrix T, float * b, int ldb)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1305,14 +1303,14 @@ int BLAS_sussm(const enum blas_order_type order, const enum blas_trans_type tran
 
 {
 	const float beta = ((float)(0));
-	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),&alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb__blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
+	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),&alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb_blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
 }
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_sussm_ rsb__wp_blas_sussm_
+#define blas_sussm_ rsb_wp_blas_sussm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_sussm_(const enum blas_order_type*order,const enum blas_trans_type*transT,const int*nrhs,float*alpha,const blas_sparse_matrix*T,float *b,const int*ldb,int*istat)
+void blas_sussm_(enum blas_order_type*order,enum blas_trans_type*transT,int*nrhs,float*alpha,blas_sparse_matrix*T,float *b,int*ldb,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1324,10 +1322,10 @@ void blas_sussm_(const enum blas_order_type*order,const enum blas_trans_type*tra
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dussm rsb__wp_BLAS_dussm
+#define BLAS_dussm rsb_wp_BLAS_dussm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dussm(const enum blas_order_type order, const enum blas_trans_type transT,
-               const int nrhs, double alpha, const blas_sparse_matrix T, double * b, const int ldb)
+int BLAS_dussm(enum blas_order_type order, enum blas_trans_type transT,
+               int nrhs, double alpha, blas_sparse_matrix T, double * b, int ldb)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1337,14 +1335,14 @@ int BLAS_dussm(const enum blas_order_type order, const enum blas_trans_type tran
 
 {
 	const double beta = ((double)(0));
-	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),&alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb__blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
+	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),&alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb_blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
 }
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dussm_ rsb__wp_blas_dussm_
+#define blas_dussm_ rsb_wp_blas_dussm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dussm_(const enum blas_order_type*order,const enum blas_trans_type*transT,const int*nrhs,double*alpha,const blas_sparse_matrix*T,double *b,const int*ldb,int*istat)
+void blas_dussm_(enum blas_order_type*order,enum blas_trans_type*transT,int*nrhs,double*alpha,blas_sparse_matrix*T,double *b,int*ldb,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1356,10 +1354,10 @@ void blas_dussm_(const enum blas_order_type*order,const enum blas_trans_type*tra
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cussm rsb__wp_BLAS_cussm
+#define BLAS_cussm rsb_wp_BLAS_cussm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cussm(const enum blas_order_type order, const enum blas_trans_type transT,
-               const int nrhs, const void *alpha, const blas_sparse_matrix T, void *b, const int ldb)
+int BLAS_cussm(enum blas_order_type order, enum blas_trans_type transT,
+               int nrhs, const void *alpha, blas_sparse_matrix T, void *b, int ldb)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1369,14 +1367,14 @@ int BLAS_cussm(const enum blas_order_type order, const enum blas_trans_type tran
 
 {
 	const float complex beta = ((float complex)(0));
-	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb__blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
+	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb_blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
 }
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cussm_ rsb__wp_blas_cussm_
+#define blas_cussm_ rsb_wp_blas_cussm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cussm_(const enum blas_order_type*order,const enum blas_trans_type*transT,const int*nrhs,const void *alpha,const blas_sparse_matrix*T,void *b,const int*ldb,int*istat)
+void blas_cussm_(enum blas_order_type*order,enum blas_trans_type*transT,int*nrhs,const void *alpha,blas_sparse_matrix*T,void *b,int*ldb,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1388,10 +1386,10 @@ void blas_cussm_(const enum blas_order_type*order,const enum blas_trans_type*tra
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zussm rsb__wp_BLAS_zussm
+#define BLAS_zussm rsb_wp_BLAS_zussm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zussm(const enum blas_order_type order, const enum blas_trans_type transT,
-               const int nrhs, const void *alpha, const blas_sparse_matrix T, void *b, const int ldb)
+int BLAS_zussm(enum blas_order_type order, enum blas_trans_type transT,
+               int nrhs, const void *alpha, blas_sparse_matrix T, void *b, int ldb)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1401,14 +1399,14 @@ int BLAS_zussm(const enum blas_order_type order, const enum blas_trans_type tran
 
 {
 	const double complex beta = ((double complex)(0));
-	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb__blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
+	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb_blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
 }
 	}
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zussm_ rsb__wp_blas_zussm_
+#define blas_zussm_ rsb_wp_blas_zussm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zussm_(const enum blas_order_type*order,const enum blas_trans_type*transT,const int*nrhs,const void *alpha,const blas_sparse_matrix*T,void *b,const int*ldb,int*istat)
+void blas_zussm_(enum blas_order_type*order,enum blas_trans_type*transT,int*nrhs,const void *alpha,blas_sparse_matrix*T,void *b,int*ldb,int*istat)
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -1433,7 +1431,7 @@ void blas_zussm_(const enum blas_order_type*order,const enum blas_trans_type*tra
                /* Destruction Routine */
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_begin rsb__wp_BLAS_suscr_begin
+#define BLAS_suscr_begin rsb_wp_BLAS_suscr_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_suscr_begin( int m, int n )
 {
@@ -1446,7 +1444,7 @@ blas_sparse_matrix BLAS_suscr_begin( int m, int n )
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_begin(m,n,RSB_NUMERICAL_TYPE_FLOAT ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_begin_ rsb__wp_blas_suscr_begin_
+#define blas_suscr_begin_ rsb_wp_blas_suscr_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_begin_( int*m,int*n,blas_sparse_matrix*A,int*istat )
 {
@@ -1467,7 +1465,7 @@ void blas_suscr_begin_( int*m,int*n,blas_sparse_matrix*A,int*istat )
 		RSB_SET_IF_NOT_NULL(istat,RSB_BLAS_ERROR);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_begin rsb__wp_BLAS_duscr_begin
+#define BLAS_duscr_begin rsb_wp_BLAS_duscr_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_duscr_begin( int m, int n )
 {
@@ -1480,7 +1478,7 @@ blas_sparse_matrix BLAS_duscr_begin( int m, int n )
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_begin(m,n,RSB_NUMERICAL_TYPE_DOUBLE ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_begin_ rsb__wp_blas_duscr_begin_
+#define blas_duscr_begin_ rsb_wp_blas_duscr_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_begin_( int*m,int*n,blas_sparse_matrix*A,int*istat )
 {
@@ -1501,7 +1499,7 @@ void blas_duscr_begin_( int*m,int*n,blas_sparse_matrix*A,int*istat )
 		RSB_SET_IF_NOT_NULL(istat,RSB_BLAS_ERROR);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_begin rsb__wp_BLAS_cuscr_begin
+#define BLAS_cuscr_begin rsb_wp_BLAS_cuscr_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_cuscr_begin( int m, int n )
 {
@@ -1514,7 +1512,7 @@ blas_sparse_matrix BLAS_cuscr_begin( int m, int n )
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_begin(m,n,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_begin_ rsb__wp_blas_cuscr_begin_
+#define blas_cuscr_begin_ rsb_wp_blas_cuscr_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_begin_( int*m,int*n,blas_sparse_matrix*A,int*istat )
 {
@@ -1535,7 +1533,7 @@ void blas_cuscr_begin_( int*m,int*n,blas_sparse_matrix*A,int*istat )
 		RSB_SET_IF_NOT_NULL(istat,RSB_BLAS_ERROR);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_begin rsb__wp_BLAS_zuscr_begin
+#define BLAS_zuscr_begin rsb_wp_BLAS_zuscr_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_zuscr_begin( int m, int n )
 {
@@ -1548,7 +1546,7 @@ blas_sparse_matrix BLAS_zuscr_begin( int m, int n )
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_begin(m,n,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_begin_ rsb__wp_blas_zuscr_begin_
+#define blas_zuscr_begin_ rsb_wp_blas_zuscr_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_begin_( int*m,int*n,blas_sparse_matrix*A,int*istat )
 {
@@ -1570,7 +1568,7 @@ void blas_zuscr_begin_( int*m,int*n,blas_sparse_matrix*A,int*istat )
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_block_begin rsb__wp_BLAS_suscr_block_begin
+#define BLAS_suscr_block_begin rsb_wp_BLAS_suscr_block_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_suscr_block_begin( int Mb, int Nb, int k, int l )
 {
@@ -1583,7 +1581,7 @@ blas_sparse_matrix BLAS_suscr_block_begin( int Mb, int Nb, int k, int l )
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_block_begin(Mb,Nb,k,l,RSB_NUMERICAL_TYPE_FLOAT ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_block_begin_ rsb__wp_blas_suscr_block_begin_
+#define blas_suscr_block_begin_ rsb_wp_blas_suscr_block_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_block_begin_( int*Mb,int*Nb,int*k,int*l,blas_sparse_matrix*A,int*istat )
 {
@@ -1604,7 +1602,7 @@ void blas_suscr_block_begin_( int*Mb,int*Nb,int*k,int*l,blas_sparse_matrix*A,int
 		RSB_SET_IF_NOT_NULL(istat,RSB_BLAS_ERROR);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_block_begin rsb__wp_BLAS_duscr_block_begin
+#define BLAS_duscr_block_begin rsb_wp_BLAS_duscr_block_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_duscr_block_begin( int Mb, int Nb, int k, int l )
 {
@@ -1617,7 +1615,7 @@ blas_sparse_matrix BLAS_duscr_block_begin( int Mb, int Nb, int k, int l )
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_block_begin(Mb,Nb,k,l,RSB_NUMERICAL_TYPE_DOUBLE ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_block_begin_ rsb__wp_blas_duscr_block_begin_
+#define blas_duscr_block_begin_ rsb_wp_blas_duscr_block_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_block_begin_( int*Mb,int*Nb,int*k,int*l,blas_sparse_matrix*A,int*istat )
 {
@@ -1638,7 +1636,7 @@ void blas_duscr_block_begin_( int*Mb,int*Nb,int*k,int*l,blas_sparse_matrix*A,int
 		RSB_SET_IF_NOT_NULL(istat,RSB_BLAS_ERROR);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_block_begin rsb__wp_BLAS_cuscr_block_begin
+#define BLAS_cuscr_block_begin rsb_wp_BLAS_cuscr_block_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_cuscr_block_begin( int Mb, int Nb, int k, int l )
 {
@@ -1651,7 +1649,7 @@ blas_sparse_matrix BLAS_cuscr_block_begin( int Mb, int Nb, int k, int l )
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_block_begin(Mb,Nb,k,l,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_block_begin_ rsb__wp_blas_cuscr_block_begin_
+#define blas_cuscr_block_begin_ rsb_wp_blas_cuscr_block_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_block_begin_( int*Mb,int*Nb,int*k,int*l,blas_sparse_matrix*A,int*istat )
 {
@@ -1672,7 +1670,7 @@ void blas_cuscr_block_begin_( int*Mb,int*Nb,int*k,int*l,blas_sparse_matrix*A,int
 		RSB_SET_IF_NOT_NULL(istat,RSB_BLAS_ERROR);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_block_begin rsb__wp_BLAS_zuscr_block_begin
+#define BLAS_zuscr_block_begin rsb_wp_BLAS_zuscr_block_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_zuscr_block_begin( int Mb, int Nb, int k, int l )
 {
@@ -1685,7 +1683,7 @@ blas_sparse_matrix BLAS_zuscr_block_begin( int Mb, int Nb, int k, int l )
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_block_begin(Mb,Nb,k,l,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_block_begin_ rsb__wp_blas_zuscr_block_begin_
+#define blas_zuscr_block_begin_ rsb_wp_blas_zuscr_block_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_block_begin_( int*Mb,int*Nb,int*k,int*l,blas_sparse_matrix*A,int*istat )
 {
@@ -1707,7 +1705,7 @@ void blas_zuscr_block_begin_( int*Mb,int*Nb,int*k,int*l,blas_sparse_matrix*A,int
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_variable_block_begin rsb__wp_BLAS_suscr_variable_block_begin
+#define BLAS_suscr_variable_block_begin rsb_wp_BLAS_suscr_variable_block_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_suscr_variable_block_begin( int Mb, int Nb,
 		const int *K, const int *L )
@@ -1721,7 +1719,7 @@ blas_sparse_matrix BLAS_suscr_variable_block_begin( int Mb, int Nb,
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_variable_block_begin(Mb,Nb,K,L,RSB_NUMERICAL_TYPE_FLOAT ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_variable_block_begin_ rsb__wp_blas_suscr_variable_block_begin_
+#define blas_suscr_variable_block_begin_ rsb_wp_blas_suscr_variable_block_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_variable_block_begin_( int*Mb,int*Nb,const int *K,const int *L,blas_sparse_matrix*A,int*istat )
 {
@@ -1742,7 +1740,7 @@ void blas_suscr_variable_block_begin_( int*Mb,int*Nb,const int *K,const int *L,b
 		RSB_SET_IF_NOT_NULL(istat,RSB_BLAS_ERROR);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_variable_block_begin rsb__wp_BLAS_duscr_variable_block_begin
+#define BLAS_duscr_variable_block_begin rsb_wp_BLAS_duscr_variable_block_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_duscr_variable_block_begin( int Mb, int Nb,
 		const int *K, const int *L )
@@ -1756,7 +1754,7 @@ blas_sparse_matrix BLAS_duscr_variable_block_begin( int Mb, int Nb,
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_variable_block_begin(Mb,Nb,K,L,RSB_NUMERICAL_TYPE_DOUBLE ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_variable_block_begin_ rsb__wp_blas_duscr_variable_block_begin_
+#define blas_duscr_variable_block_begin_ rsb_wp_blas_duscr_variable_block_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_variable_block_begin_( int*Mb,int*Nb,const int *K,const int *L,blas_sparse_matrix*A,int*istat )
 {
@@ -1777,7 +1775,7 @@ void blas_duscr_variable_block_begin_( int*Mb,int*Nb,const int *K,const int *L,b
 		RSB_SET_IF_NOT_NULL(istat,RSB_BLAS_ERROR);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_variable_block_begin rsb__wp_BLAS_cuscr_variable_block_begin
+#define BLAS_cuscr_variable_block_begin rsb_wp_BLAS_cuscr_variable_block_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_cuscr_variable_block_begin( int Mb, int Nb,
 		const int *K, const int *L )
@@ -1791,7 +1789,7 @@ blas_sparse_matrix BLAS_cuscr_variable_block_begin( int Mb, int Nb,
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_variable_block_begin(Mb,Nb,K,L,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_variable_block_begin_ rsb__wp_blas_cuscr_variable_block_begin_
+#define blas_cuscr_variable_block_begin_ rsb_wp_blas_cuscr_variable_block_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_variable_block_begin_( int*Mb,int*Nb,const int *K,const int *L,blas_sparse_matrix*A,int*istat )
 {
@@ -1812,7 +1810,7 @@ void blas_cuscr_variable_block_begin_( int*Mb,int*Nb,const int *K,const int *L,b
 		RSB_SET_IF_NOT_NULL(istat,RSB_BLAS_ERROR);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_variable_block_begin rsb__wp_BLAS_zuscr_variable_block_begin
+#define BLAS_zuscr_variable_block_begin rsb_wp_BLAS_zuscr_variable_block_begin
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 blas_sparse_matrix BLAS_zuscr_variable_block_begin( int Mb, int Nb,
 		const int *K, const int *L )
@@ -1826,7 +1824,7 @@ blas_sparse_matrix BLAS_zuscr_variable_block_begin( int Mb, int Nb,
 	RSB_SPB_INTERFACE_RETURN_HDL(rsb__BLAS_Xuscr_variable_block_begin(Mb,Nb,K,L,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_variable_block_begin_ rsb__wp_blas_zuscr_variable_block_begin_
+#define blas_zuscr_variable_block_begin_ rsb_wp_blas_zuscr_variable_block_begin_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_variable_block_begin_( int*Mb,int*Nb,const int *K,const int *L,blas_sparse_matrix*A,int*istat )
 {
@@ -1848,7 +1846,7 @@ void blas_zuscr_variable_block_begin_( int*Mb,int*Nb,const int *K,const int *L,b
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_end rsb__wp_BLAS_suscr_end
+#define BLAS_suscr_end rsb_wp_BLAS_suscr_end
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_suscr_end( blas_sparse_matrix A )
 {
@@ -1861,7 +1859,7 @@ int BLAS_suscr_end( blas_sparse_matrix A )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_end(A))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_end_ rsb__wp_blas_suscr_end_
+#define blas_suscr_end_ rsb_wp_blas_suscr_end_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_end_( blas_sparse_matrix*A,int*istat )
 {
@@ -1874,7 +1872,7 @@ void blas_suscr_end_( blas_sparse_matrix*A,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_end rsb__wp_BLAS_duscr_end
+#define BLAS_duscr_end rsb_wp_BLAS_duscr_end
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_duscr_end( blas_sparse_matrix A )
 {
@@ -1887,7 +1885,7 @@ int BLAS_duscr_end( blas_sparse_matrix A )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_end(A))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_end_ rsb__wp_blas_duscr_end_
+#define blas_duscr_end_ rsb_wp_blas_duscr_end_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_end_( blas_sparse_matrix*A,int*istat )
 {
@@ -1900,7 +1898,7 @@ void blas_duscr_end_( blas_sparse_matrix*A,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_end rsb__wp_BLAS_cuscr_end
+#define BLAS_cuscr_end rsb_wp_BLAS_cuscr_end
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cuscr_end( blas_sparse_matrix A )
 {
@@ -1913,7 +1911,7 @@ int BLAS_cuscr_end( blas_sparse_matrix A )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_end(A))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_end_ rsb__wp_blas_cuscr_end_
+#define blas_cuscr_end_ rsb_wp_blas_cuscr_end_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_end_( blas_sparse_matrix*A,int*istat )
 {
@@ -1926,7 +1924,7 @@ void blas_cuscr_end_( blas_sparse_matrix*A,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_end rsb__wp_BLAS_zuscr_end
+#define BLAS_zuscr_end rsb_wp_BLAS_zuscr_end
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zuscr_end( blas_sparse_matrix A )
 {
@@ -1939,7 +1937,7 @@ int BLAS_zuscr_end( blas_sparse_matrix A )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_end(A))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_end_ rsb__wp_blas_zuscr_end_
+#define blas_zuscr_end_ rsb_wp_blas_zuscr_end_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_end_( blas_sparse_matrix*A,int*istat )
 {
@@ -1953,7 +1951,7 @@ void blas_zuscr_end_( blas_sparse_matrix*A,int*istat )
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_insert_entry rsb__wp_BLAS_suscr_insert_entry
+#define BLAS_suscr_insert_entry rsb_wp_BLAS_suscr_insert_entry
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_suscr_insert_entry( blas_sparse_matrix A, float  val, int i, int j )
 {
@@ -1966,7 +1964,7 @@ int BLAS_suscr_insert_entry( blas_sparse_matrix A, float  val, int i, int j )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_entry(A,&val,i,j))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_insert_entry_ rsb__wp_blas_suscr_insert_entry_
+#define blas_suscr_insert_entry_ rsb_wp_blas_suscr_insert_entry_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_insert_entry_( blas_sparse_matrix*A,float*val,int*i,int*j,int*istat )
 {
@@ -1979,7 +1977,7 @@ void blas_suscr_insert_entry_( blas_sparse_matrix*A,float*val,int*i,int*j,int*is
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_insert_entry rsb__wp_BLAS_duscr_insert_entry
+#define BLAS_duscr_insert_entry rsb_wp_BLAS_duscr_insert_entry
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_duscr_insert_entry( blas_sparse_matrix A, double  val, int i, int j )
 {
@@ -1992,7 +1990,7 @@ int BLAS_duscr_insert_entry( blas_sparse_matrix A, double  val, int i, int j )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_entry(A,&val,i,j))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_insert_entry_ rsb__wp_blas_duscr_insert_entry_
+#define blas_duscr_insert_entry_ rsb_wp_blas_duscr_insert_entry_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_insert_entry_( blas_sparse_matrix*A,double*val,int*i,int*j,int*istat )
 {
@@ -2005,7 +2003,7 @@ void blas_duscr_insert_entry_( blas_sparse_matrix*A,double*val,int*i,int*j,int*i
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_insert_entry rsb__wp_BLAS_cuscr_insert_entry
+#define BLAS_cuscr_insert_entry rsb_wp_BLAS_cuscr_insert_entry
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cuscr_insert_entry( blas_sparse_matrix A, const void * val, int i, int j )
 {
@@ -2018,7 +2016,7 @@ int BLAS_cuscr_insert_entry( blas_sparse_matrix A, const void * val, int i, int 
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_entry(A,val,i,j))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_insert_entry_ rsb__wp_blas_cuscr_insert_entry_
+#define blas_cuscr_insert_entry_ rsb_wp_blas_cuscr_insert_entry_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_insert_entry_( blas_sparse_matrix*A,const void *val,int*i,int*j,int*istat )
 {
@@ -2031,7 +2029,7 @@ void blas_cuscr_insert_entry_( blas_sparse_matrix*A,const void *val,int*i,int*j,
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_insert_entry rsb__wp_BLAS_zuscr_insert_entry
+#define BLAS_zuscr_insert_entry rsb_wp_BLAS_zuscr_insert_entry
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zuscr_insert_entry( blas_sparse_matrix A, const void * val, int i, int j )
 {
@@ -2044,7 +2042,7 @@ int BLAS_zuscr_insert_entry( blas_sparse_matrix A, const void * val, int i, int 
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_entry(A,val,i,j))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_insert_entry_ rsb__wp_blas_zuscr_insert_entry_
+#define blas_zuscr_insert_entry_ rsb_wp_blas_zuscr_insert_entry_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_insert_entry_( blas_sparse_matrix*A,const void *val,int*i,int*j,int*istat )
 {
@@ -2058,7 +2056,7 @@ void blas_zuscr_insert_entry_( blas_sparse_matrix*A,const void *val,int*i,int*j,
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_insert_entries rsb__wp_BLAS_suscr_insert_entries
+#define BLAS_suscr_insert_entries rsb_wp_BLAS_suscr_insert_entries
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_suscr_insert_entries( blas_sparse_matrix A, int nnz, const float * val,
                             const int *indx, const int *jndx )
@@ -2072,7 +2070,7 @@ int BLAS_suscr_insert_entries( blas_sparse_matrix A, int nnz, const float * val,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_entries(A,nnz,val,indx,jndx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_insert_entries_ rsb__wp_blas_suscr_insert_entries_
+#define blas_suscr_insert_entries_ rsb_wp_blas_suscr_insert_entries_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_insert_entries_( blas_sparse_matrix*A,int*nnz,const float *val,const int *indx,const int *jndx,int*istat )
 {
@@ -2085,7 +2083,7 @@ void blas_suscr_insert_entries_( blas_sparse_matrix*A,int*nnz,const float *val,c
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_insert_entries rsb__wp_BLAS_duscr_insert_entries
+#define BLAS_duscr_insert_entries rsb_wp_BLAS_duscr_insert_entries
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_duscr_insert_entries( blas_sparse_matrix A, int nnz, const double * val,
                             const int *indx, const int *jndx )
@@ -2099,7 +2097,7 @@ int BLAS_duscr_insert_entries( blas_sparse_matrix A, int nnz, const double * val
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_entries(A,nnz,val,indx,jndx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_insert_entries_ rsb__wp_blas_duscr_insert_entries_
+#define blas_duscr_insert_entries_ rsb_wp_blas_duscr_insert_entries_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_insert_entries_( blas_sparse_matrix*A,int*nnz,const double *val,const int *indx,const int *jndx,int*istat )
 {
@@ -2112,7 +2110,7 @@ void blas_duscr_insert_entries_( blas_sparse_matrix*A,int*nnz,const double *val,
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_insert_entries rsb__wp_BLAS_cuscr_insert_entries
+#define BLAS_cuscr_insert_entries rsb_wp_BLAS_cuscr_insert_entries
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cuscr_insert_entries( blas_sparse_matrix A, int nnz, const void *val,
                             const int *indx, const int *jndx )
@@ -2126,7 +2124,7 @@ int BLAS_cuscr_insert_entries( blas_sparse_matrix A, int nnz, const void *val,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_entries(A,nnz,val,indx,jndx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_insert_entries_ rsb__wp_blas_cuscr_insert_entries_
+#define blas_cuscr_insert_entries_ rsb_wp_blas_cuscr_insert_entries_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_insert_entries_( blas_sparse_matrix*A,int*nnz,const void *val,const int *indx,const int *jndx,int*istat )
 {
@@ -2139,7 +2137,7 @@ void blas_cuscr_insert_entries_( blas_sparse_matrix*A,int*nnz,const void *val,co
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_insert_entries rsb__wp_BLAS_zuscr_insert_entries
+#define BLAS_zuscr_insert_entries rsb_wp_BLAS_zuscr_insert_entries
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zuscr_insert_entries( blas_sparse_matrix A, int nnz, const void *val,
                             const int *indx, const int *jndx )
@@ -2153,7 +2151,7 @@ int BLAS_zuscr_insert_entries( blas_sparse_matrix A, int nnz, const void *val,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_entries(A,nnz,val,indx,jndx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_insert_entries_ rsb__wp_blas_zuscr_insert_entries_
+#define blas_zuscr_insert_entries_ rsb_wp_blas_zuscr_insert_entries_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_insert_entries_( blas_sparse_matrix*A,int*nnz,const void *val,const int *indx,const int *jndx,int*istat )
 {
@@ -2167,7 +2165,7 @@ void blas_zuscr_insert_entries_( blas_sparse_matrix*A,int*nnz,const void *val,co
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_insert_col rsb__wp_BLAS_suscr_insert_col
+#define BLAS_suscr_insert_col rsb_wp_BLAS_suscr_insert_col
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_suscr_insert_col( blas_sparse_matrix A, int j, int nnz,
                            const float * val, const int *indx )
@@ -2181,7 +2179,7 @@ int BLAS_suscr_insert_col( blas_sparse_matrix A, int j, int nnz,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_col(A,j,nnz,val,indx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_insert_col_ rsb__wp_blas_suscr_insert_col_
+#define blas_suscr_insert_col_ rsb_wp_blas_suscr_insert_col_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_insert_col_( blas_sparse_matrix*A,int*j,int*nnz,const float *val,const int *indx,int*istat )
 {
@@ -2194,7 +2192,7 @@ void blas_suscr_insert_col_( blas_sparse_matrix*A,int*j,int*nnz,const float *val
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_insert_col rsb__wp_BLAS_duscr_insert_col
+#define BLAS_duscr_insert_col rsb_wp_BLAS_duscr_insert_col
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_duscr_insert_col( blas_sparse_matrix A, int j, int nnz,
                            const double * val, const int *indx )
@@ -2208,7 +2206,7 @@ int BLAS_duscr_insert_col( blas_sparse_matrix A, int j, int nnz,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_col(A,j,nnz,val,indx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_insert_col_ rsb__wp_blas_duscr_insert_col_
+#define blas_duscr_insert_col_ rsb_wp_blas_duscr_insert_col_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_insert_col_( blas_sparse_matrix*A,int*j,int*nnz,const double *val,const int *indx,int*istat )
 {
@@ -2221,7 +2219,7 @@ void blas_duscr_insert_col_( blas_sparse_matrix*A,int*j,int*nnz,const double *va
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_insert_col rsb__wp_BLAS_cuscr_insert_col
+#define BLAS_cuscr_insert_col rsb_wp_BLAS_cuscr_insert_col
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cuscr_insert_col( blas_sparse_matrix A, int j, int nnz,
                            const void *val, const int *indx )
@@ -2235,7 +2233,7 @@ int BLAS_cuscr_insert_col( blas_sparse_matrix A, int j, int nnz,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_col(A,j,nnz,val,indx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_insert_col_ rsb__wp_blas_cuscr_insert_col_
+#define blas_cuscr_insert_col_ rsb_wp_blas_cuscr_insert_col_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_insert_col_( blas_sparse_matrix*A,int*j,int*nnz,const void *val,const int *indx,int*istat )
 {
@@ -2248,7 +2246,7 @@ void blas_cuscr_insert_col_( blas_sparse_matrix*A,int*j,int*nnz,const void *val,
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_insert_col rsb__wp_BLAS_zuscr_insert_col
+#define BLAS_zuscr_insert_col rsb_wp_BLAS_zuscr_insert_col
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zuscr_insert_col( blas_sparse_matrix A, int j, int nnz,
                            const void *val, const int *indx )
@@ -2262,7 +2260,7 @@ int BLAS_zuscr_insert_col( blas_sparse_matrix A, int j, int nnz,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_col(A,j,nnz,val,indx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_insert_col_ rsb__wp_blas_zuscr_insert_col_
+#define blas_zuscr_insert_col_ rsb_wp_blas_zuscr_insert_col_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_insert_col_( blas_sparse_matrix*A,int*j,int*nnz,const void *val,const int *indx,int*istat )
 {
@@ -2276,7 +2274,7 @@ void blas_zuscr_insert_col_( blas_sparse_matrix*A,int*j,int*nnz,const void *val,
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_insert_row rsb__wp_BLAS_suscr_insert_row
+#define BLAS_suscr_insert_row rsb_wp_BLAS_suscr_insert_row
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_suscr_insert_row( blas_sparse_matrix A, int i, int nnz,
                            const float * val, const int *indx )
@@ -2290,7 +2288,7 @@ int BLAS_suscr_insert_row( blas_sparse_matrix A, int i, int nnz,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_row(A,i,nnz,val,indx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_insert_row_ rsb__wp_blas_suscr_insert_row_
+#define blas_suscr_insert_row_ rsb_wp_blas_suscr_insert_row_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_insert_row_( blas_sparse_matrix*A,int*i,int*nnz,const float *val,const int *indx,int*istat )
 {
@@ -2303,7 +2301,7 @@ void blas_suscr_insert_row_( blas_sparse_matrix*A,int*i,int*nnz,const float *val
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_insert_row rsb__wp_BLAS_duscr_insert_row
+#define BLAS_duscr_insert_row rsb_wp_BLAS_duscr_insert_row
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_duscr_insert_row( blas_sparse_matrix A, int i, int nnz,
                            const double * val, const int *indx )
@@ -2317,7 +2315,7 @@ int BLAS_duscr_insert_row( blas_sparse_matrix A, int i, int nnz,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_row(A,i,nnz,val,indx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_insert_row_ rsb__wp_blas_duscr_insert_row_
+#define blas_duscr_insert_row_ rsb_wp_blas_duscr_insert_row_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_insert_row_( blas_sparse_matrix*A,int*i,int*nnz,const double *val,const int *indx,int*istat )
 {
@@ -2330,7 +2328,7 @@ void blas_duscr_insert_row_( blas_sparse_matrix*A,int*i,int*nnz,const double *va
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_insert_row rsb__wp_BLAS_cuscr_insert_row
+#define BLAS_cuscr_insert_row rsb_wp_BLAS_cuscr_insert_row
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cuscr_insert_row( blas_sparse_matrix A, int i, int nnz,
                            const void *val, const int *indx )
@@ -2344,7 +2342,7 @@ int BLAS_cuscr_insert_row( blas_sparse_matrix A, int i, int nnz,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_row(A,i,nnz,val,indx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_insert_row_ rsb__wp_blas_cuscr_insert_row_
+#define blas_cuscr_insert_row_ rsb_wp_blas_cuscr_insert_row_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_insert_row_( blas_sparse_matrix*A,int*i,int*nnz,const void *val,const int *indx,int*istat )
 {
@@ -2357,7 +2355,7 @@ void blas_cuscr_insert_row_( blas_sparse_matrix*A,int*i,int*nnz,const void *val,
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_insert_row rsb__wp_BLAS_zuscr_insert_row
+#define BLAS_zuscr_insert_row rsb_wp_BLAS_zuscr_insert_row
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zuscr_insert_row( blas_sparse_matrix A, int i, int nnz,
                            const void *val, const int *indx )
@@ -2371,7 +2369,7 @@ int BLAS_zuscr_insert_row( blas_sparse_matrix A, int i, int nnz,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_row(A,i,nnz,val,indx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_insert_row_ rsb__wp_blas_zuscr_insert_row_
+#define blas_zuscr_insert_row_ rsb_wp_blas_zuscr_insert_row_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_insert_row_( blas_sparse_matrix*A,int*i,int*nnz,const void *val,const int *indx,int*istat )
 {
@@ -2385,7 +2383,7 @@ void blas_zuscr_insert_row_( blas_sparse_matrix*A,int*i,int*nnz,const void *val,
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_insert_clique rsb__wp_BLAS_suscr_insert_clique
+#define BLAS_suscr_insert_clique rsb_wp_BLAS_suscr_insert_clique
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_suscr_insert_clique( blas_sparse_matrix A, const int k, const int l,
                        const float * val, const int row_stride,
@@ -2401,7 +2399,7 @@ int BLAS_suscr_insert_clique( blas_sparse_matrix A, const int k, const int l,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_clique(A,k,l,val,row_stride,col_stride,indx,jndx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_insert_clique_ rsb__wp_blas_suscr_insert_clique_
+#define blas_suscr_insert_clique_ rsb_wp_blas_suscr_insert_clique_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_insert_clique_( blas_sparse_matrix*A,const int*k,const int*l,const float *val,const int*row_stride,const int*col_stride,const int *indx,const int *jndx,int*istat )
 {
@@ -2414,7 +2412,7 @@ void blas_suscr_insert_clique_( blas_sparse_matrix*A,const int*k,const int*l,con
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_insert_clique rsb__wp_BLAS_duscr_insert_clique
+#define BLAS_duscr_insert_clique rsb_wp_BLAS_duscr_insert_clique
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_duscr_insert_clique( blas_sparse_matrix A, const int k, const int l,
                        const double * val, const int row_stride,
@@ -2430,7 +2428,7 @@ int BLAS_duscr_insert_clique( blas_sparse_matrix A, const int k, const int l,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_clique(A,k,l,val,row_stride,col_stride,indx,jndx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_insert_clique_ rsb__wp_blas_duscr_insert_clique_
+#define blas_duscr_insert_clique_ rsb_wp_blas_duscr_insert_clique_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_insert_clique_( blas_sparse_matrix*A,const int*k,const int*l,const double *val,const int*row_stride,const int*col_stride,const int *indx,const int *jndx,int*istat )
 {
@@ -2443,7 +2441,7 @@ void blas_duscr_insert_clique_( blas_sparse_matrix*A,const int*k,const int*l,con
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_insert_clique rsb__wp_BLAS_cuscr_insert_clique
+#define BLAS_cuscr_insert_clique rsb_wp_BLAS_cuscr_insert_clique
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cuscr_insert_clique( blas_sparse_matrix A, const int k, const int l,
                        const void *val, const int row_stride,
@@ -2459,7 +2457,7 @@ int BLAS_cuscr_insert_clique( blas_sparse_matrix A, const int k, const int l,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_clique(A,k,l,val,row_stride,col_stride,indx,jndx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_insert_clique_ rsb__wp_blas_cuscr_insert_clique_
+#define blas_cuscr_insert_clique_ rsb_wp_blas_cuscr_insert_clique_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_insert_clique_( blas_sparse_matrix*A,const int*k,const int*l,const void *val,const int*row_stride,const int*col_stride,const int *indx,const int *jndx,int*istat )
 {
@@ -2472,7 +2470,7 @@ void blas_cuscr_insert_clique_( blas_sparse_matrix*A,const int*k,const int*l,con
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_insert_clique rsb__wp_BLAS_zuscr_insert_clique
+#define BLAS_zuscr_insert_clique rsb_wp_BLAS_zuscr_insert_clique
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zuscr_insert_clique( blas_sparse_matrix A, const int k, const int l,
                        const void *val, const int row_stride,
@@ -2488,7 +2486,7 @@ int BLAS_zuscr_insert_clique( blas_sparse_matrix A, const int k, const int l,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_clique(A,k,l,val,row_stride,col_stride,indx,jndx))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_insert_clique_ rsb__wp_blas_zuscr_insert_clique_
+#define blas_zuscr_insert_clique_ rsb_wp_blas_zuscr_insert_clique_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_insert_clique_( blas_sparse_matrix*A,const int*k,const int*l,const void *val,const int*row_stride,const int*col_stride,const int *indx,const int *jndx,int*istat )
 {
@@ -2502,7 +2500,7 @@ void blas_zuscr_insert_clique_( blas_sparse_matrix*A,const int*k,const int*l,con
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_suscr_insert_block rsb__wp_BLAS_suscr_insert_block
+#define BLAS_suscr_insert_block rsb_wp_BLAS_suscr_insert_block
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_suscr_insert_block( blas_sparse_matrix A, const float * val,
                         int row_stride, int col_stride, int i, int j )
@@ -2516,7 +2514,7 @@ int BLAS_suscr_insert_block( blas_sparse_matrix A, const float * val,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_block(A,val,row_stride,col_stride,i,j))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_suscr_insert_block_ rsb__wp_blas_suscr_insert_block_
+#define blas_suscr_insert_block_ rsb_wp_blas_suscr_insert_block_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_suscr_insert_block_( blas_sparse_matrix*A,const float *val,int*row_stride,int*col_stride,int*i,int*j,int*istat )
 {
@@ -2529,7 +2527,7 @@ void blas_suscr_insert_block_( blas_sparse_matrix*A,const float *val,int*row_str
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_duscr_insert_block rsb__wp_BLAS_duscr_insert_block
+#define BLAS_duscr_insert_block rsb_wp_BLAS_duscr_insert_block
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_duscr_insert_block( blas_sparse_matrix A, const double * val,
                         int row_stride, int col_stride, int i, int j )
@@ -2543,7 +2541,7 @@ int BLAS_duscr_insert_block( blas_sparse_matrix A, const double * val,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_block(A,val,row_stride,col_stride,i,j))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_duscr_insert_block_ rsb__wp_blas_duscr_insert_block_
+#define blas_duscr_insert_block_ rsb_wp_blas_duscr_insert_block_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_duscr_insert_block_( blas_sparse_matrix*A,const double *val,int*row_stride,int*col_stride,int*i,int*j,int*istat )
 {
@@ -2556,7 +2554,7 @@ void blas_duscr_insert_block_( blas_sparse_matrix*A,const double *val,int*row_st
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cuscr_insert_block rsb__wp_BLAS_cuscr_insert_block
+#define BLAS_cuscr_insert_block rsb_wp_BLAS_cuscr_insert_block
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cuscr_insert_block( blas_sparse_matrix A, const void *val,
                         int row_stride, int col_stride, int i, int j )
@@ -2570,7 +2568,7 @@ int BLAS_cuscr_insert_block( blas_sparse_matrix A, const void *val,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_block(A,val,row_stride,col_stride,i,j))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cuscr_insert_block_ rsb__wp_blas_cuscr_insert_block_
+#define blas_cuscr_insert_block_ rsb_wp_blas_cuscr_insert_block_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cuscr_insert_block_( blas_sparse_matrix*A,const void *val,int*row_stride,int*col_stride,int*i,int*j,int*istat )
 {
@@ -2583,7 +2581,7 @@ void blas_cuscr_insert_block_( blas_sparse_matrix*A,const void *val,int*row_stri
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zuscr_insert_block rsb__wp_BLAS_zuscr_insert_block
+#define BLAS_zuscr_insert_block rsb_wp_BLAS_zuscr_insert_block
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zuscr_insert_block( blas_sparse_matrix A, const void *val,
                         int row_stride, int col_stride, int i, int j )
@@ -2597,7 +2595,7 @@ int BLAS_zuscr_insert_block( blas_sparse_matrix A, const void *val,
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_insert_block(A,val,row_stride,col_stride,i,j))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zuscr_insert_block_ rsb__wp_blas_zuscr_insert_block_
+#define blas_zuscr_insert_block_ rsb_wp_blas_zuscr_insert_block_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zuscr_insert_block_( blas_sparse_matrix*A,const void *val,int*row_stride,int*col_stride,int*i,int*j,int*istat )
 {
@@ -2613,7 +2611,7 @@ void blas_zuscr_insert_block_( blas_sparse_matrix*A,const void *val,int*row_stri
 
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_uscr_end rsb__wp_BLAS_uscr_end
+#define BLAS_uscr_end rsb_wp_BLAS_uscr_end
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_uscr_end( blas_sparse_matrix A )
 {
@@ -2626,7 +2624,7 @@ int BLAS_uscr_end( blas_sparse_matrix A )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xuscr_end(A))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_uscr_end_ rsb__wp_blas_uscr_end_
+#define blas_uscr_end_ rsb_wp_blas_uscr_end_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_uscr_end_( blas_sparse_matrix*A,int*istat )
 {
@@ -2639,7 +2637,7 @@ void blas_uscr_end_( blas_sparse_matrix*A,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_usds rsb__wp_BLAS_usds
+#define BLAS_usds rsb_wp_BLAS_usds
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_usds( blas_sparse_matrix A )
 {
@@ -2652,7 +2650,7 @@ int BLAS_usds( blas_sparse_matrix A )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusds(A))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_usds_ rsb__wp_blas_usds_
+#define blas_usds_ rsb_wp_blas_usds_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_usds_( blas_sparse_matrix*A,int*istat )
 {
@@ -2666,9 +2664,9 @@ void blas_usds_( blas_sparse_matrix*A,int*istat )
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susrows_scale rsb__wp_BLAS_susrows_scale
+#define BLAS_susrows_scale rsb_wp_BLAS_susrows_scale
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susrows_scale( blas_sparse_matrix A,const float *  d, const enum blas_trans_type trans )
+int BLAS_susrows_scale( blas_sparse_matrix A,const float *  d, enum blas_trans_type trans )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2679,9 +2677,9 @@ int BLAS_susrows_scale( blas_sparse_matrix A,const float *  d, const enum blas_t
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusrows_scale(A,d,trans))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susrows_scale_ rsb__wp_blas_susrows_scale_
+#define blas_susrows_scale_ rsb_wp_blas_susrows_scale_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susrows_scale_( blas_sparse_matrix*A,const float *d,const enum blas_trans_type*trans,int*istat )
+void blas_susrows_scale_( blas_sparse_matrix*A,const float *d,enum blas_trans_type*trans,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2692,9 +2690,9 @@ void blas_susrows_scale_( blas_sparse_matrix*A,const float *d,const enum blas_tr
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusrows_scale rsb__wp_BLAS_dusrows_scale
+#define BLAS_dusrows_scale rsb_wp_BLAS_dusrows_scale
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusrows_scale( blas_sparse_matrix A,const double *  d, const enum blas_trans_type trans )
+int BLAS_dusrows_scale( blas_sparse_matrix A,const double *  d, enum blas_trans_type trans )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2705,9 +2703,9 @@ int BLAS_dusrows_scale( blas_sparse_matrix A,const double *  d, const enum blas_
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusrows_scale(A,d,trans))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusrows_scale_ rsb__wp_blas_dusrows_scale_
+#define blas_dusrows_scale_ rsb_wp_blas_dusrows_scale_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusrows_scale_( blas_sparse_matrix*A,const double *d,const enum blas_trans_type*trans,int*istat )
+void blas_dusrows_scale_( blas_sparse_matrix*A,const double *d,enum blas_trans_type*trans,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2718,9 +2716,9 @@ void blas_dusrows_scale_( blas_sparse_matrix*A,const double *d,const enum blas_t
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusrows_scale rsb__wp_BLAS_cusrows_scale
+#define BLAS_cusrows_scale rsb_wp_BLAS_cusrows_scale
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusrows_scale( blas_sparse_matrix A,const void * d, const enum blas_trans_type trans )
+int BLAS_cusrows_scale( blas_sparse_matrix A,const void * d, enum blas_trans_type trans )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2731,9 +2729,9 @@ int BLAS_cusrows_scale( blas_sparse_matrix A,const void * d, const enum blas_tra
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusrows_scale(A,d,trans))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusrows_scale_ rsb__wp_blas_cusrows_scale_
+#define blas_cusrows_scale_ rsb_wp_blas_cusrows_scale_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusrows_scale_( blas_sparse_matrix*A,const void *d,const enum blas_trans_type*trans,int*istat )
+void blas_cusrows_scale_( blas_sparse_matrix*A,const void *d,enum blas_trans_type*trans,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2744,9 +2742,9 @@ void blas_cusrows_scale_( blas_sparse_matrix*A,const void *d,const enum blas_tra
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusrows_scale rsb__wp_BLAS_zusrows_scale
+#define BLAS_zusrows_scale rsb_wp_BLAS_zusrows_scale
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusrows_scale( blas_sparse_matrix A,const void * d, const enum blas_trans_type trans )
+int BLAS_zusrows_scale( blas_sparse_matrix A,const void * d, enum blas_trans_type trans )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2757,9 +2755,9 @@ int BLAS_zusrows_scale( blas_sparse_matrix A,const void * d, const enum blas_tra
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusrows_scale(A,d,trans))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusrows_scale_ rsb__wp_blas_zusrows_scale_
+#define blas_zusrows_scale_ rsb_wp_blas_zusrows_scale_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusrows_scale_( blas_sparse_matrix*A,const void *d,const enum blas_trans_type*trans,int*istat )
+void blas_zusrows_scale_( blas_sparse_matrix*A,const void *d,enum blas_trans_type*trans,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2771,7 +2769,7 @@ void blas_zusrows_scale_( blas_sparse_matrix*A,const void *d,const enum blas_tra
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susget_diag rsb__wp_BLAS_susget_diag
+#define BLAS_susget_diag rsb_wp_BLAS_susget_diag
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_susget_diag( blas_sparse_matrix A,float *  d )
 {
@@ -2784,7 +2782,7 @@ int BLAS_susget_diag( blas_sparse_matrix A,float *  d )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_diag(A,d))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susget_diag_ rsb__wp_blas_susget_diag_
+#define blas_susget_diag_ rsb_wp_blas_susget_diag_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_susget_diag_( blas_sparse_matrix*A,float *d,int*istat )
 {
@@ -2797,7 +2795,7 @@ void blas_susget_diag_( blas_sparse_matrix*A,float *d,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusget_diag rsb__wp_BLAS_dusget_diag
+#define BLAS_dusget_diag rsb_wp_BLAS_dusget_diag
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_dusget_diag( blas_sparse_matrix A,double *  d )
 {
@@ -2810,7 +2808,7 @@ int BLAS_dusget_diag( blas_sparse_matrix A,double *  d )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_diag(A,d))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusget_diag_ rsb__wp_blas_dusget_diag_
+#define blas_dusget_diag_ rsb_wp_blas_dusget_diag_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_dusget_diag_( blas_sparse_matrix*A,double *d,int*istat )
 {
@@ -2823,7 +2821,7 @@ void blas_dusget_diag_( blas_sparse_matrix*A,double *d,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusget_diag rsb__wp_BLAS_cusget_diag
+#define BLAS_cusget_diag rsb_wp_BLAS_cusget_diag
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cusget_diag( blas_sparse_matrix A,void * d )
 {
@@ -2836,7 +2834,7 @@ int BLAS_cusget_diag( blas_sparse_matrix A,void * d )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_diag(A,d))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusget_diag_ rsb__wp_blas_cusget_diag_
+#define blas_cusget_diag_ rsb_wp_blas_cusget_diag_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cusget_diag_( blas_sparse_matrix*A,void *d,int*istat )
 {
@@ -2849,7 +2847,7 @@ void blas_cusget_diag_( blas_sparse_matrix*A,void *d,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusget_diag rsb__wp_BLAS_zusget_diag
+#define BLAS_zusget_diag rsb_wp_BLAS_zusget_diag
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zusget_diag( blas_sparse_matrix A,void * d )
 {
@@ -2862,7 +2860,7 @@ int BLAS_zusget_diag( blas_sparse_matrix A,void * d )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_diag(A,d))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusget_diag_ rsb__wp_blas_zusget_diag_
+#define blas_zusget_diag_ rsb_wp_blas_zusget_diag_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zusget_diag_( blas_sparse_matrix*A,void *d,int*istat )
 {
@@ -2876,9 +2874,9 @@ void blas_zusget_diag_( blas_sparse_matrix*A,void *d,int*istat )
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susget_rows_nnz rsb__wp_BLAS_susget_rows_nnz
+#define BLAS_susget_rows_nnz rsb_wp_BLAS_susget_rows_nnz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susget_rows_nnz( blas_sparse_matrix A, const int fr, const int lr, int * nnzp )
+int BLAS_susget_rows_nnz( blas_sparse_matrix A, int fr, int lr, int * nnzp )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2889,9 +2887,9 @@ int BLAS_susget_rows_nnz( blas_sparse_matrix A, const int fr, const int lr, int 
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_rows_nnz(A,fr,lr,nnzp))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susget_rows_nnz_ rsb__wp_blas_susget_rows_nnz_
+#define blas_susget_rows_nnz_ rsb_wp_blas_susget_rows_nnz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susget_rows_nnz_( blas_sparse_matrix*A,const int*fr,const int*lr,int *nnzp,int*istat )
+void blas_susget_rows_nnz_( blas_sparse_matrix*A,int*fr,int*lr,int *nnzp,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2902,9 +2900,9 @@ void blas_susget_rows_nnz_( blas_sparse_matrix*A,const int*fr,const int*lr,int *
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusget_rows_nnz rsb__wp_BLAS_dusget_rows_nnz
+#define BLAS_dusget_rows_nnz rsb_wp_BLAS_dusget_rows_nnz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusget_rows_nnz( blas_sparse_matrix A, const int fr, const int lr, int * nnzp )
+int BLAS_dusget_rows_nnz( blas_sparse_matrix A, int fr, int lr, int * nnzp )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2915,9 +2913,9 @@ int BLAS_dusget_rows_nnz( blas_sparse_matrix A, const int fr, const int lr, int 
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_rows_nnz(A,fr,lr,nnzp))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusget_rows_nnz_ rsb__wp_blas_dusget_rows_nnz_
+#define blas_dusget_rows_nnz_ rsb_wp_blas_dusget_rows_nnz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusget_rows_nnz_( blas_sparse_matrix*A,const int*fr,const int*lr,int *nnzp,int*istat )
+void blas_dusget_rows_nnz_( blas_sparse_matrix*A,int*fr,int*lr,int *nnzp,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2928,9 +2926,9 @@ void blas_dusget_rows_nnz_( blas_sparse_matrix*A,const int*fr,const int*lr,int *
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusget_rows_nnz rsb__wp_BLAS_cusget_rows_nnz
+#define BLAS_cusget_rows_nnz rsb_wp_BLAS_cusget_rows_nnz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusget_rows_nnz( blas_sparse_matrix A, const int fr, const int lr, int * nnzp )
+int BLAS_cusget_rows_nnz( blas_sparse_matrix A, int fr, int lr, int * nnzp )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2941,9 +2939,9 @@ int BLAS_cusget_rows_nnz( blas_sparse_matrix A, const int fr, const int lr, int 
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_rows_nnz(A,fr,lr,nnzp))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusget_rows_nnz_ rsb__wp_blas_cusget_rows_nnz_
+#define blas_cusget_rows_nnz_ rsb_wp_blas_cusget_rows_nnz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusget_rows_nnz_( blas_sparse_matrix*A,const int*fr,const int*lr,int *nnzp,int*istat )
+void blas_cusget_rows_nnz_( blas_sparse_matrix*A,int*fr,int*lr,int *nnzp,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2954,9 +2952,9 @@ void blas_cusget_rows_nnz_( blas_sparse_matrix*A,const int*fr,const int*lr,int *
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusget_rows_nnz rsb__wp_BLAS_zusget_rows_nnz
+#define BLAS_zusget_rows_nnz rsb_wp_BLAS_zusget_rows_nnz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusget_rows_nnz( blas_sparse_matrix A, const int fr, const int lr, int * nnzp )
+int BLAS_zusget_rows_nnz( blas_sparse_matrix A, int fr, int lr, int * nnzp )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2967,9 +2965,9 @@ int BLAS_zusget_rows_nnz( blas_sparse_matrix A, const int fr, const int lr, int 
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_rows_nnz(A,fr,lr,nnzp))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusget_rows_nnz_ rsb__wp_blas_zusget_rows_nnz_
+#define blas_zusget_rows_nnz_ rsb_wp_blas_zusget_rows_nnz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusget_rows_nnz_( blas_sparse_matrix*A,const int*fr,const int*lr,int *nnzp,int*istat )
+void blas_zusget_rows_nnz_( blas_sparse_matrix*A,int*fr,int*lr,int *nnzp,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2981,9 +2979,9 @@ void blas_zusget_rows_nnz_( blas_sparse_matrix*A,const int*fr,const int*lr,int *
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susget_rows_sparse rsb__wp_BLAS_susget_rows_sparse
+#define BLAS_susget_rows_sparse rsb_wp_BLAS_susget_rows_sparse
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susget_rows_sparse( blas_sparse_matrix A, float *  VA, int * IA, int * JA, int * nnz, const int fr, const int lr )
+int BLAS_susget_rows_sparse( blas_sparse_matrix A, float *  VA, int * IA, int * JA, int * nnz, int fr, int lr )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -2994,9 +2992,9 @@ int BLAS_susget_rows_sparse( blas_sparse_matrix A, float *  VA, int * IA, int * 
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_rows_sparse(A,VA,IA,JA,nnz,fr,lr))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susget_rows_sparse_ rsb__wp_blas_susget_rows_sparse_
+#define blas_susget_rows_sparse_ rsb_wp_blas_susget_rows_sparse_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susget_rows_sparse_( blas_sparse_matrix*A,float *VA,int *IA,int *JA,int *nnz,const int*fr,const int*lr,int*istat )
+void blas_susget_rows_sparse_( blas_sparse_matrix*A,float *VA,int *IA,int *JA,int *nnz,int*fr,int*lr,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3007,9 +3005,9 @@ void blas_susget_rows_sparse_( blas_sparse_matrix*A,float *VA,int *IA,int *JA,in
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusget_rows_sparse rsb__wp_BLAS_dusget_rows_sparse
+#define BLAS_dusget_rows_sparse rsb_wp_BLAS_dusget_rows_sparse
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusget_rows_sparse( blas_sparse_matrix A, double *  VA, int * IA, int * JA, int * nnz, const int fr, const int lr )
+int BLAS_dusget_rows_sparse( blas_sparse_matrix A, double *  VA, int * IA, int * JA, int * nnz, int fr, int lr )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3020,9 +3018,9 @@ int BLAS_dusget_rows_sparse( blas_sparse_matrix A, double *  VA, int * IA, int *
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_rows_sparse(A,VA,IA,JA,nnz,fr,lr))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusget_rows_sparse_ rsb__wp_blas_dusget_rows_sparse_
+#define blas_dusget_rows_sparse_ rsb_wp_blas_dusget_rows_sparse_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusget_rows_sparse_( blas_sparse_matrix*A,double *VA,int *IA,int *JA,int *nnz,const int*fr,const int*lr,int*istat )
+void blas_dusget_rows_sparse_( blas_sparse_matrix*A,double *VA,int *IA,int *JA,int *nnz,int*fr,int*lr,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3033,9 +3031,9 @@ void blas_dusget_rows_sparse_( blas_sparse_matrix*A,double *VA,int *IA,int *JA,i
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusget_rows_sparse rsb__wp_BLAS_cusget_rows_sparse
+#define BLAS_cusget_rows_sparse rsb_wp_BLAS_cusget_rows_sparse
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusget_rows_sparse( blas_sparse_matrix A, void * VA, int * IA, int * JA, int * nnz, const int fr, const int lr )
+int BLAS_cusget_rows_sparse( blas_sparse_matrix A, void * VA, int * IA, int * JA, int * nnz, int fr, int lr )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3046,9 +3044,9 @@ int BLAS_cusget_rows_sparse( blas_sparse_matrix A, void * VA, int * IA, int * JA
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_rows_sparse(A,VA,IA,JA,nnz,fr,lr))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusget_rows_sparse_ rsb__wp_blas_cusget_rows_sparse_
+#define blas_cusget_rows_sparse_ rsb_wp_blas_cusget_rows_sparse_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusget_rows_sparse_( blas_sparse_matrix*A,void *VA,int *IA,int *JA,int *nnz,const int*fr,const int*lr,int*istat )
+void blas_cusget_rows_sparse_( blas_sparse_matrix*A,void *VA,int *IA,int *JA,int *nnz,int*fr,int*lr,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3059,9 +3057,9 @@ void blas_cusget_rows_sparse_( blas_sparse_matrix*A,void *VA,int *IA,int *JA,int
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusget_rows_sparse rsb__wp_BLAS_zusget_rows_sparse
+#define BLAS_zusget_rows_sparse rsb_wp_BLAS_zusget_rows_sparse
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusget_rows_sparse( blas_sparse_matrix A, void * VA, int * IA, int * JA, int * nnz, const int fr, const int lr )
+int BLAS_zusget_rows_sparse( blas_sparse_matrix A, void * VA, int * IA, int * JA, int * nnz, int fr, int lr )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3072,9 +3070,9 @@ int BLAS_zusget_rows_sparse( blas_sparse_matrix A, void * VA, int * IA, int * JA
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_rows_sparse(A,VA,IA,JA,nnz,fr,lr))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusget_rows_sparse_ rsb__wp_blas_zusget_rows_sparse_
+#define blas_zusget_rows_sparse_ rsb_wp_blas_zusget_rows_sparse_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusget_rows_sparse_( blas_sparse_matrix*A,void *VA,int *IA,int *JA,int *nnz,const int*fr,const int*lr,int*istat )
+void blas_zusget_rows_sparse_( blas_sparse_matrix*A,void *VA,int *IA,int *JA,int *nnz,int*fr,int*lr,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3086,7 +3084,7 @@ void blas_zusget_rows_sparse_( blas_sparse_matrix*A,void *VA,int *IA,int *JA,int
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susget_matrix_nnz rsb__wp_BLAS_susget_matrix_nnz
+#define BLAS_susget_matrix_nnz rsb_wp_BLAS_susget_matrix_nnz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_susget_matrix_nnz( blas_sparse_matrix A,int * nnz )
 {
@@ -3099,7 +3097,7 @@ int BLAS_susget_matrix_nnz( blas_sparse_matrix A,int * nnz )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_matrix_nnz(A,nnz))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susget_matrix_nnz_ rsb__wp_blas_susget_matrix_nnz_
+#define blas_susget_matrix_nnz_ rsb_wp_blas_susget_matrix_nnz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_susget_matrix_nnz_( blas_sparse_matrix*A,int *nnz,int*istat )
 {
@@ -3112,7 +3110,7 @@ void blas_susget_matrix_nnz_( blas_sparse_matrix*A,int *nnz,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusget_matrix_nnz rsb__wp_BLAS_dusget_matrix_nnz
+#define BLAS_dusget_matrix_nnz rsb_wp_BLAS_dusget_matrix_nnz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_dusget_matrix_nnz( blas_sparse_matrix A,int * nnz )
 {
@@ -3125,7 +3123,7 @@ int BLAS_dusget_matrix_nnz( blas_sparse_matrix A,int * nnz )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_matrix_nnz(A,nnz))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusget_matrix_nnz_ rsb__wp_blas_dusget_matrix_nnz_
+#define blas_dusget_matrix_nnz_ rsb_wp_blas_dusget_matrix_nnz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_dusget_matrix_nnz_( blas_sparse_matrix*A,int *nnz,int*istat )
 {
@@ -3138,7 +3136,7 @@ void blas_dusget_matrix_nnz_( blas_sparse_matrix*A,int *nnz,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusget_matrix_nnz rsb__wp_BLAS_cusget_matrix_nnz
+#define BLAS_cusget_matrix_nnz rsb_wp_BLAS_cusget_matrix_nnz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_cusget_matrix_nnz( blas_sparse_matrix A,int * nnz )
 {
@@ -3151,7 +3149,7 @@ int BLAS_cusget_matrix_nnz( blas_sparse_matrix A,int * nnz )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_matrix_nnz(A,nnz))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusget_matrix_nnz_ rsb__wp_blas_cusget_matrix_nnz_
+#define blas_cusget_matrix_nnz_ rsb_wp_blas_cusget_matrix_nnz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_cusget_matrix_nnz_( blas_sparse_matrix*A,int *nnz,int*istat )
 {
@@ -3164,7 +3162,7 @@ void blas_cusget_matrix_nnz_( blas_sparse_matrix*A,int *nnz,int*istat )
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusget_matrix_nnz rsb__wp_BLAS_zusget_matrix_nnz
+#define BLAS_zusget_matrix_nnz rsb_wp_BLAS_zusget_matrix_nnz
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 int BLAS_zusget_matrix_nnz( blas_sparse_matrix A,int * nnz )
 {
@@ -3177,7 +3175,7 @@ int BLAS_zusget_matrix_nnz( blas_sparse_matrix A,int * nnz )
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_matrix_nnz(A,nnz))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusget_matrix_nnz_ rsb__wp_blas_zusget_matrix_nnz_
+#define blas_zusget_matrix_nnz_ rsb_wp_blas_zusget_matrix_nnz_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 void blas_zusget_matrix_nnz_( blas_sparse_matrix*A,int *nnz,int*istat )
 {
@@ -3191,9 +3189,9 @@ void blas_zusget_matrix_nnz_( blas_sparse_matrix*A,int *nnz,int*istat )
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susget_infinity_norm rsb__wp_BLAS_susget_infinity_norm
+#define BLAS_susget_infinity_norm rsb_wp_BLAS_susget_infinity_norm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susget_infinity_norm( blas_sparse_matrix A,float * in, const enum blas_trans_type trans )
+int BLAS_susget_infinity_norm( blas_sparse_matrix A,float * in, enum blas_trans_type trans )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3204,9 +3202,9 @@ int BLAS_susget_infinity_norm( blas_sparse_matrix A,float * in, const enum blas_
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_infinity_norm(A,in,trans))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susget_infinity_norm_ rsb__wp_blas_susget_infinity_norm_
+#define blas_susget_infinity_norm_ rsb_wp_blas_susget_infinity_norm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susget_infinity_norm_( blas_sparse_matrix*A,float *in,const enum blas_trans_type*trans,int*istat )
+void blas_susget_infinity_norm_( blas_sparse_matrix*A,float *in,enum blas_trans_type*trans,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3217,9 +3215,9 @@ void blas_susget_infinity_norm_( blas_sparse_matrix*A,float *in,const enum blas_
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusget_infinity_norm rsb__wp_BLAS_dusget_infinity_norm
+#define BLAS_dusget_infinity_norm rsb_wp_BLAS_dusget_infinity_norm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusget_infinity_norm( blas_sparse_matrix A,double * in, const enum blas_trans_type trans )
+int BLAS_dusget_infinity_norm( blas_sparse_matrix A,double * in, enum blas_trans_type trans )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3230,9 +3228,9 @@ int BLAS_dusget_infinity_norm( blas_sparse_matrix A,double * in, const enum blas
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_infinity_norm(A,in,trans))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusget_infinity_norm_ rsb__wp_blas_dusget_infinity_norm_
+#define blas_dusget_infinity_norm_ rsb_wp_blas_dusget_infinity_norm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusget_infinity_norm_( blas_sparse_matrix*A,double *in,const enum blas_trans_type*trans,int*istat )
+void blas_dusget_infinity_norm_( blas_sparse_matrix*A,double *in,enum blas_trans_type*trans,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3243,9 +3241,9 @@ void blas_dusget_infinity_norm_( blas_sparse_matrix*A,double *in,const enum blas
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusget_infinity_norm rsb__wp_BLAS_cusget_infinity_norm
+#define BLAS_cusget_infinity_norm rsb_wp_BLAS_cusget_infinity_norm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusget_infinity_norm( blas_sparse_matrix A,void *in, const enum blas_trans_type trans )
+int BLAS_cusget_infinity_norm( blas_sparse_matrix A,void *in, enum blas_trans_type trans )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3256,9 +3254,9 @@ int BLAS_cusget_infinity_norm( blas_sparse_matrix A,void *in, const enum blas_tr
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_infinity_norm(A,in,trans))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusget_infinity_norm_ rsb__wp_blas_cusget_infinity_norm_
+#define blas_cusget_infinity_norm_ rsb_wp_blas_cusget_infinity_norm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusget_infinity_norm_( blas_sparse_matrix*A,void *in,const enum blas_trans_type*trans,int*istat )
+void blas_cusget_infinity_norm_( blas_sparse_matrix*A,void *in,enum blas_trans_type*trans,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3269,9 +3267,9 @@ void blas_cusget_infinity_norm_( blas_sparse_matrix*A,void *in,const enum blas_t
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusget_infinity_norm rsb__wp_BLAS_zusget_infinity_norm
+#define BLAS_zusget_infinity_norm rsb_wp_BLAS_zusget_infinity_norm
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusget_infinity_norm( blas_sparse_matrix A,void *in, const enum blas_trans_type trans )
+int BLAS_zusget_infinity_norm( blas_sparse_matrix A,void *in, enum blas_trans_type trans )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3282,9 +3280,9 @@ int BLAS_zusget_infinity_norm( blas_sparse_matrix A,void *in, const enum blas_tr
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_infinity_norm(A,in,trans))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusget_infinity_norm_ rsb__wp_blas_zusget_infinity_norm_
+#define blas_zusget_infinity_norm_ rsb_wp_blas_zusget_infinity_norm_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusget_infinity_norm_( blas_sparse_matrix*A,void *in,const enum blas_trans_type*trans,int*istat )
+void blas_zusget_infinity_norm_( blas_sparse_matrix*A,void *in,enum blas_trans_type*trans,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3296,9 +3294,9 @@ void blas_zusget_infinity_norm_( blas_sparse_matrix*A,void *in,const enum blas_t
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susset_elements rsb__wp_BLAS_susset_elements
+#define BLAS_susset_elements rsb_wp_BLAS_susset_elements
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susset_elements( blas_sparse_matrix A,const int * ia, const int *ja, const float *  va, const int nnz )
+int BLAS_susset_elements( blas_sparse_matrix A,const int * ia, const int *ja, const float *  va, int nnz )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3309,9 +3307,9 @@ int BLAS_susset_elements( blas_sparse_matrix A,const int * ia, const int *ja, co
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusset_elements(A,ia,ja,va,nnz))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susset_elements_ rsb__wp_blas_susset_elements_
+#define blas_susset_elements_ rsb_wp_blas_susset_elements_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,const float *va,const int*nnz,int*istat )
+void blas_susset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,const float *va,int*nnz,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3322,9 +3320,9 @@ void blas_susset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,con
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusset_elements rsb__wp_BLAS_dusset_elements
+#define BLAS_dusset_elements rsb_wp_BLAS_dusset_elements
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusset_elements( blas_sparse_matrix A,const int * ia, const int *ja, const double *  va, const int nnz )
+int BLAS_dusset_elements( blas_sparse_matrix A,const int * ia, const int *ja, const double *  va, int nnz )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3335,9 +3333,9 @@ int BLAS_dusset_elements( blas_sparse_matrix A,const int * ia, const int *ja, co
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusset_elements(A,ia,ja,va,nnz))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusset_elements_ rsb__wp_blas_dusset_elements_
+#define blas_dusset_elements_ rsb_wp_blas_dusset_elements_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,const double *va,const int*nnz,int*istat )
+void blas_dusset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,const double *va,int*nnz,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3348,9 +3346,9 @@ void blas_dusset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,con
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusset_elements rsb__wp_BLAS_cusset_elements
+#define BLAS_cusset_elements rsb_wp_BLAS_cusset_elements
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusset_elements( blas_sparse_matrix A,const int * ia, const int *ja, const void * va, const int nnz )
+int BLAS_cusset_elements( blas_sparse_matrix A,const int * ia, const int *ja, const void * va, int nnz )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3361,9 +3359,9 @@ int BLAS_cusset_elements( blas_sparse_matrix A,const int * ia, const int *ja, co
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusset_elements(A,ia,ja,va,nnz))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusset_elements_ rsb__wp_blas_cusset_elements_
+#define blas_cusset_elements_ rsb_wp_blas_cusset_elements_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,const void *va,const int*nnz,int*istat )
+void blas_cusset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,const void *va,int*nnz,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3374,9 +3372,9 @@ void blas_cusset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,con
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusset_elements rsb__wp_BLAS_zusset_elements
+#define BLAS_zusset_elements rsb_wp_BLAS_zusset_elements
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusset_elements( blas_sparse_matrix A,const int * ia, const int *ja, const void * va, const int nnz )
+int BLAS_zusset_elements( blas_sparse_matrix A,const int * ia, const int *ja, const void * va, int nnz )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3387,9 +3385,9 @@ int BLAS_zusset_elements( blas_sparse_matrix A,const int * ia, const int *ja, co
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusset_elements(A,ia,ja,va,nnz))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusset_elements_ rsb__wp_blas_zusset_elements_
+#define blas_zusset_elements_ rsb_wp_blas_zusset_elements_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,const void *va,const int*nnz,int*istat )
+void blas_zusset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,const void *va,int*nnz,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3401,9 +3399,9 @@ void blas_zusset_elements_( blas_sparse_matrix*A,const int *ia,const int *ja,con
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susset_element rsb__wp_BLAS_susset_element
+#define BLAS_susset_element rsb_wp_BLAS_susset_element
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susset_element( blas_sparse_matrix A,const int i, const int j, float *  v )
+int BLAS_susset_element( blas_sparse_matrix A,int i, int j, float *  v )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3414,9 +3412,9 @@ int BLAS_susset_element( blas_sparse_matrix A,const int i, const int j, float * 
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusset_element(A,i,j,v))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susset_element_ rsb__wp_blas_susset_element_
+#define blas_susset_element_ rsb_wp_blas_susset_element_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susset_element_( blas_sparse_matrix*A,const int*i,const int*j,float *v,int*istat )
+void blas_susset_element_( blas_sparse_matrix*A,int*i,int*j,float *v,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3427,9 +3425,9 @@ void blas_susset_element_( blas_sparse_matrix*A,const int*i,const int*j,float *v
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusset_element rsb__wp_BLAS_dusset_element
+#define BLAS_dusset_element rsb_wp_BLAS_dusset_element
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusset_element( blas_sparse_matrix A,const int i, const int j, double *  v )
+int BLAS_dusset_element( blas_sparse_matrix A,int i, int j, double *  v )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3440,9 +3438,9 @@ int BLAS_dusset_element( blas_sparse_matrix A,const int i, const int j, double *
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusset_element(A,i,j,v))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusset_element_ rsb__wp_blas_dusset_element_
+#define blas_dusset_element_ rsb_wp_blas_dusset_element_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusset_element_( blas_sparse_matrix*A,const int*i,const int*j,double *v,int*istat )
+void blas_dusset_element_( blas_sparse_matrix*A,int*i,int*j,double *v,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3453,9 +3451,9 @@ void blas_dusset_element_( blas_sparse_matrix*A,const int*i,const int*j,double *
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusset_element rsb__wp_BLAS_cusset_element
+#define BLAS_cusset_element rsb_wp_BLAS_cusset_element
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusset_element( blas_sparse_matrix A,const int i, const int j, void * v )
+int BLAS_cusset_element( blas_sparse_matrix A,int i, int j, void * v )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3466,9 +3464,9 @@ int BLAS_cusset_element( blas_sparse_matrix A,const int i, const int j, void * v
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusset_element(A,i,j,v))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusset_element_ rsb__wp_blas_cusset_element_
+#define blas_cusset_element_ rsb_wp_blas_cusset_element_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusset_element_( blas_sparse_matrix*A,const int*i,const int*j,void *v,int*istat )
+void blas_cusset_element_( blas_sparse_matrix*A,int*i,int*j,void *v,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3479,9 +3477,9 @@ void blas_cusset_element_( blas_sparse_matrix*A,const int*i,const int*j,void *v,
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusset_element rsb__wp_BLAS_zusset_element
+#define BLAS_zusset_element rsb_wp_BLAS_zusset_element
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusset_element( blas_sparse_matrix A,const int i, const int j, void * v )
+int BLAS_zusset_element( blas_sparse_matrix A,int i, int j, void * v )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3492,9 +3490,9 @@ int BLAS_zusset_element( blas_sparse_matrix A,const int i, const int j, void * v
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusset_element(A,i,j,v))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusset_element_ rsb__wp_blas_zusset_element_
+#define blas_zusset_element_ rsb_wp_blas_zusset_element_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusset_element_( blas_sparse_matrix*A,const int*i,const int*j,void *v,int*istat )
+void blas_zusset_element_( blas_sparse_matrix*A,int*i,int*j,void *v,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3506,9 +3504,9 @@ void blas_zusset_element_( blas_sparse_matrix*A,const int*i,const int*j,void *v,
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_susget_element rsb__wp_BLAS_susget_element
+#define BLAS_susget_element rsb_wp_BLAS_susget_element
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_susget_element( blas_sparse_matrix A,const int i, const int j, float *  v )
+int BLAS_susget_element( blas_sparse_matrix A,int i, int j, float *  v )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3519,9 +3517,9 @@ int BLAS_susget_element( blas_sparse_matrix A,const int i, const int j, float * 
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_element(A,i,j,v))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_susget_element_ rsb__wp_blas_susget_element_
+#define blas_susget_element_ rsb_wp_blas_susget_element_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_susget_element_( blas_sparse_matrix*A,const int*i,const int*j,float *v,int*istat )
+void blas_susget_element_( blas_sparse_matrix*A,int*i,int*j,float *v,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3532,9 +3530,9 @@ void blas_susget_element_( blas_sparse_matrix*A,const int*i,const int*j,float *v
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_dusget_element rsb__wp_BLAS_dusget_element
+#define BLAS_dusget_element rsb_wp_BLAS_dusget_element
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_dusget_element( blas_sparse_matrix A,const int i, const int j, double *  v )
+int BLAS_dusget_element( blas_sparse_matrix A,int i, int j, double *  v )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3545,9 +3543,9 @@ int BLAS_dusget_element( blas_sparse_matrix A,const int i, const int j, double *
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_element(A,i,j,v))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_dusget_element_ rsb__wp_blas_dusget_element_
+#define blas_dusget_element_ rsb_wp_blas_dusget_element_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_dusget_element_( blas_sparse_matrix*A,const int*i,const int*j,double *v,int*istat )
+void blas_dusget_element_( blas_sparse_matrix*A,int*i,int*j,double *v,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3558,9 +3556,9 @@ void blas_dusget_element_( blas_sparse_matrix*A,const int*i,const int*j,double *
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_cusget_element rsb__wp_BLAS_cusget_element
+#define BLAS_cusget_element rsb_wp_BLAS_cusget_element
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_cusget_element( blas_sparse_matrix A,const int i, const int j, void * v )
+int BLAS_cusget_element( blas_sparse_matrix A,int i, int j, void * v )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3571,9 +3569,9 @@ int BLAS_cusget_element( blas_sparse_matrix A,const int i, const int j, void * v
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_element(A,i,j,v))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_cusget_element_ rsb__wp_blas_cusget_element_
+#define blas_cusget_element_ rsb_wp_blas_cusget_element_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_cusget_element_( blas_sparse_matrix*A,const int*i,const int*j,void *v,int*istat )
+void blas_cusget_element_( blas_sparse_matrix*A,int*i,int*j,void *v,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3584,9 +3582,9 @@ void blas_cusget_element_( blas_sparse_matrix*A,const int*i,const int*j,void *v,
 	RSB_SET_IF_NOT_NULL(istat,istatv);
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define BLAS_zusget_element rsb__wp_BLAS_zusget_element
+#define BLAS_zusget_element rsb_wp_BLAS_zusget_element
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-int BLAS_zusget_element( blas_sparse_matrix A,const int i, const int j, void * v )
+int BLAS_zusget_element( blas_sparse_matrix A,int i, int j, void * v )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3597,9 +3595,9 @@ int BLAS_zusget_element( blas_sparse_matrix A,const int i, const int j, void * v
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusget_element(A,i,j,v))
 }
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define blas_zusget_element_ rsb__wp_blas_zusget_element_
+#define blas_zusget_element_ rsb_wp_blas_zusget_element_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_zusget_element_( blas_sparse_matrix*A,const int*i,const int*j,void *v,int*istat )
+void blas_zusget_element_( blas_sparse_matrix*A,int*i,int*j,void *v,int*istat )
 {
          /*!
            \ingroup rsb_doc_sparse_blas
@@ -3614,7 +3612,7 @@ void blas_zusget_element_( blas_sparse_matrix*A,const int*i,const int*j,void *v,
 
 
 
-int BLAS_usgp( blas_sparse_matrix A, rsb_blas_pname_t pname ) /*  FIXME: temporarily here */
+int BLAS_usgp( blas_sparse_matrix A, int pname ) /*  FIXME: temporarily here */
 {
 	/**
 	 \ingroup rsb_doc_sparse_blas
@@ -3626,9 +3624,9 @@ int BLAS_usgp( blas_sparse_matrix A, rsb_blas_pname_t pname ) /*  FIXME: tempora
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define  blas_usgp_	rsb__wp_blas_usgp_
+#define  blas_usgp_	rsb_wp_blas_usgp_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_usgp_( blas_sparse_matrix*A, rsb_blas_pname_t *pname, int * istat ) /*  FIXME: temporarily here */
+void blas_usgp_( blas_sparse_matrix*A, int*pname, int * istat ) /*  FIXME: temporarily here */
 {
 	/** \ingroup rsb_doc_sparse_blas
 	 \rsb_spblasl2_gp_msg
@@ -3640,9 +3638,9 @@ void blas_usgp_( blas_sparse_matrix*A, rsb_blas_pname_t *pname, int * istat ) /*
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-#define  blas_ussp_	rsb__wp_blas_ussp_
+#define  blas_ussp_	rsb_wp_blas_ussp_
 #endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-void blas_ussp_( blas_sparse_matrix*A, rsb_blas_pname_t *pname, int * istat ) /*  FIXME: temporarily here */
+void blas_ussp_( blas_sparse_matrix*A, int*pname, int * istat ) /*  FIXME: temporarily here */
 {
 	/**
 	 \ingroup rsb_doc_sparse_blas
@@ -3654,7 +3652,7 @@ void blas_ussp_( blas_sparse_matrix*A, rsb_blas_pname_t *pname, int * istat ) /*
 	RSB_SPB_INTERFACE_RETURN_VOID()
 }
 
-int BLAS_ussp( blas_sparse_matrix A, rsb_blas_pname_t pname ) /*  FIXME: temporarily here */
+int BLAS_ussp( blas_sparse_matrix A, int pname ) /*  FIXME: temporarily here */
 {
 	/**
 	 \ingroup rsb_doc_sparse_blas
@@ -3666,24 +3664,6 @@ int BLAS_ussp( blas_sparse_matrix A, rsb_blas_pname_t pname ) /*  FIXME: tempora
 }
 
 
-
-blas_sparse_matrix rsb_blas_file_mtx_load(const rsb_char_t * filename, rsb_type_t typecode )
-{
-	/*!
- 	\ingroup rsb_doc_sparse_blas
-	Load Matrix Market matrix file of specified type to a matrix, and return Sparse BLAS handler.
-
-	\param \rsb_filename_inp_param_msg
-	\param \rsb_type_o_param_msg
-	\return \rsb_spblasl2_A_msg_ftn_rt
-
-	\n
-	 */
-	RSB_SPB_INTERFACE_PREAMBLE
-{
-	RSB_SPB_INTERFACE_RETURN_EXP( rsb__load_spblas_matrix_file_as_matrix_market(filename,typecode) )
-}
-}
 
 struct rsb_mtx_t * rsb_blas_get_mtx(blas_sparse_matrix A)
 {

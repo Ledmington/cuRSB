@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -83,8 +83,8 @@ rsb_err_t rsb__do_vec_save(const rsb_char_t * filename, rsb_type_t typecode, con
 
 #if RSB_WANT_LIBRSB_TIMER
 #define RSB_INTERFACE_TIMER_DCLS rsb_time_t etime, tetime = rsb_global_session_handle.etime;
-#define RSB_INTERFACE_TIMER_CMDS { etime = -rsb__do_time(); }
-#define RSB_INTERFACE_TIMER_ENDC { etime += rsb__do_time(); rsb_global_session_handle.etime = etime + tetime; }
+#define RSB_INTERFACE_TIMER_CMDS { etime = -rsb_do_time(); }
+#define RSB_INTERFACE_TIMER_ENDC { etime += rsb_do_time(); rsb_global_session_handle.etime = etime + tetime; }
 #else
 #define RSB_INTERFACE_TIMER_DCLS
 #define RSB_INTERFACE_TIMER_CMDS
@@ -96,20 +96,19 @@ rsb_err_t rsb__do_vec_save(const rsb_char_t * filename, rsb_type_t typecode, con
 #define RSB_INTERFACE_PREAMBLE RSB_INTERFACE_PREAMBLE_DCLS RSB_INTERFACE_PREAMBLE_CMDS
 #define RSB_INTERFACE_ENDCMD RSB_INTERFACE_TIMER_ENDC
 
-#define RSB_REPORTABLE_ERROR(ERRVAL) (RSB_SOME_ERROR(ERRVAL) && (ERRVAL)!=RSB_ERR_ELEMENT_NOT_FOUND) /* Real error, i.e. won't treat 'not found' as an error.. */
 #if RSB_OUT_ERR_VERBOSITY
 # if RSB_OUT_ERR_VERBOSITY==1
-# define RSB_DO_ERR_MANIFEST_INTERFACE(ERRVAL) if(rsb_global_session_handle.error_stream!=NULL)if(RSB_REPORTABLE_ERROR(ERRVAL)){RSB_ERROR(RSB_ERRM_NL);rsb__do_perror(NULL,ERRVAL);/* don't put rsb_perror here or infinite recursion will arise :-) */}
+# define RSB_DO_ERR_MANIFEST_INTERFACE(ERRVAL) {if(rsb_global_session_handle.error_stream!=NULL)if(RSB_SOME_ERROR(ERRVAL))rsb__do_perror(NULL,ERRVAL);/* don't put rsb_perror here or infinite recursion will arise :-) */}
 # endif /* RSB_OUT_ERR_VERBOSITY */
 # if RSB_OUT_ERR_VERBOSITY==2
-# define RSB_DO_ERR_MANIFEST_INTERFACE(ERRVAL) if(RSB_REPORTABLE_ERROR(ERRVAL)){RSB_ERROR(RSB_ERRM_NL);rsb__do_perror(NULL,ERRVAL);rsb__print_trace();}
+# define RSB_DO_ERR_MANIFEST_INTERFACE(ERRVAL) {if(RSB_SOME_ERROR(ERRVAL))rsb__do_perror(NULL,ERRVAL);}
 # endif /* RSB_OUT_ERR_VERBOSITY */
 # if RSB_OUT_ERR_VERBOSITY>=3 && RSB_OUT_ERR_VERBOSITY<=98
 /* it would be better to put the following error in the configure script */
 # error Error verbosity (set at configure time with --enable-interface-error-verbosity) shall be either 0,1,2,99 !
 # endif /* RSB_OUT_ERR_VERBOSITY */
 # if RSB_OUT_ERR_VERBOSITY==99
-# define RSB_DO_ERR_MANIFEST_INTERFACE(ERRVAL) {if(RSB_REPORTABLE_ERROR(ERRVAL)){RSB_ERROR(RSB_ERRM_NL);rsb__do_perror(NULL,ERRVAL);RSB_STDOUT("Terminating program now.\n");rsb__print_trace();RSB_EXIT(RSB_ERR_TO_PROGRAM_ERROR(ERRVAL));}}
+# define RSB_DO_ERR_MANIFEST_INTERFACE(ERRVAL) {if(RSB_SOME_ERROR(ERRVAL)){rsb__do_perror(NULL,ERRVAL);RSB_STDOUT("Terminating program now.\n");RSB_EXIT(RSB_ERR_TO_PROGRAM_ERROR(ERRVAL));}}
 # endif /* RSB_OUT_ERR_VERBOSITY */
 #else /* RSB_OUT_ERR_VERBOSITY */
 # define RSB_DO_ERR_MANIFEST_INTERFACE(ERRVAL) 

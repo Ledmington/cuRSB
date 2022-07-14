@@ -13,9 +13,9 @@ dnl define(`RSB_M4_WANT_OMP_IN_KERNELS',`ifelse(`@enable_openmp@',`yes',`1',`')'
 define(`RSB_M4_MAX_OMP_THREADS',`4')dnl	FIXME : TEMPORARY 
 dnl
 dnl	---------------------------------------------------------------------------
-dnl	Generate code with m4 debug info in it.
+dnl	The follwing triggers the generation of code with some m4 debug info in it.
 dnl
-define(`RSB_M4_DEBUG',`@RSB_WANT_M4_DBG@')dnl
+define(`RSB_M4_DEBUG',`1')dnl
 dnl
 dnl	---------------------------------------------------------------------------
 dnl	If 1, enables register blocking, in kernels where this is supported (experimental).
@@ -31,19 +31,12 @@ dnl	---------------------------------------------------------------------------
 define(`RSB_M4_FITTING_SAMPLES',/*12 8*/4)dnl
 dnl
 dnl	---------------------------------------------------------------------------
-define(`RSB_M4_FORTRAN_CONVENTION',`@RSB_WANT_M4_FORTRAN_CONVENTION@')dnl
-dnl
-dnl	---------------------------------------------------------------------------
 define(`RSB_M4_BENCHMARK_MIN_SECONDS',/*0.5*/1.0)dnl
 dnl
 define(`RSB_M4_BENCHMARK_MIN_RUNS',/*5*/10)dnl
 dnl
 dnl	---------------------------------------------------------------------------
 define(`RSB_M4_BUFLEN',128)dnl
-dnl
-dnl	---------------------------------------------------------------------------
-dnl	Implemented types (from 1.3) (same values as RSB_M4_TYPES)
-define(`RSB_M4_IMPLEMENTED_TYPES',`@WANT_TYPES@')dnl
 dnl
 dnl	---------------------------------------------------------------------------
 define(`RSB_M4_USE_RESTRICT',`ifelse(`@enable_restrict@',`yes',`1',`')')dnl

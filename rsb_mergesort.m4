@@ -27,18 +27,33 @@ ifdef(`ONLY_WANT_HEADERS',`dnl
 ',`dnl
 dnl
 dnl /* We may use custom memcpy functions. */
-dnl #define RSB_MEMCPY(DST,SRC,BYTES) rsb__memcpy((DST),(SRC),(BYTES))
+dnl #define RSB_MEMCPY(DST,SRC,BYTES) rsb_memcpy((DST),(SRC),(BYTES))
 ')dnl
 dnl
 
+
+ifelse(`0',`1',`dnl 20121016 
+ifdef(`RSB_M4_WANT_OMP',dnl
+dnl	FIXME : this should be moved elsewhere
+`#define RSB_WANT_OMP        '1
+`#define RSB_MAX_OMP_THREADS 'RSB_M4_MAX_OMP_THREADS
+#ifdef RSB_HAVE_OMP_H
+#if RSB_WANT_OMP_RECURSIVE_KERNELS
+#include <omp.h>       /* OpenMP parallelism (EXPERIMENTAL) */
+#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
+#endif /* RSB_HAVE_OMP_H */
+)dnl
+')dnl
+
 dnl
+dnl #include "rsb_internals.h"
+dnl #include "rsb_common.h"
 RSB_M4_INCLUDE_HEADERS
+dnl #include "types.h"
 dnl 
 
-#if RSB_OBSOLETE_QUARANTINE
-
 ifdef(`ONLY_WANT_HEADERS',`',`dnl
-RSB_INTERNALS_COMMON_HEAD_DECLS
+extern struct rsb_session_handle_t rsb_global_session_handle;
 ')dnl
 
 dnl
@@ -79,9 +94,6 @@ RSB_M4_MERGESORT_ON_COORDINATES_MERGE_FUNCTION_PROTOTYPE(mtype,blockoriented);
 ')dnl
 ')dnl
 dnl
-
-#endif /* RSB_OBSOLETE_QUARANTINE */
-
 dnl
 #ifdef __cplusplus
 }

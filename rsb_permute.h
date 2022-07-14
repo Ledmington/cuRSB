@@ -7,7 +7,7 @@
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -51,11 +51,10 @@ rsb_err_t rsb__do_permute_rows_with_coo_index( rsb_coo_idx_t * IA, const rsb_coo
 
 rsb_err_t rsb__do_permute_values_with_nnz_index( void * rVA, const void *VA, rsb_coo_idx_t * rIA, const rsb_coo_idx_t * IA, rsb_coo_idx_t * rJA, const rsb_coo_idx_t * JA, const rsb_nnz_idx_t * K, rsb_nnz_idx_t nnz, rsb_type_t typecode);
 
-void rsb__ip_reord(rsb_nnz_idx_t n, void * VAp, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t * P, rsb_type_t typecode);
-void rsb__util_do_scatter_rows(void * RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, const void * RSB_RESTRICT iVA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT PA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode);
-rsb_err_t rsb__chk_permute(void);
+void rsb_ip_reord(rsb_nnz_idx_t n, void * VAp, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t * P, rsb_type_t typecode);
+void rsb_util_do_scatter_rows(void * RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, const void * RSB_RESTRICT iVA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT PA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode);
 #if 0
-void rsb__util_do_scatter_rows(void * RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, void * RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT PA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode);
+void rsb_util_do_scatter_rows(void * RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, void * RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT PA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode);
 #endif /* 0 */
 
 

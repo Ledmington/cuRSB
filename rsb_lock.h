@@ -35,14 +35,10 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB__TRSV_OUT  0
 #define RSB__TRSV_OUT_ 0
 #define RSB__TRSV_OUT__ 0
-#define RSB_WANT_DO_LOCK_TEST 0 /* compile and use lock test function (broken, especially with assertions) */
-
 
 #define RSB_CONST_MIN_SUPPORTED_CORES 	1
 #define RSB_CONST_MAX_SUPPORTED_CORES 	RSB_CONST_MAX_SUPPORTED_THREADS /* The maximum number of cores (TODO: support any number of cores) */
 #define RSB_CONST_MAX_SUPPORTED_TEMPORARY_VECTORS RSB_CONST_MAX_SUPPORTED_CORES
-
-#define RSB__MAX_BITMAP_SUBMS_ON_STACK (4096) /* large matrices (say, >>1K subms) may justify a per-spmv/spsv malloc */
 
 typedef int rsb_thr_t;
 
@@ -59,9 +55,6 @@ struct rsb_rows_lock_struct_t
 	rsb_coo_idx_t corescolf[RSB_CONST_MAX_SUPPORTED_CORES];	/*  first locked col, for each thread */
 	rsb_coo_idx_t corescoll[RSB_CONST_MAX_SUPPORTED_CORES];	/*  last  locked col, for each thread */
 	rsb_bitmap_data_t * bmap;	/* done matrices bitmap */
-#if RSB__MAX_BITMAP_SUBMS_ON_STACK > 0
-	rsb_bitmap_data_t bos[RSB_BYTES_PER_BITVECTOR(RSB__MAX_BITMAP_SUBMS_ON_STACK)];	/* bmap on stack; note that this makes the struct not shallow copyable  */
-#endif
 	rsb_submatrix_idx_t subms;	/* all matrices count */
 	rsb_submatrix_idx_t dm;	/* done matrices count */
 	rsb_submatrix_idx_t dr;	/* last done row */

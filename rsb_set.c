@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2016 Michele Martone
 
 This file is part of librsb.
 
@@ -24,7 +24,7 @@ If not, see <http://www.gnu.org/licenses/>.
  * @file
  * @author Michele Martone
  * @brief
- * Matrix setter/getter functions.
+ * This source file contains matrix setter functions.
  * */
 
 #include "rsb_internals.h"
@@ -38,8 +38,11 @@ static const void * rsb_do_has_coo_element_inner(const struct rsb_mtx_t * mtxAp,
 	/*!
 	 * \ingroup gr_internals
 	 *
-	 * Return a pointer to the value at (i,j), if present, and NULL if not present.
+	 * FIXME: unfinished
+	 *
+	 * Should return a pointer to the value at (i,j), if present, and NULL if not present.
 	 * Only for CSR/CSC.
+	 *
 	 * */
 	RSB_DEBUG_ASSERT(mtxAp);
 	RSB_DEBUG_ASSERT(!RSB_INVALID_COO_INDEX(i));
@@ -73,7 +76,6 @@ static const void * rsb_do_has_coo_element_inner(const struct rsb_mtx_t * mtxAp,
 		if(rsb__is_coo_matrix(mtxAp))
 		{
 			rsb_nnz_idx_t nnz1,nnz0,nnz = mtxAp->nnz;
-
 			if( mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES)
 			{
 				// delimit the current row
@@ -132,8 +134,8 @@ rsb_err_t rsb__do_set_coo_elements(struct rsb_mtx_t * mtxAp, const void * VA, co
 {
 	/*!
 	 * \ingroup gr_internals
-	 * Will continue updating even on error.
-	 * Ignore diagonal-implicit matrix update attempts (no error returned).
+	 * FIXME: undocumented
+	 * FIXME: should parallelize meaningfully
 	 * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_nnz_idx_t n;
@@ -142,16 +144,11 @@ rsb_err_t rsb__do_set_coo_elements(struct rsb_mtx_t * mtxAp, const void * VA, co
 	{
 		for(n=0;RSB_LIKELY(n<nnz);++n)
 		{
-			rsb_err_t lerrval = rsb__do_set_coo_element(mtxAp,((rsb_char_t*)VA)+mtxAp->el_size*n,IA[n],JA[n]);
-
-			RSB_DO_ERROR_CUMULATE(errval,lerrval);
-#if RSB_OUT_ERR_VERBOSITY<=2
-			RSB__ERR_FLAG_DEL(lerrval, RSB__ERR_CANTUPDATE_DIAGI);
-#endif /* RSB_OUT_ERR_VERBOSITY */
-			if(RSB_SOME_ERROR(lerrval))
+			RSB_DO_ERROR_CUMULATE(errval,rsb__do_set_coo_element(mtxAp,((rsb_char_t*)VA)+mtxAp->el_size*n,IA[n],JA[n]));
+			if(RSB_SOME_ERROR(errval))
 			{
 			       	RSB_ERROR("error updating %dth element of %d: %d %d\n",n,nnz,IA[n],JA[n]);
-				// RSB_PERR_GOTO(err,RSB_ERRM_ES)
+				RSB_PERR_GOTO(err,RSB_ERRM_ES)
 			}
 		}
 	}
@@ -160,27 +157,15 @@ rsb_err_t rsb__do_set_coo_elements(struct rsb_mtx_t * mtxAp, const void * VA, co
 		#pragma omp parallel for schedule(static,1) reduction(|:errval)  RSB_NTC
 		for(n=0;n<nnz;++n)
 		{
-			rsb_err_t lerrval = rsb__do_set_coo_element(mtxAp,((rsb_char_t*)VA)+mtxAp->el_size*n,IA[n],JA[n]);
-
-			RSB_DO_ERROR_CUMULATE(errval,lerrval);
-#if RSB_OUT_ERR_VERBOSITY<=2
-			RSB__ERR_FLAG_DEL(lerrval, RSB__ERR_CANTUPDATE_DIAGI);
-#endif /* RSB_OUT_ERR_VERBOSITY */
-			if(RSB_SOME_ERROR(lerrval))
+			RSB_DO_ERROR_CUMULATE(errval,rsb__do_set_coo_element(mtxAp,((rsb_char_t*)VA)+mtxAp->el_size*n,IA[n],JA[n]));
+			if(RSB_SOME_ERROR(errval))
 			{
 			       	RSB_ERROR("error updating %dth element of %d: %d %d\n",n,nnz,IA[n],JA[n]);
 				// RSB_PERR_GOTO(err,RSB_ERRM_ES)
 			}
 		}
 	}
-//err:
-	if ( errval & RSB__ERR_CANTUPDATE_DIAGI )
-	{
-		RSB__ERR_FLAG_DEL(errval, RSB__ERR_CANTUPDATE_DIAGI);
-#if RSB_OUT_ERR_VERBOSITY>=3
-		RSB_ERROR("Ignoring diagonal-implicit matrix update attempt\n");
-#endif /* RSB_OUT_ERR_VERBOSITY */
-	}
+err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
@@ -194,10 +179,9 @@ rsb_err_t rsb__do_upd_coo_element(struct rsb_mtx_t * mtxAp, const void * vp, con
 	/*!
 	 * \ingroup gr_internals
 	 *
-	 * Overwrite element at (i,j), if present.
-	 * If not present, return RSB_ERR_GENERIC_ERROR.
-	 * If matrix is diagonal implicit, return RSB__ERR_CANTUPDATE_DIAGI.
-	 */
+	 * Overwrites the element at (i,j), if present.
+	 * If not present, returns RSB_ERR_GENERIC_ERROR.
+	 * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	void * OV = NULL;
 
@@ -221,12 +205,8 @@ rsb_err_t rsb__do_upd_coo_element(struct rsb_mtx_t * mtxAp, const void * vp, con
 
 	if( i == j && rsb__get_diagonal_type_flag(mtxAp)==RSB_DIAGONAL_I )
 	{
-		errval = RSB__ERR_CANTUPDATE_DIAGI;
-#if RSB_OUT_ERR_VERBOSITY>=3
-		RSB_PERR_GOTO(err,RSB_ERRM_DICBU)
-#else /* RSB_OUT_ERR_VERBOSITY */
-		goto err;
-#endif /* RSB_OUT_ERR_VERBOSITY */
+		errval = RSB_ERR_BADARGS;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
 
 	OV = (void*) rsb_do_has_coo_element_inner(mtxAp,i,j);
@@ -244,19 +224,17 @@ rsb_err_t rsb__do_upd_coo_element(struct rsb_mtx_t * mtxAp, const void * vp, con
 		{ RSB_NUMERICAL_TYPE_SET_ELEMENT(OV,vp,mtxAp->typecode); }
 	}
 	else
-		errval = RSB_ERR_ELEMENT_NOT_FOUND;
+		errval = RSB_ERR_GENERIC_ERROR;
 
 err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
 #if 1
+/* rsb_do_locate_nnz_element and rsb_do_get_nnz_element are used (experimentally) by sparsersb  */
 static rsb_err_t rsb_do_locate_nnz_element(const struct rsb_mtx_t * mtxAp, void ** vpp, rsb_coo_idx_t*ip, rsb_coo_idx_t*jp, rsb_nnz_idx_t nzi)
 {
-	/*
-		With rsb__do_get_nnz_element  used (experimentally) by sparsersb.
-		Note: it honors Fortran indices flags, if any.
-	*/
+	/* FIXME: * new, unfinished, untested */
 	rsb_err_t errval = RSB_ERR_BADARGS;
 	rsb_submatrix_idx_t i,j;
 	struct rsb_mtx_t * submatrix = NULL;
@@ -295,51 +273,21 @@ static rsb_err_t rsb_do_locate_nnz_element(const struct rsb_mtx_t * mtxAp, void 
 		}
 		else
 		{
-			/*	Examples:
- 
-				For low triangular 2x2 looking for element 'lnz==0', one 
-				would return row 0.
-
-				0: [0] -> [0  ]
-				1: [1] -> [0,1]
-				2: [3] -> []
-
-				For low triangular 2x2 looking for element 'lnz==1', one 
-				would return row 1.
-
-				0: [0] -> [0  ]
-				1: [1] -> [0,1]
-				2: [3] -> []
-   
-				For low triangular 2x2 looking for element 'lnz==2', one 
-				would return row 1.
-
-				0: [0] -> [0  ]
-				1: [1] -> [0,1]
-				2: [3] -> []
-
-			*/
 			if(mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES_CSR)
 			{
 				RSB_DECLARE_CONST_HALFCSR_ARRAYS_FROM_MATRIX(mPA,mJA,mtxAp);
 				j = mJA[lnz];
-				i = rsb__nnz_split_nnz_bsearch(mPA,lnz,mtxAp->nr);
-				if( i>0 && mPA[i] > lnz )
-					--i; // when lnz not first on its row
+				i = rsb__nnz_split_coo_bsearch(mPA,lnz,mtxAp->nnz);
 			}
 			else
 			{
 				RSB_DECLARE_CONST_FULLCSR_ARRAYS_FROM_MATRIX(mPA,mJA,mtxAp);
 				j = mJA[lnz];
-				i = rsb__nnz_split_nnz_bsearch(mPA,lnz,mtxAp->nr);
-				if( i>0 && mPA[i] > lnz )
-					--i; // when lnz not first on its row
+				i = rsb__nnz_split_coo_bsearch(mPA,lnz,mtxAp->nnz);
 			}
 		}
-		if(ip)
-			*ip = i+mtxAp->roff;;
-		if(jp)
-			*jp = j+mtxAp->coff;;
+		if(ip)*ip = i;
+		if(jp)*jp = j;
 noij:
 		if(vpp)*vpp = OV;
 		errval = RSB_ERR_NO_ERROR;
@@ -353,25 +301,19 @@ noij:
 		  )
 		{
 		       	errval = rsb_do_locate_nnz_element(submatrix,vpp,ip,jp,nzi);
-			if(RSB_SOME_ERROR(errval))
-				RSB_PERR_GOTO(err,RSB_ERRM_ES)
+			RSB_PERR_GOTO(err,RSB_ERRM_ES)
 		}
 	}
 err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__do_get_nnz_element(const struct rsb_mtx_t * mtxAp, void * vp, rsb_coo_idx_t*ip, rsb_coo_idx_t*jp, rsb_nnz_idx_t nzi)
+rsb_err_t rsb_do_get_nnz_element(const struct rsb_mtx_t * mtxAp, void * vp, rsb_coo_idx_t*ip, rsb_coo_idx_t*jp, rsb_nnz_idx_t nzi)
 {
-	/*
-		This was used by sparsersb until 1.0.6. and known as rsb_do_get_nnz_element.
-		Note: it honors Fortran indices flags, if any.
-	*/
+	/* FIXME: * new, unfinished (20130331) */
 	void * OV = NULL;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-
 	errval = rsb_do_locate_nnz_element(mtxAp,&OV,ip,jp,nzi);
-
 	if((!RSB_SOME_ERROR(errval)) && OV)
 	{
 		RSB_NUMERICAL_TYPE_SET_ELEMENT(vp,OV,mtxAp->typecode);
@@ -380,13 +322,10 @@ rsb_err_t rsb__do_get_nnz_element(const struct rsb_mtx_t * mtxAp, void * vp, rsb
 }
 #endif
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
+#if 0
 rsb_err_t rsb_do_set_nnz_element(const struct rsb_mtx_t * mtxAp, const void * vp, rsb_nnz_idx_t nzi)
 {
-	/*
-		Note: it honors Fortran indices flags, if any.
-		Unused for now.
-	 */
+	/* FIXME: * new, unfinished (20130331) */
 	void * OV = NULL;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	errval = rsb_do_locate_nnz_element(mtxAp,&OV,NULL,NULL,nzi);
@@ -396,22 +335,23 @@ rsb_err_t rsb_do_set_nnz_element(const struct rsb_mtx_t * mtxAp, const void * vp
 	}
 	RSB_DO_ERR_RETURN(errval)
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+#endif
 
 rsb_err_t rsb__do_get_coo_element(const struct rsb_mtx_t * mtxAp, void * vp, rsb_coo_idx_t i, rsb_coo_idx_t j)
 {
 	/*!
 	 * \ingroup gr_internals
+	 *
+	 * FIXME: undocumented
 	 * Gets the element at (i,j), if present.
 	 * If not present, returns RSB_ERR_GENERIC_ERROR and zeros the area.
-	 * In case of a 0x0 matrix (or blank area), it won't write anything, and return success.
 	 * */
 	const void * OV = NULL;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 #if RSB_ALLOW_ZERO_DIM
 	if(RSB_ANY_MTX_DIM_ZERO(mtxAp))
-		goto err; /* Note: skip error checks */
+		goto err; /* FIXME: skipping further error checks */
 #endif
 	if(!mtxAp || !vp || RSB_INVALID_COO_INDEX(i) || RSB_INVALID_COO_INDEX(j))
 	{
@@ -437,7 +377,7 @@ rsb_err_t rsb__do_get_coo_element(const struct rsb_mtx_t * mtxAp, void * vp, rsb
 	OV = rsb_do_has_coo_element_inner(mtxAp,i,j);
 	if(!OV)
 	{
-		errval = RSB_ERR_ELEMENT_NOT_FOUND;
+		errval = RSB_ERR_GENERIC_ERROR;
 		rsb__cblas_Xscal(mtxAp->typecode,1,NULL,vp,1);
 	}
 	else
@@ -525,7 +465,7 @@ rsb_err_t rsb__do_zsort_coo_submatrices(struct rsb_mtx_t * mtxAp)
 			if( mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES)
 			{
 				RSB_DECLARE_FULLCOO_ARRAYS_FROM_MATRIX(IA,JA,mtxAp)
-				RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_to_fullword_zcoo(mtxAp));
+				RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_to_fullword_coo(mtxAp));
 				RSB_DO_ERROR_CUMULATE(errval,rsb__do_index_based_z_morton_sort(NULL,NULL,NULL,IA,JA,mtxAp->VA,mtxAp->nr,mtxAp->nc,mtxAp->nnz,mtxAp->typecode,RSB_OP_FLAG_DEFAULT));
 				RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_to_halfword_coo(mtxAp));
 			}

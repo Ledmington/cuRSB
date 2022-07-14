@@ -9,7 +9,7 @@
 
 /*
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -36,7 +36,6 @@ If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "rsb_types.h"
-#include "rsb_common.h"
 
 /* NULL should be defined. */
 #ifndef NULL
@@ -65,7 +64,6 @@ If not, see <http://www.gnu.org/licenses/>.
 
 
 
-RSB_EMPTY_FILE_FILLER
 
 /* @endcond */
 

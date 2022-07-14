@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -29,11 +29,11 @@ If not, see <http://www.gnu.org/licenses/>.
 #ifndef RSB_EPS_H_INCLUDED
 #define RSB_EPS_H_INCLUDED
 #include "rsb_internals.h"
-/* rsb_err_t rsb__dump_postscript_from_matrix(const char * filename, rsb_blk_idx_t br, rsb_blk_idx_t bc, int width, int height, rsb_bool_t all_nnz); */
-rsb_err_t rsb__dump_postscript_recursion_from_matrix(const char * filename, rsb_marf_t rflags, rsb_blk_idx_t br, rsb_blk_idx_t bc, int width, int height, rsb_flags_t flags, rsb_bool_t want_blocks, rsb_bool_t z_dump , rsb_bool_t want_nonzeros, rsb_bool_t want_recursion, rsb_type_t typecode);
-rsb_err_t rsb__dump_postscript_recursion_from_mtx_t(FILE*fd, const char * filename, const struct rsb_mtx_t*mtxAp, rsb_blk_idx_t br, rsb_blk_idx_t bc, int width, int height, rsb_marf_t rflags, rsb_bool_t want_blocks, rsb_bool_t z_dump, rsb_bool_t want_nonzeros, const rsb_submatrix_idx_t *pv, const struct rsb_optrace_t * otv, const rsb_bitmap_data_t * smb);
-rsb_err_t rsb__dump_multiple_recursion_postscript_from_mtx_t(const char * filename, const struct rsb_mtx_t*mtxAp, rsb_blk_idx_t br, rsb_blk_idx_t bc, int width, int height, rsb_marf_t rflags, rsb_bool_t want_blocks, rsb_bool_t z_dump, rsb_bool_t want_nonzeros, const rsb_submatrix_idx_t *pv, const struct rsb_optrace_t * otv );
+rsb_err_t rsb__dump_postscript_from_matrix(const char * filename, rsb_blk_idx_t br, rsb_blk_idx_t bc, int width, int height, rsb_bool_t all_nnz);
+rsb_err_t rsb__dump_postscript_recursion_from_matrix(const char * filename, rsb_blk_idx_t br, rsb_blk_idx_t bc, int width, int height, rsb_flags_t flags, rsb_bool_t want_blocks, rsb_bool_t z_dump , rsb_bool_t want_nonzeros, rsb_bool_t want_recursion, rsb_type_t typecode );
+rsb_err_t rsb__dump_postscript_recursion_from_mtx_t(FILE*fd, const char * filename, const struct rsb_mtx_t*mtxAp, rsb_blk_idx_t br, rsb_blk_idx_t bc, int width, int height, rsb_marf_t rflags, rsb_bool_t want_blocks, rsb_bool_t z_dump, rsb_bool_t want_nonzeros, int *pv );
 #define RSB_POSTSCRIPT_DUMP_COMMENT(FD,C) {RSB_FPRINTF(FD,"%%%% ");RSB_FPRINTF(FD,C);RSB_FPRINTF(FD,"\n");}
 rsb_err_t rsb__do_mtx_render(const char * filename, const struct rsb_mtx_t*mtxAp, rsb_coo_idx_t pmWidth, rsb_coo_idx_t pmHeight, rsb_marf_t rflags);
 #endif /* RSB_EPS_H_INCLUDED */
+int rsb__dump_postscript(const int argc, char * const argv[]);
 /* @endcond */

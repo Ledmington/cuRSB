@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -59,11 +59,8 @@ typedef int rsb_submatrix_idx_t;
  \internal
  An integer type which by definition should not overflow, in most cases of interest.
  */
-#ifdef RSB_WANT_LONG_IDX_TYPE 
-typedef RSB_WANT_LONG_IDX_TYPE rsb_non_overflowing_t;
-#else /* RSB_WANT_LONG_IDX_TYPE */
-typedef int                    rsb_non_overflowing_t;
-#endif /* RSB_WANT_LONG_IDX_TYPE */
+typedef int rsb_non_overflowing_t;
+
 
 #define RSB_BLK_MUL_OVERFLOW(R,C) RSB_MUL_OVERFLOW((R),(C),rsb_blk_idx_t,rsb_non_overflowing_t)
 #define RSB_COO_MUL_OVERFLOW(R,C) RSB_MUL_OVERFLOW((R),(C),rsb_coo_idx_t,rsb_non_overflowing_t)
@@ -84,7 +81,7 @@ typedef unsigned char rsb_byte_t;
  */
 #define RSB_INDEX_OF_SAFE_EXTRA 2 	/*< this is the value that could be added with no overflow to indices values */
 #define RSB_ADD_OVERFLOW(R,C,T) ((int)((T)(((T)(R))+((T)(C)))<((T)(R))) || (int)((T)(((T)(R))+((T)(C)))<((T)(C))))
-#define RSB_MUL_OVERFLOW(R,C,T,H) ( ((C) == 0 || (R) == 0 ) ? 0 : ( (  R > C && RSB_MAX_VALUE_FOR_TYPE(T) / C < R ) || (RSB_MAX_VALUE_FOR_TYPE(T) / R < C ) ) )
+#define RSB_MUL_OVERFLOW(R,C,T,H) ( (  R > C && RSB_MAX_VALUE_FOR_TYPE(T) / C < R ) || (RSB_MAX_VALUE_FOR_TYPE(T) / R < C ) )
 #define RSB_BLK_ADD_OVERFLOW(R,C) RSB_ADD_OVERFLOW((R),(C),rsb_blk_idx_t)
 #define RSB_COO_ADD_OVERFLOW(R,C) RSB_ADD_OVERFLOW((R),(C),rsb_coo_idx_t)
 #define RSB_NNZ_ADD_OVERFLOW(R,C) RSB_ADD_OVERFLOW((R),(C),rsb_nnz_idx_t)
@@ -119,10 +116,6 @@ typedef unsigned char rsb_byte_t;
 /* @endcond */
 
 /* @cond INNERDOC  */
-#define RSB_DO_FLAG_XOR(V,F)	(V) ^= (F)	/*!< The flag variable \c V gets the logical XOR value with flag \c F. */
-/* @endcond */
-
-/* @cond INNERDOC  */
 #define RSB_BOOL_XOR(X,Y) 	((X)^(Y)) /*!< A logical XOR for rsb_bool_t values. */
 #define RSB_BOOL_OR(X,Y) 	((X)||(Y)) /*!< A logical OR for rsb_bool_t values. */
 #define RSB_BOOL_AND(X,Y) 	((X)&&(Y)) /*!< A logical OR for rsb_bool_t values. */
@@ -131,10 +124,7 @@ typedef unsigned char rsb_byte_t;
 #define RSB_BOOL_NOR(X,Y) 	RSB_BOOL_NOT(RSB_BOOL_OR(X,Y)) /*!< A logical NOR for rsb_bool_t values. */
 /* @endcond */
 
-/* @cond INNERDOC  */
-#define RSB_WANT_DBC 0 /* want dense block count */
-#define RSB_WANT_SSC 0 /* want spare (extra) sparse submatrices count */
-/* @endcond */
+
 
 /* @cond INNERDOC  */
 /*!
@@ -234,15 +224,8 @@ struct rsb_mtx_t
 	 * */
 	rsb_blk_idx_t Mdim,mdim;
 
-#if RSB_WANT_DBC
 	/*! The count of blocks (regardless their size) : <= nnz */
 	rsb_nnz_idx_t block_count;
-#endif
-
-#if RSB_WANT_SSC
-	/*! The spare (extra) sparse blocks count. */
-	rsb_nnz_idx_t ssbc;
-#endif
 
 	/*! The overall number of elements el_size bytes each (>=nnz) */
 	rsb_size_t element_count;
@@ -292,7 +275,7 @@ struct rsb_mtx_t
 	/*! The number of leaf submatrices pointers in all_leaf_matrices (only valid on root) */
 	rsb_submatrix_idx_t all_leaf_matrices_n;
 
-	/*! In a recursive representation, the offset of the submatrix (respectively, rows and columns)  */
+	/*! In a recursive representation, the offset of the submatrix with respect to the original one (respectively, rows and columns)  */
 	rsb_coo_idx_t	roff,coff;
 
 	/*! In a recursive representation, with the RSB_FLAG_ASSEMBLED_IN_COO_ARRAYS flag, the offset of these data arrays from the beginning of the global ones  */
@@ -314,63 +297,53 @@ struct rsb_mtx_t
  * printf(RSB_PRINTF_MTX_SUMMARY_ARGS(mtxAp));
  * \endcode
  */
-#define RSB_PRINTF_FLAGS_FMT_STR  		\
+#define RSB_PRINTF_MTX_SUMMARY_ARGS(MTXAP)  \
+			"(%d x %d)[%p]{%c} @ (%d(%d..%d),%d(%d..%d)) (%d nnz, %.2lg nnz/r) flags 0x%x (coo:%d, csr:%d, hw:%d, ic:%d), storage: %x, subm: %d, symflags:'"\
 					"%s"	\
 					"%s"	\
 					"%s"	\
 					"%s"	\
-					"%s"	
-#define RSB_NNZ_PER_ROW_AS(MTXAP,TYPE)	((MTXAP)->nr ? ((TYPE)(MTXAP)->nnz)/(MTXAP)->nr : 0)
-#define RSB_PRINTF_FLAGS_ARGS(FLAGS)  		\
-	RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_UPPER)?"U":"",		\
-	RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_LOWER)?"L":"",		\
-	RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_TRIANGULAR)?"T":"",	\
-	RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_SYMMETRIC)?"S":"",	\
-	RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_HERMITIAN)?"H":""
-#define RSB_PRINTF_MTX_SUMMARIZED_ARGS(PRE,MTXAP,POST)  \
-			"%s(%zd x %zd)[%p]{%c} @ (%zd(%zd..%zd),%zd(%zd..%zd)) (%zd nnz, %.2lg nnz/r) flags 0x%x (coo:%d, csr:%d, hw:%d, ic:%d, fi:%d), storage: %zx, subm: %zd, symflags:'"\
-					RSB_PRINTF_FLAGS_FMT_STR  \
-					"'%s"	\
+					"%s"	\
+					"'"	\
 					, \
-					(PRE), \
-				(rsb_printf_int_t)(MTXAP)->nr, (rsb_printf_int_t)(MTXAP)->nc, (const void*)(MTXAP),				\
-				(char)(MTXAP)->typecode,						\
-				(rsb_printf_int_t)(MTXAP)->roff,						\
-				(rsb_printf_int_t)(MTXAP)->broff,						\
-				(rsb_printf_int_t)((MTXAP)->roff+(MTXAP)->bm),				\
-				(rsb_printf_int_t)(MTXAP)->coff,						\
-				(rsb_printf_int_t)(MTXAP)->bcoff,						\
-				(rsb_printf_int_t)((MTXAP)->coff+(MTXAP)->bk),				\
-			       	(rsb_printf_int_t)(MTXAP)->nnz,						\
-			       	RSB_NNZ_PER_ROW_AS(MTXAP,double),					\
-			       	(unsigned int)((MTXAP)->flags),						\
-				(int)(RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_WANT_COO_STORAGE)),	\
-				(int)(RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_WANT_BCSS_STORAGE)),	\
-				(int)(RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_USE_HALFWORD_INDICES)),	\
-				(int)(RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_ASSEMBLED_IN_COO_ARRAYS)),\
-				(int)(RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE)), 	\
-				(rsb_printf_int_t)((MTXAP)->matrix_storage),					\
-				(rsb_printf_int_t)((MTXAP)->all_leaf_matrices_n),				\
-				RSB_PRINTF_FLAGS_ARGS((MTXAP)->flags),					\
-				(POST)
-
-#define RSB_PRINTF_MTX_SUMMARY_ARGS(MTXAP)  RSB_PRINTF_MTX_SUMMARIZED_ARGS("",MTXAP,"")
+				(MTXAP)->nr, (MTXAP)->nc, (const void*)(MTXAP),				\
+				(MTXAP)->typecode,						\
+				(MTXAP)->roff,						\
+				(MTXAP)->broff,						\
+				(MTXAP)->roff+(MTXAP)->bm,						\
+				(MTXAP)->coff,						\
+				(MTXAP)->bcoff,						\
+				(MTXAP)->coff+(MTXAP)->bk,						\
+			       	(MTXAP)->nnz,									\
+			       	((double)(MTXAP)->nnz)/(MTXAP)->nr,							\
+			       	(MTXAP)->flags,								\
+				RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_WANT_COO_STORAGE),			\
+				RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_WANT_BCSS_STORAGE),			\
+				RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_USE_HALFWORD_INDICES),		\
+				RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_ASSEMBLED_IN_COO_ARRAYS),			\
+				(MTXAP)->matrix_storage,							\
+				(MTXAP)->all_leaf_matrices_n,							\
+				RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_UPPER)?"U":"",			\
+				RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_LOWER)?"L":"",			\
+				RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_TRIANGULAR)?"T":"",			\
+				RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_SYMMETRIC)?"S":"",			\
+				RSB_DO_FLAG_HAS((MTXAP)->flags,RSB_FLAG_HERMITIAN)?"H":""
 
 #define RSB_PRINTF_MATRIX_AT_SUMMARY_ARGS(MTXAP)  \
-			"%ld x %ld, type %c, %ld nnz, %.2lg nnz/r, %ld subms, %d lsubms, %2.4lf bpnz"\
+			"%d x %d, type %c, %d nnz, %.2lg nnz/r, %ld subms, %d lsubms, %2.4lf bpnz"\
 					, 								\
-				(long int)(MTXAP)->nr, (long int)(MTXAP)->nc, 						\
+				(MTXAP)->nr, (MTXAP)->nc, 						\
 				(MTXAP)->typecode,							\
-			       	(long int)(MTXAP)->nnz,								\
-			       	RSB_NNZ_PER_ROW_AS(MTXAP,double),					\
+			       	(MTXAP)->nnz,								\
+			       	((double)(MTXAP)->nnz)/(MTXAP)->nr,					\
 				rsb__submatrices(MTXAP),							\
 				(MTXAP)->all_leaf_matrices_n,						\
 				((double)rsb__get_index_storage_amount(MTXAP)) / ((MTXAP)->nnz)
 
 #define RSB_PRINTF_MATRIX_BOUNDS_SUMMARY_ARGS(MTXAP)  \
-			"(nr=%ld x nc=%ld, nnz=%ld)[%p]{type=%c} @ (nzoff=%d, roff=%d,broff=%d,bm=%d, coff=%d,bcoff=%d,bk=%d) " \
+			"(nr=%d x nc=%d, nnz=%d)[%p]{type=%c} @ (nzoff=%d, roff=%d,broff=%d,bm=%d, coff=%d,bcoff=%d,bk=%d) " \
 					, \
-				(long int)(MTXAP)->nr, (long int)(MTXAP)->nc, (long int)(MTXAP)->nnz, (const void*)(MTXAP),				\
+				(MTXAP)->nr, (MTXAP)->nc, (MTXAP)->nnz, (const void*)(MTXAP),				\
 				(MTXAP)->typecode,						\
 				(MTXAP)->nzoff,						\
 				(MTXAP)->roff,						\
@@ -379,28 +352,7 @@ struct rsb_mtx_t
 				(MTXAP)->coff,						\
 				(MTXAP)->bcoff,						\
 				(MTXAP)->bk
-
-#define RSB_WANT_COO_BEGIN 1
-
-#if RSB_WANT_COO_BEGIN
-#define RSB_MTX_SET_HBDF(MTXAP) (MTXAP)->RSB_MTX_BMF=RSB_MTX_BMV
-#define RSB_MTX_HBDF(MTXAP) ((MTXAP)->RSB_MTX_BMF==RSB_MTX_BMV)
-#define RSB_MTX_HBDFH(MTXAP) ((MTXAP)->RSB_MTX_BDF)
-#define RSB_MTX_BDF nnz
-#define RSB_MTX_BMF nr
-#define RSB_MTX_BMV -1
-#endif
-/* RSB_WANT_COO_BEGIN */
-
-#define RSB_MTX_TRANSPOSED_ROWS(MTX,TRANSA) RSB_ELSE_IF_TRANSPOSE((MTX)->nr,(MTX)->nc,(TRANSA))
-#define RSB_MTX_TRANSPOSED_COLS(MTX,TRANSA) RSB_ELSE_IF_TRANSPOSE((MTX)->nc,(MTX)->nr,(TRANSA))
-#define RSB_MTX_DIAG_SIZE(MTX) RSB_MIN( (MTX)->nc,(MTX)->nr )
-#define RSB_MTX_DIAG_SIZE_BLK(MTX)  RSB_MTX_DIAG_SIZE_BLK(MTX) + RSB_NNZ_BLK_MAX
-#define RSB_MTX_EFF_R(MTXAP) (MTXAP->bm-((MTXAP)->broff-(MTXAP)->roff)) /* effective rows count */
-#define RSB_MTX_EFF_C(MTXAP) (MTXAP->bk-((MTXAP)->bcoff-(MTXAP)->coff)) /* effective columns count */
-#define RSB_ANY_MTX_DIM_ZERO(MTXAP) ((MTXAP) && (((MTXAP)->nr==0)||(MTXAP)->nc==0))
-
-#define RSB_NNZ_OF(MTXAP) ((MTXAP)?((MTXAP)->nnz):0)
 /* @endcond */
+
 
 #endif

@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -36,7 +36,7 @@ extern "C" {
 #include <time.h>	/* clock, difftime */
 #include <sys/time.h>	/* timeval,gettimeofday */
 #include <stdio.h>	/* printf */
-#include <strings.h>	/* formerly bzero (now using memset) */
+#include <strings.h>   /* formerly bzero (now using memset) */
 #include <string.h>	/* memset, memcpy */
 #include <stdarg.h>	/* vprintf, va_start, va_end */
 #if RSB_HAVE_LIMITS_H 
@@ -47,7 +47,7 @@ extern "C" {
 void * rsb__malloc(size_t size);
 void * rsb__calloc(size_t n);
 void * rsb__calloc_parallel(size_t n);
-rsb_time_t rsb__do_time(void);
+rsb_time_t rsb_do_time(void);
 rsb_time_t rsb__timer_granularity(void );
 void * rsb__free(void *rsb_data);
 void * rsb__realloc(void *rsb_data, size_t size);
@@ -55,20 +55,14 @@ void * rsb__do_realloc(void *rsb_data, size_t size, size_t alignment);
 void * rsb__aligned_malloc(size_t size, size_t alignment);
 rsb_err_t rsb__sys_info(void);
 long rsb__get_l1c_size(void);
-#if RSB_WANT_EXPERIMENTS_CODE
 long rsb__get_l2c_size(void);
-#endif /* RSB_WANT_EXPERIMENTS_CODE */
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 long rsb__get_l3c_size(void);
 long rsb__get_l4c_size(void);
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 long rsb__get_lastlevel_c_size(void);
 long rsb__get_first_level_c_size(void);
 rsb_int_t rsb__get_cache_levels_num(void);
 long rsb__get_lnc_size(int n);
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 long rsb__know_cache_sizes(void);
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 rsb_err_t rsb__sys_init(void);
 /* long rsb_want_executing_threads(void); */
 
@@ -76,21 +70,8 @@ rsb_err_t rsb__sys_init(void);
 #define RSB_CONDITIONAL_FREE_FAKE(p) {if((p))/*rsb__free((p))*/;(p)=NULL;}
 #endif /* RSB_CONDITIONAL_FREE_FAKE */
 /* A useful macro */
-
-#if defined(RSB_MEM_DBG) && (RSB_MEM_DBG>1) 
-#define RSB__FREE(p) {RSB_ERRLN("About to free memory.\n");rsb__free(p);} 
-#else /* RSB_MEM_DBG */
-#define RSB__FREE(p) {                                    ;rsb__free(p);} 
-#endif /* RSB_MEM_DBG */
-
-#if RSB_WANT_CACHE_TIMER_GRANULARITY
-#define RSB_CACHED_TIMER_GRANULARITY rsb_global_session_handle.timer_granularity
-#else /* RSB_WANT_CACHE_TIMER_GRANULARITY */
-#define RSB_CACHED_TIMER_GRANULARITY rsb__timer_granularity()
-#endif /* RSB_WANT_CACHE_TIMER_GRANULARITY */
-
 #ifndef RSB_CONDITIONAL_FREE
-#define RSB_CONDITIONAL_FREE(p) {if((p)){RSB__FREE((p));(p)=NULL;}} /* frees and nullifies the associated pointer. */
+#define RSB_CONDITIONAL_FREE(p) {if((p)){rsb__free((p));(p)=NULL;}} /* frees and nullifies the associated pointer. */
 /*#define RSB_CONDITIONAL_FREE(p) RSB_CONDITIONAL_FREE_FAKE(p) */
 #endif /* RSB_CONDITIONAL_FREE */
 
@@ -117,31 +98,46 @@ size_t rsb__get_g_rsb_allocations_count(void);
 #define RSB_NULL_EXPRESSION_FOR_ZEN_HAPPINESS 1
 #define RSB_NULL_COMMA_STATEMENT_FOR_ZEN_HAPPINESS RSB_NULL_EXPRESSION_FOR_ZEN_HAPPINESS
 
-#define RSB_FFL_PRINTF printf("In %s located in %20s:%d :\n",__func__,__FILE__,__LINE__)
-
-#define RSB_ERRLN( ... ) \
-	RSB_FFL_PRINTF,	\
-	rsb__error( __VA_ARGS__ )
-
+/* FIXME : write a RSB_PRINTF */
+/* note that the first argument should be a format string! */
+/* note that variadic macros should not be supported by standard C++ */
+/* note that putting brackets around this macro in the macro itself would break
+	conditionals like:
+	if(foo)
+		RSB_ERROR("bar");
+	else
+		RSB_ERROR("baz");
+ */
 #if RSB_INT_ERR_VERBOSITY==1
 
+/* #define RSB_FFL_PRINTF printf("In file %20s (in %s) at line %10d:\n",__FILE__,__func__,__LINE__) */
+#define RSB_FFL_PRINTF printf("In %s located in %20s:%d :\n",__func__,__FILE__,__LINE__)
+
 #define RSB_DEPRECATED( ... ) \
-	RSB_ERRLN( __VA_ARGS__ ), \
+	RSB_FFL_PRINTF,	\
+	rsb__error( __VA_ARGS__ ), \
 	printf(" is DEPRECATED !!\n") \
 
-#define RSB_ERROR( ... ) RSB_ERRLN( __VA_ARGS__ )
+#define RSB_ERROR( ... ) \
+	RSB_FFL_PRINTF,	\
+	rsb__error( __VA_ARGS__ )
 
 #define RSB_OCTAVE_ERROR( ... ) \
 	RSB_ERROR("ERROR:"), RSB_ERROR( __VA_ARGS__ ),octave_failed_tests++;
 
+#define RSB_FATAL( ... ) {RSB_ERROR( __VA_ARGS__ );exit(-1);}
 #else /* RSB_INT_ERR_VERBOSITY */
 #define RSB_DEPRECATED( ... )  RSB_NULL_COMMA_STATEMENT_FOR_ZEN_HAPPINESS 
 #define RSB_ERROR( ... ) RSB_NULL_COMMA_STATEMENT_FOR_ZEN_HAPPINESS 
 #define RSB_OCTAVE_ERROR( ... ) RSB_NULL_COMMA_STATEMENT_FOR_ZEN_HAPPINESS 
+#define RSB_FATAL( ... )  RSB_NULL_COMMA_STATEMENT_FOR_ZEN_HAPPINESS 
 #endif /* RSB_INT_ERR_VERBOSITY */
+/* FIXME: RSB_FATAL is obsolete */
+/* FIXME: RSB_ERROR shall be diversified */
+
 
 #define RSB_IOLEVEL RSB_WANT_IO_LEVEL 
-/*#define RSB_IOLEVEL 7*/ /* 0 is minimum, 7 is maximum */
+/*#define RSB_IOLEVEL 7*/ /* FIXME: EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL EXPERIMENTAL */
 #define RSB_ALLOW_FPRINTF (RSB_IOLEVEL&4)
 #define RSB_ALLOW_STDOUT  (RSB_IOLEVEL&1)
 #define RSB_ALLOW_STDERR  (RSB_IOLEVEL&2)
@@ -171,10 +167,6 @@ size_t rsb__get_g_rsb_allocations_count(void);
 #define RSB_STDOUT( ... ) RSB_NULL_COMMA_STATEMENT_FOR_ZEN_HAPPINESS 
 #define RSB_WARN( ... ) RSB_NULL_COMMA_STATEMENT_FOR_ZEN_HAPPINESS 
 #endif /* RSB_ALLOW_STDOUT */
-#define RSB_WARN_CRITICAL( ... ) \
-	RSB_STDERR("%s%s%s\n","#********************",RSB_HEADER_VERSION_STRING,"**********************************"),\
-	RSB_STDERR( __VA_ARGS__ ),\
-	RSB_STDERR("\n%s\n","#*****************************************************************************")
 
 
 #if (RSB_WANT_IO_LEVEL==0)
@@ -205,7 +197,7 @@ size_t rsb__get_g_rsb_allocations_count(void);
 #define RSB_PERFORMANCE_BINARY_DUMP_FILE_SIGNATURE \
 "this is a non portable performance dump file, dude........\x40\x40\x40\x40"
 
-#define RSB_TIMER_GRANULARITY_TEST_TIMES (10000) /* call timer RSB_TIMER_GRANULARITY_TEST_TIMES times */
+#define RSB_TIMER_GRANULARITY_TEST_TIMES (1024*128)
 #define RSB_TIMER_SANITY_TEST_TIMES (1024)
 #define RSB_MIN_ALLOWED_CACHE_BLOCK_SIZE (1024)	/* in bytes */
 #define RSB_MAX_ALLOWED_CACHE_BLOCK_SIZE ((1024)*(1024)*(1024))	/* in bytes */
@@ -218,8 +210,9 @@ size_t rsb__get_g_rsb_allocations_count(void);
 
 #define RSB_MEMCMP memcmp	/**< we have the chance of using a custom memcmp function in this way */
 
-int rsb__getopt_long( int argc, char * const argv[], const char *optstring, const rsb_option_t *longopts, int *longindex);
-#define rsb__numerical_memcpy(TYPECODE,DST,DOFF,SRC,SOFF,N) {size_t es = RSB_NUMERICAL_TYPE_SIZE(TYPECODE); 	\
+int rsb__getopt_long( int argc, char * const argv[], const char *optstring, const rsb_option *longopts, int *longindex);
+#define rsb_getopt_long rsb__getopt_long
+#define rsb_numerical_memcpy(TYPECODE,DST,DOFF,SRC,SOFF,N) {size_t es = RSB_NUMERICAL_TYPE_SIZE(TYPECODE); 	\
 	rsb__memcpy( 					\
 			((rsb_byte_t*)(DST)+es*(DOFF)) ,	\
 			((const rsb_byte_t*)(SRC)+es*(SOFF)) ,	\
@@ -234,22 +227,12 @@ long rsb__get_lastlevel_c_size_per_thread(void);
 long rsb__get_cache_block_byte_size(void);
 /* long rsb_set_executing_threads(long tn); */
 rsb_err_t rsb__print_memory_allocation_info(void);
-rsb_err_t rsb__printf_memory_allocation_info(FILE *os);
 rsb_err_t rsb__lock_as_memory_resident(rsb_bool_t dolock);
 int rsb__fileno(FILE *stream);
-#if defined(RSB_HAVE_EXECINFO_H) && RSB_OUT_ERR_VERBOSITY>=2
-void rsb__print_trace (void);
-#else  /* RSB_HAVE_EXECINFO_H */
-#define rsb__print_trace RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
-#endif /* RSB_HAVE_EXECINFO_H */
 rsb_err_t rsb__getrusage(void);
 const rsb_char_t * rsb__getenv(const rsb_char_t * name);
 const rsb_char_t * rsb__getenv_nnr(const rsb_char_t * name);
-#if RSB_WITH_HWLOC
 long rsb__get_lnc_size_hwloc(int n);
-#endif	/* RSB_WITH_HWLOC */
-#define RSB_MAX_HOSTNAME_LEN 64
-void rsb__strcpy_hostname(rsb_char_t * buf);
 
 #define RSB_THREADS_GET_MAX_LIB	-5
 #define RSB_THREADS_GET_MAX_SYS	-4

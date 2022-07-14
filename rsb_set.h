@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2016 Michele Martone
 
 This file is part of librsb.
 
@@ -24,7 +24,7 @@ If not, see <http://www.gnu.org/licenses/>.
  * @file
  * @author Michele Martone
  * @brief
- * Matrix setter/getter functions.
+ * This source file contains matrix setter functions.
  * */
 
 #ifndef RSB_SET_H_INCLUDED
@@ -40,5 +40,4 @@ const void * rsb__do_coo_element_inner_address(const struct rsb_mtx_t * mtxAp, r
 rsb_err_t rsb__do_reverse_odd_rows(struct rsb_mtx_t * mtxAp);
 rsb_err_t rsb__do_zsort_coo_submatrices(struct rsb_mtx_t * mtxAp);
 #endif /* RSB_SET_H_INCLUDED */
-rsb_err_t rsb__do_get_nnz_element(const struct rsb_mtx_t * mtxAp, void * vp, rsb_coo_idx_t*ip, rsb_coo_idx_t*jp, rsb_nnz_idx_t nzi);
 /* @endcond */

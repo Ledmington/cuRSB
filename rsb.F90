@@ -9,15 +9,8 @@
 !DEC$DEFINE RSB_FORTRAN_HEADER
       
       MODULE rsb
-         USE ISO_C_BINDING, ONLY: C_INT,C_INT64_T,C_PTR,C_NULL_PTR,C_SIGNED_CHAR
+         USE ISO_C_BINDING, ONLY: C_INT,C_PTR,C_NULL_PTR,C_SIGNED_CHAR
       
-#ifdef RSB_WANT_LONG_IDX_TYPE
-      INTEGER,PARAMETER :: RSB_IDX_KIND=8
-#define C_RSB_INT_KND_ C_INT64_T
-#else
-      INTEGER,PARAMETER :: RSB_IDX_KIND=4
-#define C_RSB_INT_KND_ C_INT
-#endif
       
 !> ISO C BINDING interface to ::rsb_strerror_r.
       INTERFACE
@@ -27,7 +20,7 @@
         &BIND(c,NAME = 'rsb_strerror_r')
        USE ISO_C_BINDING
        INTEGER(C_INT), VALUE  :: errval
-       CHARACTER(C_CHAR), DIMENSION(*) :: buf ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
+       TYPE(C_PTR), VALUE  :: buf ! CHARACTER(C_CHAR)
        INTEGER(C_SIZE_T), VALUE  :: buflen
        END FUNCTION rsb_strerror_r
       END INTERFACE
@@ -73,8 +66,8 @@
         &(opnp,opvp)&
         &BIND(c,NAME = 'rsb_lib_set_opt_str')
        USE ISO_C_BINDING
-       CHARACTER(C_CHAR), DIMENSION(*) :: opnp ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
-       CHARACTER(C_CHAR), DIMENSION(*) :: opvp ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
+       TYPE(C_PTR), VALUE  :: opnp ! CHARACTER(C_CHAR)
+       TYPE(C_PTR), VALUE  :: opvp ! CHARACTER(C_CHAR)
        END FUNCTION rsb_lib_set_opt_str
       END INTERFACE
       
@@ -120,10 +113,10 @@
         &(nnzA,typecode,nrA,ncA,flagsA,errvalp)&
         &BIND(c,NAME = 'rsb_mtx_alloc_from_coo_begin')
        USE ISO_C_BINDING
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnzA
+       INTEGER(C_INT), VALUE  :: nnzA
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncA
+       INTEGER(C_INT), VALUE  :: nrA
+       INTEGER(C_INT), VALUE  :: ncA
        INTEGER(C_INT), VALUE  :: flagsA !> ISO C BINDING interface to ::rsb_flags_t
        TYPE(C_PTR),VALUE :: errvalp ! INTEGER(C_INT)
        END FUNCTION rsb_mtx_alloc_from_coo_begin
@@ -151,10 +144,10 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: RP ! INTEGER(C_INT)
        TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnzA
+       INTEGER(C_INT), VALUE  :: nnzA
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncA
+       INTEGER(C_INT), VALUE  :: nrA
+       INTEGER(C_INT), VALUE  :: ncA
        INTEGER(C_INT), VALUE  :: brA
        INTEGER(C_INT), VALUE  :: bcA
        INTEGER(C_INT), VALUE  :: flagsA !> ISO C BINDING interface to ::rsb_flags_t
@@ -173,10 +166,10 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR),VALUE :: IA ! INTEGER(C_INT)
        TYPE(C_PTR), VALUE  :: CP ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnzA
+       INTEGER(C_INT), VALUE  :: nnzA
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncA
+       INTEGER(C_INT), VALUE  :: nrA
+       INTEGER(C_INT), VALUE  :: ncA
        INTEGER(C_INT), VALUE  :: brA
        INTEGER(C_INT), VALUE  :: bcA
        INTEGER(C_INT), VALUE  :: flagsA !> ISO C BINDING interface to ::rsb_flags_t
@@ -195,10 +188,10 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: RP ! INTEGER(C_INT)
        TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnzA
+       INTEGER(C_INT), VALUE  :: nnzA
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncA
+       INTEGER(C_INT), VALUE  :: nrA
+       INTEGER(C_INT), VALUE  :: ncA
        INTEGER(C_INT), VALUE  :: brA
        INTEGER(C_INT), VALUE  :: bcA
        INTEGER(C_INT), VALUE  :: flagsA !> ISO C BINDING interface to ::rsb_flags_t
@@ -217,10 +210,10 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR),VALUE :: IA ! INTEGER(C_INT)
        TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnzA
+       INTEGER(C_INT), VALUE  :: nnzA
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncA
+       INTEGER(C_INT), VALUE  :: nrA
+       INTEGER(C_INT), VALUE  :: ncA
        INTEGER(C_INT), VALUE  :: brA
        INTEGER(C_INT), VALUE  :: bcA
        INTEGER(C_INT), VALUE  :: flagsA !> ISO C BINDING interface to ::rsb_flags_t
@@ -239,10 +232,10 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR),VALUE :: IA ! INTEGER(C_INT)
        TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnzA
+       INTEGER(C_INT), VALUE  :: nnzA
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncA
+       INTEGER(C_INT), VALUE  :: nrA
+       INTEGER(C_INT), VALUE  :: ncA
        INTEGER(C_INT), VALUE  :: brA
        INTEGER(C_INT), VALUE  :: bcA
        INTEGER(C_INT), VALUE  :: flagsA !> ISO C BINDING interface to ::rsb_flags_t
@@ -310,10 +303,10 @@
         &(filename,mtxAp,pmWidth,pmHeight,rflags)&
         &BIND(c,NAME = 'rsb_mtx_rndr')
        USE ISO_C_BINDING
-       CHARACTER(C_CHAR), DIMENSION(*) :: filename ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
+       TYPE(C_PTR), VALUE  :: filename ! CHARACTER(C_CHAR)
        TYPE(C_PTR), VALUE  :: mtxAp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: pmWidth
-       INTEGER(C_RSB_INT_KND_), VALUE  :: pmHeight
+       INTEGER(C_INT), VALUE  :: pmWidth
+       INTEGER(C_INT), VALUE  :: pmHeight
        INTEGER(C_INT), VALUE  :: rflags !> ISO C BINDING interface to ::rsb_marf_t
        END FUNCTION rsb_mtx_rndr
       END INTERFACE
@@ -326,10 +319,10 @@
         &BIND(c,NAME = 'rsb_file_mtx_rndr')
        USE ISO_C_BINDING
        TYPE(C_PTR), VALUE  :: pmp ! A numerical type
-       CHARACTER(C_CHAR), DIMENSION(*) :: filename ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
-       INTEGER(C_RSB_INT_KND_), VALUE  :: pmlWidth
-       INTEGER(C_RSB_INT_KND_), VALUE  :: pmWidth
-       INTEGER(C_RSB_INT_KND_), VALUE  :: pmHeight
+       TYPE(C_PTR), VALUE  :: filename ! CHARACTER(C_CHAR)
+       INTEGER(C_INT), VALUE  :: pmlWidth
+       INTEGER(C_INT), VALUE  :: pmWidth
+       INTEGER(C_INT), VALUE  :: pmHeight
        INTEGER(C_INT), VALUE  :: rflags !> ISO C BINDING interface to ::rsb_marf_t
        END FUNCTION rsb_file_mtx_rndr
       END INTERFACE
@@ -345,10 +338,10 @@
        TYPE(C_PTR),VALUE :: alphap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: mtxAp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
        TYPE(C_PTR),VALUE :: Xp ! A single variable of the same numerical type of the matrix.
-       INTEGER(C_RSB_INT_KND_), VALUE  :: incX
+       INTEGER(C_INT), VALUE  :: incX
        TYPE(C_PTR),VALUE :: betap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR),VALUE :: Yp ! A single variable of the same numerical type of the matrix.
-       INTEGER(C_RSB_INT_KND_), VALUE  :: incY
+       INTEGER(C_INT), VALUE  :: incY
        END FUNCTION rsb_spmv
       END INTERFACE
       
@@ -362,13 +355,13 @@
        INTEGER(C_INT), VALUE  :: transA
        TYPE(C_PTR),VALUE :: alphap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: mtxAp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrhs
+       INTEGER(C_INT), VALUE  :: nrhs
        INTEGER(C_INT), VALUE  :: order !> ISO C BINDING interface to ::rsb_flags_t
        TYPE(C_PTR), VALUE  :: Bp ! A numerical type
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldB
+       INTEGER(C_INT), VALUE  :: ldB
        TYPE(C_PTR),VALUE :: betap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: Cp ! A numerical type
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldC
+       INTEGER(C_INT), VALUE  :: ldC
        END FUNCTION rsb_spmm
       END INTERFACE
       
@@ -383,9 +376,9 @@
        TYPE(C_PTR),VALUE :: alphap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: mtxTp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
        TYPE(C_PTR),VALUE :: Xp ! A single variable of the same numerical type of the matrix.
-       INTEGER(C_RSB_INT_KND_), VALUE  :: incX
+       INTEGER(C_INT), VALUE  :: incX
        TYPE(C_PTR),VALUE :: Yp ! A single variable of the same numerical type of the matrix.
-       INTEGER(C_RSB_INT_KND_), VALUE  :: incY
+       INTEGER(C_INT), VALUE  :: incY
        END FUNCTION rsb_spsv
       END INTERFACE
       
@@ -399,13 +392,13 @@
        INTEGER(C_INT), VALUE  :: transT
        TYPE(C_PTR),VALUE :: alphap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: mtxTp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrhs
+       INTEGER(C_INT), VALUE  :: nrhs
        INTEGER(C_INT), VALUE  :: order !> ISO C BINDING interface to ::rsb_flags_t
        TYPE(C_PTR),VALUE :: betap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: Bp ! A numerical type
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldB
+       INTEGER(C_INT), VALUE  :: ldB
        TYPE(C_PTR), VALUE  :: Cp ! A numerical type
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldC
+       INTEGER(C_INT), VALUE  :: ldC
        END FUNCTION rsb_spsm
       END INTERFACE
       
@@ -418,9 +411,9 @@
        USE ISO_C_BINDING
        TYPE(C_PTR),VALUE :: alphap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: mtxAp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldB
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrB
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncB
+       INTEGER(C_INT), VALUE  :: ldB
+       INTEGER(C_INT), VALUE  :: nrB
+       INTEGER(C_INT), VALUE  :: ncB
        INTEGER(C_INT), VALUE  :: rowmajorB !> ISO C BINDING interface to ::rsb_bool_t
        TYPE(C_PTR), VALUE  :: Bp ! A numerical type
        END FUNCTION rsb_mtx_add_to_dense
@@ -479,9 +472,9 @@
        INTEGER(C_INT), VALUE  :: transB
        TYPE(C_PTR),VALUE :: betap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: mtxBp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldC
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrC
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncC
+       INTEGER(C_INT), VALUE  :: ldC
+       INTEGER(C_INT), VALUE  :: nrC
+       INTEGER(C_INT), VALUE  :: ncC
        INTEGER(C_INT), VALUE  :: rowmajorC !> ISO C BINDING interface to ::rsb_bool_t
        TYPE(C_PTR), VALUE  :: Cp ! A numerical type
        END FUNCTION rsb_spmsp_to_dense
@@ -561,8 +554,8 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR),VALUE :: IA ! INTEGER(C_INT)
        TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: frA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: lrA
+       INTEGER(C_INT), VALUE  :: frA
+       INTEGER(C_INT), VALUE  :: lrA
        TYPE(C_PTR), VALUE  :: rnzp ! INTEGER(C_INT)
        INTEGER(C_INT), VALUE  :: flags !> ISO C BINDING interface to ::rsb_flags_t
        END FUNCTION rsb_mtx_get_rows_sparse
@@ -580,10 +573,10 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR),VALUE :: IA ! INTEGER(C_INT)
        TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: frA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: lrA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: fcA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: lcA
+       INTEGER(C_INT), VALUE  :: frA
+       INTEGER(C_INT), VALUE  :: lrA
+       INTEGER(C_INT), VALUE  :: fcA
+       INTEGER(C_INT), VALUE  :: lcA
        TYPE(C_PTR), VALUE  :: IREN ! INTEGER(C_INT)
        TYPE(C_PTR), VALUE  :: JREN ! INTEGER(C_INT)
        TYPE(C_PTR), VALUE  :: rnzp ! INTEGER(C_INT)
@@ -612,7 +605,7 @@
         &BIND(c,NAME = 'rsb_mtx_get_info_str')
        USE ISO_C_BINDING
        TYPE(C_PTR), VALUE  :: mtxAp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
-       CHARACTER(C_CHAR), DIMENSION(*) :: mis ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
+       TYPE(C_PTR), VALUE  :: mis ! CHARACTER(C_CHAR)
        TYPE(C_PTR), VALUE  :: minfop ! A numerical type
        INTEGER(C_SIZE_T), VALUE  :: buflen
        END FUNCTION rsb_mtx_get_info_str
@@ -656,7 +649,7 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR),VALUE :: IA ! INTEGER(C_INT)
        TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnz
+       INTEGER(C_INT), VALUE  :: nnz
        INTEGER(C_INT), VALUE  :: flags !> ISO C BINDING interface to ::rsb_flags_t
        END FUNCTION rsb_mtx_set_vals
       END INTERFACE
@@ -672,7 +665,7 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR),VALUE :: IA ! INTEGER(C_INT)
        TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnz
+       INTEGER(C_INT), VALUE  :: nnz
        INTEGER(C_INT), VALUE  :: flags !> ISO C BINDING interface to ::rsb_flags_t
        END FUNCTION rsb_mtx_get_vals
       END INTERFACE
@@ -693,13 +686,13 @@
        INTEGER(C_INT), VALUE  :: transA
        TYPE(C_PTR),VALUE :: alphap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: mtxAp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrhs
+       INTEGER(C_INT), VALUE  :: nrhs
        INTEGER(C_INT), VALUE  :: order !> ISO C BINDING interface to ::rsb_flags_t
        TYPE(C_PTR), VALUE  :: Bp ! A numerical type
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldB
+       INTEGER(C_INT), VALUE  :: ldB
        TYPE(C_PTR),VALUE :: betap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: Cp ! A numerical type
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldC
+       INTEGER(C_INT), VALUE  :: ldC
        END FUNCTION rsb_tune_spmm
       END INTERFACE
       
@@ -719,13 +712,13 @@
        INTEGER(C_INT), VALUE  :: transA
        TYPE(C_PTR),VALUE :: alphap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: mtxAp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrhs
+       INTEGER(C_INT), VALUE  :: nrhs
        INTEGER(C_INT), VALUE  :: order !> ISO C BINDING interface to ::rsb_flags_t
        TYPE(C_PTR), VALUE  :: Bp ! A numerical type
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldB
+       INTEGER(C_INT), VALUE  :: ldB
        TYPE(C_PTR),VALUE :: betap ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: Cp ! A numerical type
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ldC
+       INTEGER(C_INT), VALUE  :: ldC
        END FUNCTION rsb_tune_spsm
       END INTERFACE
       
@@ -748,7 +741,7 @@
         &BIND(c,NAME = 'rsb_file_mtx_save')
        USE ISO_C_BINDING
        TYPE(C_PTR), VALUE  :: mtxAp ! A matrix pointer variable: (TYPE(C_PTR),TARGET)
-       CHARACTER(C_CHAR), DIMENSION(*) :: filename ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
+       TYPE(C_PTR), VALUE  :: filename ! CHARACTER(C_CHAR)
        END FUNCTION rsb_file_mtx_save
       END INTERFACE
       
@@ -759,7 +752,7 @@
         &(filename,flagsA,typecode,errvalp)&
         &BIND(c,NAME = 'rsb_file_mtx_load')
        USE ISO_C_BINDING
-       CHARACTER(C_CHAR), DIMENSION(*) :: filename ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
+       TYPE(C_PTR), VALUE  :: filename ! CHARACTER(C_CHAR)
        INTEGER(C_INT), VALUE  :: flagsA !> ISO C BINDING interface to ::rsb_flags_t
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
        TYPE(C_PTR),VALUE :: errvalp ! INTEGER(C_INT)
@@ -773,7 +766,7 @@
         &(filename,typecode,Yp,yvlp)&
         &BIND(c,NAME = 'rsb_file_vec_load')
        USE ISO_C_BINDING
-       CHARACTER(C_CHAR), DIMENSION(*) :: filename ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
+       TYPE(C_PTR), VALUE  :: filename ! CHARACTER(C_CHAR)
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
        TYPE(C_PTR),VALUE :: Yp ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR), VALUE  :: yvlp ! INTEGER(C_INT)
@@ -787,10 +780,10 @@
         &(filename,typecode,Yp,yvl)&
         &BIND(c,NAME = 'rsb_file_vec_save')
        USE ISO_C_BINDING
-       CHARACTER(C_CHAR), DIMENSION(*) :: filename ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
+       TYPE(C_PTR), VALUE  :: filename ! CHARACTER(C_CHAR)
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
        TYPE(C_PTR),VALUE :: Yp ! A single variable of the same numerical type of the matrix.
-       INTEGER(C_RSB_INT_KND_), VALUE  :: yvl
+       INTEGER(C_INT), VALUE  :: yvl
        END FUNCTION rsb_file_vec_save
       END INTERFACE
       
@@ -801,7 +794,7 @@
         &(filename,nrp,ncp,nzp,flagsp)&
         &BIND(c,NAME = 'rsb_file_mtx_get_dims')
        USE ISO_C_BINDING
-       CHARACTER(C_CHAR), DIMENSION(*) :: filename ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
+       TYPE(C_PTR), VALUE  :: filename ! CHARACTER(C_CHAR)
        TYPE(C_PTR), VALUE  :: nrp ! INTEGER(C_INT)
        TYPE(C_PTR), VALUE  :: ncp ! INTEGER(C_INT)
        TYPE(C_PTR), VALUE  :: nzp ! INTEGER(C_INT)
@@ -819,31 +812,12 @@
        TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
        TYPE(C_PTR),VALUE :: IA ! INTEGER(C_INT)
        TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnzA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncA
+       INTEGER(C_INT), VALUE  :: nnzA
+       INTEGER(C_INT), VALUE  :: nrA
+       INTEGER(C_INT), VALUE  :: ncA
        INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
        INTEGER(C_INT), VALUE  :: flagsA !> ISO C BINDING interface to ::rsb_flags_t
        END FUNCTION rsb_coo_sort
-      END INTERFACE
-      
-!> ISO C BINDING interface to ::rsb_coo_cleanup.
-      INTERFACE
-       INTEGER(C_INT) FUNCTION &
-        &rsb_coo_cleanup&
-        &(nnzp,VA,IA,JA,nnzA,nrA,ncA,typecode,flagsA)&
-        &BIND(c,NAME = 'rsb_coo_cleanup')
-       USE ISO_C_BINDING
-       TYPE(C_PTR), VALUE  :: nnzp ! INTEGER(C_INT)
-       TYPE(C_PTR),VALUE :: VA ! A single variable of the same numerical type of the matrix.
-       TYPE(C_PTR),VALUE :: IA ! INTEGER(C_INT)
-       TYPE(C_PTR),VALUE :: JA ! INTEGER(C_INT)
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nnzA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: nrA
-       INTEGER(C_RSB_INT_KND_), VALUE  :: ncA
-       INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
-       INTEGER(C_INT), VALUE  :: flagsA !> ISO C BINDING interface to ::rsb_flags_t
-       END FUNCTION rsb_coo_cleanup
       END INTERFACE
       
 !> ISO C BINDING interface to ::rsb_time.
@@ -858,18 +832,6 @@
       
 !DEC$ENDIF
       
-      
-!> ISO C BINDING interface to ::rsb_blas_file_mtx_load.
-      INTERFACE
-       INTEGER(C_INT) FUNCTION &
-        &rsb_blas_file_mtx_load&
-        &(filename,typecode)&
-        &BIND(c,NAME = 'rsb_blas_file_mtx_load')
-       USE ISO_C_BINDING
-       CHARACTER(C_CHAR), DIMENSION(*) :: filename ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .
-       INTEGER(C_SIGNED_CHAR), VALUE  :: typecode
-       END FUNCTION rsb_blas_file_mtx_load
-      END INTERFACE
 ! Error values 
       INTEGER(C_INT),PARAMETER&
             &::RSB_ERR_NO_ERROR&
@@ -925,9 +887,6 @@
       INTEGER(C_INT),PARAMETER&
             &::RSB_ERR_MEMORY_LEAK&
             & = -INT(Z"020000",C_INT) !< See #RSB_ERR_MEMORY_LEAK.
-      INTEGER(C_INT),PARAMETER&
-            &::RSB_ERR_ELEMENT_NOT_FOUND&
-            & = -INT(Z"040000000",C_INT) !< See #RSB_ERR_ELEMENT_NOT_FOUND.
 ! Matrix flags values 
       INTEGER(C_INT),PARAMETER&
             &::RSB_FLAG_NOFLAGS&
@@ -1047,7 +1006,7 @@
             & = (RSB_FLAG_SYMMETRIC + RSB_FLAG_LOWER) !< See #RSB_FLAG_LOWER_SYMMETRIC.
       INTEGER(C_INT),PARAMETER&
             &::RSB_FLAG_DIAGONAL&
-            & = (RSB_FLAG_UPPER_TRIANGULAR + RSB_FLAG_LOWER_TRIANGULAR) !< See #RSB_FLAG_DIAGONAL.
+            & = (RSB_FLAG_UPPER + RSB_FLAG_LOWER) !< See #RSB_FLAG_DIAGONAL.
       INTEGER(C_INT),PARAMETER&
             &::RSB_FLAG_UPPER_SYMMETRIC&
             & = (RSB_FLAG_SYMMETRIC + RSB_FLAG_UPPER) !< See #RSB_FLAG_UPPER_SYMMETRIC.

@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -30,9 +30,9 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb_common.h"
 /*void RSB_A_MEMCPY_parallel(rsb_char_t * ID, const rsb_char_t * IS, size_t DOFF, size_t SOFF, size_t NNZ, size_t ES);*/
 /*void RSB_COA_MEMCPY_parallel(rsb_char_t * ID, const rsb_char_t * IS, size_t DOFF, size_t SOFF, size_t NNZ);*/
-#define RSB_A_MEMCPY_parallel rsb__a_memcpy_parallel
-#define RSB_COA_MEMCPY_parallel rsb__coa_memcpy_parallel
-#define RSB_BZERO_parallel rsb__bzero_parallel
+#define RSB_A_MEMCPY_parallel rsb_a_memcpy_parallel
+#define RSB_COA_MEMCPY_parallel rsb_coa_memcpy_parallel
+#define RSB_BZERO_parallel rsb_bzero_parallel
 void RSB_A_MEMCPY_parallel(void * RSB_RESTRICT ID, const void * RSB_RESTRICT IS, size_t DOFF, size_t SOFF, size_t NNZ, size_t ES);
 void RSB_COA_MEMCPY_parallel(void* ID, const void* IS, size_t DOFF, size_t SOFF, size_t NNZ);
 void RSB_BZERO_parallel(void * p, size_t n);

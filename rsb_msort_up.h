@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -32,8 +32,8 @@ If not, see <http://www.gnu.org/licenses/>.
 
 #include "rsb_internals.h"
 
-rsb_err_t rsb__do_msort_up(rsb_nnz_idx_t n, const rsb_nnz_idx_t * RSB_RESTRICT k, rsb_nnz_idx_t * RSB_RESTRICT l);
-rsb_err_t rsb__do_msort_up2coo(rsb_nnz_idx_t n, const rsb_coo_idx_t * k, rsb_nnz_idx_t * l);
+int rsb_do_msort_up(rsb_nnz_idx_t n, const rsb_nnz_idx_t * RSB_RESTRICT k, rsb_nnz_idx_t * RSB_RESTRICT l);
+int rsb__do_msort_up2coo(rsb_nnz_idx_t n, const rsb_coo_idx_t * k, rsb_nnz_idx_t * l);
 
 #endif /* RSB_MSORT_UP_H_INCLUDED */
 /* @endcond */

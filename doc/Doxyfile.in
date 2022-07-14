@@ -244,7 +244,7 @@ ALIASES                = "rsbmtxpmessage=On success, a valid pointer (\c struct 
                          "rsb_BLAS_get_mtx_msg_todo=" \
                          "rsb_BLAS_get_mtx_msg_note=\rsb_spblasl2e_ext_msg" \
                          "rsb_BLAS_get_mtx_msg_warn=" \
-                         "rsb_BLAS_get_mtx_example=An example using Fortran: @EOL@ \code @EOL@ ...  @EOL@ USE blas_sparse @EOL@ USE rsb @EOL@ IMPLICIT NONE @EOL@ TYPE(C_PTR),TARGET :: mtxAp = C_NULL_PTR ! matrix pointer @EOL@ INTEGER :: A ! blas_sparse_matrix handle @EOL@ INTEGER, TARGET :: istat = 0 @EOL@ ... ! begin, populate and finalize A, e.g. using BLAS_duscr_begin, BLAS_duscr_insert_entries, BLAS_uscr_end@EOL@ ! get pointer to rsb structure: @EOL@ mtxAp = rsb_blas_get_mtx(A) @EOL@ ! Now one can use it with any rsb.h/rsb.F90 function, e.g.: @EOL@ istat = rsb_file_mtx_save(mtxAp, C_NULL_PTR) ! write to stdout @EOL@ \endcode " \
+                         "rsb_BLAS_get_mtx_example=An example using Fortran: \n \code @EOL@ ...  @EOL@ USE blas_sparse @EOL@ USE rsb @EOL@ IMPLICIT NONE @EOL@ TYPE(C_PTR),TARGET :: mtxAp = C_NULL_PTR ! matrix pointer @EOL@ INTEGER :: A ! blas_sparse_matrix handle @EOL@ INTEGER, TARGET :: istat = 0 @EOL@ ... ! begin, populate and finalize A, e.g. using BLAS_duscr_begin, BLAS_duscr_insert_entries, BLAS_uscr_end@EOL@ ! get pointer to rsb structure: @EOL@ mtxAp = rsb_blas_get_mtx(A) @EOL@ ! Now one can use it with any rsb.h/rsb.F90 function, e.g.: @EOL@ istat = rsb_file_mtx_save(mtxAp, C_NULL_PTR) ! write to stdout @EOL@ \endcode " \
                          "rsbmtxapmessage=Pointer to a \c rsb_mtx_t  matrix structure in assembly state, or \c NULL (on error)." \
                          "rsberrcodemsg=#RSB_ERR_NO_ERROR on correct operation, an error code otherwise. You can use #rsb_strerror_r() or #rsb_perror() to get more information about the error." \
                          "rsb_va_ia_ja_decl=VA,IA,JA" \
@@ -302,7 +302,7 @@ ALIASES                = "rsbmtxpmessage=On success, a valid pointer (\c struct 
                          "rsb_transt_mtx_msg=\f$opt( T )=T\f$ if \c transT=#RSB_TRANSPOSITION_N; \n \f$opt( T )= T ^T\f$ if \c transT=#RSB_TRANSPOSITION_T; \f$opt( T )= T ^H\f$ if \c transT=#RSB_TRANSPOSITION_C;" \
                          "rsb_flags_idc_param_msg=\rsb_flags A valid combination of index conversion flags (that is, #RSB_FLAG_C_INDICES_INTERFACE and #RSB_FLAG_FORTRAN_INDICES_INTERFACE) and other meaningful flags. Symmetry flags shall be the same as in the matrix in use, because symmetry expansion may happen otherwise." \
                          "rsb_flagsp_inp_param_msg=flagsp Output pointer to the detected structural flags variable. Will be a combination of #RSB_FLAG_LOWER, #RSB_FLAG_UPPER, #RSB_FLAG_SYMMETRIC, #RSB_FLAG_HERMITIAN." \
-                         "rsb_flagsa_coc_param_msg=\rsb_flagsA A valid combination of index conversion and matrix storage flags and other meaningful flags.\n The encouraged base choice here is #RSB_FLAG_DEFAULT_RSB_MATRIX_FLAGS. If Fortran (1 based) indices are being used for the IA, JA arrays, then the #RSB_FLAG_FORTRAN_INDICES_INTERFACE flag should be added. If symmetric storage is desired, then #RSB_FLAG_SYMMETRIC (or #RSB_FLAG_HERMITIAN, for Hermitian matrices) is necessary, in combination with either #RSB_FLAG_LOWER or #RSB_FLAG_UPPER. If you intend to use this matrix for triangular solution (e.g.: #rsb_spsv()/#rsb_spsm()), it needs to be triangular and specified with either #RSB_FLAG_LOWER_TRIANGULAR or #RSB_FLAG_UPPER_TRIANGULAR, and not have #RSB_FLAG_LOWER_SYMMETRIC or #RSB_FLAG_LOWER_HERMITIAN. Nonzeroes non complying with the specified flags will be ignored. If a matrix is both #RSB_FLAG_LOWER_TRIANGULAR and #RSB_FLAG_UPPER_TRIANGULAR at the same time, then it's diagonal, for which shorthand: #RSB_FLAG_DIAGONAL can be used. If #RSB_FLAG_UNIT_DIAG_IMPLICIT is present, diagonal entries will be not represented but assumed to be unitary. If #RSB_FLAG_DUPLICATES_SUM is present, duplicate entries will be summed together. If #RSB_FLAG_DISCARD_ZEROS is present, zeroes will be discarded." \
+                         "rsb_flagsa_coc_param_msg=\rsb_flagsA A valid combination of index conversion and matrix storage flags and other meaningful flags.\n The encouraged base choice here is #RSB_FLAG_DEFAULT_RSB_MATRIX_FLAGS. If Fortran (1 based) indices are being used for the IA, JA arrays, then the #RSB_FLAG_FORTRAN_INDICES_INTERFACE flag should be added. If symmetric storage is desired, then #RSB_FLAG_SYMMETRIC (or #RSB_FLAG_HERMITIAN, for Hermitian matrices) is necessary, in combination with either #RSB_FLAG_LOWER or #RSB_FLAG_UPPER. If you intend to use this matrix for triangular solution (e.g.: #rsb_spsv()/#rsb_spsm()), it needs to be triangular and specified with either #RSB_FLAG_LOWER_TRIANGULAR or #RSB_FLAG_UPPER_TRIANGULAR, and not have #RSB_FLAG_LOWER_SYMMETRIC or #RSB_FLAG_LOWER_HERMITIAN. Nonzeroes non complying with the specified flags will be ignored. If #RSB_FLAG_UNIT_DIAG_IMPLICIT is present, diagonal entries will be not represented but assumed to be unitary. If #RSB_FLAG_DUPLICATES_SUM is present, duplicate entries will be summed together. If #RSB_FLAG_DISCARD_ZEROS is present, zeroes will be discarded." \
                          "rsb_flagsa_coi_param_msg=\rsb_flagsa_coc_param_msg" \
                          "rsb_flagsa_csc_param_msg=\rsb_flagsa_coc_param_msg" \
                          "rsb_flagsa_csr_param_msg=\rsb_flagsa_coc_param_msg" \
@@ -344,7 +344,7 @@ ALIASES                = "rsbmtxpmessage=On success, a valid pointer (\c struct 
                          "rsb_ldc_inp_param_msg=ldC Leading dimension of \c Cp array." \
                          "rsb_filename_inp_param_msg=filename The specified matrix file name (cannot be \c NULL)." \
                          "rsb_filename_inv_param_msg=filename The specified vector file name (cannot be \c NULL)." \
-                         "rsb_filename_out_param_msg=filename The specified output file name (if \c NULL or '' (the empty string), will write to standard output)." \
+                         "rsb_filename_out_param_msg=filename The specified output file name (if \c NULL, will write to standard output)." \
                          "rsb_order_inp_param_msg=order A flag among #RSB_FLAG_WANT_COLUMN_MAJOR_ORDER and #RSB_FLAG_WANT_ROW_MAJOR_ORDER. For contiguous vector arrays, you probably want #RSB_FLAG_WANT_COLUMN_MAJOR_ORDER." \
                          "rsb_nrhs_inp_param_msg=nrhs The number of right hand side vectors (cannot be \c <1)." \
                          "rsb_dmtx_abi_param_msg_b=Bp Array representing the dense matrix \f$B\f$." \
@@ -365,8 +365,7 @@ ALIASES                = "rsbmtxpmessage=On success, a valid pointer (\c struct 
                          "rsb_render_pmwidth_inp_param_msg=pmWidth 	Pixel map width  (in pixels or points)." \
                          "rsb_render_pmheight_inp_param_msg=pmHeight 	Pixel map height (in pixels or points)." \
                          "rsb_render_pmp_inp_param_msg=pmp		Pixel map array pointer." \
-                         "rsb_tune__doc_images=<TABLE> <TR> <TD> <IMG SRC=\"../img/rsb-audikw_1-1.png\" WIDTH=\"80%\">Sample matrix sparse block structure before tuning <TD>\n <IMG SRC=\"../img/rsb-audikw_1-2.png\" WIDTH=\"80%\" >Sample matrix sparse block structure after tuning </TR> </TABLE> \n" \
-                         "rsb_tune__doc_msg=The tuner works by evaluating different instances and working threads variants.  The instance leading to faster operation time will be retained and given back to the user in \c *mtxOpp.  If \c nrhs==1 and \c order==#RSB_FLAG_WANT_COLUMN_MAJOR_ORDER, unitary stride vectors are assumed.  In case of error, the original input matrix shall be unaffected.  It is possible to specify the leading dimensions of \c Bp,Cp implicitly, with  \c ldB=0  and \c ldC=0: in this case, their values will be computed internally and if \c Bp!=NULL,Cp!=NULL, they will be assumed of being sufficiently sized.  Values of \c nrhs<1 will be treated as 1.  \c Bp, \c Cp can be \c NULL: temporary vectors will be allocated, used, and deallocated within the tuner. If \c mtxOpp=NULL and \c *tnp!=NULL the best thread count will be probed for the matrix given in \c mtxAp. Please note that if threads-only tuning is requested and matrix has too few leaves (see #RSB_MIF_LEAVES_COUNT__TO__RSB_BLK_INDEX_T), tuning will not work. If \c mtxAp==NULL, then the \c *mtxOpp instance will be used; however in this case, if a better instance is found, the original will be destroyed as with #rsb_mtx_free(). The case \c mtxAp!=NULL&&*mtxOpp!=NULL is illegal and will cause error code #RSB_ERR_BADARGS to be returned." \
+                         "rsb_tune__doc_msg=The tuner works by evaluating different instances and working threads variants.  The instance leading to faster operation time will be retained and given back to the user in \c *mtxOpp.  If \c nrhs==1 and \c order==#RSB_FLAG_WANT_COLUMN_MAJOR_ORDER, unitary stride vectors are assumed.  In case of error, the original input matrix shall be unaffected.  It is possible to specify the leading dimensions of \c Bp,Cp implicitly, with  \c ldB=0  and \c ldC=0: in this case, their values will be computed internally and if \c Bp!=NULL,Cp!=NULL, they will be assumed of being sufficiently sized.  Values of \c nrhs<1 will be treated as 1.  \c Bp, \c Cp can be \c NULL: temporary vectors will be allocated, used, and deallocated within the tuner. If \c mtxOpp=NULL and \c *tnp!=NULL the best thread count will be probed for the matrix given in \c mtxAp. Please note that if threads only tuning is requested and matrix has too few leaves (see #RSB_MIF_LEAVES_COUNT__TO__RSB_BLK_INDEX_T), tuning will not work. If \c mtxAp==NULL, then the \c *mtxOpp instance will be used; however in this case, if a better instance is found, the original will be destroyed as with #rsb_mtx_free(). The case \c mtxAp!=NULL&&*mtxOpp!=NULL is illegal and will cause an error." \
                          "rsb_tune_mtxOpp_iou_param_msg=mtxOpp		Optimal matrix structure pointer will be assigned to \c *mtxOpp (it may occur that *mtxOpp==mtxAp on output). If \c mtxOpp  is \c NULL then no data structure optimization will be attempted; rather, only optimal threads search will occur (\c tnp must be not \c NULL  then)." \
                          "rsb_tune_sfp_iou_param_msg=sfp		Achieved speedup factor will be written to \c *sfp  (unless \c sfp==NULL)." \
                          "rsb_tune_tnp_iou_param_msg=tnp		If \c tnp==NULL on input, the current thread count will be utilized. Otherwise, if \c *tnp>0, then *tnp will be used as first suggestion in optimal thread count searching. If \c tnp!=NULL ,on output \c *tnp  will be set to contain the optimal number of threads. Then, the user is expected to set this number of threads using e.g.: \c RSB_REINIT_SINGLE_VALUE_SET(RSB_IO_WANT_EXECUTING_THREADS,tnp,errval). Please note that this will affect the whole library operation, not only this matrix." \
@@ -378,9 +377,9 @@ ALIASES                = "rsbmtxpmessage=On success, a valid pointer (\c struct 
                          "rsb_spblas_return_mtx_msg=\return A matrix handle in case of success, or -1 on error. " \
                          "rsb_spblas_set_mtx_msg=Will assign a valid matrix handle to \f$A\f$ in case of success, or set it to -1 on error." \
                          "rsb_tune_warning_doc_msg=This function is still experimental.  In case of error, although the matrix shall be unaffected, the library status may be affected (e.g.: execution thread count, default matrix subdivision)." \
-                         "rsb_tune_todo_doc_msg=Autotuning functionality is still object of much research. Need support for lightweight, threads-only optimization." \
+                         "rsb_tune_todo_doc_msg=In the future, autotuning functionality shall improve considerably. Need support for lightweight, threads-only optimization.  May support strided vectors in the future." \
                          "rsb_spblasl1_common_parms_msg=\param y Array for \f$Y\f$ vector. \param x Array for \f$X\f$ vector. \param nnz Size of \f$X\f$ \a and \a \f$Y\f$ vectors.  \param indx Is the array of indices at which sparse vector \f$X\f$ will be accessed. \param index_base Specifies the contents of \c indx, either #blas_one_base or #blas_one_base. \param incy The distance between consecutive \c y array elements." \
-                         "rsb_spblasl1_msg=Sparse BLAS Level 1 has been implemented, although not with performance in mind." \
+                         "rsb_spblasl1_msg=Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind." \
                          "rsb_spblasl1_axpy_msg=Sparse vector update:  \f$Y \leftarrow \alpha X + Y\f$. \rsb_spblasl1_common_parms_msg \param alpha Will scale values of \f$X\f$ before accumulating to \f$Y\f$." \
                          "rsb_spblasl1_dot_msg=Sparse dot product.  \f$r \leftarrow X^T Y,\f$ \f$r \leftarrow X^H Y\f$ \param r Sparse dot result array. \rsb_spblasl1_common_parms_msg \param conj If #blas_conj, values of X will be considered conjugated." \
                          "rsb_spblasl1_ga_msg=Sparse gather.  \f$X \leftarrow Y |_x\f$. \rsb_spblasl1_common_parms_msg." \
@@ -389,7 +388,6 @@ ALIASES                = "rsbmtxpmessage=On success, a valid pointer (\c struct 
                          "rsb_spblasl2_Ap_msg=\param A A valid pointer to an empty matrix handle." \
                          "rsb_spblasl2_A_msg=\param A A valid matrix handle." \
                          "rsb_spblasl2_A_msg_ftn=\param A On success, a valid matrix handle will be written to A. \todo Shall make \c A \c intent(inout) as well. " \
-                         "rsb_spblasl2_A_msg_ftn_rt=On success, a valid matrix handle will be returned. On error, #blas_invalid_handle will be returned. " \
                          "rsb_spblasl2_T_msg=\param T A valid triangular matrix handle." \
                          "rsb_spblasl2_val_msg=\param val Array of values." \
                          "rsb_spblasl2_order_msg=\param order layour of the dense array." \
@@ -437,7 +435,6 @@ ALIASES                = "rsbmtxpmessage=On success, a valid pointer (\c struct 
                          "rsb_spblasl2_mm_msg=Multiply by a dense matrix (aka multi-vector). Either of \f$C \leftarrow \alpha AB+C,\f$ \f$C \leftarrow \alpha A^T B+C,\f$ \f$C \leftarrow \alpha A^H B+C\f$, depending on the value of \c transA. \rsb_spblasl2_order_msg \rsb_spblasl2_transa_msg \rsb_spblasl2_nrhs_msg \rsb_spblasl2_A_msg \rsb_spblasl2_alpha_msg \rsb_spblasl2_b_msg \rsb_spblasl2_ldb_msg \rsb_spblasl2_c_msg \rsb_spblasl2_ldc_msg \note   \rsb_spblasl2_at\rsb_num_threads" \
                          "rsb_spblasl2_sm_msg=Triangular solve, by a dense matrix (aka multi-vector). Either of \f$B \leftarrow \alpha T^{-1} B,\f$ \f$B \leftarrow \alpha T^{-T} B,\f$ \f$B \leftarrow \alpha T^{-H} B\f$, depending on the value of \c transT. \rsb_spblasl2_order_msg \rsb_spblasl2_transt_msg \rsb_spblasl2_nrhs_msg \rsb_spblasl2_alpha_msg \rsb_spblasl2_T_msg \rsb_spblasl2_b_msg \rsb_spblasl2_ldb_msg" \
                          "rsb_spblasl2e_ext_msg=\note This function is an extension implemented by \librsb and thus it is not part of the standard. Do not rely on it, as it may change! Please contact the library maintainers if you need its functionality." \
-                         "rsb_extra_internal_verbosity=Extra input errors or warnings verbosity can be enabled via the \c ./configure \c --enable-internals-error-verbosity option." \
                          "rsb_matrixmarketonlynote_v=\note The only dense vector file format currently supported is Matrix Market. E.g.: \verbinclude vf.mtx \n \rsb_matrixmarketonlynote_t" \
                          "rsb_matrixmarketonlynote_m=\note The only sparse matrix file format currently supported is Matrix Market. E.g.: \verbinclude A.mtx \n \rsb_matrixmarketonlynote_t \rsb_matrixmarketonlynote_s" \
                          "rsb_matrixmarketonlynote_t=In the above example header on the first line, you can specify either \c real or \c complex or \c pattern for the numerical type." \
@@ -482,8 +479,7 @@ ALIASES                = "rsbmtxpmessage=On success, a valid pointer (\c struct 
                          "rsb_ret_null=Always \c NULL." \
                          "rsb_spsv_no_zero=If \c --enable-zero-division-checks-on-solve  was specified at configure time, attempts to solve a triangular matrix with zeroes on a diagonal will fail." \
                          "rsb_configure_memwrap=Only works if the memory wrapper (\c --enable-allocator-wrapper) has been specified at configure time." \
-                         "rsb_librsbpp_env=\note Starting from version 1.3, \librsb uses C++ kernels for #rsb_spmv/#rsb_spmm. Assuming you configured \c --enable-debug-getenvs, you may set environment variable \c RSB_WANT_RSBPP=0 to turn use the old C kernels." \
-                         "see_lib_spmx=\see rsb_spmv, rsb_spmm, rsb_spata, rsb_tune_spmm" \
+                         "see_lib_spmx=\see rsb_spmv, rsb_spmm, rsb_tune_spmm" \
                          "see_lib_spsx=\see rsb_spsm, rsb_spsv, rsb_tune_spsm" \
                          "rsb_iof_macros=#RSB_REINIT_SINGLE_VALUE_GET, #RSB_REINIT_SINGLE_VALUE_SET, #RSB_REINIT_SINGLE_VALUE, #RSB_REINIT_SINGLE_VALUE_C_IOP" \
                          "rsb_iof_param_msg=\param iof library options flags. See #rsb_opt_t for a list of valid options." \
@@ -506,7 +502,6 @@ ALIASES                = "rsbmtxpmessage=On success, a valid pointer (\c struct 
                          "see_readme=See the main README documentation file about build time configuration." \
                          "see_rsb_BLAS_get_mtx_msg=\see_lib_get, \see_lib_set, \see_lib_gemm, \see_lib_rndr, \see_lib_info." \
                          "rsb_give_me_feedback=Consider contacting the author if you intend to use it."
-@RSBLIB_DOXYGEN_ALIASES@
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C sources
 # only. Doxygen will then generate output that is more tailored for C. For
@@ -703,7 +698,7 @@ EXTRACT_ALL            = YES
 # be included in the documentation.
 # The default value is: NO.
 
-EXTRACT_PRIVATE        = NO
+EXTRACT_PRIVATE        = YES
 
 # If the EXTRACT_PACKAGE tag is set to YES, all members with package or internal
 # scope will be included in the documentation.
@@ -913,6 +908,7 @@ GENERATE_DEPRECATEDLIST= YES
 ENABLED_SECTIONS       = USERDOC
 #ENABLED_SECTIONS       = USERDOC,INNERDOC
 
+
 # The MAX_INITIALIZER_LINES tag determines the maximum number of lines that the
 # initial value of a variable or macro / define can have for it to appear in the
 # documentation. If the initializer consists of more lines than specified here
@@ -1054,16 +1050,14 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = ../blas_sparse.h \
-                         @abs_top_srcdir@/rsb.h \
+                         ../rsb.h \
                          ../rsb.F90 \
-                         @abs_top_builddir@/rsb_libspblas.c \
-                         @abs_top_srcdir@/rsb_libspblas.h \
-                         @abs_top_srcdir@/rsb_rsb.c \
+                         ../rsb_libspblas.c \
+                         ../rsb_libspblas.h \
+                         ../rsb_rsb.c \
                          ../rsb_types.h \
-                         @abs_top_srcdir@/rsb_blas_sparse.F90 \
-                         @RSBLIB_DOXYGEN_DIRS@ \
-                         @abs_top_srcdir@/examples/
-
+                         ../rsb_blas_sparse.F90 \
+                         ../rsb_libspblas_handle.c
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1089,7 +1083,6 @@ INPUT_ENCODING         = UTF-8
 # *.f, *.for, *.tcl, *.vhd, *.vhdl, *.ucf and *.qsf.
 
 FILE_PATTERNS          = *.c \
-                         *.hpp \
                          *.cpp \
                          *.c++ \
                          *.F90 \
@@ -1110,7 +1103,6 @@ RECURSIVE              = NO
 # run.
 
 EXCLUDE                = .svn \
-                         .git \
                          doc \
                          bench \
                          plots \
@@ -1135,17 +1127,18 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = .svn \
-                         .git \
+#EXCLUDE_PATTERNS       = *rsb-types.h* .svn .libs .deps *.m4 *.m *.R *.sh
+EXCLUDE_PATTERNS       = types.h \
+                         .svn \
                          .libs \
                          .deps \
                          *.m4 \
                          *.m \
                          *.R \
+                         *.sh \
                          config.h \
                          rsb-config.h \
-                         rsb_wrecks.c \
-                         rsb_util_obsolete.m4
+                         rsb_wrecks.c
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -1162,9 +1155,9 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = @abs_top_srcdir@ \
-                         @RSBLIB_DOXYGEN_DIRS@ \
-                         @abs_top_srcdir@/examples
+EXAMPLE_PATH           = ../ \
+                         ../examples
+#EXAMPLE_PATH           = ../examples
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
@@ -1184,7 +1177,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = @abs_top_srcdir@/doc/img
+IMAGE_PATH             =
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -2332,6 +2325,7 @@ SEARCH_INCLUDES        = YES
 # preprocessor.
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
+#INCLUDE_PATH           = rsb-config.h
 INCLUDE_PATH           =
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
@@ -2351,8 +2345,7 @@ INCLUDE_FILE_PATTERNS  =
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
 PREDEFINED             = RSB_HAVE_CONFIG_H=1 \
-                         RSB_WITH_SPARSE_BLAS_INTERFACE=1 \
-                         RSB_WANT_COO_BEGIN=1
+                         RSB_WITH_SPARSE_BLAS_INTERFACE=1
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
@@ -2569,6 +2562,7 @@ INCLUDED_BY_GRAPH      = YES
 # The default value is: NO.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
+#CALL_GRAPH             = YES
 CALL_GRAPH             = NO
 
 # If the CALLER_GRAPH tag is set to YES then doxygen will generate a caller

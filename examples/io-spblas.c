@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -23,16 +23,15 @@ If not, see <http://www.gnu.org/licenses/>.
  \ingroup rsb_doc_examples
  @file
  @author Michele Martone
-
- @brief Example C program using the Sparse BLAS interface
-        and reading from file using \ref rsb_blas_file_mtx_load(),
-	\ref BLAS_usgp(), \ref BLAS_dusmv(), \ref BLAS_usds().
+ @brief This is an example program using a Sparse BLAS interface
+        and reading from file using the RSB library.
 
  \include io-spblas.c
 */
 #include <rsb.h>	/* for rsb_lib_init */
 #include <blas_sparse.h>
 #include <stdio.h>
+#include <stdlib.h>	// EXIT_SUCCESS
 	
 int main(const int argc, char * const argv[])
 {
@@ -41,8 +40,8 @@ int main(const int argc, char * const argv[])
 	return EXIT_SUCCESS;
 #else /* RSB_NUMERICAL_TYPE_DOUBLE */
 	blas_sparse_matrix A = blas_invalid_handle;
-	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_DOUBLE;
-	const rsb_char_t * filename = argc > 1 ? argv[1] : "pd.mtx";
+	rsb_type_t typecode = RSB_NUMERICAL_TYPE_DOUBLE;
+	rsb_char_t * filename = argc > 1 ? argv[1] : "pd.mtx";
 
 	printf("Hello, RSB!\n");
 	if((rsb_perror(NULL,
@@ -54,7 +53,8 @@ int main(const int argc, char * const argv[])
 
 	printf("Correctly initialized the library.\n");
 
-	A = rsb_blas_file_mtx_load(filename, typecode );
+	A = rsb_load_spblas_matrix_file_as_matrix_market(filename,
+		       	typecode );
 	if( A == blas_invalid_handle )
 	{
 		printf("Error while loading matrix %s from file.\n",
@@ -84,6 +84,7 @@ int main(const int argc, char * const argv[])
 		" please report	as a bug, because the above NULL pointers"
 		" should have been detected\n");
 	return EXIT_FAILURE;
+
 okerr:
 	printf("Program correctly recovered from intentional"
 			" error condition.\n");

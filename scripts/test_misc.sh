@@ -22,7 +22,7 @@ set -e
 set -x
 
 
-# bug: symmetric upper triangle ignored by rsb_blas_file_mtx_load()
+# bug: symmetric upper triangle ignored by rsb_load_spblas_matrix_file_as_matrix_market()
 cat > crash.mtx << EOF
 %%MatrixMarket matrix coordinate real symmetric
 2 2 1
@@ -31,26 +31,14 @@ EOF
 cat > tp.c << EOF
 #include "rsb.h"
 #include "blas_sparse.h"
-  blas_sparse_matrix rsb__load_spblas_matrix_file_as_matrix_market(const rsb_char_t * filename, rsb_type_t typecode );
+  blas_sparse_matrix rsb_load_spblas_matrix_file_as_matrix_market(const rsb_char_t * filename, rsb_type_t typecode );
 int main()
 {
   rsb_lib_init(NULL);
-  rsb_file_mtx_save(rsb_blas_get_mtx(rsb__load_spblas_matrix_file_as_matrix_market("crash.mtx",RSB_NUMERICAL_TYPE_DEFAULT)),NULL);
+  rsb_file_mtx_save(rsb_blas_get_mtx(rsb_load_spblas_matrix_file_as_matrix_market("crash.mtx",RSB_NUMERICAL_TYPE_DEFAULT)),NULL);
 }
 EOF
 `librsb-config --cc` `librsb-config --I_opts` -o tp tp.c `librsb-config --static --ldflags --extra_libs`
 ldd ./tp
 ./tp | grep ^2.2.1$
-
-# alternative
-#test -x examples/fortran
-#cat > pd.mtx << EOF
-#%%MatrixMarket matrix coordinate real symmetric
-#2 2 1
-#1 2 1
-#EOF
-#examples/fortran | grep Read.matrix.*1
-#true
-
-
 

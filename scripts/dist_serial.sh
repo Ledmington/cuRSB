@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2008-2021 Michele Martone
+# Copyright (C) 2008-2020 Michele Martone
 # 
 # This file is part of librsb.
 # 
@@ -26,9 +26,7 @@ which gcc
 which gfortran
 which m4
 which nproc
-if test -z "${RSB_WANT_CONFIGURE_ONLY}" ; then
-	./autogen.sh
-fi
+./autogen.sh
 ./configure FCFLAGS=-O0 CFLAGS=-O0
 make distclean
 export LIBS
@@ -57,6 +55,5 @@ if test -z "${RSB_WANT_CONFIGURE_ONLY}" ; then
 	make -j `nproc`
 	make qqtests
 	make install
-	make itests
 	make dist
 fi

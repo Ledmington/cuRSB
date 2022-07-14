@@ -1,4 +1,4 @@
-/*
+/*                                                                                                                            
 
 Copyright (C) 2008-2022 Michele Martone
 
@@ -36,41 +36,23 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_RMEMCPY(DEST,SRC,N) RSB_MEMCPY((void*RSB_RESTRICT)(DEST),(const void*RSB_RESTRICT)(SRC),(N))
 #define RSB__PR_FREE(P) {rsb__pr_free(P);(P)=NULL;}
 #define RSB_XFLOPS(TIME,NRHS,CANONICAL_MATRIX_OP_FLOPS)  ( (TIME)?(((double)NRHS)*(CANONICAL_MATRIX_OP_FLOPS))/(TIME):RSB_TIME_ZERO )
-
-/* BEGIN values for RSB_PR_SR: */
 #define RSB_PRD_STYLE_TBL 0
 #define RSB_PRD_STYLE_CMP 1
-/* base plots */
 #define RSB_PRD_STYLE_PLT_BASE 2 /* new, experimental */
 #define RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB 2 /* new, experimental */
 #define RSB_PRD_STYLE_PLT_SUBM_BS 3 /* new, experimental */
-/* polar equivalent plots */
-#define RSB_PRD_STYLE_PLT_BASE_POLAR 102 /* new, experimental; TODO: unused */
-#define RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB_POLAR 103 /* new, experimental */
-#define RSB_PRD_STYLE_PLT_MKL_SPEEDUP_POLAR 104 /* new, experimental */
-#define RSB_PRD_STYLE_PLT_SUBM_BS_POLAR 105 /* new, experimental; TODO: unused */
-/*  END  values for RSB_PR_SR. */
-/* */
 #define RSB_PRD_CMP_MDUMP -1
 #define RSB_PRD_CMP_DFLT 0
 #define RSB_PRD_CMP_DIV 1
 #define RSB_PRD_CMP_DIFF 2
 #define RSB_PRD_CMP_APPEND 3
 #define RSB_PRD_WANT_CODE_BALANCE_AND_BANDWIDTH 1
-#define RSB_PRD_VERSION_BAD -1
-
-#define RSB_PRD_VERSION 1
-#define RSB_PRD_WANT_MBW ( RSB_PRD_VERSION > 0 )
-#define RSB_PRD_WANT_ENVIRONMENT ( RSB_PRD_VERSION > 0 ) /* FIXME: _WANT_ */
-#define RSB_PRD_WANT_TIMESTAMP ( RSB_PRD_VERSION > 0 )
 
 #define RSB_ON_IF_LEM(X,Y,ONIFLESS,ONIFEQUAL,ONIFMORE)	\
 	( (X)==(Y) ? (ONIFEQUAL) : ((X)<(Y)? (ONIFLESS) : (ONIFMORE) ))
-#define RSB_MAX_LABEL_LENGTH RSB_MAX_FILENAME_LENGTH
 
 /* rsb sampled performance sample structure (internal) */
 /* to keep I/O portable, don't use pointers or unportable variables within it */
-/* at_-prefixed variables are those relative to autotuning samples */
 struct rsb_rsps_t
 {
 	rsb_perf_t op_time;
@@ -82,7 +64,7 @@ struct rsb_rsps_t
 	double cmflops; /* canonical mflops considering nrhs==1 */
 	rsb_flags_t flagsA;
 	rsb_submatrix_idx_t nsubm, at_nsubm;
-	int64_t isa, at_isa; /* indexing space allocated */
+	/*size_t*/ int64_t /*uint64_t*/ isa, at_isa;
 	rsb_int_t at_cn, at_mkl_csr_cn;
 	rsb_int_t uc; /* updates count */
 	rsb_coo_idx_t nrA,ncA;
@@ -101,24 +83,13 @@ struct rsb_rspr_t
         rsb_bool_t ror; /* representing only ratios */
 	struct rsb_rsps_t * psa; /* performance samples array */
         struct rsb_rspra_t * rsprap; /*  */
-#if RSB_PRD_WANT_ENVIRONMENT
-	rsb_int_t nenvv; // number of environment variables
-	rsb_int_t enoib; // environment occupation in bytes
-	char * envvp;
-#endif /* RSB_PRD_WANT_ENVIRONMENT */
-#if RSB_PRD_WANT_MBW
-	struct rsb_mbw_et_t mbet;
-#endif /* RSB_PRD_WANT_MBW */
-#if RSB_PRD_WANT_TIMESTAMP
-	rsb_time_t tbeg,tend;
-#endif /* RSB_PRD_WANT_TIMESTAMP */
 };
 
 #define RSB_PRL_TCS "pr: "
-#define RSB_PRL_LCC_IE rsb__getenv("RSB_PR_WLTC") ? '%' : ( rsb__getenv_char("RSB_PR_PRL_LCC", '#') ) /*  line comment char */
-#define RSB_PRL_TCS_IE rsb__getenv("RSB_PR_WLTC") ? " " : ( rsb__getenv_str("RSB_PR_PRL_TCS",RSB_PRL_TCS) ) /* table comment string */
-#define RSB_PRL_ENDLSTR_IE rsb__getenv("RSB_PR_WLTC") ? "\\\\" : ( rsb__getenv_str("RSB_PR_ENDLSTR","") )
-#define RSB_PRL_FSEPSTR_IE rsb__getenv("RSB_PR_WLTC") ? " & " : ( rsb__getenv_str("RSB_PR_FSEPSTR"," ") )
+#define RSB_PRL_LCC_IE rsb__getenv("RSB_PR_WLTC") ? '%' : ( rsb__getenv("RSB_PR_PRL_LCC") ? *rsb__getenv("RSB_PR_PRL_LCC") : '#') /*  line comment char */
+#define RSB_PRL_TCS_IE rsb__getenv("RSB_PR_WLTC") ? " " : ( rsb__getenv("RSB_PR_PRL_TCS") ?  rsb__getenv("RSB_PR_PRL_TCS") : RSB_PRL_TCS ) /* table comment string */
+#define RSB_PRL_ENDLSTR_IE rsb__getenv("RSB_PR_WLTC") ? "\\\\" : ( rsb__getenv("RSB_PR_ENDLSTR") ? rsb__getenv("RSB_PR_ENDLSTR") : "" )
+#define RSB_PRL_FSEPSTR_IE rsb__getenv("RSB_PR_WLTC") ? " & " : (rsb__getenv("RSB_PR_FSEPSTR") ? rsb__getenv("RSB_PR_FSEPSTR") : " ")
 #define RSB_PR_NOC(RSPRP) ((RSPRP)->filenamen * (RSPRP)->cn * (RSPRP)->incXn * (RSPRP)->incYn * (RSPRP)->nrhsn * (RSPRP)->ntypecodes * (RSPRP)->tn )
 #define RSB_PRC RSB_STDOUT
 #define RSB_PRL RSB_PRC("%c%s",rsb_prl_lcc,RSB_PRL_TCS),RSB_PRC
@@ -126,46 +97,9 @@ struct rsb_rspr_t
 #define RSB_PRL_SEP RSB_STDOUT("%cpr: ======== ",rsb_prl_lcc),RSB_STDOUT
 #define RSB_PRWL RSB_PRC("#pr: Warning:"),RSB_PRC
 
-#if RSB_WANT_ARMPL
-#define RSB_MKL_S "APL" /* TODO: 'mkl' substrings shall be translated similarly */
-#else
-#define RSB_MKL_S "MKL"
-#endif
-
-static rsb_err_t rsb__rspr_all_env(struct rsb_rspr_t * rsprp)
-{
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-#if RSB_PRD_WANT_ENVIRONMENT
-	extern char **environ;
-
-	if( environ && environ[0] )
-	{
-		rsb_int_t envvi = 0;
-
-		for ( envvi = 0; environ[envvi] ; ++envvi)
-	       		rsprp->enoib += rsb__strlen(environ[envvi]);
-	       	rsprp->nenvv = envvi;
-		rsprp->envvp = rsb__calloc( rsprp->enoib + rsprp->nenvv );
-		if( rsprp->envvp && rsprp->nenvv )
-		{
-			size_t co = 0, tco = 0; // char offset, total char offset
-			for ( envvi = 0; envvi < rsprp->nenvv ; ++envvi)
-				co = strlen(environ[envvi]),
-				rsb__strcpy(rsprp->envvp+tco+envvi,environ[envvi]),
-				rsprp->envvp[tco+co+envvi] = RSB_NUL,
-				tco += co;
-
-   		     	RSB_ASSERT( tco == rsprp->enoib );
-		}
-	}
-#endif /* RSB_PRD_WANT_ENVIRONMENT */
-	return errval;
-}
-
 static rsb_err_t rsb__pr_alloc(struct rsb_rspr_t ** rsprpp, const struct rsb_rspr_t * rsprcp, rsb_int_t filenamen, rsb_int_t cn, rsb_int_t incXn, rsb_int_t incYn, rsb_int_t nrhsn, rsb_int_t ntypecodes, rsb_int_t tn)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	const char rsb_prl_lcc = RSB_PRL_LCC_IE;
 	struct rsb_rspr_t * rsprp = NULL;
 	rsb_int_t noc = 0; /* number of combinations */
 	size_t ab = 0; /* allocated bytes */
@@ -180,16 +114,7 @@ static rsb_err_t rsb__pr_alloc(struct rsb_rspr_t ** rsprpp, const struct rsb_rsp
         rsprp->ror = RSB_BOOL_FALSE;
 
         if( rsprcp )
-	{
                 *rsprp = *rsprcp;
-#if RSB_PRD_WANT_ENVIRONMENT
-		rsprp->envvp = NULL;
-#endif /* RSB_PRD_WANT_ENVIRONMENT */
-		rsprp->rsprap = NULL;
-#if RSB_PRD_WANT_MBW
-		rsprp->mbet.et = NULL;
-#endif /* RSB_PRD_WANT_MBW */
-	}
 
 	rsprp->filenamen = filenamen;
 	rsprp->cn = cn;
@@ -207,22 +132,20 @@ static rsb_err_t rsb__pr_alloc(struct rsb_rspr_t ** rsprpp, const struct rsb_rsp
 	       	errval = RSB_ERR_ENOMEM;
 	       	goto err;
        	}
-
 	RSB_ASSIGN_IF(rsprpp,rsprp)
-
-	RSB_PRL("allocated a performance record for %d samples (%zd bytes).\n",noc,ab);
 err:
         return errval;
 }
 
 struct rsb_rspra_t /* ... record arrays */
 {
-        rsb_char_t** RSB_RESTRICT filenamea; rsb_int_t*ca; const rsb_int_t*incXa; const rsb_int_t*incYa; const rsb_int_t*nrhsa; const rsb_type_t*typecodes; const rsb_int_t*ta;
+        const rsb_char_t**filenamea; rsb_int_t*ca; const rsb_int_t*incXa; const rsb_int_t*incYa; const rsb_int_t*nrhsa; const rsb_type_t*typecodes; const rsb_int_t*ta;
 };
 
-#define RSB_RPR_FILE_HDR_V0 "%RPR-0..""        ""        ""        "
-#define RSB_RPR_FILE_HDR "%RPR-1..""        ""        ""        "
+#define RSB_RPR_FILE_HDR "%RPR-0..""        ""        ""        "
 #define RSB_RPR_FILE_HDL 32
+#define RSB_PR_WR RSB_BOOL_FALSE
+#define RSB_PR_RD RSB_BOOL_TRUE
 #define RSB_RW(ROW,PTR,SIZE,NMEMB,STREAM)                               \
         {                                                               \
                 sh = (SIZE) * (NMEMB);                                  \
@@ -231,66 +154,8 @@ struct rsb_rspra_t /* ... record arrays */
                 else                                                    \
                         hd = fwrite ((PTR),(SIZE),(NMEMB),(STREAM));         \
                 hd *= (SIZE);                                           \
-                if( hd != sh )						\
-		{							\
-	       		RSB_PERR_GOTO(err,RSB_ERRM_ES);     		\
-		}							\
+                if( hd != sh ) RSB_PERR_GOTO(err,RSB_ERRM_ES);     \
         }
-
-rsb_err_t rsb__rspr_rw(void * p, size_t sop, FILE * stream, rsb_bool_t row)
-{
-	const rsb_err_t errval = RSB_ERR_NO_ERROR;
-        size_t hd = 0, sh = 0; /* have done, should have */
-
-	RSB_RW(row,p,sop,1,stream);
-err:
-	/* FIXME */
-	return errval;
-}
-
-static rsb_err_t rsb__rspr_rw_env(struct rsb_rspr_t * rsprp, FILE * stream, rsb_bool_t row)
-{
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-        size_t hd = 0, sh = 0; /* have done, should have */
-
-#if RSB_PRD_WANT_ENVIRONMENT
-	RSB_RW(row,&rsprp->nenvv,sizeof(rsprp->nenvv),1,stream);
-	RSB_RW(row,&rsprp->enoib,sizeof(rsprp->enoib),1,stream);
-
-	RSB_ASSERT(rsprp->enoib > 0);
-	RSB_ASSERT(rsprp->nenvv > 0);
-
-	if( rsprp->enoib <= 0 )
-		goto err;
-
-	if( row ==  RSB_PR_RD )
-	{
-		rsprp->envvp = rsb__calloc( rsprp->nenvv + rsprp->enoib );
-		if( rsprp->envvp && rsprp->nenvv )
-		{
-			if( 1 != fread( rsprp->envvp, rsprp->nenvv + rsprp->enoib, 1, stream) )
-		        {
-         		       errval = RSB_ERR_ENOMEM;
- 		               RSB_PERR_GOTO(err,RSB_ERRM_ES);
-		        }
-        	}
-	}
-	else
-	if( row ==  RSB_PR_WR )
-	{
-		if( 1 != fwrite(((rsb_byte_t*)(rsprp->envvp)), rsprp->nenvv + rsprp->enoib, 1, stream) )
-       		{
-			errval = RSB_ERR_ENOMEM;
-			RSB_PERR_GOTO(err,RSB_ERRM_ES);
-		}
-	}
-	goto ret;
-#endif /* RSB_PRD_WANT_ENVIRONMENT */
-err:
-        RSB_ERROR("%s only %zd bytes instead of %zd !\n",row?"read":"wrote",hd,sh);
-ret:
-	return errval;
-}
 
 static rsb_err_t rsb__rsprp_rw(struct rsb_rspr_t * rsprp, FILE * stream, rsb_bool_t row)
 {
@@ -380,7 +245,7 @@ ret:
         return errval;
 }
 
-rsb_bool_t rsb__file_exists(const rsb_char_t * RSB_RESTRICT filename)
+static int rsb__file_exists(const rsb_char_t * RSB_RESTRICT filename)
 {
 	FILE*stream = NULL;
 
@@ -388,80 +253,14 @@ rsb_bool_t rsb__file_exists(const rsb_char_t * RSB_RESTRICT filename)
         if(stream != NULL)
         {
                 fclose(stream);
-                return RSB_BOOL_TRUE;
+                return 1;
         }
-        return RSB_BOOL_FALSE;
+        return 0;
 }
-
-#if RSB_PRD_WANT_TIMESTAMP
-static rsb_err_t rsb__pr_rw_time(struct rsb_rspr_t * rsprp, FILE * stream, rsb_bool_t row)
-{
-	const rsb_err_t errval = RSB_ERR_NO_ERROR;
-
-	rsb__rspr_rw( &rsprp->tbeg,sizeof(rsprp->tbeg), stream, row);
-	rsb__rspr_rw( &rsprp->tend,sizeof(rsprp->tend), stream, row);
-
-	return errval;
-}
-#endif /* RSB_PRD_WANT_TIMESTAMP */
-
-#if RSB_PRD_WANT_MBW
-static rsb_err_t rsb__mbw_es_rw(struct rsb_mbw_et_t * mbetp, FILE * stream, rsb_bool_t row)
-{
-	/* FIXME: shall be elsewhere */
-
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	rsb_int_t sni;
-	struct rsb_mbw_es_t etz;
-	struct rsb_mbw_et_t mbetz;
-	rsb_bool_t bogus = ( mbetp == NULL ) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
-
-       	RSB_BZERO_P(&mbetz);
-       	RSB_BZERO_P(&etz);
-
-	if(bogus)
-        	mbetp=&mbetz;
-
-	rsb__rspr_rw( &mbetp->sn,           sizeof(mbetp->sn   ), stream, row);
-
-	if( row == RSB_PR_RD )
-	{
-		if( ! bogus )
-		{
-			mbetp->et = rsb__calloc( mbetp->sn*sizeof( *mbetp->et ) );
-			if( mbetp->et == NULL)
-				goto ret; // FIXME
-		}
-		else
-			mbetp->et = &etz;
-	}
-
-	for ( sni = 0; sni <  mbetp->sn ; ++sni )
-	{
-		rsb_int_t bi = bogus ? 0 : 1;
-		rsb__rspr_rw(  &(mbetp->et[sni*bi].bw ), sizeof(mbetp->et[0].bw ), stream, row);
-		rsb__rspr_rw(  &(mbetp->et[sni*bi].sz ), sizeof(mbetp->et[0].sz ), stream, row);
-		rsb__rspr_rw(  &(mbetp->et[sni*bi].lvl), sizeof(mbetp->et[0].lvl), stream, row);
-		rsb__rspr_rw(  &(mbetp->et[sni*bi].mbt), sizeof(mbetp->et[0].mbt), stream, row);
-	}
-	if( bogus )
-		mbetp->sn = 0;
-
-	for ( sni = 0; sni <  mbetp->sn ; ++sni )
-	{
-		//printf("%d %s %d %lg\n",sni,rsb__mbw_s2s(.mbt),mbetp->et[sni].lvl,mbetp->et[sni].bw);
-	}
-
-	goto ret;
-//err:
-	// FIXME!
-ret:
-	return errval;
-}
-#endif /* RSB_PRD_WANT_MBW */
 
 rsb_err_t rsb__pr_save(const rsb_char_t * RSB_RESTRICT filename, /*const*/ void * RSB_RESTRICT rsprpv,
-        rsb_char_t**RSB_RESTRICT filenamea, rsb_int_t*RSB_RESTRICT ca, const rsb_int_t*RSB_RESTRICT incXa, const rsb_int_t*RSB_RESTRICT incYa, const rsb_int_t*RSB_RESTRICT nrhsa, const rsb_type_t*RSB_RESTRICT typecodes, const rsb_int_t*RSB_RESTRICT ta, rsb_bool_t can_overwrite)
+        const rsb_char_t**RSB_RESTRICT filenamea, rsb_int_t*RSB_RESTRICT ca, const rsb_int_t*RSB_RESTRICT incXa, const rsb_int_t*RSB_RESTRICT incYa, const rsb_int_t*RSB_RESTRICT nrhsa, const rsb_type_t*RSB_RESTRICT typecodes, const rsb_int_t*RSB_RESTRICT ta,
+        rsb_bool_t can_overwrite)
 {
         /*
                 Saves a performace record.
@@ -478,7 +277,7 @@ rsb_err_t rsb__pr_save(const rsb_char_t * RSB_RESTRICT filename, /*const*/ void 
         rsb_byte_t * bbp = NULL; /* binary blob pointer */
         size_t bbo = 0, bbl = 0, bbs = 0; /* binary blob offset/length/skip */
         rsb_int_t idx;
-        const rsb_char_t * const sgntr = RSB_RPR_FILE_HDR;
+        const rsb_char_t * sgntr = RSB_RPR_FILE_HDR;
 	const char rsb_prl_lcc = RSB_PRL_LCC_IE;
 
        	if(filename == NULL)
@@ -486,7 +285,7 @@ rsb_err_t rsb__pr_save(const rsb_char_t * RSB_RESTRICT filename, /*const*/ void 
 	else
         {
                 if(can_overwrite == RSB_BOOL_FALSE )
-                if(rsb__file_exists(filename) != RSB_BOOL_FALSE)
+                if(rsb__file_exists(filename))
                 {
 		        RSB_WARN("File %s already exists! Refusing to overwrite.\n",filename);
 		        errval = RSB_ERR_INTERNAL_ERROR;
@@ -584,24 +383,6 @@ rsb_err_t rsb__pr_save(const rsb_char_t * RSB_RESTRICT filename, /*const*/ void 
                 RSB_PERR_GOTO(err,RSB_ERRM_ES);
         }
 
-#if RSB_PRD_WANT_ENVIRONMENT
-	errval = rsb__rspr_rw_env(rsprp, stream, RSB_PR_WR);
-        if(RSB_SOME_ERROR(errval))
-                RSB_PERR_GOTO(err,RSB_ERRM_ES);
-#endif /* RSB_PRD_WANT_ENVIRONMENT */
-
-#if RSB_PRD_WANT_MBW
-	errval = rsb__mbw_es_rw(&rsprp->mbet,stream,RSB_PR_WR);
-       	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-#endif /* RSB_PRD_WANT_MBW */
-
-#if RSB_PRD_WANT_TIMESTAMP
-	errval = rsb__pr_rw_time(rsprp, stream,RSB_PR_WR);
-       	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-#endif /* RSB_PRD_WANT_TIMESTAMP */
-
        	if(filename == NULL)
 		;
 	else
@@ -648,16 +429,13 @@ static rsb_err_t rsb__pr_load(const rsb_char_t * filename, struct rsb_rspr_t ** 
 	struct rsb_rspr_t * rsprp = NULL;
 	struct rsb_rspr_t ** rsprpp = rsprpvp;
 	FILE*stream = NULL;
-	rsb_int_t noc = 0; /* number of combinations */
+	rsb_int_t noc = 0, idx; /* number of combinations */
         rsb_char_t sgntr [ RSB_RPR_FILE_HDL ];
         struct rsb_rspra_t rspra;
         struct rsb_rspra_t * rsprap = NULL;
         rsb_byte_t * bbp = NULL; /* binary blob pointer */
         size_t bbo = 0, bbl = 0, bbs = 0; /* binary blob offset/length/skip */
 	rsb_int_t filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti;
-	rsb_int_t vtag = RSB_PRD_VERSION_BAD;
-	size_t pad = 0; /* padding to 4 bytes alignment */
-	size_t bbpp = 0; /* bpp, padded */
 
         RSB_BZERO_P(&rspr);
 
@@ -678,15 +456,11 @@ static rsb_err_t rsb__pr_load(const rsb_char_t * filename, struct rsb_rspr_t ** 
                 RSB_PERR_GOTO(err,"Unable to read header!\n");
         }
 
-        if ( 0 == strncmp(sgntr,RSB_RPR_FILE_HDR_V0,RSB_RPR_FILE_HDL) )
-		vtag = 0;
-	else if( 0 == strncmp(sgntr,RSB_RPR_FILE_HDR,RSB_RPR_FILE_HDL) ) 
-		vtag = 1;
-	if(vtag == RSB_PRD_VERSION_BAD)
+        if ( strncmp(sgntr,RSB_RPR_FILE_HDR,RSB_RPR_FILE_HDL) ) 
         {
                 /* TODO: need support for different versions ... */
 		errval = RSB_ERR_INTERNAL_ERROR;
-                RSB_PERR_GOTO(err,"File decoding error!\n");
+                RSB_PERR_GOTO(err,"File deconding error!\n");
         }
 
         rsprp = &rspr;
@@ -723,7 +497,7 @@ static rsb_err_t rsb__pr_load(const rsb_char_t * filename, struct rsb_rspr_t ** 
 	for(typecodesi=0;typecodesi<rsprp->ntypecodes;++typecodesi)
 	for(ti=0;ti<rsprp->tn;++ti)
 	{
-		const size_t idx = rsb__pr_idx(rsprp, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
+		size_t idx = rsb__pr_idx(rsprp, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
 	        struct rsb_rsps_t*psp = &(rsprp->psa[idx]);
 
                 errval = rsb__psp_rw(psp, stream, RSB_PR_RD);
@@ -764,60 +538,6 @@ static rsb_err_t rsb__pr_load(const rsb_char_t * filename, struct rsb_rspr_t ** 
                         if ( psp->transA != no_transA )
 			       	psp->uc = 0;
                 }
-		/* TODO: begin of simplifiable checks */
-                if ( rsb__getenv("RSB_PR_RD_RESTRICT_NR_MIN") ) /* proof of concept */
-                {
-                        rsb_nnz_idx_t min_nr = rsb__util_atoi(rsb__getenv("RSB_PR_RD_RESTRICT_NR_MIN"));
-                        if ( psp->nrA < min_nr )
-			       	psp->uc = 0;
-                }
-                if ( rsb__getenv("RSB_PR_RD_RESTRICT_NR_MAX") ) /* proof of concept */
-                {
-                        rsb_nnz_idx_t max_nr = rsb__util_atoi(rsb__getenv("RSB_PR_RD_RESTRICT_NR_MAX"));
-                        if ( psp->nrA > max_nr && max_nr > 0 )
-			       	psp->uc = 0;
-                }
-                if ( rsb__getenv("RSB_PR_RD_RESTRICT_NC_MIN") ) /* proof of concept */
-                {
-                        rsb_nnz_idx_t min_nc = rsb__util_atoi(rsb__getenv("RSB_PR_RD_RESTRICT_NC_MIN"));
-                        if ( psp->ncA < min_nc )
-			       	psp->uc = 0;
-                }
-                if ( rsb__getenv("RSB_PR_RD_RESTRICT_NC_MAX") ) /* proof of concept */
-                {
-                        rsb_nnz_idx_t max_nc = rsb__util_atoi(rsb__getenv("RSB_PR_RD_RESTRICT_NC_MAX"));
-                        if ( psp->ncA > max_nc && max_nc > 0 )
-			       	psp->uc = 0;
-                }
-                if ( rsb__getenv("RSB_PR_RD_RESTRICT_NNZ_MIN") ) /* proof of concept */
-                {
-                        rsb_nnz_idx_t min_nnz = rsb__util_atoi(rsb__getenv("RSB_PR_RD_RESTRICT_NNZ_MIN"));
-                        if ( psp->nnzA < min_nnz )
-			       	psp->uc = 0;
-                }
-                if ( rsb__getenv("RSB_PR_RD_RESTRICT_NNZ_MAX") ) /* proof of concept */
-                {
-                        rsb_nnz_idx_t max_nnz = rsb__util_atoi(rsb__getenv("RSB_PR_RD_RESTRICT_NNZ_MAX"));
-                        if ( psp->nnzA > max_nnz && max_nnz > 0 )
-			       	psp->uc = 0;
-                }
-                if ( rsb__getenv("RSB_PR_RD_RESTRICT_NSUBM_MIN") ) /* proof of concept */
-                {
-                        rsb_nnz_idx_t min_nsubm = rsb__util_atoi(rsb__getenv("RSB_PR_RD_RESTRICT_NSUBM_MIN"));
-                        if ( psp->nsubm > 0   && psp->nsubm    < min_nsubm )
-			       	psp->uc = 0;
-                        if ( psp->at_nsubm> 0 && psp->at_nsubm < min_nsubm )
-			       	psp->uc = 0;
-                }
-                if ( rsb__getenv("RSB_PR_RD_RESTRICT_NSUBM_MAX") ) /* proof of concept */
-                {
-                        rsb_nnz_idx_t max_nsubm = rsb__util_atoi(rsb__getenv("RSB_PR_RD_RESTRICT_NSUBM_MAX"));
-                        if ( psp->nsubm > 0   && psp->nsubm    > max_nsubm )
-			       	psp->uc = 0;
-                        if ( psp->at_nsubm> 0 && psp->at_nsubm > max_nsubm )
-			       	psp->uc = 0;
-                }
-		/* TODO: end of simplifiable checks */
                 if ( rsb__getenv("RSB_PR_RD_NULLIFY_TRANSA") ) /* proof of concept */
                 {
                         rsb_trans_t no_transA = (*rsb__getenv("RSB_PR_RD_NULLIFY_TRANSA"));
@@ -840,8 +560,7 @@ static rsb_err_t rsb__pr_load(const rsb_char_t * filename, struct rsb_rspr_t ** 
 
         RSB_BZERO_P(&rspra);
 	
-	pad = (4-(rspr.filenamebl%4))%4; /* 0..3 */
-	bbl = rspr.filenamebl + pad + rspr.cabl + rspr.incXabl + rspr.incYabl + rspr.nrhsabl + rspr.typecodesbl + rspr.tabl;
+	bbl = rspr.filenamebl + rspr.cabl + rspr.incXabl + rspr.incYabl + rspr.nrhsabl + rspr.typecodesbl + rspr.tabl;
 	bbs = sizeof(rspra) + sizeof(rspra.filenamea[0])*rspr.filenamen;
 	
         rsprap = rsb__calloc( bbl + bbs );
@@ -851,9 +570,6 @@ static rsb_err_t rsb__pr_load(const rsb_char_t * filename, struct rsb_rspr_t ** 
 	rspra.filenamea = (void*) bbp;
 	bbp += sizeof(rspra.filenamea[0])*rspr.filenamen;
 	bbp += rspr.filenamebl;
-	bbpp = (bbp - ((rsb_byte_t*) rsprap)) - sizeof(rspra);
-
-	bbp += pad;
 	rspra.ca = (void*) bbp;
 	bbp += rspr.cabl;
 	rspra.incXa = (void*) bbp;
@@ -872,12 +588,7 @@ static rsb_err_t rsb__pr_load(const rsb_char_t * filename, struct rsb_rspr_t ** 
         RSB_ASSERT(rspr.nrhsabl);
 	*rsprap = rspra;
 	
-	if( 1 != fread( ((rsb_byte_t*)rsprap)+bbs, bbpp, 1, stream) )
-	{
-                errval = RSB_ERR_INTERNAL_ERROR;
-                RSB_PERR_GOTO(err,RSB_ERRM_ES);
-	}
-	if( 1 != fread( ((rsb_byte_t*)rsprap)+bbs+bbpp+pad, bbl-bbpp-pad, 1, stream) )
+	if( 1 != fread( ((rsb_byte_t*)rsprap)+bbs, bbl, 1, stream) )
 	{
                 errval = RSB_ERR_INTERNAL_ERROR;
                 RSB_PERR_GOTO(err,RSB_ERRM_ES);
@@ -891,29 +602,6 @@ static rsb_err_t rsb__pr_load(const rsb_char_t * filename, struct rsb_rspr_t ** 
 	{
                 rspra.filenamea[filenamei] = (rsb_char_t*) bbp + bbo;
                 bbo += rsb__strlen(bbp + bbo) + 1;
-	}
-
-	if( vtag == 0 )
-	{
-		/* reading a pre-RSB_PRD_VERSION==1 version file */
-	}
-	else
-	{
-#if RSB_PRD_WANT_ENVIRONMENT
-		errval = rsb__rspr_rw_env(rsprp, stream, RSB_PR_RD);
-	        if(RSB_SOME_ERROR(errval))
-        	        RSB_PERR_GOTO(err,RSB_ERRM_ES);
-#endif /* RSB_PRD_WANT_ENVIRONMENT */
-#if RSB_PRD_WANT_MBW
-		errval = rsb__mbw_es_rw(&(rsprp->mbet), stream, RSB_PR_RD);
-       		if(RSB_SOME_ERROR(errval))
-			RSB_PERR_GOTO(err,RSB_ERRM_ES);
-#endif /* RSB_PRD_WANT_MBW */
-#if RSB_PRD_WANT_TIMESTAMP
-		errval = rsb__pr_rw_time(rsprp, stream,RSB_PR_RD);
-       		if(RSB_SOME_ERROR(errval))
-			RSB_PERR_GOTO(err,RSB_ERRM_ES);
-#endif /* RSB_PRD_WANT_TIMESTAMP */
 	}
 
 	rsprp->rsprap = rsprap;
@@ -948,7 +636,7 @@ static rsb_err_t rsb__pr_dumpfile(const rsb_char_t *filename)
 	if(RSB_SOME_ERROR(errval))
                 RSB_PERR_GOTO(err,RSB_ERRM_ES);
         RSB_PRL_SEP("\n");
-	errval = rsb__pr_dump(rsprp, rsprp->rsprap->filenamea, rsprp->rsprap->ca, rsprp->rsprap->incXa, rsprp->rsprap->incYa, rsprp->rsprap->nrhsa, rsprp->rsprap->typecodes, NULL, NULL );
+	errval = rsb__pr_dump(rsprp, rsprp->rsprap->filenamea, rsprp->rsprap->ca, rsprp->rsprap->incXa, rsprp->rsprap->incYa, rsprp->rsprap->nrhsa, rsprp->rsprap->typecodes, NULL );
         RSB_PRL_SEP("\n");
 err:
 	RSB__PR_FREE(rsprp);
@@ -1258,18 +946,6 @@ err:
         return errval;
 }
 
-static char *rsb__rindex(const char *s, int c)
-{
-	/* return a pointer to the last occurrence of the character c in the string s. assumes '\0' is there. */
-#if RSB_HAVE_STRRCHR
-	return strrchr(s,c);
-#elif RSB_HAVE_RINDEX
-	return rindex(s,c);
-#else /* RSB_HAVE_RINDEX */
-#error "Need working rindex() or strrchr()!"
-#endif /* RSB_HAVE_STRRCHR */
-}
-
 rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -1277,13 +953,7 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
         struct rsb_rspr_t * rsprp = NULL;
         int argi;
 	rsb_int_t noc = 0, noc0; /* number of combinations */
-	char rsb_prl_lcc = RSB_PRL_LCC_IE ;
-	rsb_char_t dirname[RSB_MAX_FILENAME_LENGTH];
-
-	dirname[0] = RSB_NUL;
-
-	if((errval = rsb_lib_init(RSB_NULL_INIT_OPTIONS))!=RSB_ERR_NO_ERROR)
-		goto err;
+	const char rsb_prl_lcc = RSB_PRL_LCC_IE;
 
         if( !argv || argc < 1 || strlen(argv[0]) < 1 )
         {
@@ -1301,22 +971,14 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
 		RSB_PRL("RSB_PR_FSEPSTR # Field separator string\n");
 		RSB_PRL("RSB_PR_ENDLSTR # End of line separator string\n");
 		RSB_PRL("RSB_PR_PRL_CC  # Beginning of line comment char\n");
-		RSB_PRL("RSB_PR_PRL_LCC # Line Comment Character\n");
-		RSB_PRL("RSB_PR_PRL_TCS # Table Comment String\n");
+		RSB_PRL("RSB_PR_PRL_LCC # \n");
+		RSB_PRL("RSB_PR_PRL_TCS # \n");
 		RSB_PRL("RSB_PR_WLTC # If > 0 and RSB_PR_SR=0, will emit LaTeX tables	(setting accordingly RSB_PR_PRL_LCC, RSB_PR_PRL_TCS, RSB_PR_ENDLSTR, RSB_PR_FSEPSTR); if > 1 output will be colored\n");
                 RSB_PRL("RSB_PR_MULTIDUMP #  %d=dump %d=auto/append %d=ratio %d=diff %d=merge.\n",RSB_PRD_CMP_MDUMP,RSB_PRD_CMP_DFLT,RSB_PRD_CMP_DIV,RSB_PRD_CMP_DIFF,RSB_PRD_CMP_APPEND);
 		RSB_PRL("RSB_PR_RD_NULLIFY_FILENAMEI # exclude a matrix' index\n");
 		RSB_PRL("RSB_PR_RD_RESTRICT_FILENAMEI # restrict to one matrix' index\n");
 		RSB_PRL("RSB_PR_RD_NULLIFY_TRANSA # exclude a transposition\n");
 		RSB_PRL("RSB_PR_RD_RESTRICT_TRANSA # restrict to one transposition\n");
-		RSB_PRL("RSB_PR_RD_RESTRICT_NR_MIN # restrict to min of nr\n");
-		RSB_PRL("RSB_PR_RD_RESTRICT_NR_MAX # restrict to max of nr\n");
-		RSB_PRL("RSB_PR_RD_RESTRICT_NC_MIN # restrict to min of nc\n");
-		RSB_PRL("RSB_PR_RD_RESTRICT_NC_MAX # restrict to max of nc\n");
-		RSB_PRL("RSB_PR_RD_RESTRICT_NNZ_MIN # restrict to min of nnz\n");
-		RSB_PRL("RSB_PR_RD_RESTRICT_NNZ_MAX # restrict to max of nnz\n");
-		RSB_PRL("RSB_PR_RD_RESTRICT_NSUBM_MIN # restrict to min of nsubm\n");
-		RSB_PRL("RSB_PR_RD_RESTRICT_NSUBM_MAX # restrict to max of nsubm\n");
 		RSB_PRL("RSB_PR_RD_NULLIFY_NRHSI # exclude a nrhs index\n");
 		RSB_PRL("RSB_PR_RD_RESTRICT_NRHSI # restrict to one nrhs index\n");
 		RSB_PRL("RSB_PR_RD_NULLIFY_SAMPLEIDX # exclude a matrix' index\n");
@@ -1324,8 +986,6 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
 		RSB_PRL("RSB_PR_ONLY_TOTAL_TABLE # only the total table, not the 'limited' slices\n");
 		RSB_PRL("RSB_PR_SAVE_MULTIDUMP # output performance record filename\n");
 		RSB_PRL("RSB_PR_SR # 0 for table output, 1 for comparison table output, 2 for plot\n");
-		RSB_PRL("RSB_PR_ENV # print out environment variables\n");
-		RSB_PRL("RSB_PR_MBW # print out memory bandwidth benchmark info\n");
 		RSB_PRL("# end of help message\n");
 		goto err;
         }
@@ -1373,15 +1033,9 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
 
         if(ds >= RSB_PRD_CMP_DFLT)
         {
-		const rsb_char_t *const fprfn = argv[0];
-                errval = rsb__pr_load(fprfn ,&rsprp);
+                errval = rsb__pr_load(argv[0],&rsprp);
 	        if(RSB_SOME_ERROR(errval))
 			RSB_PERR_GOTO(err,RSB_ERRM_ES);
-                sprintf(dirname,"%s",fprfn);
-		if(rsb__rindex(dirname,'.'))
-			*rsb__rindex(dirname,'.') = RSB_NUL;
-		else
-			strcat(dirname,".dir");
         }
 
         if(argc > 1)
@@ -1402,7 +1056,7 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
                         if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
                         rsprp = rspr1p;
                         rspr1p = NULL;
-     }
+                }
                 else
                 if(ds==RSB_PRD_CMP_APPEND)
                 {
@@ -1414,7 +1068,7 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
                         RSB__PR_FREE(rspr0p);
                         if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
                 }
-                errval = rsb__pr_dump(rsprp, rsprp->rsprap->filenamea, rsprp->rsprap->ca, rsprp->rsprap->incXa, rsprp->rsprap->incYa, rsprp->rsprap->nrhsa, rsprp->rsprap->typecodes, NULL, dirname);
+                errval = rsb__pr_dump(rsprp, rsprp->rsprap->filenamea, rsprp->rsprap->ca, rsprp->rsprap->incXa, rsprp->rsprap->incYa, rsprp->rsprap->nrhsa, rsprp->rsprap->typecodes, NULL );
                 if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
                 
                 if ( rsb__getenv("RSB_PR_SAVE_MULTIDUMP") )
@@ -1432,9 +1086,9 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
                 struct rsb_rspr_t * rspr0p = NULL;
                 RSB_PRL_SEP("\n");
 		if( ds == RSB_PRD_CMP_DIV )
-                	RSB_PRL("Will compare performance records of file %d/%d: %s to that of %s (first divided by second). Warning: assuming ALL parameters are conformant\n",argi+1,argc,argv[argi],argv[0]);
+			RSB_PRL("Will compare performance records of file %d/%d: %s to that of %s (first divided by second). Warning: assuming ALL parameters are conformant\n",argi+1,argc,argv[argi],argv[0]);
 		if( ds == RSB_PRD_CMP_DIFF )
-                	RSB_PRL("Will compare performance records of file %d/%d: %s to that of %s (first minus second). Warning: assuming ALL parameters are conformant\n",argi+1,argc,argv[argi],argv[0]);
+			RSB_PRL("Will compare performance records of file %d/%d: %s to that of %s (first minus second). Warning: assuming ALL parameters are conformant\n",argi+1,argc,argv[argi],argv[0]);
                 errval = rsb__pr_load(argv[argi],&rspr0p);
                 if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
 		if( rsprp->csf != rspr0p->csf && RSB_PR_NOC(rsprp) == RSB_PR_NOC(rspr0p))
@@ -1442,7 +1096,7 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
                 errval = rsb__pr_cmp(rsprp,rspr0p,ds);
                 RSB__PR_FREE(rspr0p);
                 if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
-                errval = rsb__pr_dump(rsprp, rsprp->rsprap->filenamea, rsprp->rsprap->ca, rsprp->rsprap->incXa, rsprp->rsprap->incYa, rsprp->rsprap->nrhsa, rsprp->rsprap->typecodes, NULL, NULL );
+                errval = rsb__pr_dump(rsprp, rsprp->rsprap->filenamea, rsprp->rsprap->ca, rsprp->rsprap->incXa, rsprp->rsprap->incYa, rsprp->rsprap->nrhsa, rsprp->rsprap->typecodes, NULL );
                 RSB__PR_FREE(rsprp);
                 if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
                 errval = rsb__pr_load(argv[0],&rsprp);
@@ -1456,7 +1110,7 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
                 RSB_PRL("Dumping performance records of file %d/%d: %s\n",argi+1,argc,argv[argi]);
                 errval = rsb__pr_load(argv[argi],&rsprp);
                 if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
-                errval = rsb__pr_dump(rsprp, rsprp->rsprap->filenamea, rsprp->rsprap->ca, rsprp->rsprap->incXa, rsprp->rsprap->incYa, rsprp->rsprap->nrhsa, rsprp->rsprap->typecodes, NULL, argv[argi] );
+                errval = rsb__pr_dump(rsprp, rsprp->rsprap->filenamea, rsprp->rsprap->ca, rsprp->rsprap->incXa, rsprp->rsprap->incYa, rsprp->rsprap->nrhsa, rsprp->rsprap->typecodes, NULL );
                 RSB__PR_FREE(rsprp);
 	        if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
         }
@@ -1464,29 +1118,22 @@ rsb_err_t rsb__pr_dumpfiles(const rsb_char_t **argv, const int argc)
         RSB_PRL_SEP("\n");
 err:
         RSB__PR_FREE(rsprp);
-
-	if((errval |= rsb_lib_exit(RSB_NULL_EXIT_OPTIONS))!=RSB_ERR_NO_ERROR)
-		;
-
         return errval;
 }
 
-static void rsb__pr_upd_time(struct rsb_rspr_t * rsprp)
-{
-#if RSB_PRD_WANT_TIMESTAMP
-	rsprp->tend = rsb_time();
-#endif /* RSB_PRD_WANT_TIMESTAMP */
-}
-
 /* performance samples recording / dumping facility for rsbench : begin */
-rsb_err_t rsb__pr_init(void**rsprpv, const struct rsb_mtx_t *mtxAp, rsb_int_t filenamen, rsb_int_t cn, rsb_int_t incXn, rsb_int_t incYn, rsb_int_t nrhsn, rsb_int_t ntypecodes, rsb_int_t tn, struct rsb_mbw_et_t * mbetp)
+rsb_err_t rsb__pr_init(void**rsprpv, const struct rsb_mtx_t *mtxAp, rsb_int_t filenamen, rsb_int_t cn, rsb_int_t incXn, rsb_int_t incYn, rsb_int_t nrhsn, rsb_int_t ntypecodes, rsb_int_t tn)
 {
 	/* 
 	 * initialize a performance record 
 	 * */
 	struct rsb_rspr_t * rsprp = NULL;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	rsb_int_t noc = 0; /* number of combinations */
+	size_t ab = 0; /* allocated bytes */
+	const char rsb_prl_lcc = RSB_PRL_LCC_IE;
 
+#if 1
 	if( ! rsprpv )
        	{
 	       	errval = RSB_ERR_ENOMEM;
@@ -1494,25 +1141,33 @@ rsb_err_t rsb__pr_init(void**rsprpv, const struct rsb_mtx_t *mtxAp, rsb_int_t fi
        	}
         errval = rsb__pr_alloc(&rsprp, NULL, filenamen, cn, incXn, incYn, nrhsn, ntypecodes, tn);
 	*rsprpv = rsprp;
+#else
+	rsprp = rsb__calloc(sizeof(struct rsb_rspr_t));
+	if( ! rsprpv )
+       	{
+	       	errval = RSB_ERR_ENOMEM;
+	       	goto err;
+       	}
+	*rsprpv = rsprp;
 
-#if RSB_PRD_WANT_ENVIRONMENT
-	errval = rsb__rspr_all_env(rsprp);
-        if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-#endif /* RSB_PRD_WANT_ENVIRONMENT */
-#if RSB_PRD_WANT_TIMESTAMP
-	rsprp->tbeg = rsb_time();
-	rsb__pr_upd_time(rsprp);
-#endif /* RSB_PRD_WANT_TIMESTAMP */
+	rsprp->filenamen = filenamen;
+	rsprp->cn = cn;
+	rsprp->incXn = incXn;
+	rsprp->incYn = incYn;
+	rsprp->nrhsn = nrhsn;
+	rsprp->ntypecodes = ntypecodes;
+	rsprp->tn = tn;
 
-#if RSB_PRD_WANT_MBW
-	if(mbetp && mbetp->sn)
+	noc = RSB_PR_NOC(rsprp);
+	ab = sizeof(struct rsb_rsps_t)*noc;
+	rsprp->psa = rsb__calloc(ab);
+	if( ! rsprp->psa )
 	{
-		// FIXME: this is a transfer
-		rsprp->mbet = *mbetp;
-        	RSB_BZERO_P(mbetp); // zero the source struct !
-	}
-#endif /* RSB_PRD_WANT_MBW */
+	       	errval = RSB_ERR_ENOMEM;
+	       	goto err;
+       	}
+#endif
+	RSB_PRL("allocated a performance record for %d samples (%zd bytes).\n",noc,ab);
 
 	return RSB_ERR_NO_ERROR;
 err:
@@ -1607,10 +1262,9 @@ rsb_err_t rsb__pr_set(void*rsprpv, const struct rsb_mtx_t *mtxAp, const struct r
 	 * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_rspr_t * rsprp = rsprpv;
-	const size_t idx = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
+	size_t idx = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
 	const char rsb_prl_lcc = RSB_PRL_LCC_IE;
 #if 1
-	rsb__pr_upd_time(rsprp);
 	RSB_PRL("updating sample at index %zd (%d^th of %d), %d^th touch for (%d,%d,%d,%d,%d,%d,%d).\n",idx+1,rsprp->csf,RSB_PR_NOC(rsprp),rsprp->psa[idx].uc,filenamei,ci,incXi,incYi,nrhsi,typecodesi,ti);
 	errval = rsb__pr_set_idx(rsprpv, idx, mtxAp, at_mtxAp, transA, op_time_best, mkl_csr_op_time_best, at_op_time_best, at_mkl_csr_op_time_best, at_cn, at_mkl_csr_cn, at_t, at_eps,otposp,btposp,otpmsp,btpmsp);
 	return errval;
@@ -1686,10 +1340,10 @@ rsb_err_t rsb__pr_set(void*rsprpv, const struct rsb_mtx_t *mtxAp, const struct r
 #define RSB_APE_THR 1.05 /* approximately equal or small difference  */
 #define RSB_RLD_THR 2.00 /* relevant difference threshold */
 #define RSB_HUD_THR 10.00 /* huge difference threshold */
-#define RSB_CMP_THR_EXP /* "nearly same" threshold */ rsb__getenv_real_t("RSB_CMP_THR",RSB_CMP_THR)
-#define RSB_APE_THR_EXP /* "approximately close" threshold */ rsb__getenv_real_t("RSB_APE_THR",RSB_APE_THR)
-#define RSB_RLD_THR_EXP /* "relevant difference" threshold */ rsb__getenv_real_t("RSB_RLD_THR",RSB_RLD_THR)
-#define RSB_HUD_THR_EXP /* "huge difference" threshold */ rsb__getenv_real_t("RSB_HUD_THR",RSB_HUD_THR)
+#define RSB_CMP_THR_EXP /* "nearly same" threshold */ rsb__getenv("RSB_CMP_THR") ? rsb__util_atof(rsb__getenv("RSB_CMP_THR")): RSB_CMP_THR
+#define RSB_APE_THR_EXP /* "approximately close" threshold */ rsb__getenv("RSB_APE_THR") ? rsb__util_atof(rsb__getenv("RSB_APE_THR")): RSB_APE_THR
+#define RSB_RLD_THR_EXP /* "relevant difference" threshold */ rsb__getenv("RSB_RLD_THR") ? rsb__util_atof(rsb__getenv("RSB_RLD_THR")): RSB_RLD_THR
+#define RSB_HUD_THR_EXP /* "huge difference" threshold */ rsb__getenv("RSB_HUD_THR") ? rsb__util_atof(rsb__getenv("RSB_HUD_THR")): RSB_HUD_THR
 
 #define RSB_FSTR_THN_THR(T1,T2,CMPT) ( (T1) * (CMPT) < (T2) ) /* faster only according to a small threshold; e.g. CMPT = RSB_CMP_THR */
 #define RSB_SLWR_THN_THR(T1,T2) ( (T1) * RSB_CMP_THR >=(T2) && (T1) != (T2)  ) /* slower only according to a small threshold */
@@ -1699,7 +1353,7 @@ rsb_err_t rsb__pr_set(void*rsprpv, const struct rsb_mtx_t *mtxAp, const struct r
 #define RSB_HUGE_DIFF(T1,T2,HGDT) ( ( (T1) * (HGDT) < (T2) ) || ( (T2) * (HGDT) < (T1) ) ) /* e.g. HGDT = RSB_HUD_THR  */
 #define RSB_MIN_FINITE(X,Y) ( ((X)==(Y)) ? (X) : ( RSB_MIN(RSB_MAX(X,RSB_TIME_ZERO),RSB_MAX(Y,RSB_TIME_ZERO))) )
 
-void rsb__mtxfn_bncp(char* dst, const char*src, int lm)
+static void rsb__mtxfn_bncp(char* dst, const char*src, int lm)
 {
 	/* 
 	 * Matrix file name base name copy.
@@ -1730,45 +1384,25 @@ void rsb__mtxfn_bncp(char* dst, const char*src, int lm)
 		*dp = *sp;
 	}
 	sl = rsb__strlen(dst);
-	if( sl > 0 && dst[sl-1] == RSB_DIR_SEPARATOR )
-		dst[sl-1] = RSB_NUL;	/* for the case we want to 'sanitize' a dir basename */
-	sl = rsb__strlen(dst);
-#if RSB_WANT_EXPERIMENTAL_BINARY_COO
-	if( sl >11 && strcmp(dst+sl-11,".mtx.bin.gz") == 0 )
-		dst[sl-11] = RSB_NUL;
-	if( sl > 8 && strcmp(dst+sl-8,".mtx.bin") == 0 )
-		dst[sl-8] = RSB_NUL;
-#endif /* RSB_WANT_EXPERIMENTAL_BINARY_COO */
 	if( sl > 7 && strcmp(dst+sl-7,".mtx.gz") == 0 )
-		dst[sl-7] = RSB_NUL;
+		dst[sl-7] = '\0';
 	if( sl > 4 && strcmp(dst+sl-4,".mtx") == 0 )
-		dst[sl-4] = RSB_NUL;
+		dst[sl-4] = '\0';
 ret:
 	return;
 }
 
-static void rsb__stdout_magnitude(double qty)
-{
-	const char * ooms = " KMGTPEZY"; // order of magnitude string
-
-	while( qty >= 1000.0 && ooms[1] ) // stops on NUL
-		qty /= 1000.0, ooms++;
-
-	RSB_STDOUT("%4.1lf", qty);
-	if(*ooms!=' ')
-		RSB_STDOUT("%c", *ooms);
-}
-
-static rsb_err_t rsb__pr_dump_sample(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rsb_int_t*ca, const rsb_int_t*incXa, const rsb_int_t*incYa, const rsb_int_t*nrhsa, const rsb_type_t*typecodes, const rsb_int_t*ta, const int*filenameifp, const int*ifilenameifp, const int*cifp , const int*incXifp , const int*incYifp , const int*nrhsifp , const int*typecodefip , const int*tifp, const rsb_trans_t*tfp, rsb_flags_t flagsA, rsb_flags_t nflagsA, rsb_int_t filenamei, rsb_int_t ci, rsb_int_t incXi, rsb_int_t incYi, rsb_int_t nrhsi, rsb_int_t typecodesi, rsb_int_t ti, int rds, int wltm)
+static rsb_err_t rsb__pr_dump_sample(const void*rsprpv, const rsb_char_t**filenamea, rsb_int_t*ca, const rsb_int_t*incXa, const rsb_int_t*incYa, const rsb_int_t*nrhsa, const rsb_type_t*typecodes, const rsb_int_t*ta, const int*filenameifp, const int*ifilenameifp, const int*cifp , const int*incXifp , const int*incYifp , const int*nrhsifp , const int*typecodefip , const int*tifp, const rsb_trans_t*tfp, rsb_flags_t flagsA, rsb_flags_t nflagsA, rsb_int_t filenamei, rsb_int_t ci, rsb_int_t incXi, rsb_int_t incYi, rsb_int_t nrhsi, rsb_int_t typecodesi, rsb_int_t ti, int rds, int wltm)
 {
         /* TODO: may print a different record if( rsprp->ror == RSB_BOOL_TRUE ) */
 
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	const struct rsb_rspr_t * rsprp = rsprpv;
+
 	{
-		const size_t idx = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
-		const struct rsb_rsps_t*psp = &(rsprp->psa[idx]);
-		const rsb_int_t nnzA = psp->nnzA, nrA = psp->nrA, ncA = psp->ncA;
+		size_t idx = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
+		struct rsb_rsps_t*psp = &(rsprp->psa[idx]);
+		rsb_int_t nnzA = psp->nnzA, nrA = psp->nrA, ncA = psp->ncA;
 		rsb_char_t fnbuf[RSB_MAX_FILENAME_LENGTH];
 		rsb_perf_t brsb_op_time = psp->op_time;
 		rsb_perf_t bmkl_op_time = psp->mkl_csr_op_time;
@@ -1789,7 +1423,7 @@ static rsb_err_t rsb__pr_dump_sample(const void*rsprpv, rsb_char_t**RSB_RESTRICT
 #endif
         	if(rds==RSB_PRD_STYLE_TBL)
 		{
-			const double rldt = RSB_RLD_THR_EXP/*, cmpt = RSB_CMP_THR_EXP, appt = RSB_APE_THR_EXP, hgdt = RSB_HUD_THR_EXP*/;
+        		double cmpt = RSB_CMP_THR_EXP, appt = RSB_APE_THR_EXP, rldt = RSB_RLD_THR_EXP, hgdt = RSB_HUD_THR_EXP;
 			const char * ss = RSB_PRL_FSEPSTR_IE; /* separator string */
 			const char * ts = RSB_PRL_ENDLSTR_IE; /* terminator string */
 			const char * rcc = "\\cellcolor{red}"; /* red colored cell */
@@ -1811,15 +1445,12 @@ static rsb_err_t rsb__pr_dump_sample(const void*rsprpv, rsb_char_t**RSB_RESTRICT
 			RSB_STDOUT("%s", RSB_ON_IF_LEM(psp->at_op_time, psp->at_mkl_csr_op_time , gcc, ncc, rcc));/* EXPERIMENTAL */
 			//RSB_STDOUT("%s", RSB_ON_IF_LEM(psp->at_op_time, psp->at_mkl_csr_op_time , RSB_ON_IF_LEM( psp->at_op_time*rldt ,psp->at_mkl_csr_op_time,Gcc , gcc, gcc), ncc, rcc));/* EXPERIMENTAL */
 			RSB_STDOUT("%s",ss);
-			RSB_STDOUT("%s%s%d%s%d%s",
+			RSB_STDOUT("%s%s%d%s%d%s%d%s",
 				fnbuf,ss,
 				nrA,ss,
-				ncA,ss
+				ncA,ss,
+				nnzA,ss
 			);
-			if( rsb__util_atoi(rsb__getenv("RSB_PR_WLTC")) > 0 )
-				{ rsb__stdout_magnitude((double) nnzA); RSB_STDOUT("%s",ss); }
-			else
-				RSB_STDOUT("%d%s", nnzA,ss);
 			if(rsprp->incXn > 1 && rsprp->incYn > 1)
 			RSB_STDOUT("%d%s%d%s",
 				incXa[incXi],ss,
@@ -1869,24 +1500,24 @@ static rsb_err_t rsb__pr_dump_sample(const void*rsprpv, rsb_char_t**RSB_RESTRICT
 				);
 #if RSB_PRD_WANT_CODE_BALANCE_AND_BANDWIDTH
 {
-			const size_t so = RSB_SIZEOF_BACKUP(typecodes[typecodesi]); /* size of */
-			const size_t mo = (so*psp->nnzA+((rsb_perf_t)(psp->at_isa))); /* matrix occupation */
-			const size_t oo = so*nrhsa[nrhsi]*(nrA+ncA); /* operands occupation */
-			const size_t owt = so*nrhsa[nrhsi]*RSB_ELSE_IF_TRANSPOSE(psp->nrA,psp->ncA,psp->transA); /* operands write traffic */
+			size_t so = RSB_SIZEOF_BACKUP(typecodes[typecodesi]); /* size of */
+			size_t mo = (so*psp->nnzA+((rsb_perf_t)(psp->at_isa))); /* matrix occupation */
+			size_t oo = so*nrhsa[nrhsi]*(psp->nrA+psp->ncA); /* operands occupation */
+			size_t owt = so*nrhsa[nrhsi]*((RSB_DOES_TRANSPOSE(psp->transA)?0:1)*psp->nrA+(RSB_DOES_TRANSPOSE(psp->transA)?1:0)*psp->ncA); /* operands write traffic */
 			/* size_t mrt = oo + mo; */ /* minimal read traffic */
-			const size_t mwt = oo + mo + owt; /* minimal read+write traffic */
+			size_t mwt = oo + mo + owt; /* minimal read+write traffic */
 			/* rsb_perf_t mrb = ((rsb_perf_t)mrt)/(psp->at_op_time*1e9);*/ /* minimal read bandwidth, GBps */
-			const rsb_perf_t mwb = ((rsb_perf_t)mwt)/(psp->at_op_time*1e9); /* minimal read+write bandwidth, GBps */
+			rsb_perf_t mwb = ((rsb_perf_t)mwt)/(psp->at_op_time*1e9); /* minimal read+write bandwidth, GBps */
 			/* RSB_STDOUT( "%3.2le%s", mrb, ss); */ /* BW/RDminBWIDTH: minimal bandwidth, GB/s */
 			RSB_STDOUT( "%3.2le%s", mwb, ss); /* BW/RWminBW: minimal bandwidth, GB/s */
 }
 {
-			const size_t so = RSB_SIZEOF_BACKUP(typecodes[typecodesi]); /* size of */
-			const size_t mo = (so*psp->nnzA+((rsb_perf_t)(psp->at_isa))); /* matrix occupation */
-			const size_t oo = so*nrhsa[nrhsi]*(nrA+ncA); /* operands occupation */
-			const size_t mt = oo + mo; /* minimal traffic */
-			const rsb_perf_t om = 1e6 *(psp->cmflops * nrhsa[nrhsi]); /* operation flops */
-			const rsb_perf_t bm = (1.0 / om) * mt; /* bytes per flops */
+			size_t so = RSB_SIZEOF_BACKUP(typecodes[typecodesi]); /* size of */
+			size_t mo = (so*psp->nnzA+((rsb_perf_t)(psp->at_isa))); /* matrix occupation */
+			size_t oo = so*nrhsa[nrhsi]*(nrA+ncA); /* operands occupation */
+			size_t mt = oo + mo; /* minimal traffic */
+			rsb_perf_t om = 1e6 *(psp->cmflops * nrhsa[nrhsi]); /* operation flops */
+			rsb_perf_t bm = (1.0 / om) * mt; /* bytes per flops */
 			RSB_STDOUT( "%3.2le%s", bm, ss); /* CB: code balance, bpf = bytes per flop */
 }
 #endif /* RSB_PRD_WANT_CODE_BALANCE_AND_BANDWIDTH */
@@ -1927,7 +1558,7 @@ static rsb_err_t rsb__pr_dump_sample(const void*rsprpv, rsb_char_t**RSB_RESTRICT
 	return errval;
 }
 
-static rsb_err_t rsb__pr_filter(const struct rsb_rsps_t*psp, const rsb_int_t*ta, const int*filenameifp, const int*ifilenameifp, const int*cifp , const int*incXifp , const int*incYifp , const int*nrhsifp , const int*typecodefip , const int*tifp, const rsb_trans_t*tfp, rsb_flags_t flagsA, rsb_flags_t nflagsA,
+static rsb_err_t rsb__pr_filter(struct rsb_rsps_t*psp, const rsb_int_t*ta, const int*filenameifp, const int*ifilenameifp, const int*cifp , const int*incXifp , const int*incYifp , const int*nrhsifp , const int*typecodefip , const int*tifp, const rsb_trans_t*tfp, rsb_flags_t flagsA, rsb_flags_t nflagsA,
 	       	rsb_int_t filenamei, rsb_int_t ci, rsb_int_t incXi, rsb_int_t incYi, rsb_int_t nrhsi, rsb_int_t typecodesi, rsb_int_t ti)
 {
 		if( filenameifp && ( *filenameifp != filenamei  ) )
@@ -1962,16 +1593,14 @@ static rsb_err_t rsb__pr_filter(const struct rsb_rsps_t*psp, const rsb_int_t*ta,
 	if( psp->uc > 0 && psp->uc < 3 )
 		;
 	else
-	{
 		goto skipit;/* we skip this iteration's sample */
-	}
 
-		return RSB_ERR_NO_ERROR;
+	return RSB_ERR_NO_ERROR;
 skipit:
 		return RSB_ERR_GENERIC_ERROR;
 }
 
-rsb_err_t rsb__pr_dump_inner(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rsb_int_t*ca, const rsb_int_t*incXa, const rsb_int_t*incYa, const rsb_int_t*nrhsa, const rsb_type_t*typecodes, const rsb_int_t*ta, const int*filenameifp, const int*ifilenameifp, const int*cifp , const int*incXifp , const int*incYifp , const int*nrhsifp , const int*typecodefip , const int*tifp, const rsb_trans_t*tfp, rsb_flags_t flagsA, rsb_flags_t nflagsA, rsb_char_t *ltag, const rsb_char_t *fprfn)
+rsb_err_t rsb__pr_dump_inner(const void*rsprpv, const rsb_char_t**filenamea, rsb_int_t*ca, const rsb_int_t*incXa, const rsb_int_t*incYa, const rsb_int_t*nrhsa, const rsb_type_t*typecodes, const rsb_int_t*ta, const int*filenameifp, const int*ifilenameifp, const int*cifp , const int*incXifp , const int*incYifp , const int*nrhsifp , const int*typecodefip , const int*tifp, const rsb_trans_t*tfp, rsb_flags_t flagsA, rsb_flags_t nflagsA, rsb_char_t *ltag)
 {
 	/*
 	 * dump a performance record, inner
@@ -1980,13 +1609,11 @@ rsb_err_t rsb__pr_dump_inner(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenam
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	const struct rsb_rspr_t * rsprp = rsprpv;
 	rsb_int_t filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti;
-	rsb_int_t nocsa = 0; /* number of considered samples  */
-	rsb_int_t nocma = 0, lacma = -1; /* number of considered matrices, last considered matrix */
+	rsb_int_t nocsa = 0; /* number of considered samples */
 	rsb_int_t noats = 0, noatf = 0; /* number of auto tuning successes / failures */
 	rsb_int_t ntufm = 0, ntusm = 0; /* number (of) times untuned rsb (was) faster/slower (than) mkl */
 	rsb_int_t nttfm = 0, nttsm = 0; /* number (of) times  tuned  rsb (was) faster/slower (than   tuned) mkl */
 	rsb_int_t nttfu = 0, nttsu = 0; /* number (of) times  tuned  rsb (was) faster/slower (than untuned) mkl */
-	rsb_int_t nnzrm = 0; /* number (of) samples tuned rsb and tuned mkl were not zero  */
 	rsb_int_t ntmfm = 0, ntmsm = 0; /* number (of times)  tuned mkl (was) faster/slower (than untuned) mkl */
 	rsb_int_t ntasl = 0, ntasm = 0, ntase = 0; /* number (of times)  autotuned (was) subdivided less/more/equally */
 	rsb_int_t ntatl = 0, ntatm = 0, ntate = 0; /* number (of times)  autotuned used  less/more/equal threads */
@@ -2001,7 +1628,6 @@ rsb_err_t rsb__pr_dump_inner(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenam
 	double aoatuo = 0.0, miatuo = RSB_CONST_IMPOSSIBLY_BIG_TIME, maatuo = 0.0, toatuo = 0.0; /* average,min,max,total of auto tuning untuned ops */
 	double aoatto = 0.0, miatto = RSB_CONST_IMPOSSIBLY_BIG_TIME, maatto = 0.0, toatto = 0.0; /* average,min,max,total of auto tuning  tuned  ops */
 	double aouatc = 0.0, miuatc = RSB_CONST_IMPOSSIBLY_BIG_TIME, mauatc = 0.0, touatc = 0.0; /* average,min,max,total of unsuccessful auto tuning cost  */
-	double aotrtm = 0.0; /* average of  tuned  ratio   with respect to mkl  */
 	double aotstm = 0.0; /* average of  tuned  speedup with respect to mkl  */
 	double aotstu = 0.0; /* average of  tuned  speedup with respect to (untuned) mkl  */
 	double aoustm = 0.0; /* average of untuned speedup with respect to mkl  */
@@ -2044,17 +1670,12 @@ rsb_err_t rsb__pr_dump_inner(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenam
         rsb_int phase = 0; /* first count samples, then dump */
         double cmpt = RSB_CMP_THR_EXP, appt = RSB_APE_THR_EXP, rldt = RSB_RLD_THR_EXP, hgdt = RSB_HUD_THR_EXP;
         const rsb_int_t wdbg = 0; /* want debug */
-        int rds = rsb__getenv_real_t("RSB_PR_SR",RSB_PRD_STYLE_TBL);
-        int wltm = rsb__getenv_real_t("RSB_PR_WLTC",0); /* Want LaTeX tables mode */
+        int rds = rsb__getenv("RSB_PR_SR") ? rsb__util_atof(rsb__getenv("RSB_PR_SR")): RSB_PRD_STYLE_TBL;
+        int wltm = rsb__getenv("RSB_PR_WLTC") ? rsb__util_atof(rsb__getenv("RSB_PR_WLTC")) : 0; /* Want LaTeX tables mode */
 	const char * ss = RSB_PRL_FSEPSTR_IE; /* separator string */
 	const char * ts = RSB_PRL_ENDLSTR_IE; /* terminator string */
 	const char rsb_prl_lcc = RSB_PRL_LCC_IE;
 	const char*rsb_prl_tcs = RSB_PRL_TCS_IE;
-#if RSB_PRD_WANT_MBW
-	const rsb_bool_t wpptmbw = rsprp->mbet.sn > 0 ? RSB_BOOL_TRUE : RSB_BOOL_FALSE; /* want performance proportion to memory bandwidth  */
-#else
-	const rsb_bool_t wpptmbw = RSB_BOOL_FALSE;
-#endif /* RSB_PRD_WANT_MBW */
 
 	if(0 /* FIXME: move this notice to an outer function */)
         if(rds!=RSB_PRD_STYLE_TBL)
@@ -2095,7 +1716,7 @@ gop2:
 			RSB_PRT("BESTCODE%sMTX%sNR%sNC%sNNZ%s", ss,ss,ss,ss,ss);
 			if(rsprp->incXn > 1 && rsprp->incYn > 1)
 				RSB_PRC("INCX%sINCY%s",ss,ss);
-			RSB_PRC("NRHS%sTYPE%sSYM%sTRANS%sNT%sAT-NT%sAT-" RSB_MKL_S "-NT%sBPNZ%sAT-BPNZ%sNSUBM%sAT-SUBM%sRSBBEST-MFLOPS%sOPTIME%s" RSB_MKL_S "-OPTIME%sAT-OPTIME%sAT-" RSB_MKL_S "-OPTIME%sAT-TIME%s""RWminBW-GBps%s""CB-bpf%sAT-MS%sCMFLOPS%s\n",ss,ss,ss,ss,ss,ss,ss,ss,ss, ss,ss,ss,ss,ss,ss,ss,ss,ss,ss, ss,ts); /* FIXME: RWminBW and CB depend on RSB_PRD_WANT_CODE_BALANCE_AND_BANDWIDTH=0 */
+			RSB_PRC("NRHS%sTYPE%sSYM%sTRANS%sNT%sAT-NT%sAT-MKL-NT%sBPNZ%sAT-BPNZ%sNSUBM%sAT-SUBM%sRSBBEST-MFLOPS%sOPTIME%sMKL-OPTIME%sAT-OPTIME%sAT-MKL-OPTIME%sAT-TIME%s""RWminBW-GBps%s""CB-bpf%sAT-MS%sCMFLOPS%s\n",ss,ss,ss,ss,ss,ss,ss,ss,ss, ss,ss,ss,ss,ss,ss,ss,ss,ss,ss, ss,ts); /* FIXME: RWminBW and CB depend on RSB_PRD_WANT_CODE_BALANCE_AND_BANDWIDTH=0 */
         	}
 		if(wltm > 0)
 			RSB_PRT("\\hline\n");
@@ -2104,7 +1725,7 @@ gop2:
         {
         	if(!ifilenameifp) /* no printout of records in this mode */
         	{
-        		RSB_PRL("Each sample: BESTCODE MTX NR NC NNZ INCX INCY NRHS TYPE SYM TRANS " RSB_MKL_S "_OP_T/RSB_OP_T RSB_OP_T RSB_MFLOPS " RSB_MKL_S "_OP_T " RSB_MKL_S "_MFLOPS\n");
+        		RSB_PRL("Each sample: BESTCODE MTX NR NC NNZ INCX INCY NRHS TYPE SYM TRANS MKL_OP_T/RSB_OP_T RSB_OP_T RSB_MFLOPS MKL_OP_T MKL_MFLOPS\n");
         	}
         }
 	}
@@ -2117,8 +1738,8 @@ gop2:
 	for(typecodesi=0;typecodesi<rsprp->ntypecodes;++typecodesi)
 	for(ti=0;ti<rsprp->tn;++ti)
 	{
-		const size_t idx = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
-		const struct rsb_rsps_t*psp = &(rsprp->psa[idx]);
+		size_t idx = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
+		struct rsb_rsps_t*psp = &(rsprp->psa[idx]);
 		/* rsb_int_t nnzA = psp->nnzA, nrA = psp->nrA, ncA = psp->ncA; */
 		rsb_bool_t atweost = ( ( psp->nsubm != psp->at_nsubm ) && ( psp->at_nsubm != 0 ) ); /* autotuning was effective on structure */
 		rsb_bool_t atweoth = ( ( ca[ci] != psp->at_cn ) && ( psp->at_cn != 0 ) ); /* autotuning was effective on threads   */
@@ -2167,12 +1788,7 @@ gop2:
 	}
 
 	if( psp->uc > 0 && psp->uc < 3 )
-	{
-		if( lacma != filenamei )
-			lacma = filenamei,
-			nocma++;
 		nocsa ++; /* we consider this iteration's sample */
-	}
 	else
 		continue; /* we skip this iteration's sample */
 
@@ -2204,15 +1820,14 @@ gop2:
 			csdc = '*';
 */
 		rsb__mtxfn_bncp(fnbuf,filenamea[filenamei],0);
-        	if(rds==RSB_PRD_STYLE_TBL) /* TODO: not for plots */
 		RSB_PRT("%4zd:%c%s%c%c ",idx+1, usdc, ((wltm && csdc=='_')?"\\":""), csdc, asdc);
 		rsb__pr_dump_sample(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, filenameifp, ifilenameifp, cifp, incXifp , incYifp , nrhsifp , typecodefip , tifp, tfp, flagsA, nflagsA, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti, rds, wltm);
 	}
 
 		if(     /* nrhsi==0 && */ rsprp->nrhsn > 1 )
 		{
-			const rsb_coo_idx_t miv = rsb__util_find_min_index(nrhsa, rsprp->nrhsn);
-			const rsb_coo_idx_t mav = rsb__util_find_max_index(nrhsa, rsprp->nrhsn);
+			rsb_coo_idx_t miv = rsb__util_find_min_index(nrhsa, rsprp->nrhsn);
+			rsb_coo_idx_t mav = rsb__util_find_max_index(nrhsa, rsprp->nrhsn);
 
 			RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(mav));
 			RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(miv));
@@ -2221,8 +1836,8 @@ gop2:
 			{
                                 rsb_coo_idx_t nrhsi0 = /*miv*/ miv;
                                 rsb_coo_idx_t nrhsi1 = /*mav*/ nrhsi;
-                                const size_t idx0 = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi0, typecodesi, ti);
-                                const size_t idx1 = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi1, typecodesi, ti);
+                                size_t idx0 = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi0, typecodesi, ti);
+                                size_t idx1 = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi1, typecodesi, ti);
                                 /* ratio of performances (canonical flops per time) */
                                 RSB_UPD_AMM( (rsprp->psa[idx0].at_op_time*nrhsa[nrhsi1] )     / (         rsprp->psa[idx1].at_op_time*nrhsa[nrhsi0] ) ,avrsmv, mirsmv , marsmv);
                                 RSB_UPD_AMM( (rsprp->psa[idx0].mkl_csr_op_time*nrhsa[nrhsi1]) / ( rsprp->psa[idx1].at_mkl_csr_op_time*nrhsa[nrhsi0] ) ,avmsmv, mimsmv , mamsmv);
@@ -2254,7 +1869,7 @@ gop2:
 		{
 			if( RSB_FSTR_THN_THR(psp->at_op_time,psp->op_time,cmpt) && atwe )
 			{
-				const double ratio = ( psp->op_time / psp->at_op_time );
+				double ratio = ( psp->op_time / psp->at_op_time );
 				const rsb_type_t typecode = typecodes[typecodesi];
 				size_t so = RSB_SIZEOF(typecode);
 
@@ -2287,23 +1902,23 @@ gop2:
 				RSB_UPD_AMM( (((double)(psp->isa))     / psp->nnzA    ), avbpnb, mibpnb, mabpnb);
 #if RSB_PRD_WANT_CODE_BALANCE_AND_BANDWIDTH
 				{
-			const size_t so = RSB_SIZEOF_BACKUP(typecodes[typecodesi]); /* size of */
-			const size_t mo = (so*psp->nnzA+psp->at_isa); /* matrix occupation */
-			const size_t oo = so*nrhsa[nrhsi]*(psp->nrA+psp->ncA); /* operands occupation */
-			const size_t owt = so*nrhsa[nrhsi]*RSB_ELSE_IF_TRANSPOSE(psp->nrA,psp->ncA,psp->transA); /* operands write traffic */
-			const size_t mrt = oo + mo, mwt = oo + mo + owt; /* minimal read / read+write traffic */
-			const rsb_perf_t mrb = ((rsb_perf_t)mrt)/(psp->at_op_time*1e9); /* minimal read bandwidth,       GBps */
-			const rsb_perf_t mwb = ((rsb_perf_t)mwt)/(psp->at_op_time*1e9); /* minimal read/write bandwidth, GBps */
+			size_t so = RSB_SIZEOF_BACKUP(typecodes[typecodesi]); /* size of */
+			size_t mo = (so*psp->nnzA+psp->at_isa); /* matrix occupation */
+			size_t oo = so*nrhsa[nrhsi]*(psp->nrA+psp->ncA); /* operands occupation */
+			size_t owt = so*nrhsa[nrhsi]*((RSB_DOES_TRANSPOSE(psp->transA)?0:1)*psp->nrA+(RSB_DOES_TRANSPOSE(psp->transA)?1:0)*psp->ncA); /* operands write traffic */
+			size_t mrt = oo + mo, mwt = oo + mo + owt; /* minimal read / read+write traffic */
+			rsb_perf_t mrb = ((rsb_perf_t)mrt)/(psp->at_op_time*1e9); /* minimal read bandwidth,       GBps */
+			rsb_perf_t mwb = ((rsb_perf_t)mwt)/(psp->at_op_time*1e9); /* minimal read/write bandwidth, GBps */
 			RSB_UPD_AMM( mwb, avlowb, milowb, malowb);
 			RSB_UPD_AMM( mrb, avlorb, milorb, malorb);
 				}
 				{
-			const size_t so = RSB_SIZEOF_BACKUP(typecodes[typecodesi]); /* size of */
-			const size_t mo = (so*psp->nnzA+((rsb_perf_t)(psp->at_isa))); /* matrix occupation */
-			const size_t oo = so*nrhsa[nrhsi]*(psp->nrA+psp->ncA); /* operands occupation */
-			const size_t mt = oo + mo; /* minimal traffic */
-			const rsb_perf_t om = 1e6 *(psp->cmflops * nrhsa[nrhsi]); /* operation flops */
-			const rsb_perf_t bm = (1.0 / om) * mt; /* bytes per mflops */;
+			size_t so = RSB_SIZEOF_BACKUP(typecodes[typecodesi]); /* size of */
+			size_t mo = (so*psp->nnzA+((rsb_perf_t)(psp->at_isa))); /* matrix occupation */
+			size_t oo = so*nrhsa[nrhsi]*(psp->nrA+psp->ncA); /* operands occupation */
+			size_t mt = oo + mo; /* minimal traffic */
+			rsb_perf_t om = 1e6 *(psp->cmflops * nrhsa[nrhsi]); /* operation flops */
+			rsb_perf_t bm = (1.0 / om) * mt; /* bytes per mflops */;
 			RSB_UPD_AMM( bm, avcoba, micoba, macoba);
 				}
 #endif /* RSB_PRD_WANT_CODE_BALANCE_AND_BANDWIDTH */
@@ -2349,18 +1964,10 @@ gop2:
 		                RSB_UPD_AMM(psp->at_t,                aouatt, miuatt, mauatt );
 			}
 
-			if( psp->at_op_time && psp->at_mkl_csr_op_time )
-			{
-				/* tuned rsb ratio over tuned mkl */
-				const double ratio = ( psp->at_mkl_csr_op_time / psp->at_op_time );
-				nnzrm ++;
-				aotrtm += ratio;
-			}
-
 			if( RSB_FSTR_THN_THR(psp->at_op_time, psp->mkl_csr_op_time, cmpt ) )
 			{
 				/* tuned rsb success over untuned mkl */
-				const double ratio = ( psp->mkl_csr_op_time / psp->at_op_time );
+				double ratio = ( psp->mkl_csr_op_time / psp->at_op_time );
 				nttfu ++;
 				aotstu += ratio;
 				RSB_UPD_TO_MAX(mstrwu,ratio);
@@ -2373,7 +1980,7 @@ gop2:
 			if( RSB_FSTR_THN_THR(psp->op_time, psp->mkl_csr_op_time, cmpt) )
 			{
 				/* untuned rsb success over mkl */
-				const double ratio = ( psp->mkl_csr_op_time / psp->op_time );
+				double ratio = ( psp->mkl_csr_op_time / psp->op_time );
 				ntufm ++;
 				aoustm += ratio;
 				RSB_UPD_TO_MAX(msurwm,ratio);
@@ -2382,7 +1989,7 @@ gop2:
 			if( RSB_SLWR_THN_THR(psp->op_time, psp->mkl_csr_op_time) )
 			{
 				/* untuned rsb unsuccess over mkl */
-				const double ratio = ( psp->op_time / psp->mkl_csr_op_time );
+				double ratio = ( psp->op_time / psp->mkl_csr_op_time );
 			       	ntusm ++;
 				aoussm += ratio;
 				RSB_UPD_TO_MAX(msumwr,ratio);
@@ -2391,7 +1998,7 @@ gop2:
 			if( RSB_FSTR_THN_THR(psp->at_op_time, psp->at_mkl_csr_op_time, cmpt ) )
 			{
 				/* tuned rsb success over mkl */
-				const double ratio = ( psp->at_mkl_csr_op_time / psp->at_op_time );
+				double ratio = ( psp->at_mkl_csr_op_time / psp->at_op_time );
 				nttfm ++;
 				aotstm += ratio;
 				RSB_UPD_TO_MAX(mstrwm,ratio);
@@ -2401,7 +2008,7 @@ gop2:
 			if( RSB_SLWR_THN_THR(psp->at_op_time, psp->at_mkl_csr_op_time) )
 			{
 				/* tuned rsb unsuccess over mkl */
-				const double ratio = ( psp->at_op_time / psp->at_mkl_csr_op_time );
+				double ratio = ( psp->at_op_time / psp->at_mkl_csr_op_time );
 			       	nttsm ++;
 				aotssm += ratio;
 				RSB_UPD_TO_MAX(mstmwr,ratio);
@@ -2412,7 +2019,7 @@ gop2:
 		if( RSB_FSTR_THN_THR(psp->at_mkl_csr_op_time, psp->mkl_csr_op_time, cmpt ) )
 		{
 			/* mkl tuning success */
-			const double ratio = ( psp->mkl_csr_op_time / psp->at_mkl_csr_op_time );
+			double ratio = ( psp->mkl_csr_op_time / psp->at_mkl_csr_op_time );
 			ntmfm ++;
 			aotsmm += ratio;
 			RSB_UPD_TO_MAX(mstmwm,ratio);
@@ -2435,7 +2042,88 @@ gop2:
 		RSB_PRT("\\hline\\caption{%s}\\\\\\hline\\end{longtabu}\n",ltag?fnbuf:"...");
 	}
 
-	/* FIXME: until 20160722 here was the plot case handling */
+
+	/* begin plot subcase */
+        if(nocsa > 0)
+        if(rds>=RSB_PRD_STYLE_PLT_BASE)
+        {
+		const rsb_char_t * pl = NULL;
+		const rsb_char_t * ppl = "";
+		rsb_char_t pfn[RSB_MAX_FILENAME_LENGTH];
+
+                if(rsb__getenv("RSB_PRD_STYLE_PLT_PFN"))
+			ppl = rsb__getenv("RSB_PRD_STYLE_PLT_PFN");
+
+                if( rsb__util_atoi(rsb__getenv("RSB_PRD_STYLE_PLT_FMT")) )
+		{
+			pl = "set term postscript eps color;";
+			sprintf(pfn,"%s%s.eps",ppl,ltag?ltag:"plot");
+		}
+		else
+		{
+			pl = "set term png;";
+			sprintf(pfn,"%s%s.png",ppl,ltag?ltag:"plot");
+		}
+
+        	if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB)
+		{
+       			RSB_STDOUT("%sset output '%s'; set title 'autotuning effect'; unset ytics;set yrange [0: 2];\n",pl,pfn);
+			RSB_STDOUT("plot '-' using 1:2 title 'rsb' lt rgb 'red'\n");
+			RSB_STDOUT("set xlabel 'speedup'\n");
+			RSB_STDOUT("set ylabel ' '\n");
+		}
+
+        	if(rds==RSB_PRD_STYLE_PLT_SUBM_BS)
+		{
+       			RSB_STDOUT("%sset output '%s';",pl,pfn);
+		       	//RSB_STDOUT("set title 'autotuning effect'; unset ytics;set yrange [0: 3];\n");
+			RSB_STDOUT("set xlabel 'bytes per submatrix'\n");
+			RSB_STDOUT("set ylabel 'performance, Mflops/s'\n");
+			RSB_STDOUT("set xtics rotate by -45\n");
+			RSB_STDOUT("plot '-' using 1:2:3:4 with vectors title 'rsb' lt rgb 'red'\n");
+		}
+
+		for(     filenamei=0;     filenamei<rsprp->filenamen ;++filenamei     )
+		for(ci=0;ci<rsprp->cn;++ci)
+		for(     incXi=0;     incXi<rsprp->incXn     ;++incXi     )
+		for(     incYi=0;     incYi<rsprp->incYn     ;++incYi     )
+		for(     nrhsi=0;     nrhsi<rsprp->nrhsn     ;++nrhsi     )
+		for(typecodesi=0;typecodesi<rsprp->ntypecodes;++typecodesi)
+		for(ti=0;ti<rsprp->tn;++ti)
+		{
+			size_t idx = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
+			struct rsb_rsps_t*psp = &(rsprp->psa[idx]);
+			const rsb_type_t typecode = typecodes[typecodesi];
+			size_t so = RSB_SIZEOF(typecode);
+			so = RSB_SIZEOF_BACKUP(toupper(typecode));
+
+			if( RSB_ERR_NO_ERROR != rsb__pr_filter(psp, ta, filenameifp, ifilenameifp, cifp , incXifp , incYifp , nrhsifp , typecodefip , tifp, tfp, flagsA, nflagsA, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti) )
+				continue;
+        		if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB)
+        			RSB_STDOUT("%le %d\n",psp->op_time/psp->at_op_time,1);
+        		if(rds==RSB_PRD_STYLE_PLT_SUBM_BS)
+			{
+				double avmbybt = (((double)(so*psp->nnzA)) / psp->nsubm   );
+				double avmbyat = (((double)(so*psp->nnzA)) / psp->at_nsubm);
+				//double avmbpnb = (((double)(psp->isa))     / psp->nnzA    );
+				//double avmbpna = (((double)(psp->at_isa))     / psp->nnzA    );
+				double avmrmps = ((psp->cmflops * nrhsa[nrhsi]) / psp->at_op_time);
+		     		double avmRmps = ((psp->cmflops * nrhsa[nrhsi]) / psp->op_time);
+				//double avmmmps = ((psp->cmflops * nrhsa[nrhsi]) / psp->at_mkl_csr_op_time);
+			     	//double avmMmps = ((psp->cmflops * nrhsa[nrhsi]) / psp->mkl_csr_op_time);
+
+        			RSB_STDOUT("%le %le %le %le\n",avmbybt,avmRmps,avmbyat,avmrmps-avmRmps);
+        			//RSB_STDOUT("%le %d %le %d\n",avmbybt,1,avmbyat,1);
+        			//RSB_STDOUT("%le %le %le %le\n",avmbybt,avmbpnb,avmbyat,(avmbpna-avmbpnb));
+			}
+		}
+        	if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB)
+        		RSB_STDOUT("e\n");
+        	if(rds==RSB_PRD_STYLE_PLT_SUBM_BS)
+        		RSB_STDOUT("e\n");
+		goto ret;
+        }
+	/* end plot subcase */
 
 	if( nocsa <= 0 )
 	{
@@ -2453,7 +2141,6 @@ gop2:
                 {
                         phase = 1;
                         nocsa = 0;
-			nocma = 0, lacma = -1;
                         goto gop2;
                 }
         }
@@ -2468,7 +2155,6 @@ gop2:
 	{
 
 		RSB_DIV_NOT_BY_ZERO(aoatsr, noats);
-		RSB_DIV_NOT_BY_ZERO(aotrtm, nnzrm);
 		/* RSB_DIV_NOT_BY_ZERO(mstrwr, noats); */
 		RSB_DIV_NOT_BY_ZERO(aoatsp, noats);
 		RSB_DIV_NOT_BY_ZERO(aoatac, noats);
@@ -2493,17 +2179,13 @@ gop2:
 		tosatt = aosatt;
 		RSB_DIV_NOT_BY_ZERO(aosatt, noats);
 
-#if (RSB_WANT_MKL || RSB_WANT_ARMPL)
-		/* we may spare this line also wen all mkl measurements are void. */
 		RSB_PRL("above, '~' marks that rsb and mkl are close within %lgx, '.' marks that rsb is better than mkl by >%lgx, '!' marks that rsb is better than mkl by >%lgx\n",appt,rldt,hgdt);
-#endif /* RSB_WANT_MKL */
 		RSB_PRL("below, we define 'successful' autotuning when speedup of %lfx is exceeded, and 'tuned' results even the ones which are same as untuned\n", cmpt);
 		
 	       	if(noats >  0)
 		{
 			RSB_PRL("rsb autotuning was successful in %5d cases (%3.2lf %%) and unsuccessful in %d cases (%3.2lf %%)\n", noats, RSB_PCT(noats,noats+noatf), noatf, RSB_PCT(noatf,noats+noatf) );
-			RSB_PRL(" (in succ. cases rsb autotuning gave    avg. %5.1lf %% faster, avg. sp. ratio %5.3lfx, max sp. ratio %5.3lfx, avg. ratio %5.3lfx)\n", aoatsp, aoatsr, mstrwr, aotrtm);
-			//RSB_PRL(" (in succ. cases was  avg. %5.1lf %% faster, avg. sp. ratio %5.3lf, max sp. ratio %5.3lf)\n", aoatsp, aoatsr, mstrwr );
+			RSB_PRL(" (in succ. cases was  avg. %5.1lf %% faster, avg. sp. ratio %5.3lf, max sp. ratio %5.3lf)\n", aoatsp, aoatsr, mstrwr );
 			RSB_PRL(" (in succ. cases rsb autotuning took an avg/min/max/tot of: %5.1lf/%5.1lf/%5.1lf/%5.1lf   tuned ops)\n", aoatto, miatto, maatto, toatto);
 			RSB_PRL(" (in succ. cases rsb autotuning took an avg/min/max/tot of: %5.1lf/%5.1lf/%5.1lf/%5.1lf untuned ops)\n", aoatuo, miatuo, maatuo, toatuo);
 	       		RSB_PRL(" (and amortizes from untuned rsb in avg. %5.1lf, min. %5.1lf, max. %5.1lf ops)\n",aoatac,miatac,maatac);
@@ -2626,54 +2308,6 @@ gop2:
 		RSB_PRL(" ref. unt. mkl operation time was: on avg. %2.3les, min %2.3les, max %2.3les, tot %2.3les (%d samples)\n",aoMott,miMott,maMott,toMott, nocsa );
 	}
 
-#if RSB_PRD_WANT_MBW
-	if(noats >  0)
-	if ( wpptmbw )
-	{
-		const int mml = RSB_MEMSCAN_DEFAULT_LEVELS; // max measurement level
-		int si;
-		double mrbw = 0; // memory reference bandwidth, GBps
-		double crbw = 0; // cache reference bandwidth, GBps
-
-		for(si=0;si<rsprp->mbet.sn;++si)
-			if ( rsprp->mbet.et[si].lvl == mml )
-			if ( rsprp->mbet.et[si].mbt == RSB_MB_MEMSET )
-
-				mrbw = rsprp->mbet.et[si].bw / 1000.0;
-
-		for(si=0;si<rsprp->mbet.sn;++si)
-			if ( rsprp->mbet.et[si].lvl == 1 )
-			if ( rsprp->mbet.et[si].mbt == RSB_MB_MEMSET )
-				crbw = rsprp->mbet.et[si].bw / 1000.0;
-
-		if ( mrbw )
-		{
-			// RSB_PRL(" MEMSET bandwidth in GBps: %2.3le \n",mrbw);
-			// RSB_PRL(" Extrapolated min / max read bandwidth in GBps: %2.3le %2.3le\n",milorb,malorb);
-			RSB_PRL(" min / max ratio of in-memory MEMSET bandwidth to extrapolated read bandwidth ratio: %2.3le %2.3le\n",mrbw/malorb,mrbw/milorb);
-			if ( mrbw < malorb || mrbw < milorb )
-			{
-				RSB_PRL("# Warning: extrapolated memory I/O bandwidth exceeds memory bandwidth --- is this a tiny matrix ?\n");
-			}
-
-			if ( crbw )
-			{
-   		     		RSB_ASSERT( crbw > mrbw );
-				RSB_PRL(" in-cache to in-memory MEMSET bandwidth ratio: %2.3le\n",crbw/mrbw);
-				if ( crbw < malorb || crbw < milorb )
-				{
-					RSB_PRL(" min / max ratio of in-cache MEMSET bandwidth to extrapolated read bandwidth ratio: %2.3le %2.3le\n",crbw/malorb,crbw/milorb);
-					RSB_PRL("# Warning: extrapolated memory I/O bandwidth exceeds cache bandwidth!\n");
-					// errval = RSB_ERR_INTERNAL_ERROR; // Note: maybe introduce a strict mode have an error emitted here.
-					RSB_PERR_GOTO(ret,"Error: extrapolated memory I/O bandwidth exceeds cache bandwidth!\n");
-				}
-			}
-		}
-		else
-			; // something must have gone wrong..
-	}
-#endif /* RSB_PRD_WANT_MBW */
-
 	if(ntsrf > 0)
 		RSB_PRL(" rsb nrhs-to-overall-min-rhs speed ratio was: on avg.    %2.3le x, min %2.3le x, max %2.3le x (%d samples, the non-min-nrhs ones)\n",avrsmv, mirsmv, marsmv, ntsrf);
 	if(vscm) /* vscm does not properly apply here; but ntsmf alone is not enough */
@@ -2724,220 +2358,11 @@ gop2:
 	/* plot per matrix, then different indexing per nonzero */
 	/* plot for all matrices, then different indexing per nonzero */
         if(rds==RSB_PRD_STYLE_TBL) if(wltm > 0) RSB_PRT("\\end{verbatim}\n");
-
-	/* begin plot subcase */
-        if(phase == 1) /* need the statistics to be ready */
-        if(nocsa > 0)
-        if(rds>=RSB_PRD_STYLE_PLT_BASE)
-        {
-		const rsb_char_t * pl = NULL;
-		const rsb_char_t * ppl = "";
-		rsb_char_t pfn[RSB_MAX_FILENAME_LENGTH];
-		rsb_int_t nocsai = 0; /* number of considered samples, index */
-
-        	if(nocsa < 2) /* at least two samples per plot */
-                	goto ret;
-
-                if(rsb__getenv("RSB_PRD_STYLE_PLT_PFN"))
-			ppl = rsb__getenv("RSB_PRD_STYLE_PLT_PFN");
-
-                if( rsb__util_atoi(rsb__getenv("RSB_PRD_STYLE_PLT_FMT")) )
-		{
-			pl = "set term postscript eps color size 2,2 noclip font \"Times-Roman,14\";";
-			sprintf(pfn,"%s%s.eps",ppl,ltag?ltag:"plot");
-		}
-		else
-		{
-			pl = "set term png;";
-			sprintf(pfn,"%s%s.png",ppl,ltag?ltag:"plot");
-		}
-
-        	if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB)
-		{
-       			RSB_STDOUT("%sset output '%s'; set title 'autotuning effect'; unset ytics;set yrange [0: 2];\n",pl,pfn);
-			RSB_STDOUT("plot '-' using 1:2 title 'rsb' lt rgb 'red'\n");
-			RSB_STDOUT("set xlabel 'speedup'\n");
-			RSB_STDOUT("set ylabel ' '\n");
-		}
-
-        	if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB_POLAR || rds==RSB_PRD_STYLE_PLT_MKL_SPEEDUP_POLAR)
-		{
-			// TODO: need to modify this
-			double rval, mrval, arval;
-			const char * title = NULL, *xlabel = NULL, *ylabel = ltag ? ltag: "";
-			char xlabelbuf[RSB_MAX_LABEL_LENGTH];
-
-        		if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB_POLAR)
-				//rval = RSB_MAX(ceil(aoatsr),2.0), mrval = aoatsr, // FIXME: this is average, we want max for mrval
-				rval = RSB_MAX(ceil(mstrwr),2.0),
-				mrval = mstrwr,
-				arval = aoatsr, // FIXME: this is average, we want max for mrval
-				title = "autotuning effect",
-				xlabel="''";
-
-        		if(rds==RSB_PRD_STYLE_PLT_MKL_SPEEDUP_POLAR)
-				rval = RSB_MAX(ceil(mstrwm),2.0),
-				arval = aotrtm,
-				mrval = mstrwm, 
-				title = "RSB to " RSB_MKL_S " speed ratio",
-				sprintf(xlabelbuf,"\"(avg impr. is %3.2lfx, max impr. is %3.2lfx,\\n avg. ratio. is %3.2lfx)\"",aotstm,mrval,arval),
-				xlabel=xlabelbuf;
-
-       			//RSB_STDOUT("#polar plot instructions RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB_POLAR\n");
-       			RSB_STDOUT("\
-# PLOT BEGIN #\n\
-my_rval=%lg # max ratio is %lg !\n\
-my_clen=2*pi\n\
-my_nsam=%d # number of samples\n\
-my_nmat=%d # number of matrices\n\
-my_rnge=my_rval*1.2\n\
-my_title='RSB'\n\
-#my_size=600 # pixels\n\
-#set term png size my_size,my_size\n\
-set key noinvert samplen 0.75 spacing 1 width 0 height 0 at graph 1.0,1.0\n\
-set title '%s';\n\
-set xlabel %s\n\
-set ylabel '[%s]'\n\
-#my_avg_str(x) = sprintf(\"avg: ... x\")\n\
-my_avg(x) = %lg \n\
-my_dir=\"%s\"\n\
-%s\n\
-",
-	rval,mrval,nocsa,nocma,title,xlabel,ylabel,arval,
-	(fprfn&&*fprfn)?fprfn:".",
-	(fprfn&&*fprfn)?"system('mkdir -p '.my_dir)":"");
-
-       			RSB_STDOUT("\
-set polar\n\
-#rgb_type(t) = ( t eq 'D' ) ? red : ( ( t eq 'Z' ) ? blue : (( t eq 'S' ) ? green : black )  )\n\
-#my_avg(v,l) = sprintf(\"avg: %%.2f%%s\",v,l)\n\
-#set grid polar min(my_clen/my_nsam,2*pi/my_maxnsam)\n\
-max_nsec=36 # after this won't draw sectors\n\
-#my_nsec=my_nsam # one sector per sample\n\
-my_nsec=my_nmat # one sector per matrix\n\
-my_pangle = ((my_clen/my_nsec)>((2*pi)/max_nsec)?(my_clen/my_nsec):2*pi)\n\
-set grid polar my_pangle\n\
-set grid layerdefault linetype 0 linewidth 1.0, linetype 0 linewidth 4.0\n\
-set grid noxtics nomxtics noytics nomytics noztics nomztics nox2tics nomx2tics noy2tics nomy2tics nocbtics nomcbtics\n\
-unset xtics\n\
-unset ytics\n\
-unset border\n\
-set origin 0.0, 0.0;\n\
-set rtics autofreq \n\
-set rrange [ 0 : my_rnge ] noreverse nowriteback \n\
-");
-       			RSB_STDOUT("\
-%s\nset output my_dir.'/%s' \n\
-",pl,pfn);
-       			RSB_STDOUT("\
-my_arry = my_rval\n\
-my_arrx = my_avg(-1)\n\
-my_max(x,y) = ( x < y ? x : y)\n\
-my_sposl(x) = ( x < 1.0 ? '(slowdown)' : '(speedup)')\n\
-set arrow from 1,my_arry to my_arrx,my_arry ls 5 lw 0.4 lc rgbcolor 'black' front\n\
-set arrow nohead from           my_arrx,my_arry to           my_arrx,0 lw .4 lt 0 lc 'black' front\n\
-set arrow nohead from           1      ,my_arry to           1      ,0 lw .4 lt 0 lc 'black' front\n\
-set label sprintf(' %%.2fx %%s',my_arrx,my_sposl(my_arrx)) at my_max(1,my_arrx),my_arry*1.05 front font 'Times-Roman,10'\n\
-");
-       			RSB_STDOUT("\
-set yrange [-my_rval: my_rval];\n\
-set xrange [-my_rval: my_rval];\n\
-set multiplot\n\
-my_r(x)=(x+.5)*my_clen/my_nsam\n\
-my_v(x)=1*x\n\
-red='#dd0000'\n\
-#green='#00dd00'\n\
-#black='#000000'\n\
-my_i_argb(r,g,b) = 0 + 65536 * int(r) + 256 * int(g) + int(b)\n\
-my_i_red=my_i_argb(255,0,0)\n\
-my_i_green=my_i_argb(0,255,0)\n\
-my_i_blue=my_i_argb(0,0,255)\n\
-my_i_black=my_i_argb(0,0,0)\n\
-my_rgb_type_s(t) = ( t eq 'D' ) ? my_i_red : (( t eq 'Z' ) ? my_i_blue: ((t eq 'S') ? my_i_green:my_i_black ))\n\
-my_rgb_symm_s(s) = ( s eq 'S' ) ? my_i_red : my_i_black \n\
-log2(n) = log(n)/log(2.0) # FIXME\n\
-my_rgb_nrhs_s(nrhs) = ( nrhs == 1 ) ? my_i_red : my_i_black \n\
-#my_rgb_nrhs_s(nrhs) = int(log2(nrhs))\n\
-#my_rgb_nrhs_s(nrhs) = nrhs\n\
-my_rgb_cols(nc,tc,sc) = my_rgb_type_s(stringcolumn(tc)) # type->color\n\
-#my_rgb_cols(nc,tc,sc) = my_rgb_symm_s(stringcolumn(sc)) # symm->color\n\
-#my_rgb_cols(nc,tc,sc) = my_rgb_nrhs_s(column(nc)) # nrhs->color\n\
-#my_rgb_type_col(tc) = my_i_red # type->color\n\
-plot 1 notitle with filledcurves below linetype 1 linewidth 0.000 linecolor rgb '#dddddd' \n\
-plot '-' using ((my_r($2))):((my_v($1))):((my_rgb_cols(3,4,5))) title my_title lc rgbcolor variable ps 1 pt 6,\
-	my_avg(-1) notitle lt 0 lc rgbcolor red\
-\n\
-");
-		}
-
-        	if(rds==RSB_PRD_STYLE_PLT_SUBM_BS)
-		{
-       			RSB_STDOUT("%sset output '%s';",pl,pfn);
-		       	//RSB_STDOUT("set title 'autotuning effect'; unset ytics;set yrange [0: 3];\n");
-			RSB_STDOUT("set xlabel 'bytes per submatrix'\n");
-			RSB_STDOUT("set ylabel 'performance, Mflops/s'\n");
-			RSB_STDOUT("set xtics rotate by -45\n");
-			RSB_STDOUT("plot '-' using 1:2:3:4 with vectors title 'rsb' lt rgb 'red'\n");
-		}
-
-        	if(rds==RSB_PRD_STYLE_PLT_SUBM_BS_POLAR)
-		{
-			// TODO: need to modify this
-       			RSB_STDOUT("#polar plot instructions RSB_PRD_STYLE_PLT_SUBM_BS_POLAR (unfinished)\n");
-		}
-
-		for(     filenamei=0;     filenamei<rsprp->filenamen ;++filenamei     )
-		for(ci=0;ci<rsprp->cn;++ci)
-		for(     incXi=0;     incXi<rsprp->incXn     ;++incXi     )
-		for(     incYi=0;     incYi<rsprp->incYn     ;++incYi     )
-		for(     nrhsi=0;     nrhsi<rsprp->nrhsn     ;++nrhsi     )
-		for(typecodesi=0;typecodesi<rsprp->ntypecodes;++typecodesi)
-		for(ti=0;ti<rsprp->tn;++ti)
-		{
-			const size_t idx = rsb__pr_idx(rsprpv, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti);
-			const struct rsb_rsps_t*psp = &(rsprp->psa[idx]);
-			const rsb_type_t typecode = typecodes[typecodesi];
-			const size_t so = RSB_SIZEOF_BACKUP(toupper(typecode));
-
-			if( RSB_ERR_NO_ERROR != rsb__pr_filter(psp, ta, filenameifp, ifilenameifp, cifp , incXifp , incYifp , nrhsifp , typecodefip , tifp, tfp, flagsA, nflagsA, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti) )
-				continue;
-        		if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB)
-        			RSB_STDOUT("%le %d\n",psp->op_time/psp->at_op_time,1);
-        		if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB_POLAR)
-        			RSB_STDOUT("%le %d\n",psp->op_time/psp->at_op_time,nocsai);
-        		if(rds==RSB_PRD_STYLE_PLT_MKL_SPEEDUP_POLAR)
-        			RSB_STDOUT("%le %d %d %c %c\n",psp->mkl_csr_op_time/psp->at_op_time,nocsai,nrhsa[nrhsi],typecodes[typecodesi],RSB_SYMCHAR(psp->flagsA));
-        		if(rds==RSB_PRD_STYLE_PLT_SUBM_BS)
-			{
-				const double avmbybt = (((double)(so*psp->nnzA)) / psp->nsubm   );
-				const double avmbyat = (((double)(so*psp->nnzA)) / psp->at_nsubm);
-				//double avmbpnb = (((double)(psp->isa))     / psp->nnzA    );
-				//double avmbpna = (((double)(psp->at_isa))     / psp->nnzA    );
-				const double avmrmps = ((psp->cmflops * nrhsa[nrhsi]) / psp->at_op_time);
-		     		const double avmRmps = ((psp->cmflops * nrhsa[nrhsi]) / psp->op_time);
-				//double avmmmps = ((psp->cmflops * nrhsa[nrhsi]) / psp->at_mkl_csr_op_time);
-			     	//double avmMmps = ((psp->cmflops * nrhsa[nrhsi]) / psp->mkl_csr_op_time);
-
-        			RSB_STDOUT("%le %le %le %le\n",avmbybt,avmRmps,avmbyat,avmrmps-avmRmps);
-        			//RSB_STDOUT("%le %d %le %d\n",avmbybt,1,avmbyat,1);
-        			//RSB_STDOUT("%le %le %le %le\n",avmbybt,avmbpnb,avmbyat,(avmbpna-avmbpnb));
-			}
-			nocsai++;
-		}
-        	if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB || rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB_POLAR || rds==RSB_PRD_STYLE_PLT_MKL_SPEEDUP_POLAR)
-        		RSB_STDOUT("e\n");
-        	if(rds==RSB_PRD_STYLE_PLT_AT_SPEEDUP_RSB_POLAR || rds==RSB_PRD_STYLE_PLT_MKL_SPEEDUP_POLAR)
-        		RSB_STDOUT("unset multiplot;unset label;unset arrow;\n# PLOT END\n\n");
-        	if(rds==RSB_PRD_STYLE_PLT_SUBM_BS)
-        		RSB_STDOUT("e\n");
-		goto ret;
-        }
-	/* end plot subcase */
 ret:
 	return errval;
-} /* rsb__pr_dump_inner */
+}
 
-rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rsb_int_t*ca, const rsb_int_t*incXa, const rsb_int_t*incYa, const rsb_int_t*nrhsa, const rsb_type_t*typecodes, const rsb_int_t*ta, const rsb_char_t *fprfn)
+rsb_err_t rsb__pr_dump(const void*rsprpv, const rsb_char_t**filenamea, rsb_int_t*ca, const rsb_int_t*incXa, const rsb_int_t*incYa, const rsb_int_t*nrhsa, const rsb_type_t*typecodes, const rsb_int_t*ta)
 {
 	/*
 	 * dump a performance record
@@ -2956,28 +2381,25 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 	const struct rsb_rspr_t * rsprp = rsprpv;
 	rsb_int_t filenamei, /* ci, incXi, incYi,*/ nrhsi, typecodesi, ti = 0;
 	rsb_trans_t transAa [] = { RSB_TRANSPOSITION_N, RSB_TRANSPOSITION_T, RSB_TRANSPOSITION_C };
-	rsb_char_t tag[2*RSB_MAX_FILENAME_LENGTH];
+	rsb_char_t tag[RSB_MAX_FILENAME_LENGTH];
 	rsb_char_t bfn[RSB_MAX_FILENAME_LENGTH];
 	rsb_int_t noc = 0; /* number of combinations */
-	char rsb_prl_lcc = RSB_PRL_LCC_IE ;
+	const char rsb_prl_lcc = RSB_PRL_LCC_IE;
 	const char*rsb_prl_tcs = RSB_PRL_TCS_IE;
-        int rds = rsb__getenv_real_t("RSB_PR_SR",RSB_PRD_STYLE_TBL);
-        int wltm = rsb__getenv_real_t("RSB_PR_WLTC",0); /* Want LaTeX tables mode */
-	const rsb_bool_t only_total_table = rsb__util_atoi(rsb__getenv("RSB_PR_ONLY_TOTAL_TABLE"));
-
-        if(!rsprp)
-	{
-		errval = RSB_ERR_BADARGS;
-	       	goto err;
-	}
-
+        int rds = rsb__getenv("RSB_PR_SR") ? rsb__util_atof(rsb__getenv("RSB_PR_SR")): RSB_PRD_STYLE_TBL;
+        int wltm = rsb__getenv("RSB_PR_WLTC") ? rsb__util_atof(rsb__getenv("RSB_PR_WLTC")) : 0; /* Want LaTeX tables mode */
         if(rds==RSB_PRD_STYLE_TBL && wltm > 0)
 		RSB_PRT( "\\documentclass[a1,portrait,plainsections]{sciposter} \\usepackage{longtable,tabu,url,color} \\usepackage[cm]{fullpage} \\usepackage[table,x11names]{xcolor} \\usepackage[hyperindex,bookmarks]{hyperref}%% bookmarks do not seem to work\n\\begin{document}\\title{" RSB_PACKAGE_NAME " performance, postprocessed with " RSB_PACKAGE_STRING ".}\\author{} \\begin{tiny} \\rowcolors{1}{white!80!gray}{white}\n");
 
+	sprintf(tag,"all");
 	noc = RSB_PR_NOC(rsprp);
+	errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
+						  filenameifp, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag );
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
-	if( only_total_table )
-		goto total;
+	if( rsb__util_atoi(rsb__getenv("RSB_PR_ONLY_TOTAL_TABLE")) )
+		goto err;
 
 	if( filenamea )
 	if( rsprp->filenamen > 1 )
@@ -2990,7 +2412,7 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 		sprintf(tag,"file-%d-%s",filenamei+1,bfn);
 		RSB_PRL_SEP(" Limiting to file %d/%d --- %s:\n",filenamei+1,rsprp->filenamen,filenamea[filenamei]);
 		errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-					  &filenamei, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag, fprfn);
+					  &filenamei, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag );
 
                 if(is_symm && rsprp->tn == 2 )
                         etn = 1;
@@ -3004,7 +2426,7 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 			sprintf(tag,"file-%d-%s-transA-%c",filenamei+1,bfn,RSB_TRANSPOSITION_AS_CHAR(tf));
         		RSB_PRL_SEP(" Limiting to both file %d/%d --- %s and transA=%c:\n",filenamei+1,rsprp->filenamen,filenamea[filenamei],RSB_TRANSPOSITION_AS_CHAR(tf));
         		errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-					  &filenamei, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, &ti, &tf, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag, fprfn);
+					  &filenamei, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, &ti, &tf, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag );
         	}
 
 	        if( typecodes )
@@ -3016,7 +2438,7 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 			sprintf(tag,"file-%d-%s-type-%c",filenamei+1,bfn,typecodes[typecodesi]);
         		RSB_PRL_SEP(" Limiting to both file %d/%d --- %s and type %c:\n",filenamei+1,rsprp->filenamen,filenamea[filenamei],typecodes[typecodesi]);
         		errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-					  &filenamei, NULL,cifp, incXifp, incYifp, nrhsifp, &typecodesi, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag, fprfn);
+					  &filenamei, NULL,cifp, incXifp, incYifp, nrhsifp, &typecodesi, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag );
         	}
        	}
 
@@ -3055,7 +2477,7 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 			sprintf(tag,"symmetry-%c",scb[si]);
         		RSB_PRL_SEP(" Limiting to symmetry %c (0x%x) \n",scb[si],sf[si]);
         		errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-        					  filenameifp, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, tifp, tfp, sf[si], nf[si], tag, fprfn);
+        					  filenameifp, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, tifp, tfp, sf[si], nf[si], tag);
         	}
 	}
 
@@ -3067,7 +2489,7 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 		sprintf(tag,"type-%c",typecodes[typecodesi]);
 		RSB_PRL_SEP(" Limiting to type %c:\n",typecodes[typecodesi]);
 		errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-					  filenameifp, NULL,cifp, incXifp, incYifp, nrhsifp, &typecodesi, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag, fprfn);
+					  filenameifp, NULL,cifp, incXifp, incYifp, nrhsifp, &typecodesi, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag );
 	}
 
 	if( nrhsa )
@@ -3078,7 +2500,7 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 		sprintf(tag,"nrhs-%d",nrhsa[nrhsi]);
 		RSB_PRL_SEP(" Limiting to nrhs=%d:\n",nrhsa[nrhsi]);
 		errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-					  filenameifp, NULL,cifp, incXifp, incYifp, &nrhsi, typecodefip, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag, fprfn );
+					  filenameifp, NULL,cifp, incXifp, incYifp, &nrhsi, typecodefip, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag );
 	}
 
 	if( ta && rsprp->tn > 1 )
@@ -3089,7 +2511,7 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 		sprintf(tag,"transA-%c",RSB_TRANSPOSITION_AS_CHAR(ta[ti]));
 		RSB_PRL_SEP(" Limiting to transA=%d:\n",RSB_TRANSPOSITION_AS_CHAR(ta[ti]));
 		errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-					  filenameifp, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, &ti, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag, fprfn );
+					  filenameifp, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, &ti, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag );
 	}
         }
 	else
@@ -3102,7 +2524,7 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 		sprintf(tag,"transA-%c",RSB_TRANSPOSITION_AS_CHAR(tf));
 		RSB_PRL_SEP(" Limiting to transA=%c:\n",RSB_TRANSPOSITION_AS_CHAR(tf));
 		errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-					  filenameifp, NULL, cifp, incXifp, incYifp, nrhsifp, typecodefip, &ti, &tf, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag, fprfn );
+					  filenameifp, NULL, cifp, incXifp, incYifp, nrhsifp, typecodefip, &ti, &tf, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag );
         	if( nrhsa )
         	if( rsprp->nrhsn > 1 )
 	        if( rsprp->tn * rsprp->nrhsn < noc )
@@ -3111,47 +2533,13 @@ rsb_err_t rsb__pr_dump(const void*rsprpv, rsb_char_t**RSB_RESTRICT filenamea, rs
 			sprintf(tag,"transA-%c-nrhs-%d",RSB_TRANSPOSITION_AS_CHAR(tf),nrhsa[nrhsi]);
         		RSB_PRL_SEP(" Limiting to both transA=%c and nrhs=%d:\n",RSB_TRANSPOSITION_AS_CHAR(tf),nrhsa[nrhsi]);
         		errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-        					  filenameifp, NULL,cifp, incXifp, incYifp, &nrhsi, typecodefip, &ti, &tf, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag, fprfn );
+        					  filenameifp, NULL,cifp, incXifp, incYifp, &nrhsi, typecodefip, &ti, &tf, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag );
         	}
 	}
         }
 
-total:
-	RSB_PRL_SEP(" All results (not limiting)\n");
-	sprintf(tag,"all");
-	errval = rsb__pr_dump_inner(rsprpv, filenamea, ca, incXa, incYa, nrhsa, typecodes, ta, 
-						  filenameifp, NULL,cifp, incXifp, incYifp, nrhsifp, typecodefip, tifp, tfp, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, tag, fprfn);
-	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-
         if(rds==RSB_PRD_STYLE_TBL && wltm > 0)
 		RSB_PRT("\\end{tiny}\\end{document}\n");
-
-#if RSB_PRD_WANT_TIMESTAMP
-	RSB_PRL("Record collection took %5.2lf s.\n",rsprp->tend-rsprp->tbeg);
-#endif /* RSB_PRD_WANT_TIMESTAMP */
-#if RSB_PRD_WANT_MBW
-	RSB_PRL("Record comprises %d memory benchmark samples (prepend RSB_PR_MBW=1 to dump this).\n",rsprp->mbet.sn);
-	if ( rsprp->mbet.sn > 0 && rsb__util_atoi(rsb__getenv("RSB_PR_MBW")) == 1 )
-		rsb__mbw_es_print(&rsprp->mbet);
-#endif /* RSB_PRD_WANT_MBW */
-#if RSB_PRD_WANT_ENVIRONMENT
-	RSB_PRL("Record comprises %d environment variables in %d bytes (prepend RSB_PR_ENV=1 to dump this).\n",(int)rsprp->nenvv,(int)rsprp->enoib);
-	if ( rsb__util_atoi(rsb__getenv("RSB_PR_ENV")) == 1 )
-	if ( rsprp->nenvv )
-	{
-		rsb_int_t evo = 0;
-		rsb_int_t envvi = 0;
-
-		for( evo = 0; evo < rsprp->enoib+rsprp->nenvv ; evo += strlen(rsprp->envvp+evo)+1 )
-		{
-			//RSB_PRL("%s\n",rsprp->envvp+evo);
-			//RSB_PRL("%5d/%5d %s\n",evo,rsprp->enoib,rsprp->envvp+evo);
-			RSB_PRL("%5d/%5d %s\n",envvi,rsprp->nenvv,rsprp->envvp+evo);
-			envvi++;
-		}
-	}
-#endif /* RSB_PRD_WANT_ENVIRONMENT */
 /*
 	for(ci=0;ci<rsprp->cn;++ci)
 	for(     incXi=0;     incXi<rsprp->incXn     ;++incXi     )
@@ -3159,7 +2547,7 @@ total:
 */
 err:
 	return errval;
-} /* rsb__pr_dump */
+}
 
 rsb_err_t rsb__pr_free(void * rsprpv)
 {
@@ -3169,20 +2557,13 @@ rsb_err_t rsb__pr_free(void * rsprpv)
 	struct rsb_rspr_t * rsprp = rsprpv;
         if(!rsprp)
                 goto err;
-
 	RSB_CONDITIONAL_FREE(rsprp->psa);
 	RSB_CONDITIONAL_FREE(rsprp->rsprap);
-#if RSB_PRD_WANT_MBW
-	// RSB_CONDITIONAL_FREE(rsprp->mbet.et);
-	rsb__mbw_es_free(&rsprp->mbet);
-#endif /* RSB_PRD_WANT_MBW */
-#if RSB_PRD_WANT_ENVIRONMENT
-	RSB_CONDITIONAL_FREE(rsprp->envvp);
-#endif /* RSB_PRD_WANT_ENVIRONMENT */
 	RSB_CONDITIONAL_FREE(rsprp);
 err:
 	return RSB_ERR_NO_ERROR;
 }
+
 
 /* performance samples reporting / dumping facility for rsbench : end */
 /* @endcond */

@@ -1,4 +1,4 @@
-.TH "rsb-spblas.h" 3 "Thu Apr 28 2022" "Version 1.3.0.1" "librsb" \" -*- nroff -*-
+.TH "rsb-spblas.h" 3 "Fri Jan 21 2022" "Version 1.2.0.11" "librsb" \" -*- nroff -*-
 .ad l
 .nh
 .SH NAME
@@ -13,220 +13,220 @@ rsb-spblas.h \- A Sparse BLAS interface (see http://www.netlib.org/blas/blast-fo
 
 .in +1c
 .ti -1c
-.RI "int \fBBLAS_susdot\fP (const enum \fBblas_conj_type\fP conj, const int nnz, const float *x, const int *indx, const float *y, const int incy, float *r, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_susdot\fP (enum \fBblas_conj_type\fP conj, int nnz, const float *x, const int *indx, const float *y, int incy, float *r, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_susdot_\fP (const enum \fBblas_conj_type\fP *conj, const int *nnz, const float *x, const int *indx, const float *y, const int *incy, float *r, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_susdot_\fP (enum \fBblas_conj_type\fP *conj, int *nnz, const float *x, const int *indx, const float *y, int *incy, float *r, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusdot\fP (const enum \fBblas_conj_type\fP conj, const int nnz, const double *x, const int *indx, const double *y, const int incy, double *r, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_dusdot\fP (enum \fBblas_conj_type\fP conj, int nnz, const double *x, const int *indx, const double *y, int incy, double *r, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_dusdot_\fP (const enum \fBblas_conj_type\fP *conj, const int *nnz, const double *x, const int *indx, const double *y, const int *incy, double *r, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_dusdot_\fP (enum \fBblas_conj_type\fP *conj, int *nnz, const double *x, const int *indx, const double *y, int *incy, double *r, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusdot\fP (const enum \fBblas_conj_type\fP conj, const int nnz, const void *x, const int *indx, const void *y, const int incy, void *r, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_cusdot\fP (enum \fBblas_conj_type\fP conj, int nnz, const void *x, const int *indx, const void *y, int incy, void *r, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_cusdot_\fP (const enum \fBblas_conj_type\fP *conj, const int *nnz, const void *x, const int *indx, const void *y, const int *incy, void *r, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_cusdot_\fP (enum \fBblas_conj_type\fP *conj, int *nnz, const void *x, const int *indx, const void *y, int *incy, void *r, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusdot\fP (const enum \fBblas_conj_type\fP conj, const int nnz, const void *x, const int *indx, const void *y, const int incy, void *r, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_zusdot\fP (enum \fBblas_conj_type\fP conj, int nnz, const void *x, const int *indx, const void *y, int incy, void *r, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_zusdot_\fP (const enum \fBblas_conj_type\fP *conj, const int *nnz, const void *x, const int *indx, const void *y, const int *incy, void *r, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_zusdot_\fP (enum \fBblas_conj_type\fP *conj, int *nnz, const void *x, const int *indx, const void *y, int *incy, void *r, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susaxpy\fP (const int nnz, float alpha, const float *x, const int *indx, float *y, const int incy, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_susaxpy\fP (int nnz, float alpha, const float *x, const int *indx, float *y, int incy, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_susaxpy_\fP (const int *nnz, float *alpha, const float *x, const int *indx, float *y, const int *incy, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_susaxpy_\fP (int *nnz, float *alpha, const float *x, const int *indx, float *y, int *incy, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusaxpy\fP (const int nnz, double alpha, const double *x, const int *indx, double *y, const int incy, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_dusaxpy\fP (int nnz, double alpha, const double *x, const int *indx, double *y, int incy, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_dusaxpy_\fP (const int *nnz, double *alpha, const double *x, const int *indx, double *y, const int *incy, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_dusaxpy_\fP (int *nnz, double *alpha, const double *x, const int *indx, double *y, int *incy, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusaxpy\fP (const int nnz, const void *alpha, const void *x, const int *indx, void *y, const int incy, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_cusaxpy\fP (int nnz, const void *alpha, const void *x, const int *indx, void *y, int incy, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_cusaxpy_\fP (const int *nnz, const void *alpha, const void *x, const int *indx, void *y, const int *incy, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_cusaxpy_\fP (int *nnz, const void *alpha, const void *x, const int *indx, void *y, int *incy, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusaxpy\fP (const int nnz, const void *alpha, const void *x, const int *indx, void *y, const int incy, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_zusaxpy\fP (int nnz, const void *alpha, const void *x, const int *indx, void *y, int incy, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_zusaxpy_\fP (const int *nnz, const void *alpha, const void *x, const int *indx, void *y, const int *incy, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_zusaxpy_\fP (int *nnz, const void *alpha, const void *x, const int *indx, void *y, int *incy, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susga\fP (const int nnz, const float *y, const int incy, float *x, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_susga\fP (int nnz, const float *y, int incy, float *x, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_susga_\fP (const int *nnz, const float *y, const int *incy, float *x, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_susga_\fP (int *nnz, const float *y, int *incy, float *x, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusga\fP (const int nnz, const double *y, const int incy, double *x, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_dusga\fP (int nnz, const double *y, int incy, double *x, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_dusga_\fP (const int *nnz, const double *y, const int *incy, double *x, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_dusga_\fP (int *nnz, const double *y, int *incy, double *x, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusga\fP (const int nnz, const void *y, const int incy, void *x, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_cusga\fP (int nnz, const void *y, int incy, void *x, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_cusga_\fP (const int *nnz, const void *y, const int *incy, void *x, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_cusga_\fP (int *nnz, const void *y, int *incy, void *x, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusga\fP (const int nnz, const void *y, const int incy, void *x, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_zusga\fP (int nnz, const void *y, int incy, void *x, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_zusga_\fP (const int *nnz, const void *y, const int *incy, void *x, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_zusga_\fP (int *nnz, const void *y, int *incy, void *x, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susgz\fP (const int nnz, float *y, const int incy, float *x, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_susgz\fP (int nnz, float *y, int incy, float *x, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_susgz_\fP (const int *nnz, float *y, const int *incy, float *x, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_susgz_\fP (int *nnz, float *y, int *incy, float *x, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusgz\fP (const int nnz, double *y, const int incy, double *x, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_dusgz\fP (int nnz, double *y, int incy, double *x, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_dusgz_\fP (const int *nnz, double *y, const int *incy, double *x, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_dusgz_\fP (int *nnz, double *y, int *incy, double *x, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusgz\fP (const int nnz, void *y, const int incy, void *x, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_cusgz\fP (int nnz, void *y, int incy, void *x, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_cusgz_\fP (const int *nnz, void *y, const int *incy, void *x, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_cusgz_\fP (int *nnz, void *y, int *incy, void *x, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusgz\fP (const int nnz, void *y, const int incy, void *x, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_zusgz\fP (int nnz, void *y, int incy, void *x, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_zusgz_\fP (const int *nnz, void *y, const int *incy, void *x, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_zusgz_\fP (int *nnz, void *y, int *incy, void *x, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_sussc\fP (const int nnz, const float *x, float *y, const int incy, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_sussc\fP (int nnz, const float *x, float *y, int incy, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_sussc_\fP (const int *nnz, const float *x, float *y, const int *incy, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_sussc_\fP (int *nnz, const float *x, float *y, int *incy, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dussc\fP (const int nnz, const double *x, double *y, const int incy, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_dussc\fP (int nnz, const double *x, double *y, int incy, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_dussc_\fP (const int *nnz, const double *x, double *y, const int *incy, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_dussc_\fP (int *nnz, const double *x, double *y, int *incy, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cussc\fP (const int nnz, const void *x, void *y, const int incy, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_cussc\fP (int nnz, const void *x, void *y, int incy, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_cussc_\fP (const int *nnz, const void *x, void *y, const int *incy, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_cussc_\fP (int *nnz, const void *x, void *y, int *incy, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zussc\fP (const int nnz, const void *x, void *y, const int incy, const int *indx, const enum \fBblas_base_type\fP index_base)"
+.RI "int \fBBLAS_zussc\fP (int nnz, const void *x, void *y, int incy, const int *indx, enum \fBblas_base_type\fP index_base)"
 .br
 .ti -1c
-.RI "void \fBblas_zussc_\fP (const int *nnz, const void *x, void *y, const int *incy, const int *indx, const enum \fBblas_base_type\fP *index_base, int *istat)"
+.RI "void \fBblas_zussc_\fP (int *nnz, const void *x, void *y, int *incy, const int *indx, enum \fBblas_base_type\fP *index_base, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susmv\fP (const enum \fBblas_trans_type\fP transA, float alpha, const \fBblas_sparse_matrix\fP A, const float *x, const int incx, float *y, const int incy)"
+.RI "int \fBBLAS_susmv\fP (enum \fBblas_trans_type\fP transA, float alpha, \fBblas_sparse_matrix\fP A, const float *x, int incx, float *y, int incy)"
 .br
 .ti -1c
-.RI "void \fBblas_susmv_\fP (const enum \fBblas_trans_type\fP *transA, float *alpha, const \fBblas_sparse_matrix\fP *A, const float *x, const int *incx, float *y, const int *incy, int *istat)"
+.RI "void \fBblas_susmv_\fP (enum \fBblas_trans_type\fP *transA, float *alpha, \fBblas_sparse_matrix\fP *A, const float *x, int *incx, float *y, int *incy, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusmv\fP (const enum \fBblas_trans_type\fP transA, double alpha, const \fBblas_sparse_matrix\fP A, const double *x, const int incx, double *y, const int incy)"
+.RI "int \fBBLAS_dusmv\fP (enum \fBblas_trans_type\fP transA, double alpha, \fBblas_sparse_matrix\fP A, const double *x, int incx, double *y, int incy)"
 .br
 .ti -1c
-.RI "void \fBblas_dusmv_\fP (const enum \fBblas_trans_type\fP *transA, double *alpha, const \fBblas_sparse_matrix\fP *A, const double *x, const int *incx, double *y, const int *incy, int *istat)"
+.RI "void \fBblas_dusmv_\fP (enum \fBblas_trans_type\fP *transA, double *alpha, \fBblas_sparse_matrix\fP *A, const double *x, int *incx, double *y, int *incy, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusmv\fP (const enum \fBblas_trans_type\fP transA, const void *alpha, const \fBblas_sparse_matrix\fP A, const void *x, const int incx, void *y, const int incy)"
+.RI "int \fBBLAS_cusmv\fP (enum \fBblas_trans_type\fP transA, const void *alpha, \fBblas_sparse_matrix\fP A, const void *x, int incx, void *y, int incy)"
 .br
 .ti -1c
-.RI "void \fBblas_cusmv_\fP (const enum \fBblas_trans_type\fP *transA, const void *alpha, const \fBblas_sparse_matrix\fP *A, const void *x, const int *incx, void *y, const int *incy, int *istat)"
+.RI "void \fBblas_cusmv_\fP (enum \fBblas_trans_type\fP *transA, const void *alpha, \fBblas_sparse_matrix\fP *A, const void *x, int *incx, void *y, int *incy, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusmv\fP (const enum \fBblas_trans_type\fP transA, const void *alpha, const \fBblas_sparse_matrix\fP A, const void *x, const int incx, void *y, const int incy)"
+.RI "int \fBBLAS_zusmv\fP (enum \fBblas_trans_type\fP transA, const void *alpha, \fBblas_sparse_matrix\fP A, const void *x, int incx, void *y, int incy)"
 .br
 .ti -1c
-.RI "void \fBblas_zusmv_\fP (const enum \fBblas_trans_type\fP *transA, const void *alpha, const \fBblas_sparse_matrix\fP *A, const void *x, const int *incx, void *y, const int *incy, int *istat)"
+.RI "void \fBblas_zusmv_\fP (enum \fBblas_trans_type\fP *transA, const void *alpha, \fBblas_sparse_matrix\fP *A, const void *x, int *incx, void *y, int *incy, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_sussv\fP (enum \fBblas_trans_type\fP transT, float alpha, const \fBblas_sparse_matrix\fP T, float *x, const int incx)"
+.RI "int \fBBLAS_sussv\fP (enum \fBblas_trans_type\fP transT, float alpha, \fBblas_sparse_matrix\fP T, float *x, int incx)"
 .br
 .ti -1c
-.RI "void \fBblas_sussv_\fP (enum \fBblas_trans_type\fP *transT, float *alpha, const \fBblas_sparse_matrix\fP *T, float *x, const int *incx, int *istat)"
+.RI "void \fBblas_sussv_\fP (enum \fBblas_trans_type\fP *transT, float *alpha, \fBblas_sparse_matrix\fP *T, float *x, int *incx, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dussv\fP (enum \fBblas_trans_type\fP transT, double alpha, const \fBblas_sparse_matrix\fP T, double *x, const int incx)"
+.RI "int \fBBLAS_dussv\fP (enum \fBblas_trans_type\fP transT, double alpha, \fBblas_sparse_matrix\fP T, double *x, int incx)"
 .br
 .ti -1c
-.RI "void \fBblas_dussv_\fP (enum \fBblas_trans_type\fP *transT, double *alpha, const \fBblas_sparse_matrix\fP *T, double *x, const int *incx, int *istat)"
+.RI "void \fBblas_dussv_\fP (enum \fBblas_trans_type\fP *transT, double *alpha, \fBblas_sparse_matrix\fP *T, double *x, int *incx, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cussv\fP (enum \fBblas_trans_type\fP transT, const void *alpha, const \fBblas_sparse_matrix\fP T, void *x, const int incx)"
+.RI "int \fBBLAS_cussv\fP (enum \fBblas_trans_type\fP transT, const void *alpha, \fBblas_sparse_matrix\fP T, void *x, int incx)"
 .br
 .ti -1c
-.RI "void \fBblas_cussv_\fP (enum \fBblas_trans_type\fP *transT, const void *alpha, const \fBblas_sparse_matrix\fP *T, void *x, const int *incx, int *istat)"
+.RI "void \fBblas_cussv_\fP (enum \fBblas_trans_type\fP *transT, const void *alpha, \fBblas_sparse_matrix\fP *T, void *x, int *incx, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zussv\fP (enum \fBblas_trans_type\fP transT, const void *alpha, const \fBblas_sparse_matrix\fP T, void *x, const int incx)"
+.RI "int \fBBLAS_zussv\fP (enum \fBblas_trans_type\fP transT, const void *alpha, \fBblas_sparse_matrix\fP T, void *x, int incx)"
 .br
 .ti -1c
-.RI "void \fBblas_zussv_\fP (enum \fBblas_trans_type\fP *transT, const void *alpha, const \fBblas_sparse_matrix\fP *T, void *x, const int *incx, int *istat)"
+.RI "void \fBblas_zussv_\fP (enum \fBblas_trans_type\fP *transT, const void *alpha, \fBblas_sparse_matrix\fP *T, void *x, int *incx, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susmm\fP (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transA, const int nrhs, float alpha, const \fBblas_sparse_matrix\fP A, const float *b, const int ldb, float *c, const int ldc)"
+.RI "int \fBBLAS_susmm\fP (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transA, int nrhs, float alpha, \fBblas_sparse_matrix\fP A, const float *b, int ldb, float *c, int ldc)"
 .br
 .ti -1c
-.RI "void \fBblas_susmm_\fP (const enum \fBblas_order_type\fP *order, const enum \fBblas_trans_type\fP *transA, const int *nrhs, float *alpha, const \fBblas_sparse_matrix\fP *A, const float *b, const int *ldb, float *c, const int *ldc, int *istat)"
+.RI "void \fBblas_susmm_\fP (enum \fBblas_order_type\fP *order, enum \fBblas_trans_type\fP *transA, int *nrhs, float *alpha, \fBblas_sparse_matrix\fP *A, const float *b, int *ldb, float *c, int *ldc, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusmm\fP (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transA, const int nrhs, double alpha, const \fBblas_sparse_matrix\fP A, const double *b, const int ldb, double *c, const int ldc)"
+.RI "int \fBBLAS_dusmm\fP (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transA, int nrhs, double alpha, \fBblas_sparse_matrix\fP A, const double *b, int ldb, double *c, int ldc)"
 .br
 .ti -1c
-.RI "void \fBblas_dusmm_\fP (const enum \fBblas_order_type\fP *order, const enum \fBblas_trans_type\fP *transA, const int *nrhs, double *alpha, const \fBblas_sparse_matrix\fP *A, const double *b, const int *ldb, double *c, const int *ldc, int *istat)"
+.RI "void \fBblas_dusmm_\fP (enum \fBblas_order_type\fP *order, enum \fBblas_trans_type\fP *transA, int *nrhs, double *alpha, \fBblas_sparse_matrix\fP *A, const double *b, int *ldb, double *c, int *ldc, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusmm\fP (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transA, const int nrhs, const void *alpha, const \fBblas_sparse_matrix\fP A, const void *b, const int ldb, void *c, const int ldc)"
+.RI "int \fBBLAS_cusmm\fP (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transA, int nrhs, const void *alpha, \fBblas_sparse_matrix\fP A, const void *b, int ldb, void *c, int ldc)"
 .br
 .ti -1c
-.RI "void \fBblas_cusmm_\fP (const enum \fBblas_order_type\fP *order, const enum \fBblas_trans_type\fP *transA, const int *nrhs, const void *alpha, const \fBblas_sparse_matrix\fP *A, const void *b, const int *ldb, void *c, const int *ldc, int *istat)"
+.RI "void \fBblas_cusmm_\fP (enum \fBblas_order_type\fP *order, enum \fBblas_trans_type\fP *transA, int *nrhs, const void *alpha, \fBblas_sparse_matrix\fP *A, const void *b, int *ldb, void *c, int *ldc, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusmm\fP (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transA, const int nrhs, const void *alpha, const \fBblas_sparse_matrix\fP A, const void *b, const int ldb, void *c, const int ldc)"
+.RI "int \fBBLAS_zusmm\fP (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transA, int nrhs, const void *alpha, \fBblas_sparse_matrix\fP A, const void *b, int ldb, void *c, int ldc)"
 .br
 .ti -1c
-.RI "void \fBblas_zusmm_\fP (const enum \fBblas_order_type\fP *order, const enum \fBblas_trans_type\fP *transA, const int *nrhs, const void *alpha, const \fBblas_sparse_matrix\fP *A, const void *b, const int *ldb, void *c, const int *ldc, int *istat)"
+.RI "void \fBblas_zusmm_\fP (enum \fBblas_order_type\fP *order, enum \fBblas_trans_type\fP *transA, int *nrhs, const void *alpha, \fBblas_sparse_matrix\fP *A, const void *b, int *ldb, void *c, int *ldc, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_sussm\fP (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transT, const int nrhs, float alpha, const \fBblas_sparse_matrix\fP T, float *b, const int ldb)"
+.RI "int \fBBLAS_sussm\fP (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transT, int nrhs, float alpha, \fBblas_sparse_matrix\fP T, float *b, int ldb)"
 .br
 .ti -1c
-.RI "void \fBblas_sussm_\fP (const enum \fBblas_order_type\fP *order, const enum \fBblas_trans_type\fP *transT, const int *nrhs, float *alpha, const \fBblas_sparse_matrix\fP *T, float *b, const int *ldb, int *istat)"
+.RI "void \fBblas_sussm_\fP (enum \fBblas_order_type\fP *order, enum \fBblas_trans_type\fP *transT, int *nrhs, float *alpha, \fBblas_sparse_matrix\fP *T, float *b, int *ldb, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dussm\fP (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transT, const int nrhs, double alpha, const \fBblas_sparse_matrix\fP T, double *b, const int ldb)"
+.RI "int \fBBLAS_dussm\fP (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transT, int nrhs, double alpha, \fBblas_sparse_matrix\fP T, double *b, int ldb)"
 .br
 .ti -1c
-.RI "void \fBblas_dussm_\fP (const enum \fBblas_order_type\fP *order, const enum \fBblas_trans_type\fP *transT, const int *nrhs, double *alpha, const \fBblas_sparse_matrix\fP *T, double *b, const int *ldb, int *istat)"
+.RI "void \fBblas_dussm_\fP (enum \fBblas_order_type\fP *order, enum \fBblas_trans_type\fP *transT, int *nrhs, double *alpha, \fBblas_sparse_matrix\fP *T, double *b, int *ldb, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cussm\fP (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transT, const int nrhs, const void *alpha, const \fBblas_sparse_matrix\fP T, void *b, const int ldb)"
+.RI "int \fBBLAS_cussm\fP (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transT, int nrhs, const void *alpha, \fBblas_sparse_matrix\fP T, void *b, int ldb)"
 .br
 .ti -1c
-.RI "void \fBblas_cussm_\fP (const enum \fBblas_order_type\fP *order, const enum \fBblas_trans_type\fP *transT, const int *nrhs, const void *alpha, const \fBblas_sparse_matrix\fP *T, void *b, const int *ldb, int *istat)"
+.RI "void \fBblas_cussm_\fP (enum \fBblas_order_type\fP *order, enum \fBblas_trans_type\fP *transT, int *nrhs, const void *alpha, \fBblas_sparse_matrix\fP *T, void *b, int *ldb, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zussm\fP (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transT, const int nrhs, const void *alpha, const \fBblas_sparse_matrix\fP T, void *b, const int ldb)"
+.RI "int \fBBLAS_zussm\fP (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transT, int nrhs, const void *alpha, \fBblas_sparse_matrix\fP T, void *b, int ldb)"
 .br
 .ti -1c
-.RI "void \fBblas_zussm_\fP (const enum \fBblas_order_type\fP *order, const enum \fBblas_trans_type\fP *transT, const int *nrhs, const void *alpha, const \fBblas_sparse_matrix\fP *T, void *b, const int *ldb, int *istat)"
+.RI "void \fBblas_zussm_\fP (enum \fBblas_order_type\fP *order, enum \fBblas_trans_type\fP *transT, int *nrhs, const void *alpha, \fBblas_sparse_matrix\fP *T, void *b, int *ldb, int *istat)"
 .br
 .ti -1c
 .RI "\fBblas_sparse_matrix\fP \fBBLAS_suscr_begin\fP (int m, int n)"
@@ -481,28 +481,28 @@ rsb-spblas.h \- A Sparse BLAS interface (see http://www.netlib.org/blas/blast-fo
 .RI "void \fBblas_usds_\fP (\fBblas_sparse_matrix\fP *A, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susrows_scale\fP (\fBblas_sparse_matrix\fP A, const float *d, const enum \fBblas_trans_type\fP trans)"
+.RI "int \fBBLAS_susrows_scale\fP (\fBblas_sparse_matrix\fP A, const float *d, enum \fBblas_trans_type\fP trans)"
 .br
 .ti -1c
-.RI "void \fBblas_susrows_scale_\fP (\fBblas_sparse_matrix\fP *A, const float *d, const enum \fBblas_trans_type\fP *trans, int *istat)"
+.RI "void \fBblas_susrows_scale_\fP (\fBblas_sparse_matrix\fP *A, const float *d, enum \fBblas_trans_type\fP *trans, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusrows_scale\fP (\fBblas_sparse_matrix\fP A, const double *d, const enum \fBblas_trans_type\fP trans)"
+.RI "int \fBBLAS_dusrows_scale\fP (\fBblas_sparse_matrix\fP A, const double *d, enum \fBblas_trans_type\fP trans)"
 .br
 .ti -1c
-.RI "void \fBblas_dusrows_scale_\fP (\fBblas_sparse_matrix\fP *A, const double *d, const enum \fBblas_trans_type\fP *trans, int *istat)"
+.RI "void \fBblas_dusrows_scale_\fP (\fBblas_sparse_matrix\fP *A, const double *d, enum \fBblas_trans_type\fP *trans, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusrows_scale\fP (\fBblas_sparse_matrix\fP A, const void *d, const enum \fBblas_trans_type\fP trans)"
+.RI "int \fBBLAS_cusrows_scale\fP (\fBblas_sparse_matrix\fP A, const void *d, enum \fBblas_trans_type\fP trans)"
 .br
 .ti -1c
-.RI "void \fBblas_cusrows_scale_\fP (\fBblas_sparse_matrix\fP *A, const void *d, const enum \fBblas_trans_type\fP *trans, int *istat)"
+.RI "void \fBblas_cusrows_scale_\fP (\fBblas_sparse_matrix\fP *A, const void *d, enum \fBblas_trans_type\fP *trans, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusrows_scale\fP (\fBblas_sparse_matrix\fP A, const void *d, const enum \fBblas_trans_type\fP trans)"
+.RI "int \fBBLAS_zusrows_scale\fP (\fBblas_sparse_matrix\fP A, const void *d, enum \fBblas_trans_type\fP trans)"
 .br
 .ti -1c
-.RI "void \fBblas_zusrows_scale_\fP (\fBblas_sparse_matrix\fP *A, const void *d, const enum \fBblas_trans_type\fP *trans, int *istat)"
+.RI "void \fBblas_zusrows_scale_\fP (\fBblas_sparse_matrix\fP *A, const void *d, enum \fBblas_trans_type\fP *trans, int *istat)"
 .br
 .ti -1c
 .RI "int \fBBLAS_susget_diag\fP (\fBblas_sparse_matrix\fP A, float *d)"
@@ -529,52 +529,52 @@ rsb-spblas.h \- A Sparse BLAS interface (see http://www.netlib.org/blas/blast-fo
 .RI "void \fBblas_zusget_diag_\fP (\fBblas_sparse_matrix\fP *A, void *d, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susget_rows_nnz\fP (\fBblas_sparse_matrix\fP A, const int fr, const int lr, int *nnzp)"
+.RI "int \fBBLAS_susget_rows_nnz\fP (\fBblas_sparse_matrix\fP A, int fr, int lr, int *nnzp)"
 .br
 .ti -1c
-.RI "void \fBblas_susget_rows_nnz_\fP (\fBblas_sparse_matrix\fP *A, const int *fr, const int *lr, int *nnzp, int *istat)"
+.RI "void \fBblas_susget_rows_nnz_\fP (\fBblas_sparse_matrix\fP *A, int *fr, int *lr, int *nnzp, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusget_rows_nnz\fP (\fBblas_sparse_matrix\fP A, const int fr, const int lr, int *nnzp)"
+.RI "int \fBBLAS_dusget_rows_nnz\fP (\fBblas_sparse_matrix\fP A, int fr, int lr, int *nnzp)"
 .br
 .ti -1c
-.RI "void \fBblas_dusget_rows_nnz_\fP (\fBblas_sparse_matrix\fP *A, const int *fr, const int *lr, int *nnzp, int *istat)"
+.RI "void \fBblas_dusget_rows_nnz_\fP (\fBblas_sparse_matrix\fP *A, int *fr, int *lr, int *nnzp, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusget_rows_nnz\fP (\fBblas_sparse_matrix\fP A, const int fr, const int lr, int *nnzp)"
+.RI "int \fBBLAS_cusget_rows_nnz\fP (\fBblas_sparse_matrix\fP A, int fr, int lr, int *nnzp)"
 .br
 .ti -1c
-.RI "void \fBblas_cusget_rows_nnz_\fP (\fBblas_sparse_matrix\fP *A, const int *fr, const int *lr, int *nnzp, int *istat)"
+.RI "void \fBblas_cusget_rows_nnz_\fP (\fBblas_sparse_matrix\fP *A, int *fr, int *lr, int *nnzp, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusget_rows_nnz\fP (\fBblas_sparse_matrix\fP A, const int fr, const int lr, int *nnzp)"
+.RI "int \fBBLAS_zusget_rows_nnz\fP (\fBblas_sparse_matrix\fP A, int fr, int lr, int *nnzp)"
 .br
 .ti -1c
-.RI "void \fBblas_zusget_rows_nnz_\fP (\fBblas_sparse_matrix\fP *A, const int *fr, const int *lr, int *nnzp, int *istat)"
+.RI "void \fBblas_zusget_rows_nnz_\fP (\fBblas_sparse_matrix\fP *A, int *fr, int *lr, int *nnzp, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susget_rows_sparse\fP (\fBblas_sparse_matrix\fP A, float *VA, int *IA, int *JA, int *nnz, const int fr, const int lr)"
+.RI "int \fBBLAS_susget_rows_sparse\fP (\fBblas_sparse_matrix\fP A, float *VA, int *IA, int *JA, int *nnz, int fr, int lr)"
 .br
 .ti -1c
-.RI "void \fBblas_susget_rows_sparse_\fP (\fBblas_sparse_matrix\fP *A, float *VA, int *IA, int *JA, int *nnz, const int *fr, const int *lr, int *istat)"
+.RI "void \fBblas_susget_rows_sparse_\fP (\fBblas_sparse_matrix\fP *A, float *VA, int *IA, int *JA, int *nnz, int *fr, int *lr, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusget_rows_sparse\fP (\fBblas_sparse_matrix\fP A, double *VA, int *IA, int *JA, int *nnz, const int fr, const int lr)"
+.RI "int \fBBLAS_dusget_rows_sparse\fP (\fBblas_sparse_matrix\fP A, double *VA, int *IA, int *JA, int *nnz, int fr, int lr)"
 .br
 .ti -1c
-.RI "void \fBblas_dusget_rows_sparse_\fP (\fBblas_sparse_matrix\fP *A, double *VA, int *IA, int *JA, int *nnz, const int *fr, const int *lr, int *istat)"
+.RI "void \fBblas_dusget_rows_sparse_\fP (\fBblas_sparse_matrix\fP *A, double *VA, int *IA, int *JA, int *nnz, int *fr, int *lr, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusget_rows_sparse\fP (\fBblas_sparse_matrix\fP A, void *VA, int *IA, int *JA, int *nnz, const int fr, const int lr)"
+.RI "int \fBBLAS_cusget_rows_sparse\fP (\fBblas_sparse_matrix\fP A, void *VA, int *IA, int *JA, int *nnz, int fr, int lr)"
 .br
 .ti -1c
-.RI "void \fBblas_cusget_rows_sparse_\fP (\fBblas_sparse_matrix\fP *A, void *VA, int *IA, int *JA, int *nnz, const int *fr, const int *lr, int *istat)"
+.RI "void \fBblas_cusget_rows_sparse_\fP (\fBblas_sparse_matrix\fP *A, void *VA, int *IA, int *JA, int *nnz, int *fr, int *lr, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusget_rows_sparse\fP (\fBblas_sparse_matrix\fP A, void *VA, int *IA, int *JA, int *nnz, const int fr, const int lr)"
+.RI "int \fBBLAS_zusget_rows_sparse\fP (\fBblas_sparse_matrix\fP A, void *VA, int *IA, int *JA, int *nnz, int fr, int lr)"
 .br
 .ti -1c
-.RI "void \fBblas_zusget_rows_sparse_\fP (\fBblas_sparse_matrix\fP *A, void *VA, int *IA, int *JA, int *nnz, const int *fr, const int *lr, int *istat)"
+.RI "void \fBblas_zusget_rows_sparse_\fP (\fBblas_sparse_matrix\fP *A, void *VA, int *IA, int *JA, int *nnz, int *fr, int *lr, int *istat)"
 .br
 .ti -1c
 .RI "int \fBBLAS_susget_matrix_nnz\fP (\fBblas_sparse_matrix\fP A, int *nnz)"
@@ -601,115 +601,112 @@ rsb-spblas.h \- A Sparse BLAS interface (see http://www.netlib.org/blas/blast-fo
 .RI "void \fBblas_zusget_matrix_nnz_\fP (\fBblas_sparse_matrix\fP *A, int *nnz, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susget_infinity_norm\fP (\fBblas_sparse_matrix\fP A, float *in, const enum \fBblas_trans_type\fP trans)"
+.RI "int \fBBLAS_susget_infinity_norm\fP (\fBblas_sparse_matrix\fP A, float *in, enum \fBblas_trans_type\fP trans)"
 .br
 .ti -1c
-.RI "void \fBblas_susget_infinity_norm_\fP (\fBblas_sparse_matrix\fP *A, float *in, const enum \fBblas_trans_type\fP *trans, int *istat)"
+.RI "void \fBblas_susget_infinity_norm_\fP (\fBblas_sparse_matrix\fP *A, float *in, enum \fBblas_trans_type\fP *trans, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusget_infinity_norm\fP (\fBblas_sparse_matrix\fP A, double *in, const enum \fBblas_trans_type\fP trans)"
+.RI "int \fBBLAS_dusget_infinity_norm\fP (\fBblas_sparse_matrix\fP A, double *in, enum \fBblas_trans_type\fP trans)"
 .br
 .ti -1c
-.RI "void \fBblas_dusget_infinity_norm_\fP (\fBblas_sparse_matrix\fP *A, double *in, const enum \fBblas_trans_type\fP *trans, int *istat)"
+.RI "void \fBblas_dusget_infinity_norm_\fP (\fBblas_sparse_matrix\fP *A, double *in, enum \fBblas_trans_type\fP *trans, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusget_infinity_norm\fP (\fBblas_sparse_matrix\fP A, void *in, const enum \fBblas_trans_type\fP trans)"
+.RI "int \fBBLAS_cusget_infinity_norm\fP (\fBblas_sparse_matrix\fP A, void *in, enum \fBblas_trans_type\fP trans)"
 .br
 .ti -1c
-.RI "void \fBblas_cusget_infinity_norm_\fP (\fBblas_sparse_matrix\fP *A, void *in, const enum \fBblas_trans_type\fP *trans, int *istat)"
+.RI "void \fBblas_cusget_infinity_norm_\fP (\fBblas_sparse_matrix\fP *A, void *in, enum \fBblas_trans_type\fP *trans, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusget_infinity_norm\fP (\fBblas_sparse_matrix\fP A, void *in, const enum \fBblas_trans_type\fP trans)"
+.RI "int \fBBLAS_zusget_infinity_norm\fP (\fBblas_sparse_matrix\fP A, void *in, enum \fBblas_trans_type\fP trans)"
 .br
 .ti -1c
-.RI "void \fBblas_zusget_infinity_norm_\fP (\fBblas_sparse_matrix\fP *A, void *in, const enum \fBblas_trans_type\fP *trans, int *istat)"
+.RI "void \fBblas_zusget_infinity_norm_\fP (\fBblas_sparse_matrix\fP *A, void *in, enum \fBblas_trans_type\fP *trans, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susset_elements\fP (\fBblas_sparse_matrix\fP A, const int *ia, const int *ja, const float *va, const int nnz)"
+.RI "int \fBBLAS_susset_elements\fP (\fBblas_sparse_matrix\fP A, const int *ia, const int *ja, const float *va, int nnz)"
 .br
 .ti -1c
-.RI "void \fBblas_susset_elements_\fP (\fBblas_sparse_matrix\fP *A, const int *ia, const int *ja, const float *va, const int *nnz, int *istat)"
+.RI "void \fBblas_susset_elements_\fP (\fBblas_sparse_matrix\fP *A, const int *ia, const int *ja, const float *va, int *nnz, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusset_elements\fP (\fBblas_sparse_matrix\fP A, const int *ia, const int *ja, const double *va, const int nnz)"
+.RI "int \fBBLAS_dusset_elements\fP (\fBblas_sparse_matrix\fP A, const int *ia, const int *ja, const double *va, int nnz)"
 .br
 .ti -1c
-.RI "void \fBblas_dusset_elements_\fP (\fBblas_sparse_matrix\fP *A, const int *ia, const int *ja, const double *va, const int *nnz, int *istat)"
+.RI "void \fBblas_dusset_elements_\fP (\fBblas_sparse_matrix\fP *A, const int *ia, const int *ja, const double *va, int *nnz, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusset_elements\fP (\fBblas_sparse_matrix\fP A, const int *ia, const int *ja, const void *va, const int nnz)"
+.RI "int \fBBLAS_cusset_elements\fP (\fBblas_sparse_matrix\fP A, const int *ia, const int *ja, const void *va, int nnz)"
 .br
 .ti -1c
-.RI "void \fBblas_cusset_elements_\fP (\fBblas_sparse_matrix\fP *A, const int *ia, const int *ja, const void *va, const int *nnz, int *istat)"
+.RI "void \fBblas_cusset_elements_\fP (\fBblas_sparse_matrix\fP *A, const int *ia, const int *ja, const void *va, int *nnz, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusset_elements\fP (\fBblas_sparse_matrix\fP A, const int *ia, const int *ja, const void *va, const int nnz)"
+.RI "int \fBBLAS_zusset_elements\fP (\fBblas_sparse_matrix\fP A, const int *ia, const int *ja, const void *va, int nnz)"
 .br
 .ti -1c
-.RI "void \fBblas_zusset_elements_\fP (\fBblas_sparse_matrix\fP *A, const int *ia, const int *ja, const void *va, const int *nnz, int *istat)"
+.RI "void \fBblas_zusset_elements_\fP (\fBblas_sparse_matrix\fP *A, const int *ia, const int *ja, const void *va, int *nnz, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susset_element\fP (\fBblas_sparse_matrix\fP A, const int i, const int j, float *v)"
+.RI "int \fBBLAS_susset_element\fP (\fBblas_sparse_matrix\fP A, int i, int j, float *v)"
 .br
 .ti -1c
-.RI "void \fBblas_susset_element_\fP (\fBblas_sparse_matrix\fP *A, const int *i, const int *j, float *v, int *istat)"
+.RI "void \fBblas_susset_element_\fP (\fBblas_sparse_matrix\fP *A, int *i, int *j, float *v, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusset_element\fP (\fBblas_sparse_matrix\fP A, const int i, const int j, double *v)"
+.RI "int \fBBLAS_dusset_element\fP (\fBblas_sparse_matrix\fP A, int i, int j, double *v)"
 .br
 .ti -1c
-.RI "void \fBblas_dusset_element_\fP (\fBblas_sparse_matrix\fP *A, const int *i, const int *j, double *v, int *istat)"
+.RI "void \fBblas_dusset_element_\fP (\fBblas_sparse_matrix\fP *A, int *i, int *j, double *v, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusset_element\fP (\fBblas_sparse_matrix\fP A, const int i, const int j, void *v)"
+.RI "int \fBBLAS_cusset_element\fP (\fBblas_sparse_matrix\fP A, int i, int j, void *v)"
 .br
 .ti -1c
-.RI "void \fBblas_cusset_element_\fP (\fBblas_sparse_matrix\fP *A, const int *i, const int *j, void *v, int *istat)"
+.RI "void \fBblas_cusset_element_\fP (\fBblas_sparse_matrix\fP *A, int *i, int *j, void *v, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusset_element\fP (\fBblas_sparse_matrix\fP A, const int i, const int j, void *v)"
+.RI "int \fBBLAS_zusset_element\fP (\fBblas_sparse_matrix\fP A, int i, int j, void *v)"
 .br
 .ti -1c
-.RI "void \fBblas_zusset_element_\fP (\fBblas_sparse_matrix\fP *A, const int *i, const int *j, void *v, int *istat)"
+.RI "void \fBblas_zusset_element_\fP (\fBblas_sparse_matrix\fP *A, int *i, int *j, void *v, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_susget_element\fP (\fBblas_sparse_matrix\fP A, const int i, const int j, float *v)"
+.RI "int \fBBLAS_susget_element\fP (\fBblas_sparse_matrix\fP A, int i, int j, float *v)"
 .br
 .ti -1c
-.RI "void \fBblas_susget_element_\fP (\fBblas_sparse_matrix\fP *A, const int *i, const int *j, float *v, int *istat)"
+.RI "void \fBblas_susget_element_\fP (\fBblas_sparse_matrix\fP *A, int *i, int *j, float *v, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_dusget_element\fP (\fBblas_sparse_matrix\fP A, const int i, const int j, double *v)"
+.RI "int \fBBLAS_dusget_element\fP (\fBblas_sparse_matrix\fP A, int i, int j, double *v)"
 .br
 .ti -1c
-.RI "void \fBblas_dusget_element_\fP (\fBblas_sparse_matrix\fP *A, const int *i, const int *j, double *v, int *istat)"
+.RI "void \fBblas_dusget_element_\fP (\fBblas_sparse_matrix\fP *A, int *i, int *j, double *v, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_cusget_element\fP (\fBblas_sparse_matrix\fP A, const int i, const int j, void *v)"
+.RI "int \fBBLAS_cusget_element\fP (\fBblas_sparse_matrix\fP A, int i, int j, void *v)"
 .br
 .ti -1c
-.RI "void \fBblas_cusget_element_\fP (\fBblas_sparse_matrix\fP *A, const int *i, const int *j, void *v, int *istat)"
+.RI "void \fBblas_cusget_element_\fP (\fBblas_sparse_matrix\fP *A, int *i, int *j, void *v, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_zusget_element\fP (\fBblas_sparse_matrix\fP A, const int i, const int j, void *v)"
+.RI "int \fBBLAS_zusget_element\fP (\fBblas_sparse_matrix\fP A, int i, int j, void *v)"
 .br
 .ti -1c
-.RI "void \fBblas_zusget_element_\fP (\fBblas_sparse_matrix\fP *A, const int *i, const int *j, void *v, int *istat)"
+.RI "void \fBblas_zusget_element_\fP (\fBblas_sparse_matrix\fP *A, int *i, int *j, void *v, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_usgp\fP (\fBblas_sparse_matrix\fP A, rsb_blas_pname_t pname)"
+.RI "int \fBBLAS_usgp\fP (\fBblas_sparse_matrix\fP A, int pname)"
 .br
 .ti -1c
-.RI "void \fBblas_usgp_\fP (\fBblas_sparse_matrix\fP *A, rsb_blas_pname_t *pname, int *istat)"
+.RI "void \fBblas_usgp_\fP (\fBblas_sparse_matrix\fP *A, int *pname, int *istat)"
 .br
 .ti -1c
-.RI "void \fBblas_ussp_\fP (\fBblas_sparse_matrix\fP *A, rsb_blas_pname_t *pname, int *istat)"
+.RI "void \fBblas_ussp_\fP (\fBblas_sparse_matrix\fP *A, int *pname, int *istat)"
 .br
 .ti -1c
-.RI "int \fBBLAS_ussp\fP (\fBblas_sparse_matrix\fP A, rsb_blas_pname_t pname)"
-.br
-.ti -1c
-.RI "\fBblas_sparse_matrix\fP \fBrsb_blas_file_mtx_load\fP (const \fBrsb_char_t\fP *filename, \fBrsb_type_t\fP typecode)"
+.RI "int \fBBLAS_ussp\fP (\fBblas_sparse_matrix\fP A, int pname)"
 .br
 .ti -1c
 .RI "struct rsb_mtx_t * \fBrsb_blas_get_mtx\fP (\fBblas_sparse_matrix\fP A)"
@@ -737,9 +734,9 @@ Error checking is weak; so for instance, passing a function the handle of a matr
 .IP "\(bu" 2
 According to the standard, VBR and BCSR styled constructors are supported, although these are interfaces for \fClibrsb's\fP own matrix representation\&. 
 .IP "\(bu" 2
-Here functions for both Fortran and C are listed\&. The Fortran functions are declared and documented with the C notation\&. We may provide a better documentation in a future release\&. 
+Here we list functions for both Fortran and C functions\&. However, the Fortran functions are declared and documented with the C notation\&. We may provide a better documentation in a subsequent release\&. 
 .IP "\(bu" 2
-Each identifier documented here suffixed by \fC_\fP (e\&.g\&.: \fBblas_susdot_()\fP) can be used from Fortran with the name stripped by that suffix (so in this case, \fCblas_susdot\fP)\&. We may provide a proper fix to this inconvenience in a subsequent release\&. 
+Each identifier documented here suffixed by \fC_\fP (e\&.g\&.: \fBblas_susdot_()\fP) can be used from Fortran with the name stripped by that suffix (so in this case, \fCblas_susdot\fP)\&. We will provide a proper fix to this inconvenience in a subsequent release\&. 
 .IP "\(bu" 2
 Each Fortran program using \fClibrsb's\fP Sparse BLAS Implementation shall \fCuse\fP modules \fC\fBblas_sparse\fP\fP and \fCrsb\fP\&. 
 .IP "\(bu" 2
@@ -789,7 +786,7 @@ CALL usds(A,istat)
  
 .SH "Function Documentation"
 .PP 
-.SS "int BLAS_cusaxpy (const int nnz, const void * alpha, const void * x, const int * indx, void * y, const int incy, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_cusaxpy (int nnz, const void * alpha, const void * x, const int * indx, void * y, int incy, enum \fBblas_base_type\fP index_base)"
 Sparse vector update: $Y <- alpha X + Y$\&. 
 .PP
 \fBParameters:\fP
@@ -816,11 +813,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_cusaxpy_ (const int * nnz, const void * alpha, const void * x, const int * indx, void * y, const int * incy, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_cusaxpy_ (int * nnz, const void * alpha, const void * x, const int * indx, void * y, int * incy, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse vector update: $Y <- alpha X + Y$\&. 
 .PP
 \fBParameters:\fP
@@ -849,7 +846,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
@@ -1303,7 +1300,7 @@ This is a subroutine for Fortran, so it does not return any value\&. Will assign
 .RE
 .PP
 
-.SS "int BLAS_cusdot (const enum \fBblas_conj_type\fP conj, const int nnz, const void * x, const int * indx, const void * y, const int incy, void * r, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_cusdot (enum \fBblas_conj_type\fP conj, int nnz, const void * x, const int * indx, const void * y, int incy, void * r, enum \fBblas_base_type\fP index_base)"
 Sparse dot product\&. $r <- X^T Y,$ $r <- X^H Y$ 
 .PP
 \fBParameters:\fP
@@ -1332,11 +1329,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_cusdot_ (const enum \fBblas_conj_type\fP * conj, const int * nnz, const void * x, const int * indx, const void * y, const int * incy, void * r, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_cusdot_ (enum \fBblas_conj_type\fP * conj, int * nnz, const void * x, const int * indx, const void * y, int * incy, void * r, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse dot product\&. $r <- X^T Y,$ $r <- X^H Y$ 
 .PP
 \fBParameters:\fP
@@ -1367,11 +1364,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_cusga (const int nnz, const void * y, const int incy, void * x, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_cusga (int nnz, const void * y, int incy, void * x, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse gather\&. $X <- Y |_x$\&. 
 .PP
 \fBParameters:\fP
@@ -1396,11 +1393,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_cusga_ (const int * nnz, const void * y, const int * incy, void * x, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_cusga_ (int * nnz, const void * y, int * incy, void * x, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse gather\&. $X <- Y |_x$\&. 
 .PP
 \fBParameters:\fP
@@ -1427,7 +1424,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
@@ -1478,7 +1475,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cusget_element (\fBblas_sparse_matrix\fP A, const int i, const int j, void * v)"
+.SS "int BLAS_cusget_element (\fBblas_sparse_matrix\fP A, int i, int j, void * v)"
 Get a single matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -1503,7 +1500,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cusget_element_ (\fBblas_sparse_matrix\fP * A, const int * i, const int * j, void * v, int * istat)"
+.SS "void blas_cusget_element_ (\fBblas_sparse_matrix\fP * A, int * i, int * j, void * v, int * istat)"
 Get a single matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -1533,7 +1530,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cusget_infinity_norm (\fBblas_sparse_matrix\fP A, void * in, const enum \fBblas_trans_type\fP trans)"
+.SS "int BLAS_cusget_infinity_norm (\fBblas_sparse_matrix\fP A, void * in, enum \fBblas_trans_type\fP trans)"
 Get infinity norm of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -1556,7 +1553,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cusget_infinity_norm_ (\fBblas_sparse_matrix\fP * A, void * in, const enum \fBblas_trans_type\fP * trans, int * istat)"
+.SS "void blas_cusget_infinity_norm_ (\fBblas_sparse_matrix\fP * A, void * in, enum \fBblas_trans_type\fP * trans, int * istat)"
 Get infinity norm of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -1631,7 +1628,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cusget_rows_nnz (\fBblas_sparse_matrix\fP A, const int fr, const int lr, int * nnzp)"
+.SS "int BLAS_cusget_rows_nnz (\fBblas_sparse_matrix\fP A, int fr, int lr, int * nnzp)"
 Get nnz count of matrix row interval\&. 
 .PP
 \fBParameters:\fP
@@ -1656,7 +1653,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cusget_rows_nnz_ (\fBblas_sparse_matrix\fP * A, const int * fr, const int * lr, int * nnzp, int * istat)"
+.SS "void blas_cusget_rows_nnz_ (\fBblas_sparse_matrix\fP * A, int * fr, int * lr, int * nnzp, int * istat)"
 Get nnz count of matrix row interval\&. 
 .PP
 \fBParameters:\fP
@@ -1686,7 +1683,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cusget_rows_sparse (\fBblas_sparse_matrix\fP A, void * VA, int * IA, int * JA, int * nnz, const int fr, const int lr)"
+.SS "int BLAS_cusget_rows_sparse (\fBblas_sparse_matrix\fP A, void * VA, int * IA, int * JA, int * nnz, int fr, int lr)"
 Get sparse rows of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -1717,7 +1714,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cusget_rows_sparse_ (\fBblas_sparse_matrix\fP * A, void * VA, int * IA, int * JA, int * nnz, const int * fr, const int * lr, int * istat)"
+.SS "void blas_cusget_rows_sparse_ (\fBblas_sparse_matrix\fP * A, void * VA, int * IA, int * JA, int * nnz, int * fr, int * lr, int * istat)"
 Get sparse rows of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -1753,7 +1750,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cusgz (const int nnz, void * y, const int incy, void * x, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_cusgz (int nnz, void * y, int incy, void * x, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse gather and zero\&. $X <- Y |_x;Y|_x <- 0$\&. 
 .PP
 \fBParameters:\fP
@@ -1778,11 +1775,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_cusgz_ (const int * nnz, void * y, const int * incy, void * x, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_cusgz_ (int * nnz, void * y, int * incy, void * x, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse gather and zero\&. $X <- Y |_x;Y|_x <- 0$\&. 
 .PP
 \fBParameters:\fP
@@ -1809,11 +1806,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_cusmm (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transA, const int nrhs, const void * alpha, const \fBblas_sparse_matrix\fP A, const void * b, const int ldb, void * c, const int ldc)"
+.SS "int BLAS_cusmm (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transA, int nrhs, const void * alpha, \fBblas_sparse_matrix\fP A, const void * b, int ldb, void * c, int ldc)"
 Multiply by a dense matrix (aka multi-vector)\&. Either of $C <- alpha AB+C,$ $C <- alpha A^T B+C,$ $C <- alpha A^H B+C$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -1855,7 +1852,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cusmm_ (const enum \fBblas_order_type\fP * order, const enum \fBblas_trans_type\fP * transA, const int * nrhs, const void * alpha, const \fBblas_sparse_matrix\fP * A, const void * b, const int * ldb, void * c, const int * ldc, int * istat)"
+.SS "void blas_cusmm_ (enum \fBblas_order_type\fP * order, enum \fBblas_trans_type\fP * transA, int * nrhs, const void * alpha, \fBblas_sparse_matrix\fP * A, const void * b, int * ldb, void * c, int * ldc, int * istat)"
 Multiply by a dense matrix (aka multi-vector)\&. Either of $C <- alpha AB+C,$ $C <- alpha A^T B+C,$ $C <- alpha A^H B+C$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -1902,7 +1899,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cusmv (const enum \fBblas_trans_type\fP transA, const void * alpha, const \fBblas_sparse_matrix\fP A, const void * x, const int incx, void * y, const int incy)"
+.SS "int BLAS_cusmv (enum \fBblas_trans_type\fP transA, const void * alpha, \fBblas_sparse_matrix\fP A, const void * x, int incx, void * y, int incy)"
 Multiply by a dense vector\&. Either of $Y <- alpha A X + Y ,$ $Y <- alpha A^T X + Y,$ $Y <- alpha A^H X + Y$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -1940,7 +1937,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cusmv_ (const enum \fBblas_trans_type\fP * transA, const void * alpha, const \fBblas_sparse_matrix\fP * A, const void * x, const int * incx, void * y, const int * incy, int * istat)"
+.SS "void blas_cusmv_ (enum \fBblas_trans_type\fP * transA, const void * alpha, \fBblas_sparse_matrix\fP * A, const void * x, int * incx, void * y, int * incy, int * istat)"
 Multiply by a dense vector\&. Either of $Y <- alpha A X + Y ,$ $Y <- alpha A^T X + Y,$ $Y <- alpha A^H X + Y$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -1983,7 +1980,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cusrows_scale (\fBblas_sparse_matrix\fP A, const void * d, const enum \fBblas_trans_type\fP trans)"
+.SS "int BLAS_cusrows_scale (\fBblas_sparse_matrix\fP A, const void * d, enum \fBblas_trans_type\fP trans)"
 Scale rows interval of matrix by specified factor\&. 
 .PP
 \fBParameters:\fP
@@ -2006,7 +2003,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cusrows_scale_ (\fBblas_sparse_matrix\fP * A, const void * d, const enum \fBblas_trans_type\fP * trans, int * istat)"
+.SS "void blas_cusrows_scale_ (\fBblas_sparse_matrix\fP * A, const void * d, enum \fBblas_trans_type\fP * trans, int * istat)"
 Scale rows interval of matrix by specified factor\&. 
 .PP
 \fBParameters:\fP
@@ -2034,7 +2031,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cussc (const int nnz, const void * x, void * y, const int incy, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_cussc (int nnz, const void * x, void * y, int incy, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse scatter: $Y |_x <- X$\&. 
 .PP
 \fBParameters:\fP
@@ -2059,11 +2056,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_cussc_ (const int * nnz, const void * x, void * y, const int * incy, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_cussc_ (int * nnz, const void * x, void * y, int * incy, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse scatter: $Y |_x <- X$\&. 
 .PP
 \fBParameters:\fP
@@ -2090,11 +2087,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_cusset_element (\fBblas_sparse_matrix\fP A, const int i, const int j, void * v)"
+.SS "int BLAS_cusset_element (\fBblas_sparse_matrix\fP A, int i, int j, void * v)"
 Set a single (existing) matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -2119,7 +2116,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cusset_element_ (\fBblas_sparse_matrix\fP * A, const int * i, const int * j, void * v, int * istat)"
+.SS "void blas_cusset_element_ (\fBblas_sparse_matrix\fP * A, int * i, int * j, void * v, int * istat)"
 Set a single (existing) matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -2149,7 +2146,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cusset_elements (\fBblas_sparse_matrix\fP A, const int * ia, const int * ja, const void * va, const int nnz)"
+.SS "int BLAS_cusset_elements (\fBblas_sparse_matrix\fP A, const int * ia, const int * ja, const void * va, int nnz)"
 Set individual matrix nonzero coefficients values\&. The operation is pattern preserving, that is, nonzeroes must already exist\&. 
 .PP
 \fBParameters:\fP
@@ -2176,7 +2173,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cusset_elements_ (\fBblas_sparse_matrix\fP * A, const int * ia, const int * ja, const void * va, const int * nnz, int * istat)"
+.SS "void blas_cusset_elements_ (\fBblas_sparse_matrix\fP * A, const int * ia, const int * ja, const void * va, int * nnz, int * istat)"
 Set individual matrix nonzero coefficients values\&. The operation is pattern preserving, that is, nonzeroes must already exist\&. 
 .PP
 \fBParameters:\fP
@@ -2208,7 +2205,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cussm (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transT, const int nrhs, const void * alpha, const \fBblas_sparse_matrix\fP T, void * b, const int ldb)"
+.SS "int BLAS_cussm (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transT, int nrhs, const void * alpha, \fBblas_sparse_matrix\fP T, void * b, int ldb)"
 Triangular solve, by a dense matrix (aka multi-vector)\&. Either of $B <- alpha T^{-1} B,$ $B <- alpha T^{-T} B,$ $B <- alpha T^{-H} B$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -2234,7 +2231,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cussm_ (const enum \fBblas_order_type\fP * order, const enum \fBblas_trans_type\fP * transT, const int * nrhs, const void * alpha, const \fBblas_sparse_matrix\fP * T, void * b, const int * ldb, int * istat)"
+.SS "void blas_cussm_ (enum \fBblas_order_type\fP * order, enum \fBblas_trans_type\fP * transT, int * nrhs, const void * alpha, \fBblas_sparse_matrix\fP * T, void * b, int * ldb, int * istat)"
 Triangular solve, by a dense matrix (aka multi-vector)\&. Either of $B <- alpha T^{-1} B,$ $B <- alpha T^{-T} B,$ $B <- alpha T^{-H} B$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -2262,7 +2259,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_cussv (enum \fBblas_trans_type\fP transT, const void * alpha, const \fBblas_sparse_matrix\fP T, void * x, const int incx)"
+.SS "int BLAS_cussv (enum \fBblas_trans_type\fP transT, const void * alpha, \fBblas_sparse_matrix\fP T, void * x, int incx)"
 Triangular solve, by a dense vector\&. Either of $X <- alpha T^{-1}X,$ $X <- alpha T^{-T}X,$ $X <- alpha T^{-H}X$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -2284,7 +2281,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_cussv_ (enum \fBblas_trans_type\fP * transT, const void * alpha, const \fBblas_sparse_matrix\fP * T, void * x, const int * incx, int * istat)"
+.SS "void blas_cussv_ (enum \fBblas_trans_type\fP * transT, const void * alpha, \fBblas_sparse_matrix\fP * T, void * x, int * incx, int * istat)"
 Triangular solve, by a dense vector\&. Either of $X <- alpha T^{-1}X,$ $X <- alpha T^{-T}X,$ $X <- alpha T^{-H}X$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -2308,7 +2305,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dusaxpy (const int nnz, double alpha, const double * x, const int * indx, double * y, const int incy, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_dusaxpy (int nnz, double alpha, const double * x, const int * indx, double * y, int incy, enum \fBblas_base_type\fP index_base)"
 Sparse vector update: $Y <- alpha X + Y$\&. 
 .PP
 \fBParameters:\fP
@@ -2335,11 +2332,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_dusaxpy_ (const int * nnz, double * alpha, const double * x, const int * indx, double * y, const int * incy, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_dusaxpy_ (int * nnz, double * alpha, const double * x, const int * indx, double * y, int * incy, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse vector update: $Y <- alpha X + Y$\&. 
 .PP
 \fBParameters:\fP
@@ -2368,7 +2365,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
@@ -2822,7 +2819,7 @@ This is a subroutine for Fortran, so it does not return any value\&. Will assign
 .RE
 .PP
 
-.SS "int BLAS_dusdot (const enum \fBblas_conj_type\fP conj, const int nnz, const double * x, const int * indx, const double * y, const int incy, double * r, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_dusdot (enum \fBblas_conj_type\fP conj, int nnz, const double * x, const int * indx, const double * y, int incy, double * r, enum \fBblas_base_type\fP index_base)"
 Sparse dot product\&. $r <- X^T Y,$ $r <- X^H Y$ 
 .PP
 \fBParameters:\fP
@@ -2851,11 +2848,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_dusdot_ (const enum \fBblas_conj_type\fP * conj, const int * nnz, const double * x, const int * indx, const double * y, const int * incy, double * r, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_dusdot_ (enum \fBblas_conj_type\fP * conj, int * nnz, const double * x, const int * indx, const double * y, int * incy, double * r, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse dot product\&. $r <- X^T Y,$ $r <- X^H Y$ 
 .PP
 \fBParameters:\fP
@@ -2886,11 +2883,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_dusga (const int nnz, const double * y, const int incy, double * x, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_dusga (int nnz, const double * y, int incy, double * x, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse gather\&. $X <- Y |_x$\&. 
 .PP
 \fBParameters:\fP
@@ -2915,11 +2912,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_dusga_ (const int * nnz, const double * y, const int * incy, double * x, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_dusga_ (int * nnz, const double * y, int * incy, double * x, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse gather\&. $X <- Y |_x$\&. 
 .PP
 \fBParameters:\fP
@@ -2946,7 +2943,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
@@ -2997,7 +2994,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dusget_element (\fBblas_sparse_matrix\fP A, const int i, const int j, double * v)"
+.SS "int BLAS_dusget_element (\fBblas_sparse_matrix\fP A, int i, int j, double * v)"
 Get a single matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -3022,7 +3019,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dusget_element_ (\fBblas_sparse_matrix\fP * A, const int * i, const int * j, double * v, int * istat)"
+.SS "void blas_dusget_element_ (\fBblas_sparse_matrix\fP * A, int * i, int * j, double * v, int * istat)"
 Get a single matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -3052,7 +3049,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dusget_infinity_norm (\fBblas_sparse_matrix\fP A, double * in, const enum \fBblas_trans_type\fP trans)"
+.SS "int BLAS_dusget_infinity_norm (\fBblas_sparse_matrix\fP A, double * in, enum \fBblas_trans_type\fP trans)"
 Get infinity norm of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -3075,7 +3072,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dusget_infinity_norm_ (\fBblas_sparse_matrix\fP * A, double * in, const enum \fBblas_trans_type\fP * trans, int * istat)"
+.SS "void blas_dusget_infinity_norm_ (\fBblas_sparse_matrix\fP * A, double * in, enum \fBblas_trans_type\fP * trans, int * istat)"
 Get infinity norm of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -3150,7 +3147,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dusget_rows_nnz (\fBblas_sparse_matrix\fP A, const int fr, const int lr, int * nnzp)"
+.SS "int BLAS_dusget_rows_nnz (\fBblas_sparse_matrix\fP A, int fr, int lr, int * nnzp)"
 Get nnz count of matrix row interval\&. 
 .PP
 \fBParameters:\fP
@@ -3175,7 +3172,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dusget_rows_nnz_ (\fBblas_sparse_matrix\fP * A, const int * fr, const int * lr, int * nnzp, int * istat)"
+.SS "void blas_dusget_rows_nnz_ (\fBblas_sparse_matrix\fP * A, int * fr, int * lr, int * nnzp, int * istat)"
 Get nnz count of matrix row interval\&. 
 .PP
 \fBParameters:\fP
@@ -3205,7 +3202,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dusget_rows_sparse (\fBblas_sparse_matrix\fP A, double * VA, int * IA, int * JA, int * nnz, const int fr, const int lr)"
+.SS "int BLAS_dusget_rows_sparse (\fBblas_sparse_matrix\fP A, double * VA, int * IA, int * JA, int * nnz, int fr, int lr)"
 Get sparse rows of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -3236,7 +3233,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dusget_rows_sparse_ (\fBblas_sparse_matrix\fP * A, double * VA, int * IA, int * JA, int * nnz, const int * fr, const int * lr, int * istat)"
+.SS "void blas_dusget_rows_sparse_ (\fBblas_sparse_matrix\fP * A, double * VA, int * IA, int * JA, int * nnz, int * fr, int * lr, int * istat)"
 Get sparse rows of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -3272,7 +3269,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dusgz (const int nnz, double * y, const int incy, double * x, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_dusgz (int nnz, double * y, int incy, double * x, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse gather and zero\&. $X <- Y |_x;Y|_x <- 0$\&. 
 .PP
 \fBParameters:\fP
@@ -3297,11 +3294,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_dusgz_ (const int * nnz, double * y, const int * incy, double * x, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_dusgz_ (int * nnz, double * y, int * incy, double * x, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse gather and zero\&. $X <- Y |_x;Y|_x <- 0$\&. 
 .PP
 \fBParameters:\fP
@@ -3328,11 +3325,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_dusmm (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transA, const int nrhs, double alpha, const \fBblas_sparse_matrix\fP A, const double * b, const int ldb, double * c, const int ldc)"
+.SS "int BLAS_dusmm (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transA, int nrhs, double alpha, \fBblas_sparse_matrix\fP A, const double * b, int ldb, double * c, int ldc)"
 Multiply by a dense matrix (aka multi-vector)\&. Either of $C <- alpha AB+C,$ $C <- alpha A^T B+C,$ $C <- alpha A^H B+C$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -3374,7 +3371,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dusmm_ (const enum \fBblas_order_type\fP * order, const enum \fBblas_trans_type\fP * transA, const int * nrhs, double * alpha, const \fBblas_sparse_matrix\fP * A, const double * b, const int * ldb, double * c, const int * ldc, int * istat)"
+.SS "void blas_dusmm_ (enum \fBblas_order_type\fP * order, enum \fBblas_trans_type\fP * transA, int * nrhs, double * alpha, \fBblas_sparse_matrix\fP * A, const double * b, int * ldb, double * c, int * ldc, int * istat)"
 Multiply by a dense matrix (aka multi-vector)\&. Either of $C <- alpha AB+C,$ $C <- alpha A^T B+C,$ $C <- alpha A^H B+C$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -3421,7 +3418,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dusmv (const enum \fBblas_trans_type\fP transA, double alpha, const \fBblas_sparse_matrix\fP A, const double * x, const int incx, double * y, const int incy)"
+.SS "int BLAS_dusmv (enum \fBblas_trans_type\fP transA, double alpha, \fBblas_sparse_matrix\fP A, const double * x, int incx, double * y, int incy)"
 Multiply by a dense vector\&. Either of $Y <- alpha A X + Y ,$ $Y <- alpha A^T X + Y,$ $Y <- alpha A^H X + Y$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -3459,7 +3456,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dusmv_ (const enum \fBblas_trans_type\fP * transA, double * alpha, const \fBblas_sparse_matrix\fP * A, const double * x, const int * incx, double * y, const int * incy, int * istat)"
+.SS "void blas_dusmv_ (enum \fBblas_trans_type\fP * transA, double * alpha, \fBblas_sparse_matrix\fP * A, const double * x, int * incx, double * y, int * incy, int * istat)"
 Multiply by a dense vector\&. Either of $Y <- alpha A X + Y ,$ $Y <- alpha A^T X + Y,$ $Y <- alpha A^H X + Y$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -3502,7 +3499,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dusrows_scale (\fBblas_sparse_matrix\fP A, const double * d, const enum \fBblas_trans_type\fP trans)"
+.SS "int BLAS_dusrows_scale (\fBblas_sparse_matrix\fP A, const double * d, enum \fBblas_trans_type\fP trans)"
 Scale rows interval of matrix by specified factor\&. 
 .PP
 \fBParameters:\fP
@@ -3525,7 +3522,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dusrows_scale_ (\fBblas_sparse_matrix\fP * A, const double * d, const enum \fBblas_trans_type\fP * trans, int * istat)"
+.SS "void blas_dusrows_scale_ (\fBblas_sparse_matrix\fP * A, const double * d, enum \fBblas_trans_type\fP * trans, int * istat)"
 Scale rows interval of matrix by specified factor\&. 
 .PP
 \fBParameters:\fP
@@ -3553,7 +3550,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dussc (const int nnz, const double * x, double * y, const int incy, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_dussc (int nnz, const double * x, double * y, int incy, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse scatter: $Y |_x <- X$\&. 
 .PP
 \fBParameters:\fP
@@ -3578,11 +3575,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_dussc_ (const int * nnz, const double * x, double * y, const int * incy, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_dussc_ (int * nnz, const double * x, double * y, int * incy, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse scatter: $Y |_x <- X$\&. 
 .PP
 \fBParameters:\fP
@@ -3609,11 +3606,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_dusset_element (\fBblas_sparse_matrix\fP A, const int i, const int j, double * v)"
+.SS "int BLAS_dusset_element (\fBblas_sparse_matrix\fP A, int i, int j, double * v)"
 Set a single (existing) matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -3638,7 +3635,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dusset_element_ (\fBblas_sparse_matrix\fP * A, const int * i, const int * j, double * v, int * istat)"
+.SS "void blas_dusset_element_ (\fBblas_sparse_matrix\fP * A, int * i, int * j, double * v, int * istat)"
 Set a single (existing) matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -3668,7 +3665,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dusset_elements (\fBblas_sparse_matrix\fP A, const int * ia, const int * ja, const double * va, const int nnz)"
+.SS "int BLAS_dusset_elements (\fBblas_sparse_matrix\fP A, const int * ia, const int * ja, const double * va, int nnz)"
 Set individual matrix nonzero coefficients values\&. The operation is pattern preserving, that is, nonzeroes must already exist\&. 
 .PP
 \fBParameters:\fP
@@ -3695,7 +3692,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dusset_elements_ (\fBblas_sparse_matrix\fP * A, const int * ia, const int * ja, const double * va, const int * nnz, int * istat)"
+.SS "void blas_dusset_elements_ (\fBblas_sparse_matrix\fP * A, const int * ia, const int * ja, const double * va, int * nnz, int * istat)"
 Set individual matrix nonzero coefficients values\&. The operation is pattern preserving, that is, nonzeroes must already exist\&. 
 .PP
 \fBParameters:\fP
@@ -3727,7 +3724,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dussm (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transT, const int nrhs, double alpha, const \fBblas_sparse_matrix\fP T, double * b, const int ldb)"
+.SS "int BLAS_dussm (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transT, int nrhs, double alpha, \fBblas_sparse_matrix\fP T, double * b, int ldb)"
 Triangular solve, by a dense matrix (aka multi-vector)\&. Either of $B <- alpha T^{-1} B,$ $B <- alpha T^{-T} B,$ $B <- alpha T^{-H} B$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -3753,7 +3750,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dussm_ (const enum \fBblas_order_type\fP * order, const enum \fBblas_trans_type\fP * transT, const int * nrhs, double * alpha, const \fBblas_sparse_matrix\fP * T, double * b, const int * ldb, int * istat)"
+.SS "void blas_dussm_ (enum \fBblas_order_type\fP * order, enum \fBblas_trans_type\fP * transT, int * nrhs, double * alpha, \fBblas_sparse_matrix\fP * T, double * b, int * ldb, int * istat)"
 Triangular solve, by a dense matrix (aka multi-vector)\&. Either of $B <- alpha T^{-1} B,$ $B <- alpha T^{-T} B,$ $B <- alpha T^{-H} B$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -3781,7 +3778,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_dussv (enum \fBblas_trans_type\fP transT, double alpha, const \fBblas_sparse_matrix\fP T, double * x, const int incx)"
+.SS "int BLAS_dussv (enum \fBblas_trans_type\fP transT, double alpha, \fBblas_sparse_matrix\fP T, double * x, int incx)"
 Triangular solve, by a dense vector\&. Either of $X <- alpha T^{-1}X,$ $X <- alpha T^{-T}X,$ $X <- alpha T^{-H}X$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -3803,7 +3800,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_dussv_ (enum \fBblas_trans_type\fP * transT, double * alpha, const \fBblas_sparse_matrix\fP * T, double * x, const int * incx, int * istat)"
+.SS "void blas_dussv_ (enum \fBblas_trans_type\fP * transT, double * alpha, \fBblas_sparse_matrix\fP * T, double * x, int * incx, int * istat)"
 Triangular solve, by a dense vector\&. Either of $X <- alpha T^{-1}X,$ $X <- alpha T^{-T}X,$ $X <- alpha T^{-H}X$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -3827,7 +3824,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_susaxpy (const int nnz, float alpha, const float * x, const int * indx, float * y, const int incy, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_susaxpy (int nnz, float alpha, const float * x, const int * indx, float * y, int incy, enum \fBblas_base_type\fP index_base)"
 Sparse vector update: $Y <- alpha X + Y$\&. 
 .PP
 \fBParameters:\fP
@@ -3854,11 +3851,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_susaxpy_ (const int * nnz, float * alpha, const float * x, const int * indx, float * y, const int * incy, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_susaxpy_ (int * nnz, float * alpha, const float * x, const int * indx, float * y, int * incy, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse vector update: $Y <- alpha X + Y$\&. 
 .PP
 \fBParameters:\fP
@@ -3887,7 +3884,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
@@ -4341,7 +4338,7 @@ This is a subroutine for Fortran, so it does not return any value\&. Will assign
 .RE
 .PP
 
-.SS "int BLAS_susdot (const enum \fBblas_conj_type\fP conj, const int nnz, const float * x, const int * indx, const float * y, const int incy, float * r, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_susdot (enum \fBblas_conj_type\fP conj, int nnz, const float * x, const int * indx, const float * y, int incy, float * r, enum \fBblas_base_type\fP index_base)"
 Sparse dot product\&. $r <- X^T Y,$ $r <- X^H Y$ 
 .PP
 \fBParameters:\fP
@@ -4370,11 +4367,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_susdot_ (const enum \fBblas_conj_type\fP * conj, const int * nnz, const float * x, const int * indx, const float * y, const int * incy, float * r, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_susdot_ (enum \fBblas_conj_type\fP * conj, int * nnz, const float * x, const int * indx, const float * y, int * incy, float * r, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse dot product\&. $r <- X^T Y,$ $r <- X^H Y$ 
 .PP
 \fBParameters:\fP
@@ -4405,11 +4402,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_susga (const int nnz, const float * y, const int incy, float * x, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_susga (int nnz, const float * y, int incy, float * x, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse gather\&. $X <- Y |_x$\&. 
 .PP
 \fBParameters:\fP
@@ -4434,11 +4431,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_susga_ (const int * nnz, const float * y, const int * incy, float * x, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_susga_ (int * nnz, const float * y, int * incy, float * x, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse gather\&. $X <- Y |_x$\&. 
 .PP
 \fBParameters:\fP
@@ -4465,7 +4462,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
@@ -4516,7 +4513,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_susget_element (\fBblas_sparse_matrix\fP A, const int i, const int j, float * v)"
+.SS "int BLAS_susget_element (\fBblas_sparse_matrix\fP A, int i, int j, float * v)"
 Get a single matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -4541,7 +4538,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_susget_element_ (\fBblas_sparse_matrix\fP * A, const int * i, const int * j, float * v, int * istat)"
+.SS "void blas_susget_element_ (\fBblas_sparse_matrix\fP * A, int * i, int * j, float * v, int * istat)"
 Get a single matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -4571,7 +4568,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_susget_infinity_norm (\fBblas_sparse_matrix\fP A, float * in, const enum \fBblas_trans_type\fP trans)"
+.SS "int BLAS_susget_infinity_norm (\fBblas_sparse_matrix\fP A, float * in, enum \fBblas_trans_type\fP trans)"
 Get infinity norm of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -4594,7 +4591,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_susget_infinity_norm_ (\fBblas_sparse_matrix\fP * A, float * in, const enum \fBblas_trans_type\fP * trans, int * istat)"
+.SS "void blas_susget_infinity_norm_ (\fBblas_sparse_matrix\fP * A, float * in, enum \fBblas_trans_type\fP * trans, int * istat)"
 Get infinity norm of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -4669,7 +4666,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_susget_rows_nnz (\fBblas_sparse_matrix\fP A, const int fr, const int lr, int * nnzp)"
+.SS "int BLAS_susget_rows_nnz (\fBblas_sparse_matrix\fP A, int fr, int lr, int * nnzp)"
 Get nnz count of matrix row interval\&. 
 .PP
 \fBParameters:\fP
@@ -4694,7 +4691,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_susget_rows_nnz_ (\fBblas_sparse_matrix\fP * A, const int * fr, const int * lr, int * nnzp, int * istat)"
+.SS "void blas_susget_rows_nnz_ (\fBblas_sparse_matrix\fP * A, int * fr, int * lr, int * nnzp, int * istat)"
 Get nnz count of matrix row interval\&. 
 .PP
 \fBParameters:\fP
@@ -4724,7 +4721,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_susget_rows_sparse (\fBblas_sparse_matrix\fP A, float * VA, int * IA, int * JA, int * nnz, const int fr, const int lr)"
+.SS "int BLAS_susget_rows_sparse (\fBblas_sparse_matrix\fP A, float * VA, int * IA, int * JA, int * nnz, int fr, int lr)"
 Get sparse rows of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -4755,7 +4752,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_susget_rows_sparse_ (\fBblas_sparse_matrix\fP * A, float * VA, int * IA, int * JA, int * nnz, const int * fr, const int * lr, int * istat)"
+.SS "void blas_susget_rows_sparse_ (\fBblas_sparse_matrix\fP * A, float * VA, int * IA, int * JA, int * nnz, int * fr, int * lr, int * istat)"
 Get sparse rows of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -4791,7 +4788,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_susgz (const int nnz, float * y, const int incy, float * x, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_susgz (int nnz, float * y, int incy, float * x, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse gather and zero\&. $X <- Y |_x;Y|_x <- 0$\&. 
 .PP
 \fBParameters:\fP
@@ -4816,11 +4813,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_susgz_ (const int * nnz, float * y, const int * incy, float * x, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_susgz_ (int * nnz, float * y, int * incy, float * x, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse gather and zero\&. $X <- Y |_x;Y|_x <- 0$\&. 
 .PP
 \fBParameters:\fP
@@ -4847,11 +4844,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_susmm (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transA, const int nrhs, float alpha, const \fBblas_sparse_matrix\fP A, const float * b, const int ldb, float * c, const int ldc)"
+.SS "int BLAS_susmm (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transA, int nrhs, float alpha, \fBblas_sparse_matrix\fP A, const float * b, int ldb, float * c, int ldc)"
 Multiply by a dense matrix (aka multi-vector)\&. Either of $C <- alpha AB+C,$ $C <- alpha A^T B+C,$ $C <- alpha A^H B+C$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -4893,7 +4890,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_susmm_ (const enum \fBblas_order_type\fP * order, const enum \fBblas_trans_type\fP * transA, const int * nrhs, float * alpha, const \fBblas_sparse_matrix\fP * A, const float * b, const int * ldb, float * c, const int * ldc, int * istat)"
+.SS "void blas_susmm_ (enum \fBblas_order_type\fP * order, enum \fBblas_trans_type\fP * transA, int * nrhs, float * alpha, \fBblas_sparse_matrix\fP * A, const float * b, int * ldb, float * c, int * ldc, int * istat)"
 Multiply by a dense matrix (aka multi-vector)\&. Either of $C <- alpha AB+C,$ $C <- alpha A^T B+C,$ $C <- alpha A^H B+C$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -4940,7 +4937,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_susmv (const enum \fBblas_trans_type\fP transA, float alpha, const \fBblas_sparse_matrix\fP A, const float * x, const int incx, float * y, const int incy)"
+.SS "int BLAS_susmv (enum \fBblas_trans_type\fP transA, float alpha, \fBblas_sparse_matrix\fP A, const float * x, int incx, float * y, int incy)"
 Multiply by a dense vector\&. Either of $Y <- alpha A X + Y ,$ $Y <- alpha A^T X + Y,$ $Y <- alpha A^H X + Y$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -4978,7 +4975,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_susmv_ (const enum \fBblas_trans_type\fP * transA, float * alpha, const \fBblas_sparse_matrix\fP * A, const float * x, const int * incx, float * y, const int * incy, int * istat)"
+.SS "void blas_susmv_ (enum \fBblas_trans_type\fP * transA, float * alpha, \fBblas_sparse_matrix\fP * A, const float * x, int * incx, float * y, int * incy, int * istat)"
 Multiply by a dense vector\&. Either of $Y <- alpha A X + Y ,$ $Y <- alpha A^T X + Y,$ $Y <- alpha A^H X + Y$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -5021,7 +5018,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_susrows_scale (\fBblas_sparse_matrix\fP A, const float * d, const enum \fBblas_trans_type\fP trans)"
+.SS "int BLAS_susrows_scale (\fBblas_sparse_matrix\fP A, const float * d, enum \fBblas_trans_type\fP trans)"
 Scale rows interval of matrix by specified factor\&. 
 .PP
 \fBParameters:\fP
@@ -5044,7 +5041,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_susrows_scale_ (\fBblas_sparse_matrix\fP * A, const float * d, const enum \fBblas_trans_type\fP * trans, int * istat)"
+.SS "void blas_susrows_scale_ (\fBblas_sparse_matrix\fP * A, const float * d, enum \fBblas_trans_type\fP * trans, int * istat)"
 Scale rows interval of matrix by specified factor\&. 
 .PP
 \fBParameters:\fP
@@ -5072,7 +5069,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_sussc (const int nnz, const float * x, float * y, const int incy, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_sussc (int nnz, const float * x, float * y, int incy, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse scatter: $Y |_x <- X$\&. 
 .PP
 \fBParameters:\fP
@@ -5097,11 +5094,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_sussc_ (const int * nnz, const float * x, float * y, const int * incy, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_sussc_ (int * nnz, const float * x, float * y, int * incy, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse scatter: $Y |_x <- X$\&. 
 .PP
 \fBParameters:\fP
@@ -5128,11 +5125,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_susset_element (\fBblas_sparse_matrix\fP A, const int i, const int j, float * v)"
+.SS "int BLAS_susset_element (\fBblas_sparse_matrix\fP A, int i, int j, float * v)"
 Set a single (existing) matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -5157,7 +5154,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_susset_element_ (\fBblas_sparse_matrix\fP * A, const int * i, const int * j, float * v, int * istat)"
+.SS "void blas_susset_element_ (\fBblas_sparse_matrix\fP * A, int * i, int * j, float * v, int * istat)"
 Set a single (existing) matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -5187,7 +5184,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_susset_elements (\fBblas_sparse_matrix\fP A, const int * ia, const int * ja, const float * va, const int nnz)"
+.SS "int BLAS_susset_elements (\fBblas_sparse_matrix\fP A, const int * ia, const int * ja, const float * va, int nnz)"
 Set individual matrix nonzero coefficients values\&. The operation is pattern preserving, that is, nonzeroes must already exist\&. 
 .PP
 \fBParameters:\fP
@@ -5214,7 +5211,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_susset_elements_ (\fBblas_sparse_matrix\fP * A, const int * ia, const int * ja, const float * va, const int * nnz, int * istat)"
+.SS "void blas_susset_elements_ (\fBblas_sparse_matrix\fP * A, const int * ia, const int * ja, const float * va, int * nnz, int * istat)"
 Set individual matrix nonzero coefficients values\&. The operation is pattern preserving, that is, nonzeroes must already exist\&. 
 .PP
 \fBParameters:\fP
@@ -5246,7 +5243,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_sussm (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transT, const int nrhs, float alpha, const \fBblas_sparse_matrix\fP T, float * b, const int ldb)"
+.SS "int BLAS_sussm (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transT, int nrhs, float alpha, \fBblas_sparse_matrix\fP T, float * b, int ldb)"
 Triangular solve, by a dense matrix (aka multi-vector)\&. Either of $B <- alpha T^{-1} B,$ $B <- alpha T^{-T} B,$ $B <- alpha T^{-H} B$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -5272,7 +5269,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_sussm_ (const enum \fBblas_order_type\fP * order, const enum \fBblas_trans_type\fP * transT, const int * nrhs, float * alpha, const \fBblas_sparse_matrix\fP * T, float * b, const int * ldb, int * istat)"
+.SS "void blas_sussm_ (enum \fBblas_order_type\fP * order, enum \fBblas_trans_type\fP * transT, int * nrhs, float * alpha, \fBblas_sparse_matrix\fP * T, float * b, int * ldb, int * istat)"
 Triangular solve, by a dense matrix (aka multi-vector)\&. Either of $B <- alpha T^{-1} B,$ $B <- alpha T^{-T} B,$ $B <- alpha T^{-H} B$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -5300,7 +5297,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_sussv (enum \fBblas_trans_type\fP transT, float alpha, const \fBblas_sparse_matrix\fP T, float * x, const int incx)"
+.SS "int BLAS_sussv (enum \fBblas_trans_type\fP transT, float alpha, \fBblas_sparse_matrix\fP T, float * x, int incx)"
 Triangular solve, by a dense vector\&. Either of $X <- alpha T^{-1}X,$ $X <- alpha T^{-T}X,$ $X <- alpha T^{-H}X$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -5322,7 +5319,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_sussv_ (enum \fBblas_trans_type\fP * transT, float * alpha, const \fBblas_sparse_matrix\fP * T, float * x, const int * incx, int * istat)"
+.SS "void blas_sussv_ (enum \fBblas_trans_type\fP * transT, float * alpha, \fBblas_sparse_matrix\fP * T, float * x, int * incx, int * istat)"
 Triangular solve, by a dense vector\&. Either of $X <- alpha T^{-1}X,$ $X <- alpha T^{-T}X,$ $X <- alpha T^{-H}X$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -5406,7 +5403,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_usgp (\fBblas_sparse_matrix\fP A, rsb_blas_pname_t pname)"
+.SS "int BLAS_usgp (\fBblas_sparse_matrix\fP A, int pname)"
 Get a matrix property\&. 
 .PP
 \fBParameters:\fP
@@ -5422,7 +5419,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_usgp_ (\fBblas_sparse_matrix\fP * A, rsb_blas_pname_t * pname, int * istat)"
+.SS "void blas_usgp_ (\fBblas_sparse_matrix\fP * A, int * pname, int * istat)"
 Get a matrix property\&. 
 .PP
 \fBParameters:\fP
@@ -5440,7 +5437,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_ussp (\fBblas_sparse_matrix\fP A, rsb_blas_pname_t pname)"
+.SS "int BLAS_ussp (\fBblas_sparse_matrix\fP A, int pname)"
 Set a matrix property\&. Should be called just after creation, before nonzeroes insertion\&. 
 .PP
 \fBParameters:\fP
@@ -5456,7 +5453,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_ussp_ (\fBblas_sparse_matrix\fP * A, rsb_blas_pname_t * pname, int * istat)"
+.SS "void blas_ussp_ (\fBblas_sparse_matrix\fP * A, int * pname, int * istat)"
 Set a matrix property\&. Should be called just after creation, before nonzeroes insertion\&. 
 .PP
 \fBParameters:\fP
@@ -5474,7 +5471,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zusaxpy (const int nnz, const void * alpha, const void * x, const int * indx, void * y, const int incy, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_zusaxpy (int nnz, const void * alpha, const void * x, const int * indx, void * y, int incy, enum \fBblas_base_type\fP index_base)"
 Sparse vector update: $Y <- alpha X + Y$\&. 
 .PP
 \fBParameters:\fP
@@ -5501,11 +5498,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_zusaxpy_ (const int * nnz, const void * alpha, const void * x, const int * indx, void * y, const int * incy, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_zusaxpy_ (int * nnz, const void * alpha, const void * x, const int * indx, void * y, int * incy, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse vector update: $Y <- alpha X + Y$\&. 
 .PP
 \fBParameters:\fP
@@ -5534,7 +5531,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
@@ -5988,7 +5985,7 @@ This is a subroutine for Fortran, so it does not return any value\&. Will assign
 .RE
 .PP
 
-.SS "int BLAS_zusdot (const enum \fBblas_conj_type\fP conj, const int nnz, const void * x, const int * indx, const void * y, const int incy, void * r, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_zusdot (enum \fBblas_conj_type\fP conj, int nnz, const void * x, const int * indx, const void * y, int incy, void * r, enum \fBblas_base_type\fP index_base)"
 Sparse dot product\&. $r <- X^T Y,$ $r <- X^H Y$ 
 .PP
 \fBParameters:\fP
@@ -6017,11 +6014,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_zusdot_ (const enum \fBblas_conj_type\fP * conj, const int * nnz, const void * x, const int * indx, const void * y, const int * incy, void * r, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_zusdot_ (enum \fBblas_conj_type\fP * conj, int * nnz, const void * x, const int * indx, const void * y, int * incy, void * r, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse dot product\&. $r <- X^T Y,$ $r <- X^H Y$ 
 .PP
 \fBParameters:\fP
@@ -6052,11 +6049,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_zusga (const int nnz, const void * y, const int incy, void * x, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_zusga (int nnz, const void * y, int incy, void * x, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse gather\&. $X <- Y |_x$\&. 
 .PP
 \fBParameters:\fP
@@ -6081,11 +6078,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_zusga_ (const int * nnz, const void * y, const int * incy, void * x, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_zusga_ (int * nnz, const void * y, int * incy, void * x, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse gather\&. $X <- Y |_x$\&. 
 .PP
 \fBParameters:\fP
@@ -6112,7 +6109,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
@@ -6163,7 +6160,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zusget_element (\fBblas_sparse_matrix\fP A, const int i, const int j, void * v)"
+.SS "int BLAS_zusget_element (\fBblas_sparse_matrix\fP A, int i, int j, void * v)"
 Get a single matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -6188,7 +6185,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zusget_element_ (\fBblas_sparse_matrix\fP * A, const int * i, const int * j, void * v, int * istat)"
+.SS "void blas_zusget_element_ (\fBblas_sparse_matrix\fP * A, int * i, int * j, void * v, int * istat)"
 Get a single matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -6218,7 +6215,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zusget_infinity_norm (\fBblas_sparse_matrix\fP A, void * in, const enum \fBblas_trans_type\fP trans)"
+.SS "int BLAS_zusget_infinity_norm (\fBblas_sparse_matrix\fP A, void * in, enum \fBblas_trans_type\fP trans)"
 Get infinity norm of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -6241,7 +6238,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zusget_infinity_norm_ (\fBblas_sparse_matrix\fP * A, void * in, const enum \fBblas_trans_type\fP * trans, int * istat)"
+.SS "void blas_zusget_infinity_norm_ (\fBblas_sparse_matrix\fP * A, void * in, enum \fBblas_trans_type\fP * trans, int * istat)"
 Get infinity norm of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -6316,7 +6313,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zusget_rows_nnz (\fBblas_sparse_matrix\fP A, const int fr, const int lr, int * nnzp)"
+.SS "int BLAS_zusget_rows_nnz (\fBblas_sparse_matrix\fP A, int fr, int lr, int * nnzp)"
 Get nnz count of matrix row interval\&. 
 .PP
 \fBParameters:\fP
@@ -6341,7 +6338,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zusget_rows_nnz_ (\fBblas_sparse_matrix\fP * A, const int * fr, const int * lr, int * nnzp, int * istat)"
+.SS "void blas_zusget_rows_nnz_ (\fBblas_sparse_matrix\fP * A, int * fr, int * lr, int * nnzp, int * istat)"
 Get nnz count of matrix row interval\&. 
 .PP
 \fBParameters:\fP
@@ -6371,7 +6368,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zusget_rows_sparse (\fBblas_sparse_matrix\fP A, void * VA, int * IA, int * JA, int * nnz, const int fr, const int lr)"
+.SS "int BLAS_zusget_rows_sparse (\fBblas_sparse_matrix\fP A, void * VA, int * IA, int * JA, int * nnz, int fr, int lr)"
 Get sparse rows of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -6402,7 +6399,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zusget_rows_sparse_ (\fBblas_sparse_matrix\fP * A, void * VA, int * IA, int * JA, int * nnz, const int * fr, const int * lr, int * istat)"
+.SS "void blas_zusget_rows_sparse_ (\fBblas_sparse_matrix\fP * A, void * VA, int * IA, int * JA, int * nnz, int * fr, int * lr, int * istat)"
 Get sparse rows of matrix\&. 
 .PP
 \fBParameters:\fP
@@ -6438,7 +6435,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zusgz (const int nnz, void * y, const int incy, void * x, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_zusgz (int nnz, void * y, int incy, void * x, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse gather and zero\&. $X <- Y |_x;Y|_x <- 0$\&. 
 .PP
 \fBParameters:\fP
@@ -6463,11 +6460,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_zusgz_ (const int * nnz, void * y, const int * incy, void * x, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_zusgz_ (int * nnz, void * y, int * incy, void * x, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse gather and zero\&. $X <- Y |_x;Y|_x <- 0$\&. 
 .PP
 \fBParameters:\fP
@@ -6494,11 +6491,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_zusmm (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transA, const int nrhs, const void * alpha, const \fBblas_sparse_matrix\fP A, const void * b, const int ldb, void * c, const int ldc)"
+.SS "int BLAS_zusmm (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transA, int nrhs, const void * alpha, \fBblas_sparse_matrix\fP A, const void * b, int ldb, void * c, int ldc)"
 Multiply by a dense matrix (aka multi-vector)\&. Either of $C <- alpha AB+C,$ $C <- alpha A^T B+C,$ $C <- alpha A^H B+C$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -6540,7 +6537,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zusmm_ (const enum \fBblas_order_type\fP * order, const enum \fBblas_trans_type\fP * transA, const int * nrhs, const void * alpha, const \fBblas_sparse_matrix\fP * A, const void * b, const int * ldb, void * c, const int * ldc, int * istat)"
+.SS "void blas_zusmm_ (enum \fBblas_order_type\fP * order, enum \fBblas_trans_type\fP * transA, int * nrhs, const void * alpha, \fBblas_sparse_matrix\fP * A, const void * b, int * ldb, void * c, int * ldc, int * istat)"
 Multiply by a dense matrix (aka multi-vector)\&. Either of $C <- alpha AB+C,$ $C <- alpha A^T B+C,$ $C <- alpha A^H B+C$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -6587,7 +6584,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zusmv (const enum \fBblas_trans_type\fP transA, const void * alpha, const \fBblas_sparse_matrix\fP A, const void * x, const int incx, void * y, const int incy)"
+.SS "int BLAS_zusmv (enum \fBblas_trans_type\fP transA, const void * alpha, \fBblas_sparse_matrix\fP A, const void * x, int incx, void * y, int incy)"
 Multiply by a dense vector\&. Either of $Y <- alpha A X + Y ,$ $Y <- alpha A^T X + Y,$ $Y <- alpha A^H X + Y$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -6625,7 +6622,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zusmv_ (const enum \fBblas_trans_type\fP * transA, const void * alpha, const \fBblas_sparse_matrix\fP * A, const void * x, const int * incx, void * y, const int * incy, int * istat)"
+.SS "void blas_zusmv_ (enum \fBblas_trans_type\fP * transA, const void * alpha, \fBblas_sparse_matrix\fP * A, const void * x, int * incx, void * y, int * incy, int * istat)"
 Multiply by a dense vector\&. Either of $Y <- alpha A X + Y ,$ $Y <- alpha A^T X + Y,$ $Y <- alpha A^H X + Y$, depending on the value of \fCtransA\fP\&. 
 .PP
 \fBParameters:\fP
@@ -6668,7 +6665,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zusrows_scale (\fBblas_sparse_matrix\fP A, const void * d, const enum \fBblas_trans_type\fP trans)"
+.SS "int BLAS_zusrows_scale (\fBblas_sparse_matrix\fP A, const void * d, enum \fBblas_trans_type\fP trans)"
 Scale rows interval of matrix by specified factor\&. 
 .PP
 \fBParameters:\fP
@@ -6691,7 +6688,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zusrows_scale_ (\fBblas_sparse_matrix\fP * A, const void * d, const enum \fBblas_trans_type\fP * trans, int * istat)"
+.SS "void blas_zusrows_scale_ (\fBblas_sparse_matrix\fP * A, const void * d, enum \fBblas_trans_type\fP * trans, int * istat)"
 Scale rows interval of matrix by specified factor\&. 
 .PP
 \fBParameters:\fP
@@ -6719,7 +6716,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zussc (const int nnz, const void * x, void * y, const int incy, const int * indx, const enum \fBblas_base_type\fP index_base)"
+.SS "int BLAS_zussc (int nnz, const void * x, void * y, int incy, const int * indx, enum \fBblas_base_type\fP index_base)"
 Sparse scatter: $Y |_x <- X$\&. 
 .PP
 \fBParameters:\fP
@@ -6744,11 +6741,11 @@ On success, 0 is returned; on error, -1\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "void blas_zussc_ (const int * nnz, const void * x, void * y, const int * incy, const int * indx, const enum \fBblas_base_type\fP * index_base, int * istat)"
+.SS "void blas_zussc_ (int * nnz, const void * x, void * y, int * incy, const int * indx, enum \fBblas_base_type\fP * index_base, int * istat)"
 Sparse scatter: $Y |_x <- X$\&. 
 .PP
 \fBParameters:\fP
@@ -6775,11 +6772,11 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .PP
 \fBWarning:\fP
 .RS 4
-Sparse BLAS Level 1 has been implemented, although not with performance in mind\&.
+Sparse BLAS Level 1 has been implemented and is working, although not with performance in mind\&.
 .RE
 .PP
 
-.SS "int BLAS_zusset_element (\fBblas_sparse_matrix\fP A, const int i, const int j, void * v)"
+.SS "int BLAS_zusset_element (\fBblas_sparse_matrix\fP A, int i, int j, void * v)"
 Set a single (existing) matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -6804,7 +6801,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zusset_element_ (\fBblas_sparse_matrix\fP * A, const int * i, const int * j, void * v, int * istat)"
+.SS "void blas_zusset_element_ (\fBblas_sparse_matrix\fP * A, int * i, int * j, void * v, int * istat)"
 Set a single (existing) matrix nonzero coefficient $A_{i,j}$\&. 
 .PP
 \fBParameters:\fP
@@ -6834,7 +6831,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zusset_elements (\fBblas_sparse_matrix\fP A, const int * ia, const int * ja, const void * va, const int nnz)"
+.SS "int BLAS_zusset_elements (\fBblas_sparse_matrix\fP A, const int * ia, const int * ja, const void * va, int nnz)"
 Set individual matrix nonzero coefficients values\&. The operation is pattern preserving, that is, nonzeroes must already exist\&. 
 .PP
 \fBParameters:\fP
@@ -6861,7 +6858,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zusset_elements_ (\fBblas_sparse_matrix\fP * A, const int * ia, const int * ja, const void * va, const int * nnz, int * istat)"
+.SS "void blas_zusset_elements_ (\fBblas_sparse_matrix\fP * A, const int * ia, const int * ja, const void * va, int * nnz, int * istat)"
 Set individual matrix nonzero coefficients values\&. The operation is pattern preserving, that is, nonzeroes must already exist\&. 
 .PP
 \fBParameters:\fP
@@ -6893,7 +6890,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zussm (const enum \fBblas_order_type\fP order, const enum \fBblas_trans_type\fP transT, const int nrhs, const void * alpha, const \fBblas_sparse_matrix\fP T, void * b, const int ldb)"
+.SS "int BLAS_zussm (enum \fBblas_order_type\fP order, enum \fBblas_trans_type\fP transT, int nrhs, const void * alpha, \fBblas_sparse_matrix\fP T, void * b, int ldb)"
 Triangular solve, by a dense matrix (aka multi-vector)\&. Either of $B <- alpha T^{-1} B,$ $B <- alpha T^{-T} B,$ $B <- alpha T^{-H} B$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -6919,7 +6916,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zussm_ (const enum \fBblas_order_type\fP * order, const enum \fBblas_trans_type\fP * transT, const int * nrhs, const void * alpha, const \fBblas_sparse_matrix\fP * T, void * b, const int * ldb, int * istat)"
+.SS "void blas_zussm_ (enum \fBblas_order_type\fP * order, enum \fBblas_trans_type\fP * transT, int * nrhs, const void * alpha, \fBblas_sparse_matrix\fP * T, void * b, int * ldb, int * istat)"
 Triangular solve, by a dense matrix (aka multi-vector)\&. Either of $B <- alpha T^{-1} B,$ $B <- alpha T^{-T} B,$ $B <- alpha T^{-H} B$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -6947,7 +6944,7 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "int BLAS_zussv (enum \fBblas_trans_type\fP transT, const void * alpha, const \fBblas_sparse_matrix\fP T, void * x, const int incx)"
+.SS "int BLAS_zussv (enum \fBblas_trans_type\fP transT, const void * alpha, \fBblas_sparse_matrix\fP T, void * x, int incx)"
 Triangular solve, by a dense vector\&. Either of $X <- alpha T^{-1}X,$ $X <- alpha T^{-T}X,$ $X <- alpha T^{-H}X$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -6969,7 +6966,7 @@ On success, 0 is returned; on error, -1\&.
 .RE
 .PP
 
-.SS "void blas_zussv_ (enum \fBblas_trans_type\fP * transT, const void * alpha, const \fBblas_sparse_matrix\fP * T, void * x, const int * incx, int * istat)"
+.SS "void blas_zussv_ (enum \fBblas_trans_type\fP * transT, const void * alpha, \fBblas_sparse_matrix\fP * T, void * x, int * incx, int * istat)"
 Triangular solve, by a dense vector\&. Either of $X <- alpha T^{-1}X,$ $X <- alpha T^{-T}X,$ $X <- alpha T^{-H}X$, depending on the value of \fCtransT\fP\&. 
 .PP
 \fBParameters:\fP
@@ -6993,24 +6990,6 @@ This is a subroutine for Fortran, so it does not return any value\&.
 .RE
 .PP
 
-.SS "\fBblas_sparse_matrix\fP rsb_blas_file_mtx_load (const \fBrsb_char_t\fP * filename, \fBrsb_type_t\fP typecode)"
-Load Matrix Market matrix file of specified type to a matrix, and return Sparse BLAS handler\&.
-.PP
-\fBParameters:\fP
-.RS 4
-\fIfilename\fP The specified matrix file name (cannot be \fCNULL\fP)\&. 
-.br
-\fItypecode\fP A valid type code for the desired output matrix (see \fBmatrix_type_symbols_section\fP)\&. 
-.RE
-.PP
-\fBReturns:\fP
-.RS 4
-On success, a valid matrix handle will be returned\&. On error, \fBblas_invalid_handle\fP will be returned\&.
-.RE
-.PP
-
-.br
- 
 .SS "struct rsb_mtx_t* rsb_blas_get_mtx (\fBblas_sparse_matrix\fP A)"
 Given a valid Sparse BLAS handle, returns a pointer to the inner rsb_mtx_t structure\&. Then, this can be used for many of the \fBrsb\&.h\fP functions\&. This is an experimental function, so we recommend to use it with functions not modifying the matrix (ones that take \fCconst\fP \fCstruct\fP \fCrsb_mtx_t*mtxAp\fP)\&. You can use this function from either Fortran or C\&.
 .PP
@@ -7071,5 +7050,4 @@ librsb was written by Michele Martone; this documentation has been generated by 
 .SH "SEE ALSO"
 .B rsb-examples
 .B rsb.h
-.B rsb.hpp
 .B rsb-spblas.h

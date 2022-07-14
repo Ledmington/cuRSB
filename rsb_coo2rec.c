@@ -54,6 +54,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #if RSB_C2R_WANT_MAYBE_FASTER 
 #define RSB_COA_MEMCPY_SMALL(ID,IS,DOFF,SOFF,NNZ) RSB_MEMCPY_SMALL_GENERAL(ID,IS,DOFF,SOFF,NNZ,rsb_coo_idx_t)
 #define RSB_COA_MEMCPY_ROWSZ(ID,IS,DOFF,SOFF,NNZ) RSB_COA_MEMCPY_parallel(ID,IS,DOFF,SOFF,NNZ)
+//#define RSB_A_MEMCPY_SMALL(ID,IS,DOFF,SOFF,NNZ,ES) RSB_MEMCPY_SMALL_GENERAL(ID,IS,DOFF,SOFF,NNZ,double)	/* FIXME */
 #define RSB_A_MEMCPY_SMALL(ID,IS,DOFF,SOFF,NNZ,ES) RSB_A_MEMCPY(ID,IS,DOFF,SOFF,NNZ,ES) 
 #else /* RSB_C2R_WANT_MAYBE_FASTER */
 #define RSB_COA_MEMCPY_SMALL(ID,IS,DOFF,SOFF,NNZ) RSB_COA_MEMCPY(ID,IS,DOFF,SOFF,NNZ) 
@@ -69,7 +70,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_WANT_VERBOSE_TIMINGS 0
 #define RSB_WANT_VERBOSE_SUBDIVISION 0	/* */
 #define RSB_WANT_VERBOSE_SUBDIVISION2 0	/* */
-#define RSB_WANT_MORE_PARALLELISM 1	/* DEFAULT ON (1) */
+#define RSB_WANT_MORE_PARALLELISM 1	/* FIXME: EXPERIMENTAL, BY DEFAULT TURNED OFF (0) */
 #define RSB_WANT_FIRST_VERSION 0	/* FIXME: EXPERIMENTAL, BY DEFAULT TURNED ON (1) */
 #define RSB_WANT_LITTLE_IMPROVED 1	/* FIXME: EXPERIMENTAL, BY DEFAULT TURNED OFF (0) */
 #if RSB_WANT_OMP_RECURSIVE_KERNELS
@@ -79,7 +80,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 #define RSB_WANT_QUADRANT_QUICK_DETECT 0/* FIXME: EXPERIMENTAL, BY DEFAULT TURNED OFF (0) */
 #define RSB_WANT_SUBDIVISION_FIXES_20101120 1 /* FIXME: EXPERIMENTAL, BY DEFAULT TURNED OFF (0) */
-#define RSB_WANT_SUBDIVISION_FIXES_20101213 0 /* FIXME: EXPERIMENTAL (DEFAULT OFF) */
+#define RSB_WANT_SUBDIVISION_FIXES_20101213 0 /* FIXME: EXPERIMENTAL ) */
 #define RSB_WANT_FIX_BUG_DISCOVERED_20121210 1	/* this bug prevents from HCSR usage */
 #if RSB_WANT_VERBOSE_SUBDIVISION2
 //#define RSB_MTXASM_INFO RSB_INFO	/* NEW */
@@ -94,13 +95,6 @@ If not, see <http://www.gnu.org/licenses/>.
 
 #define RSB_WANT_FASTER_EXPERIMENTAL_CONSTRUCTOR 0 /* FIXME: this is experimental code and shall be finished ! */
 RSB_INTERNALS_COMMON_HEAD_DECLS
-
-#define RSB__VERBOSE_REC2REC rsb_global_session_handle.verbose_tuning>0
-#if RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE
-#define RSB__VERBOSE_COO2REC RSB__VERBOSE_REC2REC || (rsb_global_session_handle.rsb_g_verbose_interface&2)
-#else  /* RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE */
-#define RSB__VERBOSE_COO2REC RSB__VERBOSE_REC2REC
-#endif /* RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE */
 
 #if RSB_WANT_FASTER_EXPERIMENTAL_CONSTRUCTOR
 #define RSB_POW2(P) (1<<(P))
@@ -180,7 +174,8 @@ rsb_err_t rsb_assign_subm__(rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB
 	rsb_coo_idx_t idiv[   16];
 	rsb_coo_idx_t jdiv[   16];
 	rsb_nnz_idx_t nzoff = 0;
-	rsb_coo_idx_t * zIA = NULL, * zJA = NULL;
+	//rsb_coo_idx_t * zIA, * zJA;
+	rsb_byte_t * zIA = NULL, * zJA = NULL;
 	rsb_coo_idx_t * oIA = NULL, * oJA = NULL;
 
 	RSB_BZERO_P(&scnt);
@@ -290,6 +285,7 @@ rsb_err_t rsb__do_switch_recursive_matrix_to_fullword_storage(struct rsb_mtx_t *
 	/**
 		\ingroup gr_internals
 		TODO: move somewhere else
+		FIXME: may be UNFINISHED
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	if(!mtxAp)
@@ -308,6 +304,16 @@ rsb_err_t rsb__do_switch_recursive_matrix_to_fullword_storage(struct rsb_mtx_t *
 	}
 	else
 	{
+//		if(rsb__do_is_candidate_for_halfword_coo(mtxAp))
+//			RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_to_fullword_coo(mtxAp));
+//		else
+//		if(rsb__do_is_candidate_for_halfword_csr(mtxAp))
+//			RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_to_fullword_csr(mtxAp));
+//		else
+//		if(!rsb__is_root_matrix(mtxAp) || rsb__is_terminal_recursive_matrix(mtxAp)) /* root recursive or root nonrec. */
+//			RSB_DO_FLAG_DEL(mtxAp->flags,RSB_FLAG_MUTUALLY_EXCLUSIVE_SWITCHES);
+//		else
+//		;/* for root matrices, we keep the flags, because some of the leaves MAY have it */
 		if( mtxAp->matrix_storage == RSB_MATRIX_STORAGE_BCOR )
 		{
 		       	if(RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_USE_HALFWORD_INDICES))
@@ -337,8 +343,14 @@ static rsb_err_t rsb_do_switch_fresh_terminal_matrix_to_halfword_storages(struct
 {
 	/**
 		\ingroup gr_unfinished
+		TODO: move somewhere else
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	if(!mtxAp)
+	{
+		RSB_ERROR(RSB_ERRM_E_MTXAP);
+		return RSB_ERR_BADARGS;
+	}
 
 	if(rsb__is_recursive_matrix(mtxAp->flags))
 	{
@@ -365,10 +377,10 @@ static rsb_err_t rsb_do_switch_fresh_terminal_matrix_to_halfword_storages(struct
 				RSB_DO_FLAG_DEL(mtxAp->flags,RSB_FLAG_USE_HALFWORD_INDICES);
 		}
 		else
-//		if(rsb__do_is_candidate_for_fullword_coo(mtxAp))
+//		if(rsb_do_is_candidate_for_fullword_coo(mtxAp))
 //		{
 //			RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_recursive_in_place_matrix_to_in_place_rcoo(mtxAp,RSB_BOOL_FALSE));
-//			RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_to_fullword_zcoo(mtxAp));
+//			RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_to_fullword_coo(mtxAp));// FIXME: wrong naming :(
 //		}
 //		else
 #if RSB_WANT_FIX_BUG_DISCOVERED_20121210
@@ -402,9 +414,9 @@ static rsb_err_t rsb_do_switch_fresh_recursive_matrix_to_halfword_storages(struc
 {
 	/**
 		\ingroup gr_unfinished
+TODO: move somewhere else
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-
 	if(!mtxAp)
 	{
 		RSB_ERROR(RSB_ERRM_E_MTXAP);
@@ -428,43 +440,30 @@ static rsb_err_t rsb_do_switch_fresh_recursive_matrix_to_halfword_storages(struc
 
 rsb_err_t rsb__check_bounds(struct rsb_mtx_t * mtxAp)
 {
+	/* FIXME: need checks on Mdim, mdim, ... */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 	if(
-			mtxAp->broff<0 || 
-			mtxAp->bcoff<0 
+			mtxAp->broff<0 || mtxAp->bcoff<0 ||
 			/* mtxAp->broff<mtxAp->roff+broff || mtxAp->bcoff<mtxAp->coff+bcoff ||  */
+			mtxAp->bm>mtxAp->nr || 
+			mtxAp->bk>mtxAp->nc 
 	  )
 	{
-		errval = RSB_ERR_INTERNAL_ERROR;
-		RSB_ERROR(RSB_ERRM_BCE);
-		RSB_ERROR(RSB_PRINTF_MTX_SUMMARIZED_ARGS(RSB_ERRM_BM,mtxAp,RSB_ERRM_NL));
-
 		RSB_ERROR(RSB_PRINTF_MATRIX_BOUNDS_SUMMARY_ARGS(mtxAp)); RSB_ERROR("\n");
 
 		RSB_ASSERT(! ( mtxAp->broff<0) );
 		RSB_ASSERT(! ( mtxAp->bcoff<0) );
 	/*	RSB_ASSERT(! ( mtxAp->broff<mtxAp->roff+broff) );
 		RSB_ASSERT(! ( mtxAp->bcoff<mtxAp->coff+bcoff) ); */
-
-		goto ret;
-	}
-	if(
-			mtxAp->bm>mtxAp->nr || 
-			mtxAp->bk>mtxAp->nc 
-	  )
-	{
-		errval = RSB_ERR_INTERNAL_ERROR;
-		RSB_ERROR(RSB_ERRM_BCE);
-		RSB_ERROR(RSB_PRINTF_MTX_SUMMARIZED_ARGS(RSB_ERRM_BM,mtxAp,RSB_ERRM_NL));
-		RSB_ERROR(RSB_PRINTF_MATRIX_BOUNDS_SUMMARY_ARGS(mtxAp)); RSB_ERROR("\n");
-
 		RSB_ASSERT(! ( mtxAp->bm>mtxAp->nr) );
 		RSB_ASSERT(! ( mtxAp->bk>mtxAp->nc) );
 
-		goto ret;
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_ERROR(RSB_ERRM_BCE);
+		RSB_ERROR(RSB_ERRM_BM),RSB_ERROR_MATRIX_SUMMARY(mtxAp),RSB_ERROR(RSB_ERRM_NL);
+		return errval;
 	}
-ret:
 	return errval;
 }
 
@@ -487,22 +486,20 @@ rsb_err_t rsb__compute_bounded_box(struct rsb_mtx_t * mtxAp)
 			RSB_DECLARE_CONST_HALFCOO_ARRAYS_FROM_MATRIX(IA,JA,mtxAp)
 			rsb_half_idx_t li, ui;
 			rsb_half_idx_t lj, uj;
-			// TODO: optimize: IA is sorted
+			// FIXME: could optimize, since IA is sorted
 			rsb__util_find_extremal_half_index_val(IA,mtxAp->nnz,0,mtxAp->nr,&li,&ui);
 			rsb__util_find_extremal_half_index_val(JA,mtxAp->nnz,0,mtxAp->nc,&lj,&uj);
 			bk = 1;bk += uj; bm = 1;bm += ui; broff = li; bcoff = lj;
-			RSB_DEBUG_ASSERT( mtxAp->nr>=bm && mtxAp->nc>=bk );
 		}
 		else
 		{
 			RSB_DECLARE_CONST_FULLCOO_ARRAYS_FROM_MATRIX(IA,JA,mtxAp)
 			rsb_coo_idx_t li, ui;
 			rsb_coo_idx_t lj, uj;
-			// TODO: optimize: IA is sorted
+			// FIXME: could optimize, since IA is sorted
 			rsb__util_find_extremal_full_index_val(IA,mtxAp->nnz,0,mtxAp->nr,&li,&ui);
 			rsb__util_find_extremal_full_index_val(JA,mtxAp->nnz,0,mtxAp->nc,&lj,&uj);
 			bk = 1;bk += uj; bm = 1;bm += ui; broff = li; bcoff = lj;
-			RSB_DEBUG_ASSERT( mtxAp->nr>=bm && mtxAp->nc>=bk );
 		}
 	}
 	else
@@ -517,7 +514,6 @@ rsb_err_t rsb__compute_bounded_box(struct rsb_mtx_t * mtxAp)
 			ui = rsb__nnz_split_nnz_bsearch(PA,mtxAp->nnz,mtxAp->nr+1);
 			li = rsb__nnz_split_nnz_bsearch(PA,1,mtxAp->nr+1)-1;
 			bk = 1;bk += uj; bm = ui; broff = li; bcoff = lj;
-			RSB_DEBUG_ASSERT( mtxAp->nr>=bm && mtxAp->nc>=bk );
 		}
 		else
 		{
@@ -528,7 +524,6 @@ rsb_err_t rsb__compute_bounded_box(struct rsb_mtx_t * mtxAp)
 			ui = rsb__nnz_split_nnz_bsearch(PA,mtxAp->nnz,mtxAp->nr+1);
 			li = rsb__nnz_split_nnz_bsearch(PA,1,mtxAp->nr+1)-1;
 			bk = 1;bk += uj; bm = ui; broff = li; bcoff = lj;
-			RSB_DEBUG_ASSERT( mtxAp->nr>=bm && mtxAp->nc>=bk );
 		}
 	}
 	else
@@ -610,11 +605,11 @@ err:
 static rsb_err_t rsb_do_switch_fresh_recursive_matrix_to_halfword_storages_parallel(struct rsb_mtx_t * mtxAp)
 {
 	/**
-		\ingroup gr_internals
+		\ingroup gr_unfinished
+TODO: move somewhere else
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_submatrix_idx_t smi = 0;
-
 	if(!mtxAp)
 	{
 		errval = RSB_ERR_BADARGS;
@@ -627,9 +622,7 @@ static rsb_err_t rsb_do_switch_fresh_recursive_matrix_to_halfword_storages_paral
 
 	if(rsb__is_terminal_recursive_matrix(mtxAp)) // fix for serial 20101206
 	{
-		errval = rsb_do_switch_fresh_terminal_matrix_to_halfword_storages(mtxAp);
-		if(RSB_SOME_ERROR(errval))
-			RSB_ERROR("%s\n",rsb__get_errstr_ptr(errval));
+		RSB_DO_ERROR_CUMULATE(errval,rsb_do_switch_fresh_terminal_matrix_to_halfword_storages(mtxAp));
 		goto err;
 	}
 	#pragma omp parallel for schedule(static,1) reduction(|:errval)  shared(mtxAp) RSB_NTC 
@@ -890,7 +883,6 @@ static rsb_err_t rsb_do_compute_vertical_split_search_only(
 	RSB_DO_ERR_RETURN(errval)
 }
 
-#if RSB_WANT_OMP_RECURSIVE_KERNELS
 #if !RSB_WANT_PARALLEL_SUBDIVISION 
 static rsb_err_t rsb_do_compute_vertical_split(const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, rsb_coo_idx_t roff, rsb_coo_idx_t coff, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_coo_idx_t hm, rsb_coo_idx_t hk, rsb_nnz_idx_t nnz, rsb_coo_idx_t * IL, rsb_coo_idx_t * RSB_RESTRICT IM, rsb_coo_idx_t * IR, rsb_nnz_idx_t *ulp, rsb_nnz_idx_t *urp, rsb_nnz_idx_t *llp, rsb_nnz_idx_t *lrp)
 {
@@ -914,10 +906,7 @@ static rsb_err_t rsb_do_compute_vertical_split(const rsb_coo_idx_t * RSB_RESTRIC
 	 */
 	rsb_nnz_idx_t ul = 0,ur = 0,ll = 0,lr = 0;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-#if RSB_WANT_OMP_RECURSIVE_KERNELS
-	rsb_nnz_idx_t wdnnz = 0;
-#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
-	rsb_nnz_idx_t dnnz = 0, rnnz = 0, hrnnz = 0;
+	rsb_nnz_idx_t dnnz = 0,wdnnz = 0,rnnz = 0,hrnnz = 0;
 	register rsb_coo_idx_t i;
 	rsb_nnz_idx_t nnz0 = 0;
 
@@ -1020,11 +1009,9 @@ static rsb_err_t rsb_do_compute_vertical_split(const rsb_coo_idx_t * RSB_RESTRIC
 					IM[i] = dnnz+ rnnz;
 			}
 			else
-			{
 				// last row
 				hrnnz = rnnz,
 				IM[i] = nnz;
-			}
 
 				if(RSB_UNLIKELY(IM[i]<IL[i]))
 				{
@@ -1153,7 +1140,6 @@ err:
 		RSB_DO_ERR_RETURN(errval)
 }
 #endif /* RSB_WANT_PARALLEL_SUBDIVISION */
-#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 
 static rsb_err_t rsb_do_compute_vertical_split_parallel(const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, rsb_coo_idx_t roff, rsb_coo_idx_t coff, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_coo_idx_t hm, rsb_coo_idx_t hk, rsb_nnz_idx_t nnz, rsb_coo_idx_t * IL, rsb_coo_idx_t * RSB_RESTRICT IM, rsb_coo_idx_t * IR, rsb_nnz_idx_t *ulp, rsb_nnz_idx_t *urp, rsb_nnz_idx_t *llp, rsb_nnz_idx_t *lrp)
 {
@@ -1188,7 +1174,6 @@ static rsb_err_t rsb_do_compute_vertical_split_parallel(const rsb_coo_idx_t * RS
 		rsb_coo_idx_t i;
 		rsb_nnz_idx_t nnz0 = 0,nnz1 = nnz;
 		rsb_nnz_idx_t n,rnnz,fnnz,lnnz;
-
 		if(th_id>=m)
 			goto nowork;
 		/* binary search for the boundaries of each row  */
@@ -1384,19 +1369,22 @@ static rsb_err_t rsb_do_fill_early_leaf_matrix( struct rsb_mtx_t * mtxAp, struct
 	RSB_DO_ERR_RETURN(errval)
 }
 
-static int rsb__compar_rcsr_matrix_leftmost_first(const void * ap, const void * bp)
+int rsb_compar_rcsr_matrix_leftmost_first(const void * ap, const void * bp)
 {
 	/**
 		\ingroup gr_internals
-		Compare function to be used with qsort.
-		Non-recursive matrices come after recursive ones.
-		If both are or none is recursive, then order first by column, then by row.
+		A compare function to be used with qsort.
+		TODO:RENAME: rsb_compar_rcsr_matrix_leftmost_first -> ?
+		Orders first by column, then by row.
 	*/
 	struct rsb_mtx_t *a = *(struct rsb_mtx_t **)ap;
 	struct rsb_mtx_t *b = *(struct rsb_mtx_t **)bp;
-	const rsb_bool_t at = !RSB_DO_FLAG_HAS(a->flags,RSB_FLAG_QUAD_PARTITIONING);
-	const rsb_bool_t bt = !RSB_DO_FLAG_HAS(b->flags,RSB_FLAG_QUAD_PARTITIONING);
 	int ss = 1;	/* should swap results ? */
+	rsb_bool_t at;
+	rsb_bool_t bt;
+
+	at=!RSB_DO_FLAG_HAS(a->flags,RSB_FLAG_QUAD_PARTITIONING);
+	bt=!RSB_DO_FLAG_HAS(b->flags,RSB_FLAG_QUAD_PARTITIONING);
 
 	if(at && !bt)
 		return 1;
@@ -1562,7 +1550,6 @@ done:
 #endif /* (RSB_EXPERIMENTAL_QUAD_DIVISION_POLICY == RSB_EXPERIMENTAL_QUAD_DIVISION_POLICY_NAIVE) */
 }
 
-#if RSB_OBSOLETE_QUARANTINE
 static rsb_nnz_idx_t rsb_do_copy_submatrix_coa(struct rsb_mtx_t * submatrix, void * VA, void * WA, rsb_coo_idx_t * IL, rsb_coo_idx_t * IR, size_t el_size, rsb_coo_idx_t n0, rsb_coo_idx_t i0, rsb_coo_idx_t m0)
 {
 	rsb_nnz_idx_t i,n;
@@ -1582,11 +1569,15 @@ static rsb_nnz_idx_t rsb_do_copy_submatrix_coa(struct rsb_mtx_t * submatrix, voi
 	}
 	return n;
 }
-#endif /* RSB_OBSOLETE_QUARANTINE */
 
 
 static rsb_submatrix_idx_t rsb_do_pick_largest_open_matrix(struct rsb_mtx_t ** submatricesp, rsb_submatrix_idx_t smc)
 {
+	/*
+	 *	FIXME: NEW, UNFINISHED
+	 *	need a lock, too
+	 *	TODO:need a priority queue, here
+	 * */
 	rsb_submatrix_idx_t smi = 0,msmi = RSB_SUBM_IDX_MARKER;
 	rsb_nnz_idx_t maxnz = 0;
 	if(RSB_WANT_VERBOSE_SUBDIVISION)
@@ -1595,7 +1586,7 @@ static rsb_submatrix_idx_t rsb_do_pick_largest_open_matrix(struct rsb_mtx_t ** s
 	for(smi=0;smi<smc;++smi)
 	{
 		//RSB_INFO("looking %d : %d\n",smi,submatricesp[smi]->nnz);
-		/* NOTE: ">=" down here is used to cope with diagonal implicit matrices (which could have nnz==0), too */
+		/* FIXME: ">=" here is used to cope with diagonal implicit matrices (which could have nnz==0), too */
 		if(submatricesp[smi])
 		if(submatricesp[smi]->nnz>=maxnz)
 		{
@@ -1604,15 +1595,6 @@ static rsb_submatrix_idx_t rsb_do_pick_largest_open_matrix(struct rsb_mtx_t ** s
 		}
 	}
 	return msmi;
-}
-
-static rsb_thread_t rsb_get_num_coo2rec_threads(void)
-{
-	return
-#ifdef RSB_WANT_COO2RSB_THREADS
-		rsb_global_session_handle.coo2rsb_threads ? rsb_global_session_handle.coo2rsb_threads :
-#endif /* RSB_WANT_COO2RSB_THREADS */
-			rsb_get_num_threads();
 }
 
 static rsb_err_t rsb_do_coo2rec_subdivide_parallel(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_type_t typecode, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags, rsb_err_t *errvalp, struct rsb_mtx_t ** submatricesp, struct rsb_mtx_t * mtxAp, const rsb_nnz_idx_t * IB, const rsb_nnz_idx_t * IX, rsb_coo_idx_t * IT, rsb_coo_idx_t * WA, rsb_submatrix_idx_t cmc, rsb_submatrix_idx_t omc, rsb_submatrix_idx_t tmc, rsb_thread_t wet, rsb_submatrix_idx_t *cmcp)
@@ -1628,11 +1610,12 @@ static rsb_err_t rsb_do_coo2rec_subdivide_parallel(void *VA, rsb_coo_idx_t * IA,
 	rsb_submatrix_idx_t stmc = RSB_MIN(tmc,wet);	/* submatrices total count */
 	rsb_submatrix_idx_t lmc = 1;			/* leaf matrix count */
 	rsb_time_t cpt = RSB_TIME_ZERO,dt = RSB_TIME_ZERO;	/* cpt overwrites mtxAp->cpt */
-	const rsb_thread_t tn = rsb_get_num_coo2rec_threads();	/* threads number */
-	const rsb_thread_t mtn = RSB_MAX(1,(rsb_thread_t)(rsb_global_session_handle.subdivision_multiplier*tn));
+	rsb_thread_t tn = rsb_get_num_threads();	/* threads number */
+	rsb_thread_t mtn = RSB_MAX(1,(rsb_thread_t)(rsb_global_session_handle.subdivision_multiplier*tn));
 	rsb_thread_t tnn = 1;				/* threads number */
 	rsb_float_t skew = ((rsb_float_t)(maxnz))/(nnz/wet);	/* if more than one, will limit scaling */
-	const long cbs = rsb__get_cache_block_byte_size();
+	long cbs = rsb__get_cache_block_byte_size();
+
 	if(RSB_WANT_VERBOSE_SUBDIVISION)
 		RSB_INFO("serial substage subdivision of "),RSB_INFO_MATRIX_SUMMARY(mtxAp),RSB_INFO("\n");
 again:
@@ -1693,16 +1676,16 @@ iagain:
 	if(omc>0 && ((submatrix=submatricesp[smi])!=NULL))
 #endif
 	{
-		const rsb_coo_idx_t k = submatrix->nc;
-		const rsb_coo_idx_t m = submatrix->nr;
-		const rsb_coo_idx_t hk = RSB_MIDDLE(k);
-		const rsb_coo_idx_t hm = RSB_MIDDLE(m);
+		rsb_coo_idx_t k = submatrix->nc;
+		rsb_coo_idx_t m = submatrix->nr;
+		rsb_coo_idx_t hk = RSB_MIDDLE(k);
+		rsb_coo_idx_t hm = RSB_MIDDLE(m);
 		rsb_nnz_idx_t ul = 0,ur = 0,ll = 0,lr = 0;
-		const rsb_nnz_idx_t nnz = submatrix->nnz;
-		const rsb_coo_idx_t roff = submatrix->roff;
-		const rsb_coo_idx_t coff = submatrix->coff;
-		const rsb_flags_t flags = submatrix->flags;
-		const rsb_nnz_idx_t nzoff = submatrix->nzoff;
+		rsb_nnz_idx_t nnz = submatrix->nnz;
+		rsb_coo_idx_t roff = submatrix->roff;
+		rsb_coo_idx_t coff = submatrix->coff;
+		rsb_flags_t flags = submatrix->flags;
+		rsb_nnz_idx_t nzoff = submatrix->nzoff;
 		rsb_bool_t sqs = RSB_BOOL_FALSE;		/* should quad subdivide */
 		rsb_submatrix_idx_t smc = 0;	/* submatrices count */
 
@@ -2231,17 +2214,14 @@ static rsb_err_t rsb_do_coo2rec_shuffle(void *VA, rsb_coo_idx_t * IA, rsb_coo_id
 	for(smi=0;smi<cmc;++smi)
 	{
 		struct rsb_mtx_t * submatrix = submatricesp[smi];
-#if RSB_OBSOLETE_QUARANTINE
-		const rsb_coo_idx_t*IL = submatrix->bindx;
-		const rsb_coo_idx_t*IR = submatrix->bpntr;
-#endif /* RSB_OBSOLETE_QUARANTINE */
+		rsb_coo_idx_t*IL = submatrix->bindx;
+		rsb_coo_idx_t*IR = submatrix->bpntr;
 		rsb_nnz_idx_t dnnz = 0;
 		rsb_coo_idx_t i;
 //		if(RSB_C2R_IF_VERBOSE)
 //		RSB_INFO("%d -> %d\n",smi,omp_get_thread_num());
 		if(!RSB_DO_FLAG_HAS((submatrix->flags),RSB_FLAG_QUAD_PARTITIONING))
 		{
-#if RSB_OBSOLETE_QUARANTINE
 			if(RSB_DO_ENOUGHNNZFORINDEXBASEDBUILD(submatrix) && !rsb__is_coo_matrix(submatrix) && IL && IR)
 			{
 				RSB_C2R_ASSERT(IL);
@@ -2267,7 +2247,6 @@ static rsb_err_t rsb_do_coo2rec_shuffle(void *VA, rsb_coo_idx_t * IA, rsb_coo_id
 #endif
 			}
 			else
-#endif /* RSB_OBSOLETE_QUARANTINE */
 			if(!RSB_DO_TOOFEWNNZFORCSR(submatrix->nnz,submatrix->nr))
 			{
 				//rsb_coo_idx_t*IL = submatrix->bindx;
@@ -2400,15 +2379,15 @@ no_va_cp:
 		{
 			rsb_coo_idx_t oll,nll;
 			rsb_coo_idx_t i;
-			const rsb_coo_idx_t*IR = submatrix->bpntr;
-			const rsb_coo_idx_t*IL = submatrix->bindx;
+			rsb_coo_idx_t*IR = submatrix->bpntr;
+			rsb_coo_idx_t*IL = submatrix->bindx;
 			rsb_nnz_idx_t dnnz = 0;
 
 			//if(!RSB_DO_TOOFEWNNZFORRCSR(submatrix->nnz,submatrix->nr))
 			if(RSB_DO_ENOUGHNNZFORINDEXBASEDBUILD(submatrix) && !rsb__is_coo_matrix(submatrix) && IL && IR)
 			{
 				if(RSB_C2R_IF_VERBOSE)
-				RSB_INFO("CSR:%zd/%zd:%zd..%zd\n",(rsb_printf_int_t)smi,(rsb_printf_int_t)cmc,(rsb_printf_int_t)submatrix->nzoff,(rsb_printf_int_t)(submatrix->nzoff+submatrix->nnz));
+				RSB_INFO("CSR:%d/%d:%d..%d\n",smi,cmc,submatrix->nzoff,submatrix->nzoff+submatrix->nnz);
 				submatrix->bpntr = IA+submatrix->nzoff;
 				RSB_C2R_ASSERT(IL); RSB_C2R_ASSERT(IR);
 				RSB_C2R_ASSERT(IR< IA+submatrix->nzoff+submatrix->nnz);
@@ -2447,7 +2426,7 @@ no_va_cp:
 			if(!RSB_DO_TOOFEWNNZFORCSR(submatrix->nnz,submatrix->nr) && !rsb__is_coo_matrix(submatrix))
 			{
 				if(RSB_C2R_IF_VERBOSE)
-					RSB_INFO("CSR:%zd/%zd:%zd..%zd\n",(rsb_printf_int_t)smi,(rsb_printf_int_t)cmc,(rsb_printf_int_t)submatrix->nzoff,(rsb_printf_int_t)(submatrix->nzoff+submatrix->nnz));
+				RSB_INFO("CSR:%d/%d:%d..%d\n",smi,cmc,submatrix->nzoff,submatrix->nzoff+submatrix->nnz);
 				oll = 0;
 				submatrix->bpntr = IA+submatrix->nzoff;
 				submatrix->bpntr[0] = 0;
@@ -2509,7 +2488,7 @@ is_empty_subrow:
 			else
 			{
 				if(RSB_C2R_IF_VERBOSE)
-				RSB_INFO("COO:%zd/%zd:%zd..%zd\n",(rsb_printf_int_t)smi,(rsb_printf_int_t)cmc,(rsb_printf_int_t)submatrix->nzoff,(rsb_printf_int_t)(submatrix->nzoff+submatrix->nnz));
+				RSB_INFO("COO:%d/%d:%d..%d\n",smi,cmc,submatrix->nzoff,submatrix->nzoff+submatrix->nnz);
 				oll = 0;
 				submatrix->bpntr = IA+submatrix->nzoff;
 				submatrix->bpntr[0] = 0;
@@ -2589,55 +2568,17 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-static rsb_submatrix_idx_t rsb__estimate_subm_count(const rsb_nnz_idx_t nnz, const rsb_type_t typecode, const rsb_flags_t flags, const rsb_thread_t wet, rsb_err_t *errvalp)
-{
-	const long fcs = rsb__get_first_level_c_size();
-	const long lcs = rsb__get_lastlevel_c_size();
-	const long lcspt = rsb__get_lastlevel_c_size_per_thread();
-	const long cbs = rsb__get_cache_block_byte_size();
-#if RSB_WANT_SUBDIVISION_FIXES_20101213
-	const long wcbs = cbs;
-#else /* RSB_WANT_SUBDIVISION_FIXES_20101213 */
-	const long wcbs = lcspt;
-#endif /* RSB_WANT_SUBDIVISION_FIXES_20101213 */
-	rsb_submatrix_idx_t tmc = 0; /* total (max) matrix count */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-
-	if( fcs > lcs || fcs<1 || cbs<1 ) /* we allow declaration of 1 level of cache only */
-	{
-		/* TODO : find a reasonable solution, and declare it in ./rsbench -I, which should give some diagnostic about this */
-		errval = RSB_ERR_FAILED_MEMHIER_DETECTION;
-		RSB_PERR_GOTO(err,"innermost cache size:%d, outermost cache size:%d, cache block size %d\n",fcs,lcs,cbs);
-	}
-
-	tmc = RSB_SUBDIVISION_BUG_EXTRA+2*(((nnz+wcbs)*(RSB_SIZEOF(typecode)+2*sizeof(rsb_coo_idx_t)))/(wcbs)); /* TODO: clean this up */
-	tmc = RSB_MAX(1,(rsb_submatrix_idx_t)(rsb_global_session_handle.subdivision_multiplier*tmc));
-
-	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_RECURSIVE_MORE_LEAVES_THAN_THREADS))
-		tmc = RSB_MAX(tmc,wet);
-
-#if !RSB_OLD_COO_CRITERIA
-	if(!RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
-	{
-		tmc = 1; /* No quad partitioning ? then single submatrix. */
-	}
-#endif
-err:
-	RSB_CONDITIONAL_ERRPSET(errvalp,errval);
-	RSB_DEBUG_ASSERT(tmc>0);
-	return tmc;
-}
-
 struct rsb_mtx_t * rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_type_t typecode, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags, rsb_err_t *errvalp)
 {
 	/**
 		\ingroup gr_experimental
 
-		Assembly a complete R-CSR/R-CSC matrix in-place in the provided COO arrays.
+		Once finished, should assembly a complete R-CSR/R-CSC matrix in-place in the provided COO arrays.
+		Should use no more than ??? temporary memory.
 
-		TODO: characterize memory usage.
 		TODO: get rid of pinfop.
 		TODO: interleave the matrix structs into the data arrays.
+		TODO: missing proper error handling.
 		TODO: guaranteed preallocation needed
 		TODO: may continue the line of rsb_allocate_new__ and plug it here.
 	 */
@@ -2645,120 +2586,132 @@ struct rsb_mtx_t * rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void
 	struct rsb_mtx_t * submatrices = NULL;
 	struct rsb_mtx_t ** submatricesp = NULL;
 	struct rsb_mtx_t * mtxAp = NULL;
-	rsb_time_t hct = RSB_TIME_ZERO;
-	rsb_time_t drt = RSB_TIME_ZERO;
-	rsb_time_t mat = RSB_TIME_ZERO;
-	rsb_time_t lst = RSB_TIME_ZERO;
+	long fcs = rsb__get_first_level_c_size();
+	long lcs = rsb__get_lastlevel_c_size();
+	long lcspt = rsb__get_lastlevel_c_size_per_thread();
+	long cbs = rsb__get_cache_block_byte_size();
+#if RSB_WANT_SUBDIVISION_FIXES_20101213
+	long wcbs = cbs;
+#else /* RSB_WANT_SUBDIVISION_FIXES_20101213 */
+	long wcbs = lcspt;
+#endif /* RSB_WANT_SUBDIVISION_FIXES_20101213 */
+#if RSB_WANT_VERBOSE_TIMINGS
+	rsb_time_t pmt = RSB_TIME_ZERO;
+#endif /* RSB_WANT_VERBOSE_TIMINGS */
 	rsb_coo_idx_t * IB = NULL;
 	rsb_coo_idx_t * IT = NULL;
 	rsb_coo_idx_t * IX = NULL;
 	rsb_coo_idx_t * WA = NULL;
-	rsb_submatrix_idx_t smi = 0; /* submatrix index */
+	rsb_submatrix_idx_t tmc = 0, smi = 0; /* max matrix count, done matrix count, submatrix index */
 	rsb_submatrix_idx_t cmc = 0, omc = 0; /* closed matrices count, open matrices count */
 	rsb_submatrix_idx_t lm = 0;           /* leaf matrices */
 	rsb_time_t dt = RSB_TIME_ZERO,eit = RSB_TIME_ZERO,est = RSB_TIME_ZERO,ect = RSB_TIME_ZERO,tat = RSB_TIME_ZERO,sat = RSB_TIME_ZERO;
-	const rsb_thread_t wet = rsb_get_num_coo2rec_threads(); /* want executing threads: */
-	const size_t el_size = RSB_SIZEOF(typecode);
+	const rsb_thread_t wet = rsb_get_num_threads(); /* want executing threads */
+	size_t el_size = RSB_SIZEOF(typecode);
 	rsb_coo_idx_t roff = 0;
 	rsb_coo_idx_t coff = 0;
-	rsb_nnz_idx_t dnnz = 0;
-	const rsb_submatrix_idx_t tmc = rsb__estimate_subm_count(nnz,typecode,flags,wet,&errval); /* total (max) matrix count */
 
-	if(RSB_SOME_ERROR(errval))
-		goto err;
-
-	tat = -(dt = rsb_time());
+	tat = - rsb_time();
 #if RSB_ALLOW_EMPTY_MATRICES
 	if(!RSB_HAVE_GOOD_PARMS_FOR_EMPTY(m,k,nnz,flags))
 #endif /* RSB_ALLOW_EMPTY_MATRICES */
 	if(!RSB_HAVE_GOOD_PARMS_FOR_IN_PLACE_RCSR(m,k,nnz,flags))
 	{
+		RSB_ERROR(RSB_ERRM_MDNFARTS);
 	       	errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_MDNFARTS);
+	       	goto err;
 	}
 
-	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_SYMMETRIC) && RSB_DO_FLAG_HAS(flags,RSB_FLAG_HERMITIAN))
+	if( fcs > lcs || fcs<1 || cbs<1 ) /* we allow declaration of 1 level of cache only */
 	{
-		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_BFSAH);
+		/* TODO : find a reasonable solution, and declare it in ./rsbench -I, which should give some diagnostic about this */
+		RSB_ERROR("innermost cache size:%d, outermost cache size:%d, cache block size %d\n",fcs,lcs,cbs);
+	       	errval = RSB_ERR_FAILED_MEMHIER_DETECTION; 
+	       	goto err;
 	}
 
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER))
 	{
+		RSB_ERROR(RSB_ERRM_CMOINIY);
 	       	errval = RSB_ERR_UNIMPLEMENTED_YET;
-		RSB_PERR_GOTO(err,RSB_ERRM_CMOINIY);
+	       	goto err;
 	}
 
-#if 1
-	if( RSB_DO_FLAG_HAS(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE))
-	{
-		errval = RSB_ERR_INTERNAL_ERROR;
-		RSB_PERR_GOTO(err,"Unexpected RSB_FLAG_FORTRAN_INDICES_INTERFACE flags here!\n");
-	}
-#else /* */
-	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE)) /* TODO: this is *slow*, speed this up */
-		rsb__util_coo_array_from_fortran_indices(IA,nnz,RSB_BOOL_TRUE),
-		rsb__util_coo_array_from_fortran_indices(JA,nnz,RSB_BOOL_TRUE),
-		RSB_DO_FLAG_DEL(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE);
-#endif /* */
-
-	if(RSB__VERBOSE_COO2REC)
-		RSB_STDOUT("Building a matrix with %ld nnz, %ld x %ld\n",(long int)nnz,(long int)m,(long int)k);
+#if RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE
+	if((rsb_global_session_handle.rsb_g_verbose_interface&2))
+			RSB_STDOUT("building a matrix with %d nnz, %d x %d\n",nnz,m,k);
+#endif /* RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE */
 
 	if(RSB_DO_FLAGS_EXTRACT_STORAGE(flags)==RSB_FLAG_NOFLAGS)
 	{
 		RSB_DO_FLAG_ADD(flags,RSB_FLAG_DEFAULT_STORAGE_FLAGS);
 	}
 
-	/* TODO: may plug *here* upcoming RSB_WANT_FASTER_EXPERIMENTAL_CONSTRUCTOR stuff */
+	/* TODO: plug *here* the eventually to-come RSB_WANT_FASTER_EXPERIMENTAL_CONSTRUCTOR stuff */
 
-	mat = -dt;
+	tmc = RSB_SUBDIVISION_BUG_EXTRA+2*(((nnz+wcbs)*(RSB_SIZEOF(typecode)+2*sizeof(rsb_coo_idx_t)))/(wcbs)); /* TODO: clean this up */
+	tmc = RSB_MAX(1,(rsb_submatrix_idx_t)(rsb_global_session_handle.subdivision_multiplier*tmc));
+
+	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_RECURSIVE_MORE_LEAVES_THAN_THREADS))
+	if(wet>tmc)
+	{
+		tmc = wet;
+	}
+
 	submatrices = rsb__calloc(sizeof(struct rsb_mtx_t )*tmc);
 	submatricesp = rsb__calloc(sizeof(struct rsb_mtx_t*)*tmc);
 
 	if(!submatrices || !submatricesp)
 	{
-		errval = RSB_ERR_ENOMEM;
+	       	errval = RSB_ERR_ENOMEM;
 		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 	}
-	mat += (dt = rsb_time());
 
 	for(smi=0;smi<tmc;++smi)
 		submatricesp[smi] = submatrices + smi;
 
-	ect = -dt;
+	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE)) /* TODO: this is *slow*, speed this up */
+		rsb__util_coo_array_from_fortran_indices(IA,nnz,RSB_BOOL_TRUE),
+		rsb__util_coo_array_from_fortran_indices(JA,nnz,RSB_BOOL_TRUE),
+		RSB_DO_FLAG_DEL(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE);
+
+	dt = - rsb_time();
 	if((errval = rsb__do_cleanup_nnz(VA,IA,JA,nnz,roff,coff,m,k,&nnz,typecode,flags))!=RSB_ERR_NO_ERROR)
 		goto err;
-	ect += (dt = rsb_time());
 
-	est = -dt;
+	ect = dt;
+	dt = - rsb_time();
+	ect -= dt;
+
 	if(!RSB_DO_FLAG_HAS(flags,RSB_FLAG_SORTED_INPUT))
 	if((errval = rsb__util_sort_row_major_inner(VA,IA,JA,nnz,m,k,typecode,flags))!=RSB_ERR_NO_ERROR)
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-
+	{
+		RSB_ERROR(RSB_ERRM_ES);
+		goto err;
+	}
 	RSB_DO_FLAG_ADD(flags,RSB_FLAG_SORTED_INPUT); /* TODO: is this needed ? */
-	est += (dt = rsb_time()); /* with 'sorting' (est) we DO NOT intend also cleanup (in ect) */
 
 	/* we need duplicates removal, and this can only take place after sorting */
-	drt = -dt;
-	dnnz = nnz - rsb__weed_out_duplicates(IA,JA,VA,nnz,typecode,flags);
-	nnz -= dnnz;
-	drt += (dt = rsb_time());
-	if( RSB__VERBOSE_COO2REC )
-		RSB_INFO("Duplicates check: %zd - %zd = %zd\n",(size_t)(nnz+dnnz),(size_t)dnnz,(size_t)nnz);
+#if RSB_WANT_VERBOSE_TIMINGS 
+	{rsb_nnz_idx_t dnnz = nnz - rsb_weed_out_duplicated(IA,JA,VA,nnz,typecode,flags);
+	RSB_INFO("duplicate removal: %zd - %zd = %zd\n",nnz,dnnz,nnz-dnnz);
+	nnz -= dnnz;}
+#else /* RSB_WANT_VERBOSE_TIMINGS */
+	nnz = rsb_weed_out_duplicates(IA,JA,VA,nnz,typecode,flags);
+#endif /* RSB_WANT_VERBOSE_TIMINGS */
+	dt += rsb_time();
 
+	est = dt;	/* with 'sorting' (est) we DO NOT intend also cleanup (in ect) */
 
 	/* work vectors allocation */
 /*	IL = rsb__malloc(sizeof(rsb_coo_idx_t)*(m+1)); */
-	mat -= dt;
 	IT = rsb__malloc(sizeof(rsb_coo_idx_t)*(m+1));
 	IX = rsb__malloc(sizeof(rsb_coo_idx_t)*2*(m+1));
 	IB = rsb__malloc(sizeof(rsb_coo_idx_t)*(m+1));
-	mat += (dt = rsb_time());
 	if(/*  !IL ||*/ !IT || !IX || !IB)
 	{
-		errval = RSB_ERR_ENOMEM;
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+		RSB_ERROR(RSB_ERRM_ES);
+	       	errval = RSB_ERR_ENOMEM; goto err;
 	}
 
 	/* declaring this first matrix (smi == 0) as 'open' */
@@ -2775,7 +2728,10 @@ struct rsb_mtx_t * rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void
 	if( (errval = rsb__set_init_flags_and_stuff(
 		&submatrices[smi],NULL,NULL,m,k,nnz,nnz,nnz,typecode,flags)
 				)!=RSB_ERR_NO_ERROR)
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+	{
+		RSB_ERROR(RSB_ERRM_ES);
+		goto err;
+	}
 	
 	if(nnz==0)
 	{
@@ -2792,7 +2748,7 @@ struct rsb_mtx_t * rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void
 	else
 		mtxAp = &submatrices[0];
 
-	sat = -(dt = rsb_time());
+	sat = - rsb_time();
 	/* computing the first right-left pointer vectors */
 #if RSB_WANT_PARALLEL_SUBDIVISION 
 	if((errval = rsb_do_compute_vertical_split_parallel(IA,JA,roff,coff,m,k,0,0,nnz,IB,NULL,NULL,NULL,NULL,NULL,NULL))!=RSB_ERR_NO_ERROR)
@@ -2800,14 +2756,17 @@ struct rsb_mtx_t * rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void
 	if((errval = rsb_do_compute_vertical_split_parallel(IA,JA,roff,coff,m,k,0,0,nnz,IB,NULL,NULL,NULL,NULL,NULL,NULL))!=RSB_ERR_NO_ERROR)
 	/*if((errval = rsb_do_compute_vertical_split(IA,JA,roff,coff,m,k,0,0,nnz,IB,NULL,NULL,NULL,NULL,NULL,NULL))!=RSB_ERR_NO_ERROR) */
 #endif /* RSB_WANT_PARALLEL_SUBDIVISION */
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+	{
+		RSB_ERROR(RSB_ERRM_ES);
+		goto err;
+	}
 
 	if(RSB_C2R_IF_VERBOSE)
-		RSB_INFO("beginning (%zd x %zd) @ %p with flags 0x%x (coo:%d, csr:%d), storage: 0x%x, max %zd submatrices\n",
-			(rsb_printf_int_t)submatrices[smi].nr, (rsb_printf_int_t)submatrices[smi].nc, (const void*)&submatrices[smi], submatrices[smi].flags,
+		RSB_INFO("beginning (%d x %d) @ %p with flags 0x%x (coo:%d, csr:%d), storage: 0x%x, max %d submatrices\n",
+			submatrices[smi].nr, submatrices[smi].nc, (const void*)&submatrices[smi], submatrices[smi].flags,
 			RSB_DO_FLAG_HAS(submatrices[smi].flags,RSB_FLAG_WANT_COO_STORAGE),
 			RSB_DO_FLAG_HAS(submatrices[smi].flags,RSB_FLAG_WANT_BCSS_STORAGE),
-			submatrices[smi].matrix_storage,(rsb_printf_int_t)tmc
+			submatrices[smi].matrix_storage,tmc
 			);
 
 /*	if(!RSB_WANT_MORE_PARALLELISM || (RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_QUAD_PARTITIONING))) */ /* TODO */
@@ -2817,27 +2776,25 @@ struct rsb_mtx_t * rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void
 #else
 	errval = rsb_do_coo2rec_subdivide(VA,IA,JA,m,k,nnz,typecode,pinfop,flags,errvalp,submatricesp,mtxAp,IB,IX,IT,WA,cmc,omc,tmc,wet,&cmc);
 #endif
-	sat += (dt = rsb_time());
-
 	RSB_CONDITIONAL_FREE(IX);
 	if(RSB_SOME_ERROR(errval))
 		goto err;
+
+	eit = - rsb_time();
+	sat -= eit;
 
 	/*
 	RSB_CONDITIONAL_FREE(IL);
 	RSB_CONDITIONAL_FREE(IT);
        	*/
 	/* WA will is needed for shuffle only (so, after IL,IM deallocation, in a way that total memory need is max(WA,IL)) */
-	mat -= dt;
 	WA = rsb__malloc(RSB_MAX(sizeof(rsb_coo_idx_t),el_size)*nnz);
 	if(!WA)
 	{
-	       	errval = RSB_ERR_ENOMEM;
-		RSB_PERR_GOTO(err,RSB_ERRM_FAOTAFS);
+		RSB_ERROR(RSB_ERRM_FAOTAFS);
+	       	errval = RSB_ERR_ENOMEM; goto err;
 	}
-	mat += (dt = rsb_time());
 
-	eit = -dt;
 #if 0
 	/* after symbolic partitioning is done, we are ready to shuffle all of the arrays using the temporary storage and add an intermediate node */
 	RSB_INFO("assembling leaf %d -> %d x %d, %d\n",smi,submatricesp[smi]->nr,submatricesp[smi]->nc,submatricesp[smi]->nnz);
@@ -2851,8 +2808,8 @@ struct rsb_mtx_t * rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void
 		if(rsb__is_terminal_recursive_matrix(submatricesp[smi]))
 			++lm;
 
-/*	qsort(submatricesp+(cmc-lm),(size_t)(lm),sizeof(struct rsb_mtx_t*),&rsb__compar_rcsr_matrix_leftmost_first); */
-	qsort(submatricesp,(size_t)(cmc),sizeof(struct rsb_mtx_t*),&rsb__compar_rcsr_matrix_leftmost_first);
+/*	qsort(submatricesp+(cmc-lm),(size_t)(lm),sizeof(struct rsb_mtx_t*),&rsb_compar_rcsr_matrix_leftmost_first); */
+	qsort(submatricesp,(size_t)(cmc),sizeof(struct rsb_mtx_t*),&rsb_compar_rcsr_matrix_leftmost_first);
 	/* TODO: a priority queue would do the job, here */
 	for(smi=0;smi<cmc-lm;++smi)
 		if(rsb__is_terminal_recursive_matrix(submatricesp[smi]))
@@ -2887,9 +2844,8 @@ struct rsb_mtx_t * rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void
 
 	/* after shuffling, the last vectors conversion happens and we are done. */
 arrays_done:
-	eit += (dt = rsb_time());
+	eit += rsb_time();
 
-	lst -= dt;
 	/* first matrix is always root (even if a CSR one) */
 	RSB_DO_FLAG_DEL(submatrices[0].flags,RSB_FLAG_NON_ROOT_MATRIX);
 	#if RSB_EXPERIMENTAL_SHOULD_TRAVERSE_RECURSIVE_MATRICES_AS_BLOCKS
@@ -2907,9 +2863,10 @@ arrays_done:
 		submatrices[0].all_leaf_matrices_n = 0;
 	}
 	#endif /* RSB_EXPERIMENTAL_SHOULD_TRAVERSE_RECURSIVE_MATRICES_AS_BLOCKS */
-	lst += (dt = rsb_time());
 
-	hct = -dt;
+#if RSB_WANT_VERBOSE_TIMINGS
+	rsb_time_t hct = - rsb_time();
+#endif /* RSB_WANT_VERBOSE_TIMINGS */
 	if(
 		/* RSB_DO_FLAG_HAS(flags,RSB_FLAG_USE_HALFWORD_INDICES_COO)
 		       ||	RSB_DO_FLAG_HAS(flags,RSB_FLAG_USE_HALFWORD_INDICES_CSR)
@@ -2928,7 +2885,9 @@ arrays_done:
 	}
 	RSB_DO_ERROR_CUMULATE(errval,rsb_do_compute_bounded_boxes(mtxAp));
 
+#if RSB_WANT_VERBOSE_TIMINGS
 	hct += rsb_time();
+#endif /* RSB_WANT_VERBOSE_TIMINGS */
 
 	if(RSB_SOME_ERROR(errval))
 	{
@@ -2943,22 +2902,17 @@ arrays_done:
 	mtxAp->pet = RSB_TIME_ZERO;
 	mtxAp->rpt = RSB_TIME_ZERO;
 	mtxAp->tat = tat;
-	mtxAp->cpt = RSB_TIME_ZERO;/* cpt is contained in sat, so should not be counted here! */
 
-	if( RSB__VERBOSE_COO2REC )
-	{
-		RSB_INFO(" converted COO to RSB in %.3le s (%.2lf %%)\n",tat,RSB_PCT(tat,tat));
-		RSB_INFO(" analyzed arrays in %.3le s (%.2lf %%)\n",sat,RSB_PCT(sat,tat));
-		RSB_INFO(" cleaned-up arrays in %.3le s (%.2lf %%)\n",ect,RSB_PCT(ect,tat));
-		RSB_INFO(" deduplicated arrays in %.3le s (%.2lf %%)\n",drt,RSB_PCT(drt,tat));
-		RSB_INFO(" sorted arrays in %.3le s (%.2lf %%)\n",est,RSB_PCT(est,tat));
-		if( mtxAp->cpt )
-			RSB_INFO(" computed partitions in %.3le s (%.2lf %%)\n",mtxAp->cpt,RSB_PCT(mtxAp->cpt,tat));
-		RSB_INFO(" shuffled partitions in %.3le s (%.2lf %%)\n",eit,RSB_PCT(eit,tat));
-		RSB_INFO(" memory allocations took %.3le s (%.2lf %%)\n",mat,RSB_PCT(mat,tat));
-		RSB_INFO(" leafs setup took %.3le s (%.2lf %%)\n",lst,RSB_PCT(lst,tat));
-		RSB_INFO(" halfword conversion took %.3le s (%.2lf %%)\n",hct,RSB_PCT(hct,tat));
-	}
+	/* some statistics */
+#if RSB_WANT_VERBOSE_TIMINGS
+	RSB_INFO("analyzed arrays in %g s\n",sat);
+	RSB_INFO("cleaned-up arrays in %g s\n",ect);
+	RSB_INFO("sorted arrays in %g s\n",est);
+	RSB_INFO("computed partitions in %g s\n",mtxAp->cpt);
+	RSB_INFO("shuffled partitions in %g s\n",eit);
+	RSB_INFO(" (of which %g s for parallel memcpy and %g for halfword conversion)\n",pmt,hct);
+#endif /* RSB_WANT_VERBOSE_TIMINGS */
+	mtxAp->cpt = 0;/* cpt is contained in sat, so should not be counted here! */
 #if RSB_STORE_IDXSA
 	mtxAp->idxsa = rsb__get_index_storage_amount(mtxAp);
 #endif
@@ -2978,9 +2932,12 @@ arrays_done:
 ok:
 #endif
 	goto noerr;
+
+	/* TODO: missing proper error handling here ! --- destroy any allocated data for the matrix (e.g.: submatrices, .. ) */
+	if(mtxAp)
+		rsb__do_mtx_free(mtxAp);
 err:
 	mtxAp = NULL;
-	RSB_CONDITIONAL_FREE(submatrices);
 noerr:
 	if(RSB_SOME_ERROR(errval))
 		rsb__do_perror(NULL,errval);
@@ -2990,24 +2947,43 @@ noerr:
 /*	RSB_CONDITIONAL_FREE(IL); */
 	RSB_CONDITIONAL_FREE(WA);
 	RSB_CONDITIONAL_FREE(submatricesp);
+	if(!mtxAp)RSB_CONDITIONAL_FREE(submatrices);
 	RSB_CONDITIONAL_ERRPSET(errvalp,errval);
-	if( ( RSB__VERBOSE_COO2REC ) && mtxAp )
-	{
-		RSB_STDOUT("Built ");
-		RSB_STDOUT_MATRIX_SUMMARY(mtxAp);
-		RSB_STDOUT("\n");
-	}
+#if RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE
+	if(mtxAp && (rsb_global_session_handle.rsb_g_verbose_interface&2))
+			RSB_STDOUT_MATRIX_SUMMARY(mtxAp),RSB_STDOUT("\n");
+#endif /* RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE */
 	return mtxAp;
 }
 
-rsb_err_t rsb__project_rsb_to_coo(const struct rsb_mtx_t *mtxAp, struct rsb_coo_mtx_t *coop)
+rsb_err_t rsb__init_coo_struct_from_rsb(const struct rsb_mtx_t *mtxAp, struct rsb_coo_matrix_t *coop)
 {
-	// copy parms and (shallow) pointers from rsb to coo
-	const rsb_err_t errval = RSB_ERR_NO_ERROR;
+	/* FIXME: unfinished; shall replace by direct use of RSB_INIT_COO_FROM_MTX, or the opposite */
+	if(!mtxAp || !coop)	
+	{
+		return RSB_ERR_BADARGS;
+	}
 
 	RSB_INIT_COO_FROM_MTX(coop,mtxAp);
-	RSB_BIND_COO_TO_MTX(coop,mtxAp);
+	return RSB_ERR_NO_ERROR;
+}
 
+rsb_err_t rsb__project_rsb_to_coo(struct rsb_mtx_t *mtxAp, struct rsb_coo_matrix_t *coop)
+{
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	if(!mtxAp || !coop)	
+	{
+		errval = RSB_ERR_BADARGS;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+	}
+	errval = rsb__init_coo_struct_from_rsb(mtxAp,coop);
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+       	}
+
+	RSB_BIND_COO_TO_MTX(coop,mtxAp);
+err:
 	return errval;
 }
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2019 Michele Martone
+# Copyright (C) 2008-2015 Michele Martone
 # 
 # This file is part of librsb.
 # 
@@ -44,13 +44,10 @@ all_test("f","CALL");
 res=["" ,findent,"PRINT *,\"PASSED:\",passed\n"];
 res=[res,findent,"PRINT *,\"FAILED:\",failed\n"];
 res=[res,findent,"info = rsb_lib_exit(RSB_NULL_EXIT_OPTIONS)\n"];
-#res=[res,findent,"IF(info.NE.0)THEN\n"];
-#res=[res,findent,"STOP 1\n"];
-#res=[res,findent,"ENDIF\n"];
-#res=[res,findent,"IF(failed.NE.0)THEN\n"];
-#res=[res,findent,"STOP 1\n"];
-#res=[res,findent,"ENDIF\n"];
-res=[res,findent,"IF(failed.NE.0.OR.info.NE.0)THEN\n"];
+res=[res,findent,"IF(info.NE.0)THEN\n"];
+res=[res,findent,"STOP 1\n"];
+res=[res,findent,"ENDIF\n"];
+res=[res,findent,"IF(failed.NE.0)THEN\n"];
 res=[res,findent,"STOP 1\n"];
 res=[res,findent,"ENDIF\n"];
 res=[res,findent,"END PROGRAM main\n"];

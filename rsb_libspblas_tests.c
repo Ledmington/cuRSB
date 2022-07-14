@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -39,7 +39,6 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_BLAS_INVALID_MATRIX (-1)
 #define RSB_INVALID_BLAS_INT_IDX_VAL -1
 #define RSB_WANT_AUTOTUNING_TESTING 1
-#define RSB_DEV_NULL "/dev/null"
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 RSB_INTERNALS_RSBENCH_HEAD_DECLS
@@ -59,37 +58,6 @@ RSB_INTERNALS_RSBENCH_HEAD_DECLS
 			((MT)==blas_general?"GE":"??")		\
 			 ))))))
 
-#define RSB__BLAS_CALL_C(TYPE,CALL,...) \
-	BLAS_##TYPE##CALL (__VA_ARGS__)
-
-#define RSB__BLAS_CALLX(TYPE,CALL,...) \
-	rsb__BLAS_##TYPE##CALL (__VA_ARGS__)
-
-/* Trick to exercise lightweight Sparse BLAS wrappers */
-#define RSB__BLAS_CALL_TC(TYPECODE,CALL,...) (\
-	(TYPECODE==RSB_NUMERICAL_TYPE_FLOAT         )?RSB__BLAS_CALL_C(s,CALL,__VA_ARGS__) : ( \
-	(TYPECODE==RSB_NUMERICAL_TYPE_DOUBLE        )?RSB__BLAS_CALL_C(d,CALL,__VA_ARGS__) : ( \
-	(TYPECODE==RSB_NUMERICAL_TYPE_FLOAT_COMPLEX )?RSB__BLAS_CALL_C(c,CALL,__VA_ARGS__) : ( \
-	(TYPECODE==RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX)?RSB__BLAS_CALL_C(z,CALL,__VA_ARGS__) : ( \
-	RSB__BLAS_CALLX(X,CALL,__VA_ARGS__) \
-)))))
-// rsb__BLAS_Xusget_diag(T,D) != RSB_BLAS_NO_ERROR )
-// BLAS_susget_diag
-
-#if RSB__FORTRAN_APPEND_UNDERSCORE
-#define RSB__BLAS_CALL_F(TYPE,CALL,...) \
-	blas_##TYPE##CALL##_ (__VA_ARGS__)
-#else
-#define RSB__BLAS_CALL_F(TYPE,CALL,...) \
-	blas_##TYPE##CALL (__VA_ARGS__)
-#endif
-
-/* Trick to exercise lightweight Sparse BLAS Fortran wrappers */
-#define RSB__BLAS_CALL_TF(...) RSB__BLAS_CALL_TF_(__VA_ARGS__)
-
-// rsb__BLAS_Xusget_diag(T,D) != RSB_BLAS_NO_ERROR )
-// BLAS_susget_diag
-
 rsb_err_t rsb_blas_tester_options_init(struct rsb_tester_options_t * top)
 {
 	/* This function shall not need any library initialization to work. */
@@ -99,153 +67,9 @@ rsb_err_t rsb_blas_tester_options_init(struct rsb_tester_options_t * top)
 	top->rrm = RSB_BOOL_FALSE;
 	top->tur = RSB_BOOL_FALSE;
 	top->wqt = RSB_BOOL_FALSE;
-	top->wvr = RSB_BOOL_FALSE;
 	top->wqc = RSB_BOOL_FALSE;
 	top->wcs = RSB_BOOL_FALSE;
 	return errval;
-}
-
-static rsb_err_t rsb_blas_ops_misc(blas_sparse_matrix A, const rsb_coo_idx_t m, const rsb_coo_idx_t n, const rsb_nnz_idx_t nnz)
-{
-	/**
-	 * \ingroup gr_internals
-	 * TODO: this tests the external BLAS interface and shall somehow be moved out.
-	 * */
-	rsb_err_t errval = RSB_ERR_INTERNAL_ERROR;
-	rsb_type_t typecode = RSB_NUMERICAL_TYPE_FIRST_BLAS;
-
-#if RSB_WITH_SPARSE_BLAS_INTERFACE
-	switch(typecode)
-	{
-#ifdef RSB_NUMERICAL_TYPE_FLOAT
-		case RSB_NUMERICAL_TYPE_FLOAT:
-		{
-			const float d [] = {2};
-
-			if(BLAS_susrows_scale(A,d,blas_no_trans  ) == RSB_BLAS_ERROR)
-				goto err;
-			if(BLAS_susrows_scale(A,d,blas_trans     ) == RSB_BLAS_ERROR)
-				goto err;
-			if(BLAS_susrows_scale(A,d,blas_conj_trans) == RSB_BLAS_ERROR)
-				goto err;
-		}
-		{
-			rsb_blas_int_t nnz = 0;
-
-			if(BLAS_susget_matrix_nnz(A,&nnz) == RSB_BLAS_ERROR)
-				goto err;
-		}
-		{
-			float d [m];
-
-			if(BLAS_susget_diag(A,d) == RSB_BLAS_ERROR)
-				goto err;
-		}
-		{
-			float in = -1;
-
-			if(BLAS_susget_infinity_norm(A,&in,blas_no_trans  ) == RSB_BLAS_ERROR)
-				goto err;
-			if(BLAS_susget_infinity_norm(A,&in,blas_trans     ) == RSB_BLAS_ERROR)
-				goto err;
-			if(BLAS_susget_infinity_norm(A,&in,blas_conj_trans) == RSB_BLAS_ERROR)
-				goto err;
-		}
-		{
-			float VA [nnz];
-			rsb_blas_int_t IA [nnz];
-			rsb_blas_int_t JA [nnz];
-			rsb_blas_int_t fr=0, lr=m-1, nnzA;
-
-			if(BLAS_susget_rows_sparse(A, VA, IA, JA, &nnzA, fr, lr) == RSB_BLAS_ERROR)
-				goto err;
-		}
-		{
-			float VA [1]={0};
-			rsb_blas_int_t IA [1]={0};
-			rsb_blas_int_t JA [1]={0};
-
-			if(BLAS_susset_element(A, IA[0], JA[0], VA) == RSB_BLAS_ERROR)
-				goto err;
-		}
-		{
-			float VA [1]={0};
-			rsb_blas_int_t IA [1]={0};
-			rsb_blas_int_t JA [1]={0};
-
-			if(BLAS_susset_elements(A, IA, JA, VA, 1) == RSB_BLAS_ERROR)
-				goto err;
-		}
-		{
-			float VA [1]={0};
-			rsb_blas_int_t IA [1]={0};
-			rsb_blas_int_t JA [1]={0};
-
-			if(BLAS_susget_element(A, IA[0], JA[0], VA) == RSB_BLAS_ERROR)
-				goto err;
-		}
-		break;
-#endif /* RSB_NUMERICAL_TYPE_FLOAT */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE
-		case RSB_NUMERICAL_TYPE_DOUBLE:
-		break;
-#endif /* RSB_NUMERICAL_TYPE_DOUBLE */
-#ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX
-		case RSB_NUMERICAL_TYPE_FLOAT_COMPLEX:
-		break;
-#endif /* RSB_NUMERICAL_TYPE_FLOAT_COMPLEX */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX
-		case RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX:
-		break;
-#endif /* RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX */
-		default:
-			goto err;
-	}
-#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-
-	errval = RSB_ERR_NO_ERROR;
-err:
-	return errval;
-}
-
-static blas_sparse_matrix rsb_blas_alloc_and_call_simple(void)
-{
-	/**
-	 * \ingroup gr_internals
-	 * */
-	blas_sparse_matrix A = RSB_BLAS_INVALID_MATRIX;
-	const rsb_coo_idx_t IA[]={0};
-	const rsb_coo_idx_t JA[]={0};
-	const RSB_DEFAULT_POSSIBLY_FIRST_BLAS_TYPE VA[]={11};
-	const RSB_DEFAULT_POSSIBLY_FIRST_BLAS_TYPE X[]={1};
-	RSB_DEFAULT_POSSIBLY_FIRST_BLAS_TYPE Y[]={0};
-	const RSB_DEFAULT_POSSIBLY_FIRST_BLAS_TYPE alpha = 1.0, beta = 1.0;
-	const rsb_coo_idx_t m=1,n=1;
-	const int nz=1;
-	rsb_type_t typecode = RSB_NUMERICAL_TYPE_FIRST_BLAS;
-
-	if( RSB_NUMERICAL_TYPE_FIRST_BLAS == RSB_NUMERICAL_TYPE_INVALID_TYPE ) 
-	{ RSB_INFO("SKIPPING A TEST (no BLAS types in)\n"); goto err; }
-	if( (A= rsb__BLAS_Xuscr_begin( m, n, typecode )) == RSB_BLAS_INVALID_MATRIX )
-	{RSB_ERROR("error calling BLAS_duscr_begin\n"); goto err;}
-	if( rsb__BLAS_Xuscr_insert_entries( A, nz, VA, IA, JA) == RSB_BLAS_ERROR )
-	{RSB_ERROR("error calling BLAS_duscr_insert_entries\n"); goto err;}
-	if( rsb__BLAS_Xuscr_end(A) == RSB_BLAS_ERROR )
-	{RSB_ERROR("error calling BLAS_duscr_end\n"); goto err;}
-	if( rsb__BLAS_Xusmv( blas_no_trans, &alpha, A, X, 1, &beta, Y, 1) == RSB_BLAS_ERROR)
-	{RSB_ERROR("error calling BLAS_dusmv\n"); goto err;}
-
-	rsb_blas_ops_misc(A,n,n,nz);
-
-err:
-	if(A != RSB_BLAS_INVALID_MATRIX)
-	{
-		if (rsb__BLAS_Xusds(A)!=RSB_BLAS_NO_ERROR)
-		{RSB_ERROR("error destroying the matrix after error\n"); goto err;}
-
-	}
-
-	return RSB_BLAS_NO_ERROR;
 }
 
 static blas_sparse_matrix rsb_blas_single_allocation_tester(void)
@@ -263,7 +87,6 @@ static blas_sparse_matrix rsb_blas_single_allocation_tester(void)
 	const rsb_coo_idx_t m=1,n=1;
 	const int nz=1;
 	rsb_type_t typecode = RSB_NUMERICAL_TYPE_FIRST_BLAS;
-
 	if( RSB_NUMERICAL_TYPE_FIRST_BLAS == RSB_NUMERICAL_TYPE_INVALID_TYPE ) 
 	{ RSB_INFO("SKIPPING A TEST (no BLAS types in)\n"); goto err; }
 	if( (A= rsb__BLAS_Xuscr_begin( m, n, typecode )) == RSB_BLAS_INVALID_MATRIX )
@@ -280,10 +103,12 @@ err:
 	if(A != RSB_BLAS_INVALID_MATRIX)
 	{
 		if (rsb__BLAS_Xusds(A)!=RSB_BLAS_NO_ERROR)
-			RSB_PERR_GOTO(err,"error destroying the matrix after error\n");
+		{RSB_ERROR("error destroying the matrix after error\n"); goto err;}
+
 	}
 	return RSB_BLAS_INVALID_MATRIX;
 }
+
 
 static rsb_err_t rsb_blas_allocation_tester(void)
 {
@@ -308,8 +133,9 @@ static rsb_err_t rsb_blas_allocation_tester(void)
 		A = rsb_blas_single_allocation_tester();
 		if(A == RSB_BLAS_INVALID_MATRIX)
 		{
+			RSB_ERROR(RSB_ERRM_ES);
 			errval = RSB_ERR_INTERNAL_ERROR;
-			RSB_PERR_GOTO(out,RSB_ERRM_ES);
+			goto out;
 		}
 		else
 			bsms[count]=A;
@@ -331,22 +157,7 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-static rsb_err_t rsb__debug_print_vectors_diff_to_file(const void * v1, const void * v2, size_t n, rsb_type_t type, size_t incx, size_t incy, int onlyfirst, const char *outfn)
-{
-	rsb_err_t errval = RSB_ERR_INTERNAL_ERROR;
-	FILE *fp = stdout;
-       	if (outfn)
-		if( ! ( fp = rsb__util_fopen(outfn,"w") ) )
-			goto err;
-	//errval = rsb__debug_print_vectors_diff(v1, v2, n, type, incx, incy, onlyfirst/*, fp*/);
-	errval = rsb__debug_print_vectors_diff_fd(v1, v2, n, type, incx, incy, onlyfirst,fp);
-	if(outfn)
-		fclose(fp);
-err:
-	return errval;
-}
-
-rsb_err_t rsb_blas_mini_tester(const struct rsb_tester_options_t * top)
+rsb_err_t rsb_blas_mini_tester(void)
 {
 	/**
 	 * \ingroup gr_internals
@@ -367,7 +178,6 @@ rsb_err_t rsb_blas_mini_tester(const struct rsb_tester_options_t * top)
 	rsb_type_t typecode = RSB_NUMERICAL_TYPE_FIRST_BLAS;
 	/* const char*tsep="*\n"; */
 	const char*tsep="%s";
-	const char * outfn = (top->wqt)?RSB_DEV_NULL:NULL;
 
 	if( RSB_NUMERICAL_TYPE_FIRST_BLAS == RSB_NUMERICAL_TYPE_INVALID_TYPE ) 
 	{ RSB_INFO("SKIPPING A TEST (no BLAS types in)\n"); goto ret; }
@@ -385,15 +195,6 @@ rsb_err_t rsb_blas_mini_tester(const struct rsb_tester_options_t * top)
 	if( rsb__BLAS_Xuscr_insert_entries( A, nz, VA, IA, JA) == RSB_BLAS_INVALID_MATRIX )
 	{RSB_ERROR(RSB_ERRM_NL); goto err;}
 	RSB_INFO(tsep,"");
-
-	if( rsb__BLAS_Xuscr_insert_row( A, 0, 1, VA+0, JA+0 )== RSB_BLAS_INVALID_MATRIX )
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
-	RSB_INFO(tsep,"");
-
-	if( rsb__BLAS_Xuscr_insert_col( A, 1, 1, VA+1, JA+1 )== RSB_BLAS_INVALID_MATRIX )
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
-	RSB_INFO(tsep,"");
-
 	if( rsb__BLAS_Xuscr_end(A) == RSB_BLAS_INVALID_MATRIX )
 	{RSB_ERROR(RSB_ERRM_NL); goto err;}
 	if( rsb__BLAS_usgp( A, blas_num_rows ) != m ) {RSB_ERROR(RSB_ERRM_NL); goto err;}
@@ -445,54 +246,12 @@ rsb_err_t rsb_blas_mini_tester(const struct rsb_tester_options_t * top)
 
 	RSB_INFO("INIT INTERFACE TEST: END (SUCCESS)\n");
 }
-
-	RSB_INFO("DEVEL PRINT TEST: BEGIN\n");
-	errval = rsb__print_matrix_stats(rsb__BLAS_inner_matrix_retrieve(A));
-	if(RSB_SOME_ERROR(errval))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
-
-	rsb__debug_print_flags(rsb__BLAS_inner_matrix_retrieve(A)->flags);
-	if(RSB_SOME_ERROR(errval))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
-	RSB_INFO("DEVEL PRINT TEST: END\n");
-
-	RSB_INFO("PRINT TEST: BEGIN%s\n",(top->wqt)?" [QUIET]":"");
-	errval = rsb__do_file_mtx_save(rsb__BLAS_inner_matrix_retrieve(A),outfn );
-	if(RSB_SOME_ERROR(errval))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
+	RSB_INFO("PRINT TEST: BEGIN\n");
+	errval = rsb__do_file_mtx_save(rsb__BLAS_inner_matrix_retrieve(A),NULL);
 	/* rsb_mtx_file_render(rsb__BLAS_inner_matrix_retrieve(A)); */
-	errval = rsb__debug_print_vectors_diff_to_file(VA,VA+1,nz-1,typecode,1,1,RSB_VECTORS_DIFF_DISPLAY_N,outfn);
-	if(RSB_SOME_ERROR(errval))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
-	errval = rsb__do_mtx_render(outfn,rsb__BLAS_inner_matrix_retrieve(A), 100, 100, RSB_MARF_EPS | RSB_MARF_EPS_B);
-	if(RSB_SOME_ERROR(errval))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
+	errval = rsb__debug_print_vectors_diff(VA,VA+1,nz-1,typecode,1,1,RSB_VECTORS_DIFF_DISPLAY_N);
+	errval = rsb__do_mtx_render(NULL,rsb__BLAS_inner_matrix_retrieve(A), 100, 100, RSB_MARF_EPS | RSB_MARF_EPS_B);
 	/* rsb__do_file_mtx_rndr(void * pmp, const char * filename, rsb_coo_idx_t pmlWidth, rsb_coo_idx_t pmWidth, rsb_coo_idx_t pmHeight, rsb_marf_t rflags) */
- 	errval = rsb__do_print_matrix_stats(rsb__BLAS_inner_matrix_retrieve(A),RSB_CONST_DUMP_RECURSION_BRIEF,outfn);
-	if(RSB_SOME_ERROR(errval))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
- 	errval = rsb__do_print_matrix_stats(rsb__BLAS_inner_matrix_retrieve(A),RSB_CONST_DUMP_MIF_MTX_INFO|RSB_CONST_DUMP_FLAGS,outfn);
-	if(RSB_SOME_ERROR(errval))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
- 	errval = rsb__do_print_matrix_stats(rsb__BLAS_inner_matrix_retrieve(A),RSB_CONST_DUMP_CSR,outfn);
-	if(RSB_SOME_ERROR(errval))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
-{
-	// might better place this in a lock-tester function.
-	rsb_blk_idx_t w = 4, h = 4;
-	rsb_bitmap_data_t * bmap = rsb__allocate_bitvector(w*h);
-	if(!bmap)
-	{errval=RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_NL); goto err;}
-#ifdef RSB_BITMAP_ROW_MAJOR_ORDER
-	errval = rsb__do_dump_bitmap(bmap, w*h,1);
-#else /* RSB_BITMAP_ROW_MAJOR_ORDER */
-	errval = rsb__do_dump_bitmap(bmap, 1,w*h);
-#endif /* RSB_BITMAP_ROW_MAJOR_ORDER */
-	if(RSB_SOME_ERROR(errval))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
-	RSB_STDOUT("\n");
-	RSB_CONDITIONAL_FREE(bmap);
-}
 	RSB_INFO("PRINT TEST: END (SUCCESS)\n");
 
 	if(rsb__BLAS_Xusds( A ) == RSB_BLAS_ERROR)
@@ -553,10 +312,6 @@ rsb_err_t rsb_blas_mini_tester(const struct rsb_tester_options_t * top)
 	RSB_INFO("STRESS SPARSE BLAS TEST: BEGIN\n");
 	if(RSB_SOME_ERROR(rsb_blas_allocation_tester()))
 	{RSB_ERROR(RSB_ERRM_NL); goto err;}
-
-	if(RSB_SOME_ERROR(rsb_blas_alloc_and_call_simple()))
-	{RSB_ERROR(RSB_ERRM_NL); goto err;}
-
 	RSB_INFO("STRESS SPARSE BLAS TEST: END (SUCCESS)\n");
 
 	RSB_INFO("SPARSE BLAS TESTS: END (SUCCESS)\n");
@@ -574,8 +329,8 @@ static rsb_err_t rsb_basic_primitives_tester(void)
 	 * \ingroup gr_internals
 	 * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	const size_t n = 1024;
-	rsb_nnz_idx_t i;
+	const size_t n=1024; // FIXME
+	rsb_nnz_idx_t i=0;
 	rsb_coo_idx_t *cp = rsb__calloc(sizeof(rsb_coo_idx_t)*n);
 	rsb_half_idx_t*hp=(rsb_half_idx_t*)cp;
 	RSB_INFO("BASIC PRIMITIVES TEST: BEGIN\n");
@@ -589,12 +344,9 @@ static rsb_err_t rsb_basic_primitives_tester(void)
 		goto err;
 	rsb__do_switch_array_to_halfword_coo(cp,n,0);
 	for(i=0;i<n;++i)if(hp[i]!=i){ RSB_ERROR("full to half word conversion is broken");errval = RSB_ERR_INTERNAL_ERROR; goto err;}
-
-	rsb__do_switch_array_to_fullword_coo(hp,n,1*n);
-	rsb__do_switch_array_to_halfword_coo(cp,n,1*n);
-	for(i=0;i<n;++i)if(hp[i]!=i+2*n){ RSB_ERROR("full to half word conversion with offset is broken");errval = RSB_ERR_INTERNAL_ERROR; goto err;}
 	
 	RSB_CONDITIONAL_FREE(cp);
+	
 err:
 	if(RSB_SOME_ERROR(errval))
 	{
@@ -629,26 +381,28 @@ static rsb_err_t rsb_blas_limit_mul_tester(
 	if((B= rsb__BLAS_Xuscr_begin( k, n, typecode )) == RSB_BLAS_INVALID_MATRIX ) goto err;
 	if( rsb__BLAS_Xuscr_insert_entries( B, bnnz, bVA, bIA, bJA) == RSB_BLAS_INVALID_MATRIX ) goto err;
 	if( rsb__BLAS_Xuscr_end(B) == RSB_BLAS_INVALID_MATRIX ) goto err;
+#if 1
 	mtxAp = rsb__BLAS_inner_matrix_retrieve(A);
 	mtxBp = rsb__BLAS_inner_matrix_retrieve(B);
 	if(!mtxAp || !mtxBp)
-		RSB_PERR_GOTO(err,RSB_ERRM_EM); // it's not ok.
+	{
+		RSB_ERROR(RSB_ERRM_EM);
+		goto err;// it's not ok.
+	}
 
+
+#endif
 	/* TODO: need a complete checking suite, here.  */
 	if((mtxCp = rsb__do_matrix_mul(typecode,RSB_TRANSPOSITION_N,NULL,mtxAp,trans,NULL,mtxBp,&errval))==NULL)
 	{
-		switch(errval)
+		if(errval == RSB_ERR_LIMITS)
 		{
-			case(RSB_ERR_LIMITS):
-				errval = RSB_ERR_NO_ERROR;
-				RSB_INFO("failed computing a dense %zd x %zd matrix (for numerical limits reasons--it's ok)!\n",(rsb_printf_int_t)m,(rsb_printf_int_t)n);
-				break;
-			case(RSB_ERR_ENOMEM):
-				errval = RSB_ERR_NO_ERROR;
-				RSB_INFO("failed computing a dense %zd x %zd matrix (for memory limits reasons--it's ok)!\n",(rsb_printf_int_t)m,(rsb_printf_int_t)n);
-				break;
-			default:
-				RSB_INFO("failed computing a dense %zd x %zd matrix (unknown reasons--it's not ok)!\n",(rsb_printf_int_t)m,(rsb_printf_int_t)n);
+			RSB_INFO("failed computing a dense %d x %d matrix (for internal memory limits reasons--it's ok)!\n",m,n);
+			errval = RSB_ERR_NO_ERROR;
+		}
+		else
+		{
+			RSB_INFO("failed computing a dense %d x %d matrix (unknown reasons--it's not ok)!\n",m,n);
 		}
 	}
 	else
@@ -694,7 +448,7 @@ static rsb_err_t rsb_blas_limit_instancing_tester(const rsb_coo_idx_t*IA, const 
 	{
 		//RSB_ERROR(RSB_ERRM_EM);
 		//goto err;// it's ok.
-		if(RSB_SOME_ERROR(errval)) { RSB_ERROR("failed allocating a %zd x %zd matrix !\n",(rsb_printf_int_t)m,(rsb_printf_int_t)k);  }
+		if(RSB_SOME_ERROR(errval)) { RSB_ERROR("failed allocating a %d x %d matrix !\n",m,k);  }
 	}
 	else
 	{
@@ -712,7 +466,7 @@ static rsb_err_t rsb_blas_limit_instancing_tester(const rsb_coo_idx_t*IA, const 
 	RSB_MTX_FREE(mtxAp);
 	if(errval == RSB_ERR_LIMITS)
 	{
-		RSB_INFO("failed instancing of (dense?) %zd x %zd matrix (it's ok)!\n",(rsb_printf_int_t)m,(rsb_printf_int_t)k);
+		RSB_INFO("failed instancing of (dense?) %d x %d matrix (it's ok)!\n",m,k);
 		errval = RSB_ERR_NO_ERROR;
 	}
 	else
@@ -722,7 +476,7 @@ static rsb_err_t rsb_blas_limit_instancing_tester(const rsb_coo_idx_t*IA, const 
 	}
 #endif
 //	RSB_INFO("*\n");
-	RSB_INFO("instancing %zd x %zd, %zd nnz succeeded\n",(rsb_printf_int_t)m,(rsb_printf_int_t)k,(rsb_printf_int_t)nnz);
+	RSB_INFO("instancing %d x %d, %d nnz succeeded\n",m,k,nnz);
 	goto ret;
 err:
 	errval = RSB_ERR_INTERNAL_ERROR;
@@ -758,6 +512,7 @@ rsb_err_t rsb_blas_limit_cases_tester(void)
 	//const rsb_coo_idx_t dima[]={2};
 	rsb_int_t dimi;
 	RSB_INFO("BASIC LIMIT CASES TEST: BEGIN\n");
+	RSB_INFO("BASIC LIMIT CASES TEST: BEGIN\n");
 	RSB_INFO("(please do not worry if some tests fail due to insufficient memory)\n");
 #if 1
 	RSB_INFO("(forcing allocations to be memory resident)\n");
@@ -776,7 +531,7 @@ rsb_err_t rsb_blas_limit_cases_tester(void)
 		//rsb__util_set_array_to_converted_integer(X,typecode,m,1,1);
 		//rsb__util_set_array_to_converted_integer(Y,typecode,k,1,0);
 		rsb_coo_idx_t m,k;
-		RSB_INFO("testing instantiation %zd-sized, %zd nnz\n",(rsb_printf_int_t)dim,(rsb_printf_int_t)nnz);
+		RSB_INFO("testing instantiation %d-sized, %d nnz\n",dim,nnz);
 		/* * * * * * * * * * * * * * * * * * * * * * * */
 		/* FIXME: need a `rotation' routine, here      */
 		/* * * * * * * * * * * * * * * * * * * * * * * */
@@ -826,7 +581,7 @@ rsb_err_t rsb_blas_limit_cases_tester(void)
 	       	const rsb_nnz_idx_t annz=dim+1, bnnz=dim+1;
 		rsb_type_t typecode = RSB_NUMERICAL_TYPE_DOUBLE;
 		/* size_t el_size = RSB_NUMERICAL_TYPE_SIZE(typecode); */
-		RSB_INFO("testing spmult for %zd-sized, %zd nnz\n",(rsb_printf_int_t)dim,(rsb_printf_int_t)nnz);
+		RSB_INFO("testing spmult for %d-sized, %d nnz\n",dim,nnz);
 		if(RSB_SOME_ERROR(errval = rsb__util_coo_alloc(&aVA,&aIA,&aJA,annz,typecode,RSB_BOOL_TRUE))){goto erra;}
 		if(RSB_SOME_ERROR(errval = rsb__util_coo_alloc(&bVA,&bIA,&bJA,bnnz,typecode,RSB_BOOL_TRUE))){goto erra;}
 		rsb__util_coo_array_set(aJA,annz,0);
@@ -889,10 +644,9 @@ ret:
 #endif /* RSB_WANT_COO_BEGIN  */
 
 #if RSB_ALLOW_INTERNAL_GETENVS
-static void rsb__txt_ar(const char*c, rsb_blas_int_t* ap, rsb_blas_int_t*lp)
+static void rsb__txt_ar(const char*c, int* ap, int*lp)
 {
-	int nul = 0,l=0;
-	rsb_blas_int_t ci;
+	int nul = 0,ci,l=0;
 
 	if(!c)
 		goto err;
@@ -900,7 +654,7 @@ static void rsb__txt_ar(const char*c, rsb_blas_int_t* ap, rsb_blas_int_t*lp)
 	do
 	{
 		while(*c!=nul && !isdigit(*c))++c;
-		ci = rsb__util_atoi(c);
+		ci = rsb__util_atoi(c);/* Flawfinder: ignore */
 
 		if(isdigit(*c))
 			ap[l++] = ci;
@@ -914,7 +668,7 @@ err:
 }
 #endif /* RSB_ALLOW_INTERNAL_GETENVS */
 
-rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * top)
+rsb_err_t rsb_blas_bigger_matrices_tester(struct rsb_tester_options_t * top)
 {
 	/**
 	 * \ingroup gr_internals
@@ -983,11 +737,10 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 	rsb_blas_int_t typecodei=RSB_INVALID_BLAS_INT_IDX_VAL;
 	rsb_blas_int_t incBi=RSB_INVALID_BLAS_INT_IDX_VAL;
 	rsb_blas_int_t cl=RSB_INVALID_BLAS_INT_IDX_VAL,cln = rsb__get_cache_levels_num();
-	rsb_blas_int_t passed=0,failed=0,skipped=0;
+	rsb_blas_int_t passed=0,failed=0;
 	rsb_blas_int_t instantiated_some_recursive=0;
 #if RSB_TESTER_ALLOW_TIMEOUT
-	rsb_time_t tt = RSB_TIME_ZERO;
-	const rsb_time_t tt0 = rsb_time();
+	rsb_time_t tt = RSB_TIME_ZERO,tt0=rsb_time();
 	struct rsb_tester_options_t to;
 #endif /* RSB_TESTER_ALLOW_TIMEOUT */
 	rsb_blas_int_t isempty=0,isinvertible=1;
@@ -1013,6 +766,7 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 #endif /* RSB_IMPLEMENTED_SOME_BLAS_TYPES */
 	)
 	{
+		// FIXME: new
 		RSB_INFO("Did not configure any BLAS-standard type: thus skipping BLAS-based testing.\n");
 		goto ret;
 	}
@@ -1024,23 +778,26 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 #endif /* RSB_TESTER_ALLOW_TIMEOUT */
 	if(RSB_SOME_ERROR(errval))
 	{
-		RSB_PERR_GOTO(ret,"!\n");
+		RSB_ERROR("!\n");
+		goto ret;
 	}
 	errval = rsb_basic_primitives_tester();
 	if(RSB_SOME_ERROR(errval))
 	{
-		RSB_PERR_GOTO(ret,"!\n");
+		RSB_ERROR("!\n");
+		goto ret;
 	}
 
 	#if RSB_WANT_COO_BEGIN 
+	/* FIXME: this mini-test is insufficient! */
 	if(RSB_SOME_ERROR(errval=rsb_mtx_alloc_from_coo_test()))
-		RSB_PERR_GOTO(ret,"!\n");
+	{ RSB_ERROR("!\n"); goto ret; }
 	#endif /* RSB_WANT_COO_BEGIN  */
 
 
 #if RSB_HAVE_ISATTY
 #if RSB_HAVE_STREAMS
-	if( rsb_global_session_handle.out_stream ) /* FIXME: shall make this call illegal */
+	if( rsb_global_session_handle.out_stream )
 		iat=( isatty(rsb__fileno(rsb_global_session_handle.out_stream)) );
 	else
 		iat=0;
@@ -1051,10 +808,7 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		btps=RSB_CLEARTERM_STRING; 
 	if((to.wqc==RSB_BOOL_TRUE) && (!iat))
 		to.wqt=RSB_BOOL_TRUE;
-	RSB_INFO("ADVANCED SPARSE BLAS TEST: BEGIN");
-	if( to.mtt )
-		RSB_INFO(" [limit %lfs]",to.mtt);
-	RSB_INFO("%s\n",(to.wqt)?" [QUIET]":"");
+	RSB_INFO("ADVANCED SPARSE BLAS TEST: BEGIN\n");
 #if 1
 	for(cl=0;cl<dima_pcl;++cl)
 	{
@@ -1073,7 +827,7 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 	for(cl=1;cl<=cln && dims<dimas;++cl)
 	{
 		// around cache size
-		const long cs = rsb__get_lnc_size(cl);
+		long cs = rsb__get_lnc_size(cl);
 		rsb_blas_int_t i;
 		for(i=1;i<=dima_tcl;++i)
 			dima[dims++]=((1<<i)*2*sqrt(cs))/(4*sizeof(rsb_coo_idx_t));
@@ -1082,10 +836,10 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 	{
 		// more than outermost cache size
 		rsb_blas_int_t i;
-		const long cs = rsb__get_lnc_size(cl);
+		long cs = rsb__get_lnc_size(cl);
 		for(i=1;i<=dima_lcl && dims<dimas;++i)
 		{
-			const long ndim=(((i)*(1<<dima_tcl)*2*sqrt(cs))/(4*sizeof(rsb_coo_idx_t)));
+			long ndim=(((i)*(1<<dima_tcl)*2*sqrt(cs))/(4*sizeof(rsb_coo_idx_t)));
 			if(ndim > dima[dims]) // to avoid duplicates
 				dima[dims++]=ndim;
 		}
@@ -1096,14 +850,10 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 	rsb__txt_ar(getenv("RSB_BMT_ALPHA"),  &   alphaa[0], NULL);
 	rsb__txt_ar(getenv("RSB_BMT_INCXA"),  &    incXa[0], NULL);
 	rsb__txt_ar(getenv("RSB_BMT_INCBA"),  &    incBa[0], NULL);
-	if(sizeof(rsb_blas_int_t)==sizeof(stypea[0]))
-		rsb__txt_ar(getenv("RSB_BMT_SYMMA"),  (rsb_blas_int_t*)&   stypea[0], NULL);
-	if(sizeof(rsb_blas_int_t)==sizeof(typecodea[0]))
-		rsb__txt_ar(getenv("RSB_BMT_STYPA"),  (rsb_blas_int_t*)&typecodea[0], NULL);
-	if(sizeof(rsb_blas_int_t)==sizeof(typecodea[0]))
-		rsb__txt_ar(getenv("RSB_BMT_DIAGA"),  (rsb_blas_int_t*)&    diaga[0], NULL);
-	if(sizeof(rsb_blas_int_t)==sizeof(transTa[0]))
-		rsb__txt_ar(getenv("RSB_BMT_TRANSA"), (rsb_blas_int_t*)&  transTa[0], NULL);
+	rsb__txt_ar(getenv("RSB_BMT_SYMMA"),  &   stypea[0], NULL);
+	rsb__txt_ar(getenv("RSB_BMT_STYPA"),  &typecodea[0], NULL);
+	rsb__txt_ar(getenv("RSB_BMT_DIAGA"),  &    diaga[0], NULL);
+	rsb__txt_ar(getenv("RSB_BMT_TRANSA"), &  transTa[0], NULL);
 	rsb__txt_ar(getenv("RSB_BMT_DIMA"),   &     dima[0],&dims);
 #if RSB_ALLOW_EMPTY_MATRICES
 	if(getenv("RSB_BMT_ISEMPTYM")) isemptym = rsb__util_atoi(getenv("RSB_BMT_ISEMPTYM"));
@@ -1116,9 +866,7 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		(rsb__do_psblas_trans_to_rsb_trans(RSB_PSBLAS_TRANS_T) != RSB_TRANSPOSITION_T) ||
 		(rsb__do_psblas_trans_to_rsb_trans(RSB_PSBLAS_TRANS_C) != RSB_TRANSPOSITION_C)
 		)
-	{
-		RSB_PERR_GOTO(ret,RSB_ERRM_ES);
-	}
+	{RSB_ERROR("!\n"); goto ret;}
 #endif
 
 	//dims=0;
@@ -1132,11 +880,11 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 	for(dimi=0;dimi<dims;++dimi)
 	for(stypei=0;stypei<sizeof(stypea)/sizeof(enum blas_symmetry_type);++stypei)
 	for(typecodei=0;typecodei<sizeof(typecodea)/sizeof(rsb_type_t);++typecodei)
-	for(diagi=0;diagi<sizeof(diaga)/sizeof(enum blas_diag_type);++diagi)
 	for(incXi=0;incXi<sizeof(incXa)/sizeof(rsb_blas_int_t);++incXi)
 	for(incBi=0;incBi<sizeof(incBa)/sizeof(rsb_blas_int_t);++incBi)
 	for(alphai=0;alphai<sizeof(alphaa)/sizeof(rsb_blas_int_t);++alphai)
 	for(betai=0;betai<sizeof(betaa)/sizeof(rsb_blas_int_t);++betai)
+	for(diagi=0;diagi<sizeof(diaga)/sizeof(enum blas_diag_type);++diagi)
 	for(transTi=0;transTi<sizeof(transTa)/sizeof(enum blas_trans_type);++transTi)
 #if RSB_ALLOW_EMPTY_MATRICES
 	for(isempty=0;isempty<isemptym;++isempty)
@@ -1145,66 +893,40 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		const rsb_blas_int_t is_really_empty=isempty && (diaga[diagi]!=blas_unit_diag);
 		blas_sparse_matrix T = RSB_BLAS_INVALID_MATRIX;
 		void *B=NULL,*X=NULL,*D=NULL;
-		rsb_blas_int_t dim=dima[dimi]; // FIXME: shall be const
-		const rsb_blas_int_t dim_m1 = dim-1;
-		const rsb_blas_int_t izero = 0;
-		int istat = 0;
+		rsb_blas_int_t dim=dima[dimi];
 	       	rsb_coo_idx_t *IA=NULL,*JA=NULL;
 		void * VA=NULL;
 	       	rsb_blas_int_t nnz = RSB_BLAS_INT_MAX;
-		const rsb_type_t typecode=typecodea[typecodei];
-		const size_t el_size = RSB_NUMERICAL_TYPE_SIZE(typecode);
-		const enum blas_symmetry_type stype=stypea[stypei];
+		rsb_type_t typecode=typecodea[typecodei];
+		enum blas_trans_type transT=transTa[transTi];
+		rsb_blas_int_t incX=incXa[incXi],incB=incBa[incBi],incD=1;
+		size_t el_size = RSB_NUMERICAL_TYPE_SIZE(typecode);
+		enum blas_symmetry_type stype=stypea[stypei];
+		rsb_aligned_t alpha_inv[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 		rsb_aligned_t inrm[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 		rsb_aligned_t inrm_[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
+		rsb_aligned_t alpha[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
+		rsb_aligned_t beta[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 		struct rsb_mtx_t * mtxAp=NULL;
 		struct rsb_mtx_t *cmatrix=NULL;
 		struct rsb_mtx_t *kmatrix=NULL;
-#if RSB_ALLOW_ZERO_DIM
-		const size_t extra_vels = (isempty>=2) ? 1 : 0; 
-#else
-		const size_t extra_vels = 0;
-#endif
+		size_t extra_vels=0;
 		rsb_nnz_idx_t rnnz=0,ndnnz,rnz=0;
 		rsb_submatrix_idx_t submatrices=0;
-	       	const rsb_blas_int_t msmd=100;
+		rsb_trans_t trans = rsb__blas_trans_to_rsb_trans(transT);
+		rsb_char_t tc = RSB_TRANSPOSITION_AS_CHAR(trans);
+	       	rsb_blas_int_t mmi,msmd=100;
+		rsb_coo_idx_t coov;
+		rsb_nnz_idx_t nnzv;
 		rsb_aligned_t zero[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 		rsb_aligned_t one[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 		rsb_aligned_t two[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 		rsb_aligned_t three[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-#if RSB_ALLOW_INTERNAL_GETENVS
-		const rsb_int_t do_tune_test = rsb__getenv_int_t("RSB_BMT_AUTOTUNE",0);
-#endif /* RSB_ALLOW_INTERNAL_GETENVS */
-#if RSB_ALLOW_INTERNAL_GETENVS
-		const rsb_int_t tsui = rsb__getenv_int_t("RSB_TESTER_SKIP_TO",-1);
-#endif /* RSB_ALLOW_INTERNAL_GETENVS */
-		const enum blas_trans_type transT=transTa[transTi];
-		const rsb_trans_t trans = rsb__blas_trans_to_rsb_trans(transT);
-		const rsb_char_t tc = RSB_TRANSPOSITION_AS_CHAR(trans);
-		const rsb_blas_int_t incX = incXa[incXi], incB = incBa[incBi];
-		const rsb_blas_int_t incD = 1;
-		rsb_aligned_t alpha_inv[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-		rsb_aligned_t alpha[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-		rsb_aligned_t beta[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-
+		rsb_int do_tune_test = 0; 
 #if RSB_ALLOW_ZERO_DIM
-		if(isempty>=2 && dim > 1)
-			continue;
-		if(isempty>=2)
-			dim=0;
+		if(isempty>=2 && dim > 1) continue;
+		if(isempty>=2) dim=0;
 #endif
-
-#if RSB_ALLOW_INTERNAL_GETENVS
-		if( tsui ==-1 ||   // variable unset: execute case
-		    tsui == skipped+passed ) // set and selected: execute case
-			;
-		else 
-		{
-			++skipped; // skip case
-			continue;
-		}
-#endif /* RSB_ALLOW_INTERNAL_GETENVS */
-
 		rsb__util_set_area_to_converted_integer(one,typecode,1);
 		rsb__util_set_area_to_converted_integer(two,typecode,2);
 		rsb__util_set_area_to_converted_integer(three,typecode,3);
@@ -1215,13 +937,15 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		rsb__util_set_area_to_converted_integer(alpha,typecode,alphaa[alphai]);
 		rsb__util_set_area_to_converted_integer(beta,typecode,betaa[betai]);
 		rsb__util_set_area_to_converted_integer(zero,typecode,0);
+#if RSB_ALLOW_ZERO_DIM
+		if(isempty>=2) extra_vels=1;
+#endif
 		X = rsb__calloc(el_size*(dim*incX+extra_vels));
 		B = rsb__calloc(el_size*(dim*incB+extra_vels));
 		D = rsb__calloc(el_size*(dim*incD+extra_vels));
-
 		if(!X || !B || !D)
 		{
-			RSB_PERR_GOTO(err,"failed allocating a vector!\n");
+			RSB_ERROR("failed allocating a vector!\n"); goto err;
 		}
 
 		/* generate a triangular matrix */
@@ -1229,14 +953,14 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		errval = rsb__generate_dense_lower_triangular_coo(dim,1,&IA,&JA,&VA,&nnz,typecode);
 		if(RSB_SOME_ERROR(errval))
 		{
-			RSB_PERR_GOTO(err,"!\n");
+			RSB_ERROR("!\n"); goto err;
 		}
 #if RSB_ALLOW_EMPTY_MATRICES
 		if(isempty)
 		{
 			RSB_DO_ERROR_CUMULATE(errval,rsb__cblas_Xscal(typecode,nnz,&zero,VA,1));
 			if(RSB_SOME_ERROR(errval))
-				{RSB_PERR_GOTO(err,"!\n");}
+				{RSB_ERROR("!\n"); goto err;}
 		}
 #endif /* RSB_ALLOW_EMPTY_MATRICES */
 		isinvertible=(diaga[diagi]==blas_unit_diag||!isempty);
@@ -1249,11 +973,12 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		ndnnz=nnz-(diaga[diagi]==blas_unit_diag?dim:0);
 		if(ndnnz>nnz)
 		{
-			RSB_PERR_GOTO(err,"!\n");
+			RSB_ERROR("!\n"); goto err;
 		}
 		if(nnz > 0 && (!VA || !IA || !JA))
 		{
-			RSB_PERR_GOTO(err,"!\n");
+			RSB_ERROR("!\n");
+			goto err;
 		}
 
 		if(stype==blas_upper_triangular)
@@ -1269,7 +994,7 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		{
 			/* FIXME: to be complete, shall implement symmetry/lower/upper/diagonal flags */
 			rsb_flags_t aflags = RSB_FLAG_NOFLAGS;
-			struct rsb_coo_mtx_t coo;
+			struct rsb_coo_matrix_t coo;
 			if(stype==blas_lower_symmetric) RSB_DO_FLAG_ADD(aflags,RSB_FLAG_SYMMETRIC);
 			if(stype==blas_upper_symmetric) RSB_DO_FLAG_ADD(aflags,RSB_FLAG_SYMMETRIC);
 			if(stype==blas_upper_hermitian) RSB_DO_FLAG_ADD(aflags,RSB_FLAG_UPPER_HERMITIAN);
@@ -1294,63 +1019,37 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 			{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("error while calling ussp(%d)\n",diaga[diagi]); goto err;}
 		if( rsb__BLAS_Xuscr_insert_entries(T,nnz,VA,IA,JA) != RSB_BLAS_NO_ERROR)
 			{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("error while calling cr_insert_entries\n"); goto err;}
-		if( rsb__BLAS_ussp(T,blas_rsb_rep_rsb) != RSB_BLAS_NO_ERROR ) // or BLAS_ussp ?
-			{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("error calling BLAS_ussp\n"); goto err;}
-#if RSB_ALLOW_INTERNAL_GETENVS
-		{
-			rsb_blas_int_t pname = blas_rsb_rep_rsb;
-
-			if( !strcmp(rsb__getenv_str("RSB_BMT_FMT","RSB"),"RSB") )
-				pname = blas_rsb_rep_rsb;
-			if( !strcmp(rsb__getenv_str("RSB_BMT_FMT","RSB"),"COO") )
-				pname = blas_rsb_rep_coo;
-			if( !strcmp(rsb__getenv_str("RSB_BMT_FMT","RSB"),"CSR") )
-				pname = blas_rsb_rep_csr;
-			if( rsb__BLAS_ussp(T,pname) != RSB_BLAS_NO_ERROR ) // or BLAS_ussp ?
-				{ errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("error calling BLAS_ussp\n"); goto err; }
-		}
-#endif /* RSB_ALLOW_INTERNAL_GETENVS */
 		if( rsb__BLAS_Xuscr_end(T) != RSB_BLAS_NO_ERROR )
 			{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("error finalizing matrix!\n"); goto err;}
 		mtxAp = rsb__BLAS_inner_matrix_retrieve(T);
 		if(!mtxAp)
 		{
-			errval = RSB_ERR_INTERNAL_ERROR;
-			RSB_PERR_GOTO(err,RSB_ERRM_NL);
+			RSB_ERROR(RSB_ERRM_NL);
+		       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 		}
 
 		if( mtxAp->nnz>0 && rsb__get_index_storage_amount(mtxAp)==0 )
 		{
-			errval = RSB_ERR_INTERNAL_ERROR;
-			RSB_PERR_GOTO(err,RSB_ERRM_NL);
+			RSB_ERROR(RSB_ERRM_NL);
+		       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 		}
 
-		rnz=mtxAp->nnz;
-
-#if 1
-		if(incX==1 && incB==1 && alphai==0 && betai==0 /* && transTi==0 */) /* agnostic to these parameters */
-{
-		rsb_coo_idx_t coov;
-		rsb_nnz_idx_t nnzv;
-
-#if RSB_WITH_SPARSE_BLAS_INTERFACE
 		if(diaga[diagi]==blas_non_unit_diag) /* FIXME */
 		if(nnz > 0)
 		{
-			//if( rsb__BLAS_Xusset_elements(T, IA, JA, VA, mtxAp->nnz) != RSB_BLAS_NO_ERROR )
-			//if( RSB__BLAS_CALL_TC(typecode,usset_elements,T, IA, JA, VA, mtxAp->nnz) != RSB_BLAS_NO_ERROR )
-			if( RSB__BLAS_CALL_TF(typecode,usset_elements,istat,&T, IA, JA, VA, &(mtxAp->nnz)) != RSB_BLAS_NO_ERROR )
+			if( rsb__BLAS_Xusset_elements(T, IA, JA, VA, mtxAp->nnz) != RSB_BLAS_NO_ERROR )
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB__FLAGS_PRINTF_ARGS(mtxAp->flags));
+				RSB_ERROR(RSB_ERRM_NL);
+			       	errval = RSB_ERR_INTERNAL_ERROR;
+			       	goto err;
 			}
 		}
-#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 
+		rnz=mtxAp->nnz;
 		if(!rsb__mtx_chk(mtxAp))
 		{
 			RSB_ERROR(RSB_ERRM_NL);
-			errval = RSB_ERR_INTERNAL_ERROR; goto err;
+		       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 		}
 		
 		coov=0;
@@ -1382,6 +1081,7 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 			rsb__do_strerror_r(RSB_ERR_BADARGS,errstr,errstrlen);  
 			if(strlen(errstr)<1)
 			RSB_LSTERR(RSB_ERRM_ES);
+			
 		}
 
 		/* TODO: extract && test other values as well... */
@@ -1390,46 +1090,12 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		submatrices = rsb__terminal_recursive_matrix_count(mtxAp);
 		instantiated_some_recursive+=(rsb__submatrices(mtxAp)>1?1:0);
 		if(rsb__get_sizeof(mtxAp)<(
-			(mtxAp->el_size*mtxAp->nnz)+ (sizeof(rsb_half_idx_t)*mtxAp->nnz)+0))
+		(mtxAp->el_size*mtxAp->nnz)+ (sizeof(rsb_half_idx_t)*mtxAp->nnz)+0))
 		{
 			errval = RSB_ERR_INTERNAL_ERROR;
-			RSB_PERR_GOTO(err,"!\n");
+			RSB_ERROR("!\n");
+			goto err;
 		}
-
-		if(rnz > 0)
-		{
-			rsb_aligned_t rv[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-			rsb_aligned_t bv[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-			rsb_coo_idx_t i,j;
-			rsb_nnz_idx_t nzi;
-
-			for(nzi=0;nzi<mtxAp->nnz;++nzi)
-			{
-				rsb_blas_int_t bi,bj;
-
-				if( RSB_SOME_ERROR(rsb__do_get_nnz_element(mtxAp,&rv[0],&i,&j,nzi)) )
-				{
-					errval = RSB_ERR_INTERNAL_ERROR;
-					RSB_PERR_GOTO(err,RSB_ERRM_NL);
-				}
-				if( diaga[diagi] == blas_unit_diag && i == j )
-						continue; // rsb__BLAS_Xusget_element output not comparable to rsb__do_get_nnz_element output
-				bi=i,bj=j; // note: these are C indices
-				if(RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE))
-					++bi, ++bj;
-				if( rsb__BLAS_Xusget_element(T,bi,bj,&bv[0]) != RSB_BLAS_NO_ERROR )
-				{
-					errval = RSB_ERR_INTERNAL_ERROR;
-					RSB_PERR_GOTO(err,"problems getting element (%d %d) (nzi:%d nnz:%d)\n",(int)bi,(int)bj,(int)nzi,(int)mtxAp->nnz);
-				}
-				if( RSB_SOME_ERROR(rsb__do_are_same(rv,bv,1,typecode,1,1) ))
-				{
-					 errval = RSB_ERR_INTERNAL_ERROR; RSB_PERR_GOTO(err,RSB_ERRM_NL);
-				}
-			}
-		}
-}
-#endif
 
 #if 1
 #if RSB_ALLOW_INTERNAL_GETENVS
@@ -1438,7 +1104,6 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		if(RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_SYMMETRIC) || RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_HERMITIAN))
 		{
 			/* FIXME: this gets NOT covered, it seems  */
-			rsb_blas_int_t mmi;
 		for(mmi=0;mmi< (dim<msmd?3:2) ;++mmi)
 		if(! (mmi==1 && ((incX!= 1) || (incB!=1) )  ))
 		{
@@ -1457,8 +1122,8 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 			if(mmi==1)
 			if(RSB_SOME_ERROR( rsb__do_spmm(trans,alpha,mtxAp,nrhs,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER,B,dim,beta,X,dim,RSB_OP_FLAG_DEFAULT)) )
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("Symmetric USMV failed!\n"); goto err;
-			}
+			       	errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("Symmetric USMV failed!\n"); goto err;
+		       	}
 
 			if(mmi==2)
 			if(RSB_SOME_ERROR( rsb__do_spmv_general(trans,alpha,mtxAp,B,incB,beta,X,incX,RSB_OP_FLAG_WANT_SERIAL RSB_DEFAULT_OUTER_NRHS_SPMV_ARGS)))
@@ -1484,16 +1149,15 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		}
 		}
 #endif
-
 #if 1
 #if RSB_ALLOW_INTERNAL_GETENVS
 		if(! ( getenv("RSB_BMT_SPGEMM") && rsb__util_atoi(getenv("RSB_BMT_SPGEMM")) == 0 ) )
 #endif /* RSB_ALLOW_INTERNAL_GETENVS */
 		// FIXME: this is quite slow : SPGEMM is O(dim^3, and so shall be limited down to a certain threshold)
 		if(dimi <= RSB_WANT_SPGEMM_TESTING_FOR_ONLY_FIRST_DIMI)// FIXME: spgemm cost increases quadratically..
-		if(incX==1 && incB==1 && alphai==0 && betai==0 /* && transTi==0 */) /* agnostic to these parameters */
+		if(incX==1 && incB==1)
 		if(stype==blas_lower_triangular || stype==blas_upper_triangular)
-		if(dim>0)
+		if(!RSB_DO_TOOFEWNNZFORCSR(nnz,dim) /*&& typecode == RSB_NUMERICAL_TYPE_DOUBLE*/ )
 		if(diaga[diagi]==blas_non_unit_diag)
 		if( trans == RSB_TRANSPOSITION_N ) /* FIXME: this is just a workaround, 20140324 */
 		{
@@ -1504,89 +1168,67 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 			rsb_aligned_t sum1[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 			rsb_aligned_t sum2[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 			rsb_aligned_t two[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-			/* rsb_trans_t ttrans = rsb__do_transpose_transposition(trans); */
-			rsb_trans_t ttrans = (trans); /* FIXME: this is just a workaround, 20140324 */
 
-			if(!dVA)
+			if(dVA)
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_ES"\n");
-			}
-			RSB_DO_ERROR_CUMULATE(errval,rsb__do_spgemm_to_dense(typecode,trans,alpha,mtxAp,ttrans,beta,mtxAp,ldd,dim,dim,rowmajor,dVA,NULL,NULL));
-			if(RSB_SOME_ERROR(errval)) { RSB_ERROR("!\n"); goto err; }
-			RSB_DO_ERROR_CUMULATE(errval,rsb__util_vector_sum(sum1,dVA,typecode,ldd*dim));
-			if(RSB_SOME_ERROR(errval)) { RSB_ERROR("!\n"); goto err; }
-			// now: c <- alpha a ^ trans * beta a ^ trans
-			RSB_DO_ERROR_CUMULATE(errval,rsb__do_spgemm_to_dense(typecode,trans,alpha,mtxAp,ttrans,beta,mtxAp,ldd,dim,dim,rowmajor,dVA,NULL,NULL));
-			if(RSB_SOME_ERROR(errval)) { RSB_ERROR("!\n"); goto err; }
-			RSB_DO_ERROR_CUMULATE(errval,rsb__util_vector_sum(sum2,dVA,typecode,ldd*dim));
-			if(RSB_SOME_ERROR(errval)) { RSB_ERROR("!\n"); goto err; }
-			// now: c <- 2 ( alpha a ^ trans * beta a ^ trans )
-			if(RSB_SOME_ERROR(errval))
-			{
-				RSB_CONDITIONAL_FREE(dVA);
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_FMMTDT);
-			}
-			rsb__util_set_area_to_converted_integer(two,typecode,2);
-			rsb__util_vector_div(sum2,two,typecode,1);
-			// TODO: there is risk of overflow, though..
-			if( RSB_SOME_ERROR(rsb__do_are_similar(sum1,sum2,1,typecode,1,1) ))
-			{
-				RSB_CONDITIONAL_FREE(dVA);
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_FMMTDT);
-			}
-			// since a is lower triangular full with ones,
-			// c is full, with values (given s=2(alpha+beta))
-			//   s   s   s   s ...
-			//   s  2s  2s  2s ...
-			//   s  2s  3s  3s ...
-			//   s  2s  3s  4s ...
-			//   ...
-			// (transposed, in the case trans is)
-			// now: c <- 2 ( alpha a ^ trans * beta ^ trans ) + alpha a ^ trans
+				/* rsb_trans_t ttrans = rsb__do_transpose_transposition(trans); */
+				rsb_trans_t ttrans = (trans); /* FIXME: this is just a workaround, 20140324 */
 
-			RSB_DO_ERROR_CUMULATE(errval,rsb__cblas_Xscal(typecode,ldd*dim,&zero,dVA,1));
-			RSB_DO_ERROR_CUMULATE(errval,rsb__do_matrix_add_to_dense(alpha,mtxAp,ldd,dim,dim,rowmajor,dVA));
-			RSB_DO_ERROR_CUMULATE(errval,rsb__util_vector_sum(sum1,dVA,typecode,ldd*dim));
-			if( nnz > 0 && nnz < 100 ) /* FIXME: these limits here are only for time reasons */
-			{
-				struct rsb_mtx_t * mtxOp = rsb__mtx_clone_simple(mtxAp);
-				RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_recursive_matrix_to_fullword_storage(mtxOp));
-				RSB_DO_ERROR_CUMULATE(errval,rsb__do_matrix_add_to_dense(alpha,mtxOp,ldd,dim,dim,rowmajor,dVA));
-				RSB_MTX_FREE(mtxOp);
-			}
-			else
+				RSB_DO_ERROR_CUMULATE(errval,rsb__do_spgemm_to_dense(typecode,trans,alpha,mtxAp,ttrans,beta,mtxAp,ldd,dim,dim,rowmajor,dVA,NULL,NULL));
+				if(RSB_SOME_ERROR(errval)) { RSB_ERROR("!\n"); goto err; }
+				RSB_DO_ERROR_CUMULATE(errval,rsb__util_vector_sum(sum1,dVA,typecode,ldd*dim));
+				if(RSB_SOME_ERROR(errval)) { RSB_ERROR("!\n"); goto err; }
+				// now: c <- alpha a ^ trans * beta a ^ trans
+				RSB_DO_ERROR_CUMULATE(errval,rsb__do_spgemm_to_dense(typecode,trans,alpha,mtxAp,ttrans,beta,mtxAp,ldd,dim,dim,rowmajor,dVA,NULL,NULL));
+				if(RSB_SOME_ERROR(errval)) { RSB_ERROR("!\n"); goto err; }
+				RSB_DO_ERROR_CUMULATE(errval,rsb__util_vector_sum(sum2,dVA,typecode,ldd*dim));
+				if(RSB_SOME_ERROR(errval)) { RSB_ERROR("!\n"); goto err; }
+				// now: c <- 2 ( alpha a ^ trans * beta a ^ trans )
+				if(RSB_SOME_ERROR(errval))
+				{
+					RSB_CONDITIONAL_FREE(dVA);
+					RSB_ERROR(RSB_ERRM_FMMTDT);
+		       			errval = RSB_ERR_INTERNAL_ERROR; goto err;
+				}
+				rsb__util_set_area_to_converted_integer(two,typecode,2);
+				rsb__util_vector_div(sum2,two,typecode,1);
+				// TODO: there is risk of overflow, though..
+				if( RSB_SOME_ERROR(rsb__do_are_same(sum1,sum2,1,typecode,1,1) ))
+				{
+					RSB_CONDITIONAL_FREE(dVA);
+					RSB_ERROR(RSB_ERRM_FMMTDT);
+		       			errval = RSB_ERR_INTERNAL_ERROR; goto err;
+			       	}
+				// since a is lower triangular full with ones,
+				// c is full, with values (given s=2(alpha+beta))
+				//   s   s   s   s ...
+				//   s  2s  2s  2s ...
+				//   s  2s  3s  3s ...
+				//   s  2s  3s  4s ...
+				//   ...
+				// (transposed, in the case trans is)
+				// now: c <- 2 ( alpha a ^ trans * beta ^ trans ) + alpha a ^ trans
+
+				RSB_DO_ERROR_CUMULATE(errval,rsb__cblas_Xscal(typecode,ldd*dim,&zero,dVA,1));
 				RSB_DO_ERROR_CUMULATE(errval,rsb__do_matrix_add_to_dense(alpha,mtxAp,ldd,dim,dim,rowmajor,dVA));
-			RSB_DO_ERROR_CUMULATE(errval,rsb__util_vector_sum(sum2,dVA,typecode,ldd*dim));
-			rsb__util_vector_div(sum2,two,typecode,1);
-			// TODO: there is risk of overflow, though..
-			if( RSB_SOME_ERROR(rsb__do_are_similar(sum1,sum2,1,typecode,1,1) ))
-			{
+				RSB_DO_ERROR_CUMULATE(errval,rsb__util_vector_sum(sum1,dVA,typecode,ldd*dim));
+				RSB_DO_ERROR_CUMULATE(errval,rsb__do_matrix_add_to_dense(alpha,mtxAp,ldd,dim,dim,rowmajor,dVA));
+				RSB_DO_ERROR_CUMULATE(errval,rsb__util_vector_sum(sum2,dVA,typecode,ldd*dim));
+				rsb__util_vector_div(sum2,two,typecode,1);
+				// TODO: there is risk of overflow, though..
+				if( RSB_SOME_ERROR(rsb__do_are_same(sum1,sum2,1,typecode,1,1) ))
+				{
+					RSB_CONDITIONAL_FREE(dVA);
+					RSB_ERROR(RSB_ERRM_FMATDBC);
+		       			errval = RSB_ERR_INTERNAL_ERROR; goto err;
+			       	}
 				RSB_CONDITIONAL_FREE(dVA);
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_FMATDBC);
+				if(RSB_SOME_ERROR(errval))
+				{
+					RSB_ERROR(RSB_ERRM_FMATD);
+		       			errval = RSB_ERR_INTERNAL_ERROR; goto err;
+				}
 			}
-
-#if 0
-			// TODO: finish rsb__get_row_dense
-			errval = rsb__get_row_dense(mtxAp, dVA,0);
-			if(RSB_SOME_ERROR(errval))
-			{
-	       			errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_ES);
-			}
-			// TODO: need check of dVA contents.
-#endif
-
-			RSB_CONDITIONAL_FREE(dVA);
-			if(RSB_SOME_ERROR(errval))
-			{
-		       		errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_FMATD);
-			}
-			
 			//if((cmatrix = rsb__do_matrix_mul(RSB_TRANSPOSITION_N,NULL,mtxAp,trans,NULL,mtxAp,&errval))!=RSB_ERR_NO_ERROR)
 			if((cmatrix = rsb__do_matrix_mul(typecode,RSB_TRANSPOSITION_N,NULL,mtxAp,trans,NULL,mtxAp,&errval))!=NULL)
 			{
@@ -1595,17 +1237,15 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 			}
 			else
 			{
-		       		errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_FMM);
+				RSB_ERROR(RSB_ERRM_FMM);
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto err;
 			}
 		}
 #endif
-
 #if 1
 #if RSB_ALLOW_INTERNAL_GETENVS
 		if(! ( getenv("RSB_BMT_SUM") && rsb__util_atoi(getenv("RSB_BMT_SUM")) == 0 ) )
 #endif /* RSB_ALLOW_INTERNAL_GETENVS */
-		if(incX==1 && incB==1 && alphai==0 && betai==0 /* && transTi==0 */) /* agnostic to these parameters */
 	{
 		if(diaga[diagi]!=blas_unit_diag && nnz>0)
 		{
@@ -1616,26 +1256,26 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 		{
 			if(cmatrix==NULL)
 			{
-		       		errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_FMC);
+				RSB_ERROR(RSB_ERRM_FMC);
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto err;
 			}
 			else
 			{
-		       		errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_CMINBC);
+				RSB_ERROR(RSB_ERRM_CMINBC);
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto err;
 			}
 		}
 		else
 		{
 			/* very, very slow sparse matrices sum testing */
 			struct rsb_mtx_t *smatrix=NULL;
-			struct rsb_coo_mtx_t coo,coc;
+			struct rsb_coo_matrix_t coo,coc;
 			// s = m^trans + 2 * m^trans = 3 m^trans
 			//smatrix = rsb__do_matrix_sum(typecode,mtxAp,one,trans,cmatrix,two,trans,&errval);
 			RSB_BZERO_P(&coo);
 		       	RSB_BZERO_P(&coc);
 
-			smatrix = rsb__do_matrix_sum(typecode,RSB_TRANSPOSITION_N,one,mtxAp,trans,two,cmatrix,&errval);
+			smatrix = rsb__do_matrix_sum(typecode,RSB_TRANSPOSITION_N,one,mtxAp,RSB_TRANSPOSITION_N,two,cmatrix,&errval);
 			if(!smatrix ) {RSB_ERROR(RSB_ERRM_FCMS);errval = RSB_ERR_INTERNAL_ERROR;}
 			if( RSB_SOME_ERROR(errval)) { RSB_ERROR(RSB_ERRM_FCMS); goto smerr; }
 #if 0
@@ -1653,33 +1293,29 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 				RSB_INFO("\n");
 			}
 #endif
-
-			if( trans == RSB_TRANSPOSITION_N )
-{
 			if( smatrix->nnz != mtxAp->nnz)
 #if RSB_ALLOW_EMPTY_MATRICES
 			if( !isempty )
 #endif /* RSB_ALLOW_EMPTY_MATRICES */
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(smerr,"seems like matrix sum failed (same pattern, no cancellation possible): %d + %d to %d nnz)\n",mtxAp->nnz,cmatrix->nnz,smatrix->nnz);
+			       	RSB_ERROR("seems like matrix sum failed (same pattern, no cancellation possible): %d + %d to %d nnz)\n",mtxAp->nnz,cmatrix->nnz,smatrix->nnz);
+				 errval = RSB_ERR_INTERNAL_ERROR;
+				 goto smerr; 
 			}
 			//if(RSB_SOME_ERROR(errval = rsb_mtx_elemental_scale(cmatrix,&three)))
 			if(RSB_SOME_ERROR(errval = rsb__do_upd_vals(cmatrix,RSB_ELOPF_MUL,&three)))
-			{
-				RSB_PERR_GOTO(smerr,RSB_ERRM_ES);
-			}
+			{ RSB_ERROR(RSB_ERRM_ES); goto smerr; }
 			coo.typecode=smatrix->typecode; coo.nnz=smatrix->nnz;
 			RSB_DO_FLAG_ADD(smatrix->flags,RSB_FLAG_EXTERNALLY_ALLOCATED_ARRAYS);
 			errval = rsb__do_switch_rsb_mtx_to_coo(smatrix,&coo.VA,&coo.IA,&coo.JA,RSB_FLAG_SORTED_INPUT);
-			if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(smerr,RSB_ERRM_ES); }
+			if(RSB_SOME_ERROR(errval)){ RSB_ERROR(RSB_ERRM_ES); goto smerr; }
 			smatrix=NULL;
 			coc.typecode=cmatrix->typecode; coc.nnz=cmatrix->nnz;
 			RSB_DO_FLAG_ADD(cmatrix->flags,RSB_FLAG_EXTERNALLY_ALLOCATED_ARRAYS);
 			errval = rsb__do_switch_rsb_mtx_to_coo(cmatrix,&coc.VA,&coc.IA,&coc.JA,RSB_FLAG_SORTED_INPUT);
-			if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(smerr,RSB_ERRM_ES); }
+			if(RSB_SOME_ERROR(errval)){ RSB_ERROR(RSB_ERRM_ES); goto smerr; }
 			cmatrix=NULL;
-			if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(smerr,RSB_ERRM_ES); }
+			if(RSB_SOME_ERROR(errval)) { RSB_ERROR(RSB_ERRM_ES); goto smerr; }
 			//if(trans == RSB_TRANSPOSITION_T)RSB_SWAP(rsb_coo_idx_t*,coo.IA,coo.JA);
 			//if(trans == RSB_TRANSPOSITION_C)errval = rsb__util_do_conjugate(coo.VA,coo.typecode,coo.nnz);
 			//coo.VA=coc.VA=NULL;
@@ -1687,7 +1323,7 @@ rsb_err_t rsb_blas_bigger_matrices_tester(const struct rsb_tester_options_t * to
 			if((!isempty) || (!rsb__are_coo_matrices_both_empty(&coo,RSB_FLAG_NOFLAGS,&coc,RSB_FLAG_NOFLAGS)))
 #endif /* RSB_ALLOW_EMPTY_MATRICES */
 			if(!rsb__are_coo_matrices_equal(&coo,&coc))
-			{ errval = RSB_ERR_INTERNAL_ERROR; RSB_PERR_GOTO(smerr,"matrices do not match!\n"); }
+			{ errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR("matrices do not match!\n"); goto smerr; }
 			//
 smerr:
 			rsb__destroy_coo_matrix_t(&coo);
@@ -1695,48 +1331,12 @@ smerr:
 			RSB_MTX_FREE(cmatrix);
 			RSB_MTX_FREE(smatrix);
 			if(RSB_SOME_ERROR(errval)) { RSB_ERROR("some error occurred while testing matrices sum functionality\n"); goto err; }
-}
-else 		// trans != RSB_TRANSPOSITION_N
-{
-			// TODO: this check has to be strengthened
-			if( smatrix->nnz != 2 * mtxAp->nnz - dim)
-#if RSB_ALLOW_EMPTY_MATRICES
-			if( !isempty )
-#endif /* RSB_ALLOW_EMPTY_MATRICES */
-			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(smerrt,"seems like matrix sum failed (same pattern, no cancellation possible): %d + %d to %d nnz)\n",mtxAp->nnz,cmatrix->nnz,smatrix->nnz);
-			}
-			//if(RSB_SOME_ERROR(errval = rsb_mtx_elemental_scale(cmatrix,&three)))
-			if(RSB_SOME_ERROR(errval = rsb__do_upd_vals(cmatrix,RSB_ELOPF_MUL,&three)))
-			{
-				RSB_PERR_GOTO(smerrt,RSB_ERRM_ES);
-			}
-			coo.typecode=smatrix->typecode; coo.nnz=smatrix->nnz;
-			RSB_DO_FLAG_ADD(smatrix->flags,RSB_FLAG_EXTERNALLY_ALLOCATED_ARRAYS);
-			errval = rsb__do_switch_rsb_mtx_to_coo(smatrix,&coo.VA,&coo.IA,&coo.JA,RSB_FLAG_SORTED_INPUT);
-			if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(smerrt,RSB_ERRM_ES); }
-			smatrix=NULL;
-			coc.typecode=cmatrix->typecode; coc.nnz=cmatrix->nnz;
-			RSB_DO_FLAG_ADD(cmatrix->flags,RSB_FLAG_EXTERNALLY_ALLOCATED_ARRAYS);
-			errval = rsb__do_switch_rsb_mtx_to_coo(cmatrix,&coc.VA,&coc.IA,&coc.JA,RSB_FLAG_SORTED_INPUT);
-			if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(smerrt,RSB_ERRM_ES); }
-			cmatrix=NULL;
-			if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(smerrt,RSB_ERRM_ES); }
-
-			/* TODO: need more checks here: better in a separate function... */
-smerrt:
-			rsb__destroy_coo_matrix_t(&coo);
-			rsb__destroy_coo_matrix_t(&coc);
-			RSB_MTX_FREE(cmatrix);
-			RSB_MTX_FREE(smatrix);
-			if(RSB_SOME_ERROR(errval)) { RSB_ERROR("some error occurred while testing matrices sum functionality\n"); goto err; }
-}
-
 #if RSB_WANT_AUTOTUNING_TESTING
 #if RSB_ALLOW_INTERNAL_GETENVS
-		if( do_tune_test > 0 )
+		if( getenv("RSB_BMT_AUTOTUNE") )
+		       	do_tune_test = rsb__util_atoi(getenv("RSB_BMT_AUTOTUNE"));
 #endif /* RSB_ALLOW_INTERNAL_GETENVS */
+		if( do_tune_test > 0 )
 		if( nnz > 0 && nnz < 100 ) /* FIXME: these limits here are only for time reasons */
 		{
 			struct rsb_mtx_t * mtxOp = NULL;
@@ -1744,21 +1344,21 @@ smerrt:
 			struct rsb_mtx_t * mtxQp = NULL;
 #endif /* RSB_AT_DESTROYS_MTX */
 			rsb_real_t *sfp = NULL;
-			rsb_int_t *tnp = NULL;
-			rsb_int_t oitmax = 0;
-			const rsb_time_t tmax=/*RSB_TIME_ZERO*/0.003;
-			const rsb_trans_t transA = trans;
-			const void * alphap = NULL;
-			// struct rsb_mtx_t * mtxAp = ;
-			rsb_coo_idx_t nrhs = 1;
-			const rsb_flags_t order = RSB_FLAG_WANT_COLUMN_MAJOR_ORDER;
-			const void * Bp = NULL;
-			rsb_nnz_idx_t ldB = 0;
-			const void * betap = NULL;
-			void * Cp = NULL;
-			rsb_nnz_idx_t ldC = 0;
+		       	rsb_int_t *tnp = NULL;
+		       	rsb_int_t oitmax = 0;
+		       	rsb_time_t tmax=/*RSB_TIME_ZERO*/0.003;
+		       	rsb_trans_t transA = trans;
+		       	const void * alphap = NULL;
+		       	// struct rsb_mtx_t * mtxAp = ;
+		       	rsb_coo_idx_t nrhs = 1;
+		       	rsb_flags_t order = RSB_FLAG_WANT_COLUMN_MAJOR_ORDER;
+		       	const void * Bp = NULL;
+		       	rsb_nnz_idx_t ldB = 0;
+		       	const void * betap = NULL;
+		       	void * Cp = NULL;
+		       	rsb_nnz_idx_t ldC = 0;
 
-			// mtxOp = rsb__mtx_clone_simple(mtxAp);
+		       	// mtxOp = rsb__mtx_clone_simple(mtxAp);
 			errval = rsb__mtx_clone(&mtxOp,RSB_NUMERICAL_TYPE_SAME_TYPE,RSB_TRANSPOSITION_N,NULL,mtxAp,RSB_FLAG_IDENTICAL_FLAGS);
 
 		       	ldB = rsb__do_get_rows_of(mtxOp,transA);
@@ -1768,8 +1368,7 @@ smerrt:
 #endif /* RSB_AT_DESTROYS_MTX */
 			if( RSB_SOME_ERROR( errval = rsb__do_tune_spmm(&mtxOp, sfp, tnp, oitmax, tmax, transA, alphap, NULL, nrhs, order, Bp, ldB, betap, Cp, ldC)))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(sterr,"rsb_tune_spmm failed !\n");
+				errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR("rsb_tune_spmm failed !\n"); goto sterr;
 			}
 #if !RSB_AT_DESTROYS_MTX
 			if(mtxQp != mtxOp) RSB_MTX_FREE(mtxQp);
@@ -1789,19 +1388,14 @@ smerrt:
 			if(stype==blas_upper_triangular || stype==blas_lower_triangular )
 			if( RSB_SOME_ERROR( errval = rsb__do_tune_spsm(&mtxOp, sfp, tnp, oitmax, tmax, transA, alphap, NULL, nrhs, order, Bp, ldB, betap, Cp, ldC)))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(sterr,"rsb_tune_spsm failed !\n");
+				errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR("rsb_tune_spsm failed !\n"); goto sterr;
 			}
 #if !RSB_AT_DESTROYS_MTX
-			if(mtxQp != mtxOp)
-				RSB_MTX_FREE(mtxQp);
+			if(mtxQp != mtxOp) RSB_MTX_FREE(mtxQp);
 #endif /* RSB_AT_DESTROYS_MTX */
 			RSB_MTX_FREE(mtxOp);
 sterr:
-			if(RSB_SOME_ERROR(errval))
-			{
-				RSB_PERR_GOTO(err,"...\n");
-			}
+			if(RSB_SOME_ERROR(errval)) { RSB_ERROR("...\n"); goto err; }
 		}
 #endif	/* RSB_WANT_AUTOTUNING_TESTING */
 		}
@@ -1810,19 +1404,17 @@ sterr:
 #endif
 #if 1
 		cmatrix = NULL;
-		if(incX==1 && incB==1 && alphai==0 && betai==0 && transTi==0) /* agnostic to these parameters */
-		{
 		errval = rsb__mtx_clone(&cmatrix,RSB_NUMERICAL_TYPE_SAME_TYPE,RSB_TRANSPOSITION_N,NULL,mtxAp,RSB_FLAG_IDENTICAL_FLAGS);
 		// cmatrix = rsb__mtx_clone_simple(mtxAp);
 
 		if( cmatrix == NULL )
 		{
-		       	errval = RSB_ERR_INTERNAL_ERROR;
-			RSB_PERR_GOTO(err,"failed matrix cloning\n");
+			RSB_ERROR("failed matrix cloning\n");
+		       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 		}
 		else
 		{
-			struct rsb_coo_mtx_t coo,csr;
+			struct rsb_coo_matrix_t coo,csr;
 			rsb_flags_t cflags = RSB_DO_FLAG_FILTEROUT(cmatrix->flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE);
 
 			RSB_BZERO_P(&coo);
@@ -1831,8 +1423,8 @@ sterr:
 			RSB_DO_FLAG_ADD(cflags,RSB_FLAG_SORTED_INPUT); // NEW, TO SPEEDUP THIS CODE (WEAKENS THE TESTING EFFECTIVENESS, THOUGH)
 			if(!rsb__mtx_chk(cmatrix))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"cloned matrix is not built correctly\n");
+				RSB_ERROR("cloned matrix is not built correctly\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			if(!cmatrix->nnz)
 				goto cmedone;
@@ -1840,8 +1432,8 @@ sterr:
 			csr=coo;
 			if((rsb__allocate_coo_matrix_t(&coo)!=&coo) || (rsb__allocate_coo_matrix_t(&csr)!=&csr))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"allocaton problem\n");
+				RSB_ERROR("allocaton problem\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			coo.nnz=csr.nnz=mtxAp->nnz;
 getcsrcooagain:
@@ -1849,8 +1441,8 @@ getcsrcooagain:
 			errval = rsb__do_get_coo_noalloc(mtxAp,coo.VA,coo.IA,coo.JA,NULL,cflags);
 			if(RSB_SOME_ERROR(errval))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"coo extraction problems\n");
+				RSB_ERROR("coo extraction problems\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			// RSB -> CSR
 			errval = rsb__do_get_csr(typecode,mtxAp,csr.VA,csr.IA,csr.JA,cflags);
@@ -1858,36 +1450,36 @@ getcsrcooagain:
 			//errval = rsb__do_get_csr(typecode,mtxAp,csr.VA,csr.IA,csr.JA,RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS);
 			if(RSB_SOME_ERROR(errval))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"csr extraction problems\n");
+				RSB_ERROR("csr extraction problems\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			// CSR -> COO
 			errval = rsb__util_uncompress_row_pointers_array(csr.IA,csr.nr,cflags,cflags,csr.IA);
 			if(RSB_SOME_ERROR(errval))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"coo->csr conversion problems\n");
+				RSB_ERROR("coo->csr conversion problems\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			// let's check if 'csr' was converted in coo 
 			if(!rsb__are_coo_matrices_equal(&coo,&csr))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"no match in coo/csr extractors\n");
+				RSB_ERROR("no match in coo/csr extractors\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			// COO -> CSR 
 			errval = rsb__util_compress_to_row_pointers_array(NULL,csr.nnz,csr.nr,cflags,cflags,csr.IA);
 			if(RSB_SOME_ERROR(errval))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"csr->coo conversion failed!\n");
+				RSB_ERROR("csr->coo conversion failed!\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			else
 			/* FIXME: checks are missing for the following ! */
 			if(!RSB_DO_FLAG_HAS(cflags,RSB_FLAG_USE_HALFWORD_INDICES))
-			if(RSB_SOME_ERROR(errval = rsb__csr_chk(csr.IA,csr.JA,csr.nr,csr.nc,csr.nnz,RSB_DO_FLAG_HAS(cflags,RSB_FLAG_FORTRAN_INDICES_INTERFACE)?1:0)))
+			if(RSB_SOME_ERROR(errval = rsb__csr_chk(csr.IA,csr.JA,csr.nr,csr.nc,csr.nnz,0)))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"csr->coo conversion produced corrupt results!\n");
+				RSB_ERROR("csr->coo conversion produced corrupt results!\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			// RSB -> COO
 			// FIXME: 
@@ -1897,30 +1489,29 @@ getcsrcooagain:
 			RSB_MTX_FREE(cmatrix);
 			// CSR -> RSB
 
+			if(incX==1 && incB==1) if(alphai==0 && betai==0) /* agnostic to these parameters */
+{
 			kmatrix = rsb__do_mtx_alloc_from_csr_const(csr.VA,csr.IA,csr.JA,csr.nnz,csr.typecode,csr.nr,csr.nc,RSB_DEFAULT_ROW_BLOCKING,RSB_DEFAULT_COL_BLOCKING,cflags,&errval);
 			if((RSB_SOME_ERROR(errval)) || (!kmatrix) || (!rsb__mtx_chk(kmatrix)))
-			{
-				RSB_PERR_GOTO(err,"csr->rsb construction problems\n");
-			}
+			{ RSB_ERROR("csr->rsb construction problems\n"); goto err;}
 			RSB_MTX_FREE(kmatrix);
+}
 
 			cmatrix = rsb__do_mtx_alloc_from_csr_inplace(csr.VA,csr.IA,csr.JA,csr.nnz,csr.typecode,csr.nr,csr.nc,RSB_DEFAULT_ROW_BLOCKING,RSB_DEFAULT_COL_BLOCKING,cflags,&errval);
 			if((RSB_SOME_ERROR(errval)) || (!cmatrix) || (!rsb__mtx_chk(cmatrix)))
 			{
 				if(RSB_SOME_ERROR(errval))
-				{
 					RSB_ERROR("csr->rsb construction problems\n");
-				}
 				else
 				if(!cmatrix)
 				{
-					errval = RSB_ERR_INTERNAL_ERROR;
+		       			errval = RSB_ERR_INTERNAL_ERROR;
 					RSB_ERROR("csr->rsb construction problems: did not succeed\n");
 				}
 				else
 				{
 					RSB_ERROR("csr->rsb construction problems: built a corrupted matrix\n");
-					errval = RSB_ERR_INTERNAL_ERROR;
+		       			errval = RSB_ERR_INTERNAL_ERROR;
 				}
 				goto err;
 			}
@@ -1942,15 +1533,15 @@ getcsrcooagain:
 			if((RSB_SOME_ERROR(errval)) || !rsb__are_coo_matrices_equal(&coo,&csr))
 
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"rsb->coo conversion problems\n");
+				RSB_ERROR("rsb->coo conversion problems\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			// COO -> RSB 
 			cmatrix = rsb__do_mtx_alloc_from_coo_inplace(csr.VA,csr.IA,csr.JA,csr.nnz,csr.typecode,csr.nr,csr.nc,RSB_DEFAULT_ROW_BLOCKING,RSB_DEFAULT_COL_BLOCKING,cflags,&errval);
 			if((RSB_SOME_ERROR(errval)) || (!cmatrix) || (!rsb__mtx_chk(cmatrix)))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"csr->coo conversion problems\n");
+				RSB_ERROR("csr->coo conversion problems\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			// RSB -> CSR 
 			RSB_DO_FLAG_ADD(cmatrix->flags,RSB_FLAG_EXTERNALLY_ALLOCATED_ARRAYS);
@@ -1958,17 +1549,17 @@ getcsrcooagain:
 			cmatrix=NULL;
 			if(RSB_SOME_ERROR(errval))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"coo->csr conversion problems\n");
+				RSB_ERROR("coo->csr conversion problems\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 			errval = rsb__util_uncompress_row_pointers_array(csr.IA,csr.nr,cflags,cflags,csr.IA);
 			if((RSB_SOME_ERROR(errval)) || !rsb__are_coo_matrices_equal(&coo,&csr))
 			{
+				RSB_ERROR("csr->coo conversion problems\n");
 //				rsb__debug_print_index_vectors_diff(coo.IA,csr.IA,csr.nnz,RSB_VECTORS_DIFF_DISPLAY_N_SMALL);
 //				rsb__debug_print_index_vectors_diff(coo.JA,csr.JA,csr.nnz,RSB_VECTORS_DIFF_DISPLAY_N_SMALL);
 //				rsb__debug_print_vectors_diff(coo.VA,csr.VA,csr.nnz,typecode,1,1,RSB_VECTORS_DIFF_DISPLAY_N_SMALL);
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(converr,"csr->coo conversion problems\n");
+		       		errval = RSB_ERR_INTERNAL_ERROR; goto converr;
 			}
 
 			if(!RSB_DO_FLAG_HAS(cflags,RSB_FLAG_FORTRAN_INDICES_INTERFACE))
@@ -1984,8 +1575,7 @@ converr:
 cmedone:
 			RSB_MTX_FREE(cmatrix);
 			if(RSB_SOME_ERROR(errval))
-				RSB_PERR_GOTO(err,rsb__get_errstr_ptr(errval));
-		}
+				RSB_PERR_GOTO(err,RSB_ERRM_ES);
 		}
 #endif
 #if RSB_ALLOW_INTERNAL_GETENVS
@@ -1993,7 +1583,6 @@ cmedone:
 #endif /* RSB_ALLOW_INTERNAL_GETENVS */
 		if(!RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_SYMMETRIC))
 		{
-	       		rsb_blas_int_t mmi;
 		for(mmi=0;mmi< (dim<msmd?3:2) ;++mmi)
 		if(! (mmi==1 && ((incX!= 1) || (incB!=1) )  ))
 		{
@@ -2001,10 +1590,8 @@ cmedone:
 
 			/* TODO : should fill X and B with sentinel values ! */
 			if(RSB_SOME_ERROR(rsb__cblas_Xscal(typecode,dim,&zero,X,incX)) || RSB_SOME_ERROR(rsb__fill_with_ones (B,typecode,dim,incB)))
-			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-			 	goto err;
-			}
+			{ errval = RSB_ERR_INTERNAL_ERROR; goto err; }
+
 			if(mmi==0)
 			if( rsb__BLAS_Xusmv(transT,alpha,T,B,incB,beta,X,incX) != RSB_BLAS_NO_ERROR )
 			{
@@ -2032,7 +1619,7 @@ cmedone:
 			}
 
 			if(mmi==1)
-			if(RSB_SOME_ERROR( rsb__do_spsm(trans,alpha_inv,mtxAp,nrhs,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER,alpha_inv,X,dim,X,dim)) )
+			if(RSB_SOME_ERROR( rsb_spsm(trans,alpha_inv,mtxAp,nrhs,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER,alpha_inv,X,dim,X,dim)) )
 			{
 				errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("error while performing USSV\n"); goto err;
 			}
@@ -2048,7 +1635,7 @@ cmedone:
 		if(stype != blas_general)
 		if(stype != blas_lower_hermitian) /* FIXME: complete this case */
 		if(stype != blas_upper_hermitian) /* FIXME: complete this case */
-		if( RSB_SOME_ERROR(rsb__do_are_similar(B,X,dim,typecode,incB,incX)) )
+		if( RSB_SOME_ERROR(rsb__do_are_same(B,X,dim,typecode,incB,incX)) )
 		{
 			RSB_ERROR("failed post combined USMV-USSV check!\n");
 			rsb__debug_print_vectors_diff(B,X,dim,typecode,incB,incX,RSB_VECTORS_DIFF_DISPLAY_N);
@@ -2080,13 +1667,11 @@ cmedone:
 
 		rsb__util_set_area_to_converted_integer(inrm,typecode,0);
 
-		//if( rsb__BLAS_Xusget_infinity_norm(T,inrm,transT) != RSB_BLAS_NO_ERROR )
-		//if( RSB__BLAS_CALL_TC(typecode,usget_infinity_norm,T,(void*)inrm,transT) != RSB_BLAS_NO_ERROR )
-#if RSB_WITH_SPARSE_BLAS_INTERFACE
-		if( RSB__BLAS_CALL_TF(typecode,usget_infinity_norm,istat,&T,((void*)inrm),&transT) != RSB_BLAS_NO_ERROR )
+		if( rsb__BLAS_Xusget_infinity_norm(T,inrm,transT) != RSB_BLAS_NO_ERROR )
 		{
+			RSB_ERROR("error getting infinity norm!\n");
 			errval = RSB_ERR_INTERNAL_ERROR;
-			RSB_PERR_GOTO(err,"error getting infinity norm!\n");
+			goto err;
 		}
 		else
 		{
@@ -2113,11 +1698,12 @@ cmedone:
 			if(incX==1 && incB==1) if(alphai==0 && betai==0) /* agnostic to these parameters */
 			if((!isempty) && !(mtxAp->nnz == 0 && diaga[diagi]==blas_unit_diag))
 			{
+				/* FIXME: Frobenius norm (RSB_EXTF_NORM_TWO) is untested! */
 				rsb__util_set_area_to_converted_integer(D,typecode,1);
 				rsb__do_upd_vals(mtxAp,RSB_ELOPF_MUL,D);
 				rsb__util_set_area_to_converted_integer(inrm_,typecode,0);
 				RSB_LSTPROBE(rsb__BLAS_Xusget_infinity_norm(T,inrm_,transT),"");
-				RSB_LSTPROBE(rsb__do_are_similar(inrm_,inrm,1,typecode,1,1),"");
+				RSB_LSTPROBE(rsb__do_are_same(inrm_,inrm,1,typecode,1,1),"");
 				rsb__util_set_area_to_converted_integer(D,typecode,2);
 
 				rsb__do_upd_vals(mtxAp,RSB_ELOPF_MUL,D);
@@ -2126,12 +1712,12 @@ cmedone:
 				if(mtxAp->nnz && diaga[diagi]==blas_unit_diag)
 					rsb__util_increase_by_one(inrm_,0,mtxAp->typecode);
 				rsb__util_vector_div(inrm_,D,typecode,1);
-				RSB_LSTPROBE(rsb__do_are_similar(inrm_,inrm,1,typecode,1,1),"");
+				RSB_LSTPROBE(rsb__do_are_same(inrm_,inrm,1,typecode,1,1),"");
 
 				rsb__do_upd_vals(mtxAp,RSB_ELOPF_DIV,D);
 				rsb__util_set_area_to_converted_integer(inrm_,typecode,0);
 				RSB_LSTPROBE(rsb__BLAS_Xusget_infinity_norm(T,inrm_,transT),"");
-				RSB_LSTPROBE(rsb__do_are_similar(inrm_,inrm,1,typecode,1,1),"");
+				RSB_LSTPROBE(rsb__do_are_same(inrm_,inrm,1,typecode,1,1),"");
 				/* TODO: there are many more subcases for rsb__mtx_clone! */
 				// if( ((cmatrix = rsb__mtx_clone_simple(mtxAp))!=NULL))
 				cmatrix = NULL;
@@ -2204,7 +1790,6 @@ cmedone:
 
 			}
 		}
-#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 
 		RSB_LSTPROBE(rsb__do_elemental_binop(mtxAp, RSB_ELOPF_POW, &three),""); /* FIXME: shall test systematically all the others as well !*/
 
@@ -2213,7 +1798,7 @@ cmedone:
 #endif /* RSB_ALLOW_INTERNAL_GETENVS */
 		if(1)
 		{
-			const rsb_coo_idx_t m=dim,k=dim;
+			rsb_coo_idx_t m=dim,k=dim;
 			rsb_coo_idx_t rc=m/3,fr = rc,lr = RSB_MIN(m-1,2*rc),ri,
 					cc=k/3,fc=cc,lc = RSB_MIN(k-1,2*cc),ci;
 			rsb_nnz_idx_t bnnz=0,cnnz=0,off=0;
@@ -2232,8 +1817,9 @@ cmedone:
 					cnnz+=(rsb__do_coo_element_inner_address(mtxAp,ri,ci)!=NULL);
 			if(bnnz!=cnnz)
 			{
+				RSB_ERROR("sparse subblocks nnz count mechanisms seem broken (%d vs %d counted in (%d,%d)..(%d,%d)).\n",bnnz,cnnz,fr,fc,lr,lc);
 				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,"sparse subblocks nnz count mechanisms seem broken (%d vs %d counted in (%d,%d)..(%d,%d)).\n",bnnz,cnnz,fr,fc,lr,lc);
+				goto err;
 			}
 
 			rsb__util_coo_array_set(IA,nnz,RSB_MARKER_COO_VALUE);
@@ -2249,8 +1835,9 @@ cmedone:
 
 			if(bnnz!=cnnz)
 			{
+				RSB_ERROR("sparse subblocks nnz get mechanisms seem broken (%d vs %d counted in (%d,%d)..(%d,%d)).\n",bnnz,cnnz,fr,fc,lr,lc);
 				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,"sparse subblocks nnz get mechanisms seem broken (%d vs %d counted in (%d,%d)..(%d,%d)).\n",bnnz,cnnz,fr,fc,lr,lc);
+				goto err;
 			}
 
 			for(off=0;off<bnnz;++off)
@@ -2258,14 +1845,16 @@ cmedone:
 			{
 				if(RSB_VA_MEMCMP(vp,0,VA,off,mtxAp->el_size))
 				{
+					RSB_ERROR("address of (%d,%d)@%d extracted from sparse seems not the right one\n",IA[off],JA[off],off);
 					errval = RSB_ERR_INTERNAL_ERROR;
-					RSB_PERR_GOTO(err,"address of (%d,%d)@%d extracted from sparse seems not the right one\n",IA[off],JA[off],off);
+					goto err;
 				}
 			}
 			else
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,"an element (%d,%d)@%d extracted from sparse seems not present\n",IA[off],JA[off],off);
+					RSB_ERROR("an element (%d,%d)@%d extracted from sparse seems not present\n",IA[off],JA[off],off);
+					errval = RSB_ERR_INTERNAL_ERROR;
+					goto err;
 			}
 		}
 
@@ -2273,7 +1862,6 @@ cmedone:
 		if(! ( getenv("RSB_BMT_SCALE") && rsb__util_atoi(getenv("RSB_BMT_SCALE")) == 0 ) )
 #endif /* RSB_ALLOW_INTERNAL_GETENVS */
 	{
-#if RSB_WITH_SPARSE_BLAS_INTERFACE
 		if(RSB_SOME_ERROR(rsb__cblas_Xscal(typecode,dim,&zero,D,incD))){ errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR("!\n"); goto err; }
 	  	if( rsb__BLAS_Xusget_diag(T,D) != RSB_BLAS_NO_ERROR )
 		{
@@ -2287,7 +1875,7 @@ cmedone:
 			{if(RSB_SOME_ERROR(rsb__cblas_Xscal(typecode,dim,&zero,B,incB))){ errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR(RSB_ERRM_NL); goto err; }}
 			else
 			{if(RSB_SOME_ERROR(rsb__fill_with_ones(B,typecode,dim,incB))){ errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR(RSB_ERRM_NL); goto err; }}
-			if(RSB_SOME_ERROR(rsb__do_are_similar(D,B,dim,typecode,incD,incB)))
+			if(RSB_SOME_ERROR(rsb__do_are_same(D,B,dim,typecode,incD,incB)))
 			{
 				RSB_ERROR("diagonal vector not what expected!\n");
 				rsb__debug_print_vectors_diff(D,B,dim,typecode,incD,incB,RSB_VECTORS_DIFF_DISPLAY_N);
@@ -2296,86 +1884,72 @@ cmedone:
 			}
 		}
 
+		incB=1; /* FIXME: now on, no stride */
+		incD=1; /* FIXME: now on, no stride */
 		if(RSB_SOME_ERROR(rsb__fill_with_increasing_values(B,typecode,dim))){ errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR(RSB_ERRM_NL); goto err; }  /* rsb__fill_with_increasing_values..) -> ,every) */
-	  	//if(rsb__BLAS_Xusrows_scale(T,B,transT) != RSB_BLAS_NO_ERROR)
-	  	//if(RSB__BLAS_CALL_TC(typecode,usrows_scale,T,B,transT) != RSB_BLAS_NO_ERROR)
-	  	if(RSB__BLAS_CALL_TF(typecode,usrows_scale,istat,&T,B,&transT) != RSB_BLAS_NO_ERROR)
+	  	if(rsb__BLAS_Xusrows_scale(T,B,transT) != RSB_BLAS_NO_ERROR)
 		{
 			RSB_ERROR("!\n");
 			errval = RSB_ERR_INTERNAL_ERROR;
 			goto err;
 		}
-#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 
-#if RSB_WITH_SPARSE_BLAS_INTERFACE
 		if(RSB_SOME_ERROR(rsb__cblas_Xscal(typecode,dim,&zero,D,incD))){ errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR(RSB_ERRM_NL); goto err; }
-		//if( rsb__BLAS_Xusget_diag(T,D) != RSB_BLAS_NO_ERROR )
-	  	//if( RSB__BLAS_CALL_TC(typecode,usget_diag,T,D) != RSB_BLAS_NO_ERROR )
-	  	if( RSB__BLAS_CALL_TF(typecode,usget_diag,istat,&T,D) != RSB_BLAS_NO_ERROR )
+	  	if( rsb__BLAS_Xusget_diag(T,D) != RSB_BLAS_NO_ERROR )
 		{
 			RSB_ERROR("!\n");
 			errval = RSB_ERR_INTERNAL_ERROR;
 			goto err;
 		}
-#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
-		
-#if RSB_WITH_SPARSE_BLAS_INTERFACE
-		if(incB==1) /* FIXME: now on, no stride */
+		else
 		if(diaga[diagi]==blas_non_unit_diag && !isempty) // diagonal implicit won't be scaled :)
 		{
 			rsb_nnz_idx_t n;
-			if( RSB_SOME_ERROR(rsb__do_are_similar(D,B,dim,typecode,incD,incB)) )
+			if( RSB_SOME_ERROR(rsb__do_are_same(D,B,dim,typecode,incD,incB)) )
 			{
+				RSB_ERROR("!\n");
 				rsb__debug_print_vectors_diff(D,B,dim,typecode,incD,incB,RSB_VECTORS_DIFF_DISPLAY_N);
 				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,"!\n");
+				goto err;
 			}
 			if(RSB_SOME_ERROR(rsb__cblas_Xscal(typecode,dim,&zero,B,incB))){ errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR(RSB_ERRM_NL); goto err; }
 			for(n=0;n<dim;++n) rsb__BLAS_Xusget_element(T,n,n,((rsb_char_t*)B)+el_size*n*incB);
 			if( RSB_SOME_ERROR(rsb__do_are_same(D,B,dim,typecode,incD,incB)) )
 			{
+				RSB_ERROR("!\n");
 				rsb__debug_print_vectors_diff(D,B,dim,typecode,incD,incB,RSB_VECTORS_DIFF_DISPLAY_N);
 				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,"!\n");
+				goto err;
 			}
 			if(RSB_SOME_ERROR(rsb__fill_with_increasing_values(B,typecode,dim))){errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR(RSB_ERRM_NL); goto err; }
-			for(n=0;n<dim;++n) RSB__BLAS_CALL_TF(typecode,usset_element,istat,&T,&n,&n,(void*)(((rsb_char_t*)B)+el_size*n*incB));
-			//for(n=0;n<dim;++n) RSB__BLAS_CALL_TC(typecode,usset_element,T,n,n,(void*)((rsb_char_t*)B)+el_size*n*incB);
-			//for(n=0;n<dim;++n) rsb__BLAS_Xusset_element(T,n,n,((rsb_char_t*)B)+el_size*n*incB);
+			for(n=0;n<dim;++n) rsb__BLAS_Xusset_element(T,n,n,((rsb_char_t*)B)+el_size*n*incB);
 			if(RSB_SOME_ERROR(rsb__cblas_Xscal(typecode,dim,&zero,D,incD))){ errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR(RSB_ERRM_NL); goto err; }
-			for(n=0;n<dim;++n)
-				//rsb__BLAS_Xusget_element(T,n,n,((rsb_char_t*)D)+el_size*n*incB);
-				//RSB__BLAS_CALL_TC(typecode,usget_element,T,n,n,(void*)(((rsb_char_t*)D)+el_size*n*incB));
-				RSB__BLAS_CALL_TF(typecode,usget_element,istat,&T,&n,&n,(void*)(((rsb_char_t*)D)+el_size*n*incB));
+			for(n=0;n<dim;++n) rsb__BLAS_Xusget_element(T,n,n,((rsb_char_t*)D)+el_size*n*incB);
 			if( RSB_SOME_ERROR(rsb__do_are_same(D,B,dim,typecode,incD,incB)) )
 			{
+				RSB_ERROR("!\n");
 				rsb__debug_print_vectors_diff(D,B,dim,typecode,incD,incB,RSB_VECTORS_DIFF_DISPLAY_N);
 				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,"!\n");
+				goto err;
 			}
 		}
-#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
+
 	}
-#if RSB_WITH_SPARSE_BLAS_INTERFACE
 		//if((rnnz = rsb__dodo_get_rows_nnz(mtxAp,0,dim-1,RSB_FLAG_C_INDICES_INTERFACE,NULL))!=ndnnz)
 		rnnz=10;
 		if(!isempty)/* FIXME */
-		//if((rsb__BLAS_Xusget_rows_nnz(T,0,dim-1,&rnnz)!=RSB_BLAS_NO_ERROR) || (rnnz!=ndnnz))
-		//if((RSB__BLAS_CALL_TC(typecode,usget_rows_nnz,T,0,dim-1,&rnnz)!=RSB_BLAS_NO_ERROR) || (rnnz!=ndnnz))
-		if((RSB__BLAS_CALL_TF(typecode,usget_rows_nnz,istat,&T,&izero,&dim_m1,&rnnz)!=RSB_BLAS_NO_ERROR) || (rnnz!=ndnnz))
+		if((rsb__BLAS_Xusget_rows_nnz(T,0,dim-1,&rnnz)!=RSB_BLAS_NO_ERROR) || (rnnz!=ndnnz))
 		{
-			errval = RSB_ERR_INTERNAL_ERROR;
-			RSB_PERR_GOTO(err,"Mismatch in the extracted rows nonzeroes counts vs non diagonal nonzero count: %d != %d\n",(int)rnnz,(int)ndnnz);
-		}
+			RSB_ERROR("Mismatch in the extracted rows nonzeroes counts vs non diagonal nonzero count: %d != %d\n",(int)rnnz,(int)ndnnz);
+		       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
+	       	}
 
 		rnnz=0;
 		if(!isempty)/* FIXME */
-		if( RSB__BLAS_CALL_TF(typecode,usget_matrix_nnz,istat,&T,&rnnz)!=RSB_BLAS_NO_ERROR || rnnz!=ndnnz)
-		//if( RSB__BLAS_CALL_TC(typecode,usget_matrix_nnz,T,&rnnz)!=RSB_BLAS_NO_ERROR || rnnz!=ndnnz)
-		//if(rsb__BLAS_Xusget_matrix_nnz(T,&rnnz)!=RSB_BLAS_NO_ERROR || rnnz!=ndnnz)
+		if(rsb__BLAS_Xusget_matrix_nnz(T,&rnnz)!=RSB_BLAS_NO_ERROR || rnnz!=ndnnz)
 		{
-			errval = RSB_ERR_INTERNAL_ERROR;
-			RSB_PERR_GOTO(err,"Mismatch in the wffective matrix counts vs input nonzero count: %d != %d\n",(int)rnnz,(int)ndnnz);
+			RSB_ERROR("Mismatch in the wffective matrix counts vs input nonzero count: %d != %d\n",(int)rnnz,(int)ndnnz);
+		       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 		}
 
 		if(RSB_SOME_ERROR(rsb__cblas_Xscal(typecode,nnz,&zero,VA,1))){ errval = RSB_ERR_INTERNAL_ERROR; RSB_ERROR(RSB_ERRM_NL); goto err; }
@@ -2383,12 +1957,10 @@ cmedone:
 		rsb__util_coo_array_set(JA,nnz,RSB_MARKER_COO_VALUE);
 		rnnz=0;
 		//if(rsb__do_get_rows_sparse(RSB_TRANSPOSITION_N,NULL,mtxAp,VA,IA,JA,0,dim-1,&rnnz,RSB_FLAG_NOFLAGS|RSB_FLAG_SORT_INPUT))
-		//if(rsb__BLAS_Xusget_rows_sparse(T,VA,IA,JA,&rnnz,0,dim-1)!=RSB_BLAS_NO_ERROR)
-		//if(RSB__BLAS_CALL_TC(typecode,usget_rows_sparse,T,VA,IA,JA,&rnnz,0,dim-1)!=RSB_BLAS_NO_ERROR)
-		if(RSB__BLAS_CALL_TF(typecode,usget_rows_sparse,istat,&T,VA,IA,JA,&rnnz,&izero,&dim_m1)!=RSB_BLAS_NO_ERROR)
+		if(rsb__BLAS_Xusget_rows_sparse(T,VA,IA,JA,&rnnz,0,dim-1)!=RSB_BLAS_NO_ERROR)
 		{
-			errval = RSB_ERR_INTERNAL_ERROR;
-			RSB_PERR_GOTO(err,RSB_ERRM_NL);
+			RSB_ERROR(RSB_ERRM_NL);
+		       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 		}
 		else
 		if(diaga[diagi]==blas_non_unit_diag)
@@ -2401,16 +1973,15 @@ cmedone:
 						((rsb_char_t*)VA)+el_size*n,1,typecode,1,1) ) ))
 				{
 					RSB_ERROR("@%d (%d,%d) : 0x%x\n",n,IA[n],JA[n],rsb__do_coo_element_inner_address(mtxAp,IA[n],JA[n] ));
-					errval = RSB_ERR_INTERNAL_ERROR; goto err;
+				       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 				}
 		}
-#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */
 		if(!RSB_DO_TOOFEWNNZFORCSR(nnz,dim))/* we don't want IA overwrite */
 		{
 			if(RSB_SOME_ERROR(rsb__do_get_csr(typecode,mtxAp,(void*)(VA),IA,JA,RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS)))
 			{
-				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_PERR_GOTO(err,RSB_ERRM_NL);
+				RSB_ERROR(RSB_ERRM_NL);
+			       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 			}
 			else
 			if(diaga[diagi]==blas_non_unit_diag)
@@ -2422,16 +1993,16 @@ cmedone:
 				for(i=0;i<dim;++i)
 				if(!rsb__util_is_nnz_array_sorted_up(JA+IA[i],IA[i+1]-IA[i]))
 				{
-					errval = RSB_ERR_INTERNAL_ERROR;
-					RSB_PERR_GOTO(err,RSB_ERRM_NL);
+					RSB_ERROR(RSB_ERRM_NL);
+				       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 				}
 
 				for(i=0;i<dim;++i)
 				for(n=IA[i];n<IA[i+1];++n)
 				if(JA[n]<0 || JA[n]>=dim)
 				{
-					errval = RSB_ERR_INTERNAL_ERROR;
-					RSB_PERR_GOTO(err,RSB_ERRM_NL);
+					RSB_ERROR(RSB_ERRM_NL);
+				       	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 				}
 
 				for(i=0;i<dim;++i)
@@ -2461,8 +2032,8 @@ cmedone:
 
 				if( RSB_SOME_ERROR(rsb__csc_chk(JA,IA,dim,dim,JA[dim],0) ) )
 				{
-					errval = RSB_ERR_INTERNAL_ERROR;
-					RSB_PERR_GOTO(err,RSB_ERRM_NL);
+					RSB_ERROR(RSB_ERRM_NL);
+			       		errval = RSB_ERR_INTERNAL_ERROR; goto err;
 				}
 
 				for(j=0;j<dim;++j)
@@ -2487,67 +2058,6 @@ cmedone:
 }
 
 
-		}
-
-		if(incX==1 && incB==1 && alphai==0 && betai==0 && transTi==0) /* agnostic to these parameters */
-		if(nnz>0) // TODO: corner case to fix.
-		{
-			const enum rsb_extff_t extff_a [] = { 
-				RSB_EXTF_SUMS_ROW,
-				RSB_EXTF_SUMS_COL,
-				RSB_EXTF_ASUMS_ROW,
-				RSB_EXTF_ASUMS_COL,
-				RSB_EXTF_DIAG
- 			};
-			const int extff_n = sizeof(extff_a)/sizeof(extff_a[0]);
-			int extff_i;
-			for(extff_i=0;extff_i<extff_n;++extff_i)
-			{
-				const enum rsb_extff_t extff_flags = extff_a[extff_i];
-				void *Dp = rsb__calloc(el_size*dim);
-
-				if(!Dp)
-				{
-			       		errval = RSB_ERR_INTERNAL_ERROR;
-					RSB_PERR_GOTO(err,RSB_ERRM_ES"\n");
-				}
-	
-				errval = rsb_mtx_get_vec(mtxAp, Dp, extff_flags);
-
-				if( RSB_SOME_ERROR(errval) )
-				{
-					errval = RSB_ERR_INTERNAL_ERROR;
-					RSB_PERR_GOTO(err,RSB_ERRM_ES);
-				}
-				// TODO: check results
-				RSB_CONDITIONAL_FREE(Dp);
-			}
-		}
-
-		if(incX==1 && incB==1 && alphai==0 && betai==0 && transTi==0) /* agnostic to these parameters */
-		if(nnz>0) // TODO: corner case to fix.
-		{
-			const enum rsb_extff_t extff_a [] = { 
-				RSB_EXTF_NORM_ONE,
-				RSB_EXTF_NORM_TWO,
-				RSB_EXTF_NORM_INF,
- 			};
-			const int extff_n = sizeof(extff_a)/sizeof(extff_a[0]);
-			int extff_i;
-			for(extff_i=0;extff_i<extff_n;++extff_i)
-			{
-				const enum rsb_extff_t extff_flags = extff_a[extff_i];
-				rsb_aligned_t Np[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-
-				errval = rsb_mtx_get_nrm(mtxAp, &Np[0], extff_flags);
-
-				if( RSB_SOME_ERROR(errval) )
-				{
-					errval = RSB_ERR_INTERNAL_ERROR;
-					RSB_PERR_GOTO(err,RSB_ERRM_ES);
-				}
-				// TODO: check results
-			}
 		}
 err:
 		if(errval == RSB_ERR_NO_ERROR)
@@ -2574,22 +2084,8 @@ err:
 			RSB_INFO("\n");
  			rsb__do_print_matrix_stats(mtxAp,RSB_CONST_DUMP_RECURSION_BRIEF,NULL);
 			RSB_INFO("\n");
-#if RSB_ALLOW_INTERNAL_GETENVS
-			if ( rsb__getenv_int_t("RSB_TESTER_DUMP_MTX",0) )
-			{
-				RSB_INFO("Matrix contents:\n");
- 				rsb__do_print_matrix_stats(mtxAp,
-				//RSB_CONST_DUMP_RECURSION_BRIEF//|
-				RSB_CONST_DUMP_COO
-				//RSB_CONST_DUMP_CSR
-				,NULL);
-			}
-#endif /* RSB_ALLOW_INTERNAL_GETENVS */
-
 #endif /* RSB_WANT_VERBOSE_FAILURES */
 		}
-		if(to.wvr==RSB_BOOL_TRUE)
- 			rsb__do_print_matrix_stats(mtxAp,RSB_CONST_DUMP_RECURSION_BRIEF,NULL); // better integrate this message in status string
 		if( T != RSB_BLAS_INVALID_MATRIX && rsb__BLAS_Xusds(T) != RSB_BLAS_NO_ERROR )
 			errval = RSB_ERR_INTERNAL_ERROR;
 		T = RSB_BLAS_INVALID_MATRIX;
@@ -2602,19 +2098,19 @@ err:
 		RSB_CONDITIONAL_FREE(JA);
 		RSB_CONDITIONAL_FREE(VA);
 		if(to.wqt!=RSB_BOOL_TRUE)
-		RSB_INFO("%s%7zd: type:%c sym:%s incX:%zd incB:%zd dim:%10zd transT:%c alpha:%+2zd beta:%+2zd diag:%c subms:%5zd nz:%zd",btps,(rsb_printf_int_t)(passed+skipped),(char)typecode,RSB_BLAS_MT_STR(stype),(rsb_printf_int_t)incX,(rsb_printf_int_t)incB,(rsb_printf_int_t)dim,tc,(rsb_printf_int_t)alphaa[alphai],(rsb_printf_int_t)betaa[betai],RSB_BLAS_DIAG_CHAR(diaga[diagi]),(rsb_printf_int_t)submatrices,(rsb_printf_int_t)rnz);
+		RSB_INFO("%s%7d: type:%c sym:%s incX:%d incB:%d dim:%10d transT:%c alpha:%+2d beta:%+2d diag:%c subms:%5d nz:%d",btps,passed,(char)typecode,RSB_BLAS_MT_STR(stype),incX,incB,dim,tc,alphaa[alphai],betaa[betai],RSB_BLAS_DIAG_CHAR(diaga[diagi]),submatrices,rnz);
 		errvalf|=errval;
 
 		if(errval == RSB_ERR_NO_ERROR)
 		{
 			if(to.wqt!=RSB_BOOL_TRUE)
-				RSB_INFO(" is ok\n");
+			RSB_INFO(" is ok\n");
 			++passed;
 		}
 		else
 		{
 			if(to.wqt!=RSB_BOOL_TRUE)
-				RSB_INFO(" is not ok\n");
+			RSB_INFO(" is not ok\n");
 			++failed;
 			RSB_INFO("Terminating testing due to errors.\n");
 			goto done;
@@ -2634,7 +2130,7 @@ err:
 		}
 #endif /* RSB_TESTER_ALLOW_TIMEOUT */
 #if RSB_ALLOW_INTERNAL_GETENVS
-		if( maxtc != 0 && skipped + passed + failed >= maxtc )
+		if( maxtc != 0 && passed + failed >= maxtc )
 		{
 			RSB_INFO("Terminating testing earlier due to user limit request to %d tests.\n",maxtc); 
 			goto done;
@@ -2654,13 +2150,8 @@ done:
 		errvalf |= RSB_ERR_INTERNAL_ERROR;
 		rsb__do_perror(NULL,RSB_ERR_INTERNAL_ERROR);
 	}
-	if(skipped)
-		RSB_INFO("	SKIPPED:%zd\n",(rsb_printf_int_t)skipped);
-	RSB_INFO("	PASSED:%zd\n	FAILED:%zd\n",(rsb_printf_int_t)passed,(rsb_printf_int_t)failed);
-	if( failed == 0 )
-		RSB_INFO("ADVANCED SPARSE BLAS TEST: END (SUCCESS)\n");
-	else
-		RSB_INFO("ADVANCED SPARSE BLAS TEST: END (WITH ERRORS)\n");
+	RSB_INFO("	PASSED:%d\n	FAILED:%d\n",passed,failed);
+	RSB_INFO("ADVANCED SPARSE BLAS TEST: END (SUCCESS)\n");
 //	return RSB_ERR_NO_ERROR;
 	errval=errvalf;
 ret:
@@ -2727,18 +2218,18 @@ rsb_err_t rsb_blas_runtime_limits_tester(void)
 		//goto skip_max_coo_test;
 	}
 	IA = rsb__calloc(sizeof(rsb_coo_idx_t)*maxcoo);
-        for ( i=99; i>0 && !IA; --i )
-        {
-                const size_t nmaxcoo = ( maxcoo / 100 ) * i;
-                IA = rsb__calloc((sizeof(rsb_coo_idx_t)*(nmaxcoo)));
-                if(IA)
-                {
-                        RSB_INFO("WARNING: Failed (c)allocating of %zd nnz (%zd bytes)\n",(size_t)maxcoo,maxcoo_bytes);
-                        maxcoo = nmaxcoo;
-                        maxcoo_bytes = sizeof(rsb_coo_idx_t)*maxcoo;
-                        RSB_INFO("But made it with %zd nnz (%zd bytes, %zd%% of that). Are you running in a containerized environment?\n",(size_t)maxcoo,maxcoo_bytes,(size_t)i);
-                }
-        }
+	for ( i=99; i>0 && !IA; --i )
+	{
+		const size_t nmaxcoo = ( maxcoo / 100 ) * i;
+		IA = rsb__calloc((sizeof(rsb_coo_idx_t)*(nmaxcoo)));
+		if(IA)
+		{
+			RSB_INFO("WARNING: Failed (c)allocating of %zd nnz (%zd bytes)\n",(size_t)maxcoo,maxcoo_bytes);
+			maxcoo = nmaxcoo;
+			maxcoo_bytes = sizeof(rsb_coo_idx_t)*maxcoo;
+			RSB_INFO("But made it with %zd nnz (%zd bytes, %d%% of that). Are you running in a containerized environment?\n",(size_t)maxcoo,maxcoo_bytes,i);
+		}
+	}
 	if(!IA)
 	{
 		RSB_INFO("Failed (c)allocating of %zd nnz (%zd bytes)\n",(size_t)maxcoo,maxcoo_bytes);

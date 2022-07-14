@@ -30,18 +30,9 @@ If not, see <http://www.gnu.org/licenses/>.
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
-#define RSB_WANT_MTX_CMP_LR_ASC 0
-
-enum rsb_subm_srtc_t {
-	RSB_MTX_CMP_NNZ_ASC = 0, /* nonzeroes count ascending  */
-	RSB_MTX_CMP_NNZ_DES = 1, /* nonzeroes count descending */
-#if RSB_WANT_MTX_CMP_LR_ASC
-	RSB_MTX_CMP_LR_ASC = 2 /* last row ascending. FIXME: unused */
-#endif /* RSB_WANT_MTX_CMP_LR_ASC */
-};
-
+#define RSB_MTX_CMP_NNZ_ASC 0 /* ascending  */
+#define RSB_MTX_CMP_NNZ_DES 1 /* descending */
 #define RSB_MERGE_USE_TMP_COOMTX 1 /* */
-#define RSB_SPLIT_USE_TMP_COOMTX 1 /* for many splits and higher parallelism, better 0: will only allocate once per parallel section */
 
 /* Macros to locate a free submatrix pointer after merging has carved holes in the submatrices array. */
 #define RSB_REC_FREE_SUBM_FLAG (!0x0) /* 0x0 is forbidden -- because it would rule out zeroing of the struct in RSB_MTX_INIT_LEAF ! */
@@ -100,36 +91,6 @@ static int rsb_compar_rcsr_matrix_for_get_csr(const void * ap, const void * bp)
 		return -1;
 	return 0;
 }
-
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
-static int rsb_compar_rcsr_matrix_for_get_ata(const void * ap, const void * bp)
-{
-	/**
-		\ingroup gr_internals
-		A compare function to be used with qsort.
-	*/
-	struct rsb_translated_matrix_t *mtxAp = (struct rsb_translated_matrix_t*)ap;
-	struct rsb_translated_matrix_t *mtxBp = (struct rsb_translated_matrix_t*)bp;
-	rsb_coo_idx_t aro = mtxAp->roff, aco = mtxAp->coff;
-	rsb_coo_idx_t bro = mtxBp->roff, bco = mtxBp->coff;
-#if 1
-	rsb_coo_idx_t anr = mtxAp->mtxlp->bm  , anc = mtxAp->mtxlp->bk;
-	rsb_coo_idx_t bnr = mtxBp->mtxlp->bm  , bnc = mtxBp->mtxlp->bk;
-#else
-	rsb_coo_idx_t anr = mtxAp->nr  , anc = mtxAp->nc;
-	rsb_coo_idx_t bnr = mtxBp->nr  , bnc = mtxBp->nc;*/
-#endif
-	if(  aro+anr > bro+bnr )
-		return 1;
-	if(  aro+anr < bro+bnr )
-		return -1;
-	if(  aco+anc > bco+bnc )
-		return 1;
-	if(  aco+anc < bco+bnc )
-		return -1;
-	return 0;
-}
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 static int rsb_compar_rcsr_matrix_for_spsvut(const void * ap, const void * bp)
 {
@@ -235,7 +196,6 @@ static int rsb_compar_rcsr_matrix_for_spsvu(const void * ap, const void * bp)
 
 #define RSB_ASC_CMP_FOR_QSRT(A,B) ( ( (A) > (B) ) ? (1) : (( (A) == (B) ) ? 0 : -1) )
 
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 static int rsb_compar_nnz_idx_t(const void * ap, const void * bp)
 {
 	/**
@@ -247,7 +207,6 @@ static int rsb_compar_nnz_idx_t(const void * ap, const void * bp)
 
         return RSB_ASC_CMP_FOR_QSRT(a,b);
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 
 static int rsb__compar_mtx_nnz_des(const void * ap, const void * bp)
@@ -259,8 +218,8 @@ static int rsb__compar_mtx_nnz_des(const void * ap, const void * bp)
 	*/
 	const struct rsb_mtx_t*mtxAp = *(struct rsb_mtx_t**)ap;
 	const struct rsb_mtx_t*mtxBp = *(struct rsb_mtx_t**)bp;
-	const rsb_nnz_idx_t nnzA = mtxAp->nnz;
-	const rsb_nnz_idx_t nnzB = mtxBp->nnz;
+	rsb_nnz_idx_t nnzA = mtxAp->nnz;
+	rsb_nnz_idx_t nnzB = mtxBp->nnz;
 
 	return -RSB_ASC_CMP_FOR_QSRT(nnzA,nnzB);
 }
@@ -274,57 +233,30 @@ static int rsb__compar_mtx_nnz_asc(const void * ap, const void * bp)
 	*/
 	const struct rsb_mtx_t*mtxAp = *(struct rsb_mtx_t**)ap;
 	const struct rsb_mtx_t*mtxBp = *(struct rsb_mtx_t**)bp;
-	const rsb_nnz_idx_t nnzA = mtxAp->nnz;
-	const rsb_nnz_idx_t nnzB = mtxBp->nnz;
+	rsb_nnz_idx_t nnzA = mtxAp->nnz;
+	rsb_nnz_idx_t nnzB = mtxBp->nnz;
 
 	return  RSB_ASC_CMP_FOR_QSRT(nnzA,nnzB);
 }
 
-#if RSB_WANT_MTX_CMP_LR_ASC
-static int rsb__compar_mtx_lr_asc(const void * ap, const void * bp)
-{
-	/**
-		\ingroup gr_internals
-		A compare function to be used with qsort.
-		Compare submatrices pointers in descending order of nnz occupation.
-	*/
-	/* FIXME: currently unused */
-	const struct rsb_mtx_t*mtxAp = *(struct rsb_mtx_t**)ap;
-	const struct rsb_mtx_t*mtxBp = *(struct rsb_mtx_t**)bp;
-	const rsb_nnz_idx_t lrA = mtxAp->roff + mtxAp->nr;
-	const rsb_nnz_idx_t lrB = mtxBp->roff + mtxBp->nr;
-
-	return RSB_ASC_CMP_FOR_QSRT(lrA,lrB);
-}
-#endif /* RSB_WANT_MTX_CMP_LR_ASC */
-
-const rsb_err_t rsb__srt_subm_ptr_array(struct rsb_mtx_t ** mtxApp, rsb_submatrix_idx_t nsm, enum rsb_subm_srtc_t sc)
+rsb_err_t rsb__srt_subm_ptr_array(struct rsb_mtx_t ** mtxApp, rsb_submatrix_idx_t nsm, int criteria)
 {
 	/**
 		\ingroup gr_internals
 		Sort submatrices pointers.
 		TODO: introduce other sorting criteria (e.g. index occupation, ...).
 	*/
-	rsb_err_t errval = RSB_ERR_BADARGS;
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	
-	switch(sc)
+	switch(criteria)
 	{
 		case(RSB_MTX_CMP_NNZ_ASC):
 		qsort( mtxApp, (size_t) nsm, sizeof(struct rsb_mtx_t*), &rsb__compar_mtx_nnz_asc);
-		errval = RSB_ERR_NO_ERROR;
 		break;
 
 		case(RSB_MTX_CMP_NNZ_DES):
 		qsort( mtxApp, (size_t) nsm, sizeof(struct rsb_mtx_t*), &rsb__compar_mtx_nnz_des);
-		errval = RSB_ERR_NO_ERROR;
 		break;
-
-#if RSB_WANT_MTX_CMP_LR_ASC
-		case(RSB_MTX_CMP_LR_ASC):
-		qsort( mtxApp, (size_t) nsm, sizeof(struct rsb_mtx_t*), &rsb__compar_mtx_lr_asc);
-		errval = RSB_ERR_NO_ERROR;
-		break;
-#endif /* RSB_WANT_MTX_CMP_LR_ASC */
 	}
 
 	return errval;
@@ -337,13 +269,6 @@ rsb_err_t rsb__sort_array_of_leaf_matrices_for_ussv(const struct rsb_mtx_t * mtx
 		Sort rsb_translated_matrix_t structures.
 	*/
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-
-	if(!leaf_matrices)
-	{
-		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_EM);
-	}
-
 	if(rsb__is_upper_triangle(mtxAp->flags))
 	{
 		if(RSB_DOES_TRANSPOSE(transl))
@@ -366,7 +291,6 @@ rsb_err_t rsb__sort_array_of_leaf_matrices_for_ussv(const struct rsb_mtx_t * mtx
 		errval = RSB_ERR_BADARGS;
 		*/
 	}
-err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
@@ -377,18 +301,22 @@ rsb_err_t rsb__sort_array_of_leaf_matrices(const struct rsb_translated_matrix_t 
 	  	Sorts an array of leaf matrices in an order which will be suitable for SpMV, SpSV, ... later on.
 		FIXME: rmatrix is the root matrix, and is currently unused.
 	*/
-	rsb_err_t errval = RSB_ERR_INTERNAL_ERROR;
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	rsb_submatrix_idx_t ij;
+	rsb_nnz_idx_t * idx = NULL;
+	struct rsb_translated_matrix_t *smatrices=NULL;
 
-	RSB_DEBUG_ASSERT(matrices);
+	if(!matrices)
+	{
+		errval = RSB_ERR_BADARGS;
+		RSB_PERR_GOTO(err,RSB_ERRM_EM);
+	}
+
 
 	switch(op)
 	{
 	case(rsb_op_spmv):
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 	{
-		rsb_nnz_idx_t * idx = NULL;
-		struct rsb_translated_matrix_t *smatrices = NULL;
-		rsb_submatrix_idx_t ij;
 		/* NOTE : this code is braindead : should use qsort directly instead */
 		smatrices = rsb__malloc(sizeof(struct rsb_translated_matrix_t) * n);
 		idx = rsb__malloc(2*sizeof(rsb_nnz_idx_t) * n);
@@ -406,55 +334,40 @@ rsb_err_t rsb__sort_array_of_leaf_matrices(const struct rsb_translated_matrix_t 
 		/* permutation */
 		for(ij=0;ij<n;++ij) smatrices[ij]=matrices[idx[ij]];
 		rsb__memcpy(matrices,smatrices,sizeof(struct rsb_translated_matrix_t)*n);
-		errval = RSB_ERR_NO_ERROR;
-err:
-		RSB_CONDITIONAL_FREE(idx);
-		RSB_CONDITIONAL_FREE(smatrices);
 	}
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 	break;
 		case(rsb_op_spsvl):
 		{
 			qsort( matrices , (size_t) n, sizeof(struct rsb_translated_matrix_t), &rsb__compar_rcsr_matrix_for_spsvl);
-			errval = RSB_ERR_NO_ERROR;
 		}
 		break;
 		case(rsb_op_spsvlt):
 		{
 			qsort( matrices , (size_t) n, sizeof(struct rsb_translated_matrix_t), &rsb__compar_rcsr_matrix_for_spsvlt);
-			errval = RSB_ERR_NO_ERROR;
 		}
 		break;
 		case(rsb_op_spsvu):
 		{
 			qsort( matrices , (size_t) n, sizeof(struct rsb_translated_matrix_t), &rsb_compar_rcsr_matrix_for_spsvu);
-			errval = RSB_ERR_NO_ERROR;
 		}
 		break;
 		case(rsb_op_spsvut):
 		{
 			qsort( matrices , (size_t) n, sizeof(struct rsb_translated_matrix_t), &rsb_compar_rcsr_matrix_for_spsvut);
-			errval = RSB_ERR_NO_ERROR;
 		}
 		break;
 		case(rsb_op_get_csr):
 		{
 			qsort( matrices , (size_t) n, sizeof(struct rsb_translated_matrix_t), &rsb_compar_rcsr_matrix_for_get_csr);
-			errval = RSB_ERR_NO_ERROR;
 		}
 		break;
-		case(rsb_op_nop):
-			RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
+		default:
+		errval = RSB_ERR_INTERNAL_ERROR;
 		break;
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
-		case(rsb_op_ata):
-		{
-			qsort( matrices , (size_t) n, sizeof(struct rsb_translated_matrix_t), &rsb_compar_rcsr_matrix_for_get_ata);
-			errval = RSB_ERR_NO_ERROR;
-		}
-		break;
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 	}
+err:
+	RSB_CONDITIONAL_FREE(idx);
+	RSB_CONDITIONAL_FREE(smatrices);
 	RSB_DO_ERR_RETURN(errval)
 }
 
@@ -655,15 +568,16 @@ size_t rsb__get_index_storage_amount(const struct rsb_mtx_t *mtxAp)
 {
 	/**
 		\ingroup gr_experimental
-	   	\return the amount of allocated bytes for index storage of the matrix
+	   	\return the amount of allocated bytes for storage of the matrix
 		NOTE: valid only for (recursive) CSR
-		NOTE: we don't include the matrix struct size (sizeof(struct rsb_mtx_t) times submatrices)
+		NOTE: we don't include the matrix struct size.
 	 */
 	rsb_submatrix_idx_t i,j;
 	struct rsb_mtx_t * submatrix = NULL;
 	size_t isa = 0;
 
-	RSB_DEBUG_ASSERT(mtxAp);
+	if(!mtxAp)
+		goto done;
 
 	if(rsb__is_terminal_recursive_matrix(mtxAp))
 	{	
@@ -681,6 +595,8 @@ size_t rsb__get_index_storage_amount(const struct rsb_mtx_t *mtxAp)
 		if(mtxAp->matrix_storage == RSB_MATRIX_STORAGE_BCOR)
 //		if(RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_WANT_COO_STORAGE))
 			isa += 2*(is*mtxAp->nnz);
+
+		//isa += sizeof(struct rsb_mtx_t); // FIXME: should this be here ? NO: this is not index storage.
 	}
 	else
 	{
@@ -688,6 +604,7 @@ size_t rsb__get_index_storage_amount(const struct rsb_mtx_t *mtxAp)
 		if(submatrix)
 			isa += rsb__get_index_storage_amount(submatrix);
 	}
+done:
 	return isa;
 }
 
@@ -695,15 +612,18 @@ rsb_submatrix_idx_t rsb__get_diagonal_elements_count(const struct rsb_mtx_t *mtx
 {
 	/**
 		\ingroup gr_internals
-	   	\return number of nonzeros which are on diagonal aligned with the main diagonal
+	   	\return the number of nonzeros which are on diagonal aligned with the main diagonal
 	 */
 	rsb_submatrix_idx_t i,j;
 	struct rsb_mtx_t * submatrix = NULL;
 	rsb_submatrix_idx_t dse = 0;
 
+	if(!mtxAp)
+		goto done;
+
 	if(rsb__is_terminal_recursive_matrix(mtxAp) && mtxAp->roff == mtxAp->coff)
 	{
-		dse = mtxAp->nnz;
+		dse=mtxAp->nnz;
 	}
 	else
 	{
@@ -711,23 +631,28 @@ rsb_submatrix_idx_t rsb__get_diagonal_elements_count(const struct rsb_mtx_t *mtx
 		if( submatrix && i==j && RSB_SUBMATRIX_IS_ON_DIAG(submatrix) )
 			dse += rsb__get_diagonal_elements_count(submatrix);
 	}
+done:
 	return dse;
 }
 
 static rsb_bool_t rsb_is_node_pre_last(const struct rsb_mtx_t *mtxAp)
 {
+	/* rsb_err_t errval = RSB_ERR_NO_ERROR; */
 	rsb_bool_t inpl = RSB_BOOL_FALSE;
 
-	if(!rsb__is_terminal_recursive_matrix(mtxAp))
+	if(rsb__is_terminal_recursive_matrix(mtxAp))
+		goto ret;
+	else
 	{
 		struct rsb_mtx_t * submatrix = NULL;
 		rsb_submatrix_idx_t i,j;
-
 		inpl = RSB_BOOL_TRUE;
 		RSB_SUBMATRIX_FOREACH(mtxAp,submatrix,i,j)
 		if(submatrix && !rsb__is_terminal_recursive_matrix(submatrix))
 			inpl = RSB_BOOL_FALSE;
 	}
+
+ret:
 	return inpl;
 }
 
@@ -751,6 +676,8 @@ static rsb_err_t rsb__leaves_analysis_rec(struct rsb_mtx_t *mtxAp, struct rsb_mt
 	rsb_submatrix_idx_t i,j;
 	struct rsb_mtx_t * submatrix = NULL;
 	const int miac = 1; // merge in any case --- even when no saving is gained
+
+	/* RSB_ASSERT(mtxAp->VA); RSB_ASSERT(mtxAp->bindx); RSB_ASSERT(mtxAp->bpntr); */
 
 	if(rsb__is_terminal_recursive_matrix(mtxAp))
 	{
@@ -800,8 +727,8 @@ static rsb_err_t rsb__leaves_analysis_rec(struct rsb_mtx_t *mtxAp, struct rsb_mt
 				}
 			//sol = mtxAp->all_leaf_matrices_n;
 			if(wv>vl)
-				RSB_STDOUT("sub-leaf: %p is %ld x %ld and contains %ld nnz in %ld leaves ('.'=fewer indices)\n",(const void*)mtxAp,(long int)nr,(long int)nc,(long int)nz,(long int)sol),
-				RSB_STDOUT("as   is:%10zu %c\n",rsbio ,rsbf);
+			RSB_STDOUT("sub-leaf: %p is %d x %d and contains %d nnz in %d leaves ('.'=fewer indices)\n",(const void*)mtxAp,nr,nc,nz,sol),
+			RSB_STDOUT("as   is:%10zu %c\n",rsbio ,rsbf);
 			if(RSB_INDICES_FIT_IN_HALFWORD(nr,nc))
 			{
 				hcooio=sizeof(rsb_half_idx_t)*2*nz;
@@ -811,8 +738,8 @@ static rsb_err_t rsb__leaves_analysis_rec(struct rsb_mtx_t *mtxAp, struct rsb_mt
 				if(hcsrio<rsbio )hcsrf=bettermark;
 				if(hcsrio<bestio)bestio=hcsrio;
 				if(wv>vl)
-					RSB_STDOUT("as HCOO:%10zu %c\n",hcooio,hcoof),
-					RSB_STDOUT("as HCSR:%10zu %c\n",hcsrio,hcsrf);
+				RSB_STDOUT("as HCOO:%10zu %c\n",hcooio,hcoof),
+				RSB_STDOUT("as HCSR:%10zu %c\n",hcsrio,hcsrf);
 			}
 				fcooio=sizeof(rsb_coo_idx_t)*2*nz;
 				if(fcooio<rsbio)fcoof=bettermark;
@@ -821,13 +748,13 @@ static rsb_err_t rsb__leaves_analysis_rec(struct rsb_mtx_t *mtxAp, struct rsb_mt
 				if(fcsrio<rsbio )fcsrf=bettermark;
 				if(fcsrio<bestio)bestio=fcsrio;
 				if(wv>vl)
-					RSB_STDOUT("as  COO:%10zu %c\n",fcooio,fcoof),
-					RSB_STDOUT("as  CSR:%10zu %c\n",fcsrio,fcsrf);
+				RSB_STDOUT("as  COO:%10zu %c\n",fcooio,fcoof),
+				RSB_STDOUT("as  CSR:%10zu %c\n",fcsrio,fcsrf);
 				savepcnt=100.0*(((double)(rsbio-bestio))/(double)rsbio);
 				if(savepcnt>0.0 || miac)
 				{
 					if(wv>vl)
-						RSB_STDOUT("potential saving is: %3.2lg%% (%zu bytes out of %zu)\n",savepcnt,rsbio-bestio,rsbio);
+					RSB_STDOUT("potential saving is: %3.2lg%% (%zu bytes out of %zu)\n",savepcnt,rsbio-bestio,rsbio);
 					mlp->sa[mlp->mc  ]=rsbio-bestio;
 					mlp->mp[mlp->mc++]=mtxAp;
 				}
@@ -843,15 +770,14 @@ static rsb_err_t rsb__leaves_analysis_rec(struct rsb_mtx_t *mtxAp, struct rsb_mt
 ret:	return errval;
 }
 
-static rsb_err_t rsb__cor_merge(rsb_type_t typecode, void* RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t offB, rsb_nnz_idx_t nnzB, rsb_nnz_idx_t nnzC, const int wv, int wp, struct rsb_coo_mtx_t*RSB_RESTRICT coop)
+static rsb_err_t rsb__cor_merge(rsb_type_t typecode, void* RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t offB, rsb_nnz_idx_t nnzB, rsb_nnz_idx_t nnzC, const int wv, int wp, struct rsb_coo_matrix_t*RSB_RESTRICT coop)
 {
 	/**
 	 * \ingroup gr_internals
-	 * Merge two non overlapping totally ordered COO sequences.
+	 * Merges two non overlapping totally ordered COO sequences.
 	 * This is a naive version using a nnzB+nnzC temporary array.
 	 * If coop is supplied, no allocation of a  RSB_MIN(nnzB,nnzC) buffer space will occur but coop's will be used.
 	 * It would be nice to have a no-alloc version, but this can be very complicated.
-	 * nnzB or nnzC can be zero: in that case no further action needed.
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	void *VB = NULL, *VC = NULL, *VT = NULL;
@@ -860,11 +786,13 @@ static rsb_err_t rsb__cor_merge(rsb_type_t typecode, void* RSB_RESTRICT VA, rsb_
 	rsb_coo_idx_t * IT = NULL, *JT = NULL;
 	rsb_nnz_idx_t bi = 0, ci = 0, ti = 0;
 	rsb_nnz_idx_t b0 = 0, c0 = 0, t0 = 0;
-	struct rsb_coo_mtx_t coo;
+	struct rsb_coo_matrix_t coo;
 	size_t es = RSB_SIZEOF(typecode);
 
 	if( nnzB == 0 || nnzC == 0 )
+	{
 		goto ret;
+	}
 
 	b0 = offB;
 	c0 = offB + nnzB;
@@ -1049,7 +977,7 @@ static void rsb__mtx_list_init(struct rsb_mtx_list_t * mlp)
 
 static rsb_err_t rsb__mtx_list_bld(struct rsb_mtx_list_t * mlp, struct rsb_mtx_t *mtxAp)
 {
-	struct rsb_mtx_list_t ml;
+	struct rsb_mtx_list_t ml; /* matrix list */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 	RSB_DEBUG_ASSERT(mtxAp);
@@ -1074,9 +1002,7 @@ err:
 	return errval;
 }
 
-#define RSB_MERGE_IS_EXPERIMENTAL 0
 #define RSB_SPLIT_IS_EXPERIMENTAL 1
-#define RSB_MTX_REALLOC_IS_EXPERIMENTAL 0
 #define RSB_LS_PARANOIA 0
 #if ( RSB_LS_PARANOIA > 0 )
 #define RSB_LS_ASSERT(EXP) RSB_ASSERT(EXP)
@@ -1123,101 +1049,40 @@ static void rsb__scale_subm_idx_on_env_var(const char *envv, double * mftsp, rsb
 #endif /* RSB_AT_ALLOW_GETENV */
 }
 
-static void rsb__print_subms_ptrs(const struct rsb_mtx_t * mtxAp, const struct rsb_mtx_t * submatrix, rsb_submatrix_idx_t smi)
-{
-	rsb_bool_t isleaf = RSB_BOOL_TRUE;
-	rsb_submatrix_idx_t i;
-
-	RSB_STDOUT("%ld: %ld %d", (long int)smi, (long int)(RSB_REC_FREE_SUBM_FLAG != submatrix->flags), (submatrix->flags & RSB_FLAG_QUAD_PARTITIONING) );
-
-	for(i=0;i<4;++i)
-		if ( submatrix->sm[i] )
-			isleaf = RSB_BOOL_FALSE;
-
-	if ( isleaf )
-	{
-		RSB_STDOUT(" leaf: ");
-		RSB_STDOUT_MATRIX_SUMMARY(submatrix);
-	}
-	else
-		for(i=0;i<4;++i)
-			RSB_STDOUT(" %p/%ld", (void*)(submatrix->sm[i]), (long int)(submatrix->sm[i] ? (submatrix->sm[i]-mtxAp) : 0) );
-	RSB_STDOUT("\n");
-}
-
-static rsb_err_t rsb__print_subms_idxs(const struct rsb_mtx_t * RSB_RESTRICT mtxAp)
-{
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	rsb_submatrix_idx_t nsbs;
-	rsb_submatrix_idx_t smi = 0;
-	nsbs = 1 + rsb__submatrices_max_ptr_diff(mtxAp);
-
-	for(smi=0;smi<nsbs ;++smi)
-	{
-		const struct rsb_mtx_t * submatrix = mtxAp + smi;
-		rsb__print_subms_ptrs(mtxAp, submatrix, smi);
-	}
-	return errval;
-}
-
-static rsb_err_t rsb__print_leaves_idxs(const struct rsb_mtx_t * RSB_RESTRICT mtxAp)
-{
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	rsb_submatrix_idx_t smi = 0;
-	const struct rsb_mtx_t * submatrix = NULL;
-
-	RSB_SUBMATRIX_FOREACH_LEAF(mtxAp,submatrix,smi) 
-	{
-		rsb__print_subms_ptrs(mtxAp, submatrix, smi);
-	}
-	return errval;
-}
-
-static rsb_submatrix_idx_t rsb__mtxa_first_free(struct rsb_mtx_t const * mtxAp, struct rsb_mtx_t const *mtxQp, rsb_submatrix_idx_t mpd, rsb_submatrix_idx_t nsm)
-{
-	rsb_submatrix_idx_t smc = 0;
-	struct rsb_mtx_t const * mtxOp = mtxQp;
-
-	while((!RSB_REC_IS_SUBM_FREE(mtxQp)) && ((mtxQp)-mtxAp<(RSB_MAX(mpd+1,smc+nsm))))++mtxQp;
-	RSB_DEBUG_ASSERT( ((mtxQp)-mtxAp>=(RSB_MAX(mpd+1,smc+nsm))) || (mtxQp)->flags!=RSB_REC_USED_SUBM_FLAG );
-
-	return mtxQp - mtxOp;
-}
-
 rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_idx_t manp, rsb_time_t * RSB_RESTRICT stp, rsb_time_t * RSB_RESTRICT atp, rsb_time_t * RSB_RESTRICT ltp, const int wv, int kc)
 {
 	/* 
-	 	Subdivide an RSB matrix by splitting leaf sparse blocks.
-	 	Leave the matrix in a consistent state even on error.
+	 	Splits leaves of a matrix further.
+	 	The matrix stays in a consistent state even on error.
 		However, it may be in a different state than in the beginning.
-		Requires spare leaves, obtained by calling rsb__mtx_realloc_with_spare_leaves() beforehand.
 		TODO: need to document work memory requirements.
 		FIXME: need to use manp.
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	rsb_time_t mt = - rsb_time(), st = RSB_TIME_ZERO, lt = RSB_TIME_ZERO, at = RSB_TIME_ZERO, gt = RSB_TIME_ZERO, wt = RSB_TIME_ZERO, qt = RSB_TIME_ZERO; /* merge,shuffle/sort,elapsed,analysis,alloc,switch time, quadrants time */
+	rsb_time_t mt = - rsb_time(), st = RSB_TIME_ZERO, lt = RSB_TIME_ZERO, at = RSB_TIME_ZERO; /* merge,sort,elapsed,analysis time */
 	struct rsb_mtx_list_t ml; /* matrix list */
 	rsb_submatrix_idx_t smi = 0, nsm = 0;
-	const enum rsb_subm_srtc_t sc = RSB_MTX_CMP_NNZ_DES;
-	const rsb_long_t smc = rsb__submatrices(mtxAp);
-	const rsb_long_t mpd = rsb__submatrices_max_ptr_diff(mtxAp);
+	int sc = RSB_MTX_CMP_NNZ_DES;
+	rsb_long_t smc = rsb__submatrices(mtxAp);
 	rsb_submatrix_idx_t nsbs,nsas; /* number of submatrices [before/after] split */
-	const rsb_thread_t rnt = rsb_get_num_threads();
+	rsb_thread_t rnt = rsb_get_num_threads();
 	rsb_thread_t nst = rnt; /* number of threads active during splitting */
+
 	// rsb_submatrix_idx_t mmts = 0; /* max matrices to split */
 	rsb_submatrix_idx_t mcts = 0; /* matrices count to split */
 	double mfts = 0.5; /* matrices fraction to split */
+	const rsb_submatrix_idx_t mpd = rsb__submatrices_max_ptr_diff(mtxAp);
+
 	rsb_flags_t flags = RSB_FLAG_NOFLAGS;
-#if !RSB_SPLIT_USE_TMP_COOMTX
-	rsb_nnz_idx_t max_nnz = 0;
-	rsb_coo_idx_t max_nr = 0;
-	struct rsb_mtx_t * submatrix = NULL;
-#endif /* RSB_SPLIT_USE_TMP_COOMTX */
-
-
-	RSB_DEBUG_ASSERT( mtxAp );
 
 	rsb__mtx_list_init(&ml);
+
+	if(!mtxAp)
+	{
+		errval = RSB_ERR_BADARGS;
+		RSB_PERR_GOTO(ret, RSB_ERRM_E_MTXAP);
+	}
+
 	nsbs = mtxAp->all_leaf_matrices_n;
 	flags = mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES;
 	if(nsbs == 1)
@@ -1227,23 +1092,17 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 	if(!rsb__mtx_chk(mtxAp))
 	{
 		errval = RSB_ERR_INTERNAL_ERROR;
-		RSB_PERR_GOTO(ret, RSB_ERRM_ES);
+		RSB_ERROR(RSB_ERRM_ES);
+		goto ret;
 	}
 #endif
 
-#if !RSB_SPLIT_USE_TMP_COOMTX
-	RSB_SUBMATRIX_FOREACH_LEAF(mtxAp,submatrix,smi) 
-	{
-		max_nnz = RSB_MAX(max_nnz, submatrix->nnz); // NOTE: maximal upper or lower half would be enough actually
-		max_nr = RSB_MAX(max_nr, submatrix->nr);
-	}
-#endif /* RSB_SPLIT_USE_TMP_COOMTX */
 	if(wv>2)
-		RSB_STDOUT("# experimental leaves analysis & split of: "),
+		RSB_STDOUT("# experimental leaves analysis & split: "),
 		RSB_STDOUT(RSB_PRINTF_MATRIX_AT_SUMMARY_ARGS(mtxAp)),
 		RSB_STDOUT("\n");
 	if(wv>2)
-		RSB_STDOUT("# max ptr diff is %zd units, for %ld submatrices\n",rsb__submatrices_max_ptr_diff(mtxAp),smc);
+		RSB_STDOUT("# max ptr diff is %zd units\n",rsb__submatrices_max_ptr_diff(mtxAp));
 /*
 	for(smi=0;smi<mtxAp->all_leaf_matrices_n;++smi)
 	{
@@ -1265,7 +1124,6 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 	}
 	errval = rsb__leaves_analysis_rec(mtxAp, &ml, wv, RSB_BOOL_FALSE);
 	errval = rsb__srt_subm_ptr_array(ml.mp, ml.mc, sc);
-
 	at += rsb_time();
 	RSB_ASSERT(ml.mc>0);
 
@@ -1278,57 +1136,27 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 	if(mcts == 0)
 		mcts = (rsb_submatrix_idx_t)(mfts*ml.mc);
 	mcts = RSB_MIN(RSB_MAX(1, mcts), ml.mc); /* 1 ... ml.mc */
-	nst = RSB_MIN(mcts, nst);
+       	nst = RSB_MIN(mcts, nst);
 
 	if(manp > 0)
 	       	mcts = RSB_MIN(mcts, manp);
 
-	if(wv>2)
-		RSB_STDOUT("# will use %zd threads to split %zd leaves\n",(size_t)nst,(size_t)mcts);
-
-	if(wv>2)
-		rsb__print_subms_idxs(mtxAp),
-		rsb__print_leaves_idxs(mtxAp);
-
-	#pragma omp parallel reduction(|:errval) reduction(+:lt) reduction(+:st) reduction(+:gt) reduction(+:wt) shared(nsm) shared(ml)  num_threads(nst)
-	{
-		struct rsb_coo_mtx_t cot;
-		rsb_coo_idx_t * TA = NULL;
-#if !RSB_SPLIT_USE_TMP_COOMTX
-		#pragma omp critical (rsb__mtx_split_cr)
-		{
-			/* TODO: one can minimize this number further */
-			cot.typecode = mtxAp->typecode;
-			cot.nnz = max_nnz;
-			cot.nr = max_nr;
-			if( NULL == rsb__allocate_coo_matrix_t(&cot) )
-				errval = RSB_ERR_ENOMEM;
-			TA = rsb__malloc( sizeof(rsb_coo_idx_t) * RSB_MIN(max_nnz,1+max_nr) );
-			if(!TA)
-				errval = RSB_ERR_ENOMEM;
-		}
-
-		if(RSB_SOME_ERROR(errval))
-		{
-			RSB_PERR_GOTO(eerr,RSB_ERRM_PAL	);
-		}
-#endif /* RSB_SPLIT_USE_TMP_COOMTX */
-	#pragma omp for schedule(dynamic)
+	#pragma omp parallel for schedule(static,1) reduction(|:errval) reduction(+:lt) reduction(+:st) shared(nsm) shared(ml)  num_threads(nst)
 	for(smi=0;smi<mcts;++smi)
 	{
 		struct rsb_mtx_t * mtxMp = ml.mp[smi]; 
-		const rsb_coo_idx_t nrA = mtxMp->nr, ncA = mtxMp->nc;
+		rsb_coo_idx_t nrA = mtxMp->nr, ncA = mtxMp->nc;
 		const rsb_coo_idx_t msz = 2;
 		rsb_nnz_idx_t nzul = 0, nzur = 0, nzll = 0, nzlr = 0;
 		rsb_nnz_idx_t nzu = 0, nzl = 0;
-		struct rsb_coo_mtx_t coa;
+		struct rsb_coo_matrix_t coa, cot;
 		rsb_coo_idx_t mr = RSB_MIDDLE(nrA), mc = RSB_MIDDLE(ncA);
-		rsb_time_t lst = RSB_TIME_ZERO, llt = RSB_TIME_ZERO, swt = RSB_TIME_ZERO, qut = RSB_TIME_ZERO; /* local st,lt,wt */
+		rsb_time_t lst = RSB_TIME_ZERO, llt = RSB_TIME_ZERO; /* local st,lt */
+		rsb_coo_idx_t * TA = NULL;
 		rsb_coo_idx_t lsm = 0;
 		/* RSB_STDOUT("thread %d handles matrix %d\n",omp_get_thread_num(),smi); */
 
 		llt = -rsb_time();
-		swt = -rsb_time();
 
 		/* Skip processing if no split possible or convenient. */
 		if( nrA < msz || ncA < msz || mtxMp->nnz < 4 )
@@ -1348,8 +1176,6 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 
 		/* Switch to COO, then split. */
 		RSB_LS_ASSERT( rsb__mtx_chk(mtxMp)==RSB_BOOL_TRUE);
-#if RSB_SPLIT_USE_TMP_COOMTX
-		gt -= rsb_time();
 		#pragma omp critical (rsb__mtx_split_cr)
 		{
 			/* TODO: one can minimize this number further */
@@ -1359,12 +1185,10 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 				errval = RSB_ERR_ENOMEM;
 			}
 		}
-		gt += rsb_time();
 		if(RSB_SOME_ERROR(errval))
 		{
 		       	RSB_PERR_GOTO(lerr,RSB_ERRM_PAL	); /* !! */
 		}
-#endif /* RSB_SPLIT_USE_TMP_COOMTX */
 		errval = rsb__do_switch_leaf(mtxMp, RSB_MATRIX_STORAGE_BCOR, RSB_FLAG_USE_FULLWORD_INDICES, 0, 0, TA);
 		RSB_LS_ASSERT(!RSB_SOME_ERROR(errval));
 		RSB_LS_ASSERT( rsb__mtx_chk(mtxMp)==RSB_BOOL_TRUE);
@@ -1375,19 +1199,16 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 		if(wv>2)
 			RSB_STDOUT("# switched the largest leaf to COO: "),
 			RSB_STDOUT(RSB_PRINTF_MATRIX_AT_SUMMARY_ARGS(mtxMp)),
-			RSB_STDOUT(" @ %ld,%ld\n",(long)mtxMp->roff,(long)mtxMp->coff);
+			RSB_STDOUT("\n");
 		rsb__project_rsb_to_coo(mtxMp,&coa);
 
 		/* Count elements in each quadrant */
 		nzu = rsb__nnz_split_coo_bsearch(coa.IA,mr,mtxMp->nnz);
 		nzl = mtxMp->nnz - nzu;
-		swt += rsb_time();
 
 		cot.typecode = mtxMp->typecode;
 		cot.nnz = RSB_MAX(nzu,nzl); /* TODO: one can find better solutions ... */
 
-#if RSB_SPLIT_USE_TMP_COOMTX
-		gt -= rsb_time();
 		#pragma omp critical (rsb__mtx_split_cr)
 		{
 			if( NULL == rsb__allocate_coo_matrix_t(&cot) )
@@ -1395,17 +1216,15 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 				errval = RSB_ERR_ENOMEM;
 			}
 		}
-		gt += rsb_time();
 		if(RSB_SOME_ERROR(errval))
 		{
 		       	RSB_PERR_GOTO(lerr,RSB_ERRM_PAL	); /* !! */
 		}
-#endif /* RSB_SPLIT_USE_TMP_COOMTX */
 		lst = -rsb_time();
 		RSB_LS_ASSERT( rsb__mtx_chk(mtxMp)==RSB_BOOL_TRUE);
 		if( RSB_LS_PARANOIA )
 		{
-			/* TODO: make this check more compact */
+			/* FIXME: DO NOT COMMIT THIS */
 			rsb_coo_idx_t li, ui;
 			rsb_coo_idx_t lj, uj;
 			rsb__util_find_extremal_full_index_val(coa.IA,nzu+nzl,0,-1,&li,&ui);
@@ -1415,7 +1234,7 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 		}
 		if( RSB_LS_PARANOIA )
 		{
-			/* TODO: make this check more compact */
+			/* FIXME: DO NOT COMMIT THIS */
 			rsb_coo_idx_t li, ui;
 			rsb_coo_idx_t lj, uj;
 			rsb__util_find_extremal_full_index_val(coa.IA,nzu,0,-1,&li,&ui);
@@ -1426,7 +1245,7 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 		rsb__coo_to_lr( cot.VA, cot.IA, cot.JA, coa.VA, coa.IA, coa.JA, mc, nzu, 0, 0,   &nzul, &nzur,  0,-mc, mtxAp->typecode);
 		if( RSB_LS_PARANOIA )
 		{
-			/* TODO: make this check more compact */
+			/* FIXME: DO NOT COMMIT THIS */
 			rsb_coo_idx_t li, ui;
 			rsb_coo_idx_t lj, uj;
 			rsb__util_find_extremal_full_index_val(coa.IA,nzu,0,-1,&li,&ui);
@@ -1436,7 +1255,7 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 		}
 		if( RSB_LS_PARANOIA )
 		{
-			/* TODO: make this check more compact */
+			/* FIXME: DO NOT COMMIT THIS */
 			rsb_coo_idx_t li, ui;
 			rsb_coo_idx_t lj, uj;
 			rsb__util_find_extremal_full_index_val(coa.IA,nzul,0,-1,&li,&ui);
@@ -1445,26 +1264,20 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 			RSB_ASSERT( ui < mr );
 			RSB_ASSERT( uj < mc );
 		}
-
 		rsb__coo_to_lr( cot.VA, cot.IA, cot.JA, coa.VA, coa.IA, coa.JA, mc, nzl, 0, nzu, &nzll, &nzlr,-mr,-mc, mtxAp->typecode);
-
+		/* RSB_ASSERT( rsb__mtx_chk(mtxMp)==RSB_BOOL_TRUE); */
 		lst += rsb_time();
-
-#if RSB_SPLIT_USE_TMP_COOMTX
-		gt -= rsb_time();
 		#pragma omp critical (rsb__mtx_split_cr)
 		{
 			rsb__destroy_coo_matrix_t(&cot);
 		}
-		gt += rsb_time();
-#endif /* RSB_SPLIT_USE_TMP_COOMTX */
 		RSB_ASSERT( mtxMp->nnz == nzu + nzl );
 		RSB_ASSERT( mtxMp->nnz == nzul + nzur + nzll + nzlr );
 		RSB_ASSERT( nzul + nzur == nzu );
 		RSB_ASSERT( nzll + nzlr == nzl );
 
 		if(wv>2)
-			RSB_STDOUT("# nzu=%ld nzl=%ld nzul=%ld nzur=%ld nzll=%ld nzlr=%ld.\n",(long int)nzu,(long int)nzl,(long int)nzul,(long int)nzur,(long int)nzll,(long int)nzlr);
+			RSB_STDOUT("# nzu=%d nzl=%d nzul=%d nzur=%d nzll=%d nzlr=%d.\n",nzu,nzl,nzul,nzur,nzll,nzlr);
 		/* make sure we have further one to four submatrices */
 
 		if(1)
@@ -1473,7 +1286,6 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 			struct rsb_mtx_t *mtxQ1p = NULL,*mtxQ2p = NULL, *mtxQ3p = NULL, *mtxQ4p = NULL;
 			/* rename this in fashion of rsb__do_set_in_place_submatrices_offsets */
 #define RSB_MTX_INIT_LEAF(MTXAP,MTXLP,NNZ,NZOFF,NR,NC,ROFF,COFF)	\
-			/* RSB_STDOUT("thread %d divides quadrant %p / subquadrant %p = %d\n",omp_get_thread_num(),MTXAP,mtxQp,(mtxQp-mtxAp)); */ \
 			RSB_BZERO_P((MTXLP));				\
 			rsb__set_init_flags_and_stuff(MTXLP,NULL,NULL,NR,NC,NNZ,NNZ,NNZ,(MTXAP)->typecode,(MTXAP)->flags); \
 			(MTXLP)->matrix_storage = RSB_MATRIX_STORAGE_BCOR;			\
@@ -1485,79 +1297,72 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 			(MTXLP)->VA = RSB_VA_OFFSET_POINTER((MTXAP)->VA, RSB_SIZEOF((MTXAP)->typecode), (NZOFF)),	\
 			RSB_DO_FLAG_ADD((MTXLP)->flags,RSB_FLAG_DEFAULT_RSB_MATRIX_FLAGS );	\
 			RSB_DO_FLAG_DEL((MTXLP)->flags,RSB_FLAG_USE_HALFWORD_INDICES);	/* COO */	\
-			errval  = rsb__compute_bounded_box((MTXLP));				\
-			if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(lerr,RSB_ERRM_PAL	);}	\
+			rsb__compute_bounded_box((MTXLP));				\
 			errval = rsb__do_switch_leaf((MTXLP), RSB_MATRIX_STORAGE_AUTO, flags, 0, 0, TA);	\
 			RSB_DO_FLAG_ADD((MTXLP)->flags,RSB_FLAG_NON_ROOT_MATRIX);	\
 			if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(lerr,RSB_ERRM_PAL	);}
 
-			qut = -rsb_time();
 			#pragma omp critical (rsb__mtx_split_cr)
 			{
 			       	/* this is a 'matrix reservation' mechanism */
 				/* mtxQp = (mtxAp) + smc + nsm; */ /* can use this only if there are no holes */
 				mtxQp = mtxAp;
-				mtxQp += rsb__mtxa_first_free(mtxAp, mtxQp, mpd, smc + nsm);
+#define RSB_REC_NEXT_FREE(NSM) while((!RSB_REC_IS_SUBM_FREE(mtxQp)) && ((mtxQp)-mtxAp<(RSB_MAX(mpd+1,smc+NSM))))++mtxQp; \
+			RSB_DEBUG_ASSERT( ((mtxQp)-mtxAp>=(RSB_MAX(mpd+1,smc+nsm))) || (mtxQp)->flags!=RSB_REC_USED_SUBM_FLAG );
+				
 				/* RSB_STDOUT("%d starts at %d\n",omp_get_thread_num(),(mtxQp-mtxAp)); */
-				if(nzul){ ++nsm; mtxQp += rsb__mtxa_first_free(mtxAp, mtxQp, mpd, smc + nsm); mtxQ1p = mtxQp; RSB_REC_MARK_SUBM_USED(mtxQp); }
-				if(nzur){ ++nsm; mtxQp += rsb__mtxa_first_free(mtxAp, mtxQp, mpd, smc + nsm); mtxQ2p = mtxQp; RSB_REC_MARK_SUBM_USED(mtxQp); }
-				if(nzll){ ++nsm; mtxQp += rsb__mtxa_first_free(mtxAp, mtxQp, mpd, smc + nsm); mtxQ3p = mtxQp; RSB_REC_MARK_SUBM_USED(mtxQp); }
-				if(nzlr){ ++nsm; mtxQp += rsb__mtxa_first_free(mtxAp, mtxQp, mpd, smc + nsm); mtxQ4p = mtxQp; RSB_REC_MARK_SUBM_USED(mtxQp); }
+				if(nzul){ ++nsm; RSB_REC_NEXT_FREE(nsm); mtxQ1p = mtxQp; RSB_REC_MARK_SUBM_USED(mtxQp); }
+				if(nzur){ ++nsm; RSB_REC_NEXT_FREE(nsm); mtxQ2p = mtxQp; RSB_REC_MARK_SUBM_USED(mtxQp); }
+				if(nzll){ ++nsm; RSB_REC_NEXT_FREE(nsm); mtxQ3p = mtxQp; RSB_REC_MARK_SUBM_USED(mtxQp); }
+				if(nzlr){ ++nsm; RSB_REC_NEXT_FREE(nsm); mtxQ4p = mtxQp; RSB_REC_MARK_SUBM_USED(mtxQp); }
 				lsm += nzul ? 1 : 0;
 				lsm += nzur ? 1 : 0;
 				lsm += nzll ? 1 : 0;
 				lsm += nzlr ? 1 : 0;
+#undef RSB_REC_NEXT_FREE
 			}
-			qut += rsb_time();
 
-#if ( RSB_LS_PARANOIA > 1 )
-#define RSB_VRB_SPLIT(Q) RSB_STDOUT("%ld[%ld] -> %ld, misplaced ? %d\n",(mtxMp-mtxAp),(long int)(Q),(mtxQp-mtxAp),RSB__IS_SUBM_MISPLACED(mtxQp,mtxMp)); \
-	RSB_STDOUT(RSB_PRINTF_MTX_SUMMARIZED_ARGS("OLD submatrix: ",mtxMp,RSB_ERRM_NL));\
-	RSB_STDOUT(RSB_PRINTF_MTX_SUMMARIZED_ARGS("CRT submatrix: ",mtxQp,RSB_ERRM_NL));
-#else
-#define RSB_VRB_SPLIT(Q) 
-#endif
 			if(nzul)
 			{
 				mtxQp=mtxQ1p;
+				/* RSB_STDOUT("thread %d divides quadrant %p / subquadrant %p = %d\n",omp_get_thread_num(),mtxMp,mtxQp,(mtxQp-mtxAp)); */
+				/* mtxMp->sm[0] = mtxQp++; */
 				mtxMp->sm[0] = mtxQp;
 				RSB_MTX_INIT_LEAF(mtxMp,mtxMp->sm[0],nzul,0        ,    mr,    mc, 0,0 );
-				RSB_VRB_SPLIT(0);
 				RSB_LS_ASSERT( rsb__mtx_chk(mtxMp->sm[0])==RSB_BOOL_TRUE);
 			}
-
 			if(nzur)
 			{
 				mtxQp=mtxQ2p;
+				/* RSB_STDOUT("thread %d divides quadrant %p / subquadrant %p = %d\n",omp_get_thread_num(),mtxMp,mtxQp,(mtxQp-mtxAp)); */
+				/* mtxMp->sm[1] = mtxQp++; */
 				mtxMp->sm[1] = mtxQp;
 				RSB_MTX_INIT_LEAF(mtxMp,mtxMp->sm[1],nzur,nzul     ,    mr,ncA-mc, 0,mc);
-				RSB_VRB_SPLIT(1);
 				RSB_LS_ASSERT( rsb__mtx_chk(mtxMp->sm[1])==RSB_BOOL_TRUE);
 				RSB_DO_FLAG_DEL((mtxMp->sm[1])->flags,RSB_FLAG_UPPTRI|RSB_FLAG_TRIANGULAR);
 			}
-
 			if(nzll)
 			{
 				mtxQp=mtxQ3p;
+				/* RSB_STDOUT("thread %d divides quadrant %p / subquadrant %p = %d\n",omp_get_thread_num(),mtxMp,mtxQp,(mtxQp-mtxAp)); */
+				/* mtxMp->sm[2] = mtxQp++; */
 				mtxMp->sm[2] = mtxQp;
 				RSB_MTX_INIT_LEAF(mtxMp,mtxMp->sm[2],nzll,nzu      ,nrA-mr,    mc,mr,0 );
-				RSB_VRB_SPLIT(2);
 				RSB_LS_ASSERT( rsb__mtx_chk(mtxMp->sm[2])==RSB_BOOL_TRUE);
 				RSB_DO_FLAG_DEL((mtxMp->sm[2])->flags,RSB_FLAG_UPPTRI|RSB_FLAG_TRIANGULAR);
 			}
-
 			if(nzlr)
 			{
 				mtxQp=mtxQ4p;
+				/* RSB_STDOUT("thread %d divides quadrant %p / subquadrant %p = %d\n",omp_get_thread_num(),mtxMp,mtxQp,(mtxQp-mtxAp)); */
+				/* mtxMp->sm[3] = mtxQp++; */
 				mtxMp->sm[3] = mtxQp;
 				RSB_MTX_INIT_LEAF(mtxMp,mtxMp->sm[3],nzlr,nzu+nzll ,nrA-mr,ncA-mc,mr,mc);
-				RSB_VRB_SPLIT(3);
 				RSB_LS_ASSERT( rsb__mtx_chk(mtxMp->sm[3])==RSB_BOOL_TRUE);
 			}
-
 #undef RSB_MTX_INIT_LEAF
 			if(wv>2)
-				RSB_STDOUT("# just split from %ld .. [->%ld] +%ld subms (max %ld splits allowed (max +%ld then)).\n",(long int)(smc/*+nsm*/),(long int)(mtxQp-mtxAp-lsm+1),(long int)(lsm),(long int)mcts,4*(long int)mcts);
+				RSB_STDOUT("# just split %ld -> %ld subms (max %ld splits allowed (max +%ld then)).\n",(long int)(smc/*+nsm*/),(long int)(mtxQp-mtxAp),(long int)mcts,4*(long int)mcts);
 			/* leaf recompression, bounds have been recomputed on each leaf */
 			/* marked present matrix as non terminal and assign nonzeroes to leaves */
 		}
@@ -1570,45 +1375,27 @@ rsb_err_t rsb__mtx_split(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_id
 		llt += rsb_time();
 		lt += llt;
 		st += lst;
-		wt += swt;
-		qt += qut;
 
 		mtxMp->est = lst;
 		mtxMp->tat = llt;
 		mtxMp->sat = llt - lst; /* TODO: this is to be completed */
-#if RSB_SPLIT_USE_TMP_COOMTX
-		gt -= rsb_time();
 		#pragma omp critical (rsb__mtx_split_cr)
 	       	{
 			RSB_CONDITIONAL_FREE(TA);
 	       	}
-#endif /* RSB_SPLIT_USE_TMP_COOMTX */
 		continue;
 lerr:
 		RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 		RSB_ASSERT(0); /* critical */
 nerr:		/* Not an error condition. */
 		RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
-		/* Note: mechanism to revert matrix to the original state. */
+		/* FIXME: Good quality code would provide here a mechanism for reverting the matrix to the original state. */
 	} /* smi */
-#if !RSB_SPLIT_USE_TMP_COOMTX
-eerr:
-		#pragma omp critical (rsb__mtx_split_cr)
-		{
-			RSB_CONDITIONAL_FREE(TA);
-			rsb__destroy_coo_matrix_t(&cot);
-		}
-#endif /* RSB_SPLIT_USE_TMP_COOMTX */
-	}
-
-	if(wv>2)
-		rsb__print_subms_idxs(mtxAp), rsb__print_leaves_idxs(mtxAp);
 
 	if(nsm > 0)
 		RSB_DO_FLAG_ADD(mtxAp->flags, RSB_FLAG_USE_HALFWORD_INDICES);
 
 	errval = rsb__refresh_array_of_leaf_matrices(mtxAp);
-	RSB_DEBUG_ASSERT(1+rsb__submatrices_max_ptr_diff(mtxAp)>=rsb__submatrices(mtxAp));
 
 	if(RSB_SOME_ERROR(errval))
 	{
@@ -1623,13 +1410,8 @@ eerr:
 #if RSB_STORE_IDXSA
 	mtxAp->idxsa = rsb__get_index_storage_amount(mtxAp);
 #endif
-#if RSB_WANT_SSC
-	mtxAp->ssbc -= nsm;
-	if(wv>1)
-		RSB_STDOUT("After split has %ld spare subms.\n",(long int)mtxAp->ssbc);
-#endif
 	if(wv>0)
-		RSB_STDOUT("Split (%d -> %d leaves, %d -> %d subms) took %0.4lgs (of which: %0.4lgs analysis, %0.4lgs mem.mgmt); compute time: %0.4lgs overall, %0.4lgs searches, %0.4lgs shuffle, %0.4lgs switch, %0.4lgs quadrants.\n",nsbs,nsas,(int)smc,(int)smc+nsm,mt,at,gt,lt,st,lt-st,wt,qt);
+		RSB_STDOUT("Split (%d -> %d leaves, %d -> %d subms) took %0.4lg s.\n",nsbs,nsas,(int)smc,(int)smc+nsm,mt);
 
 /* The following shall be used to locate bugs in the split loop locking mechanism. */
 /*
@@ -1672,7 +1454,7 @@ ret:
 	RSB_ASSIGN_IF(atp, at)
 	RSB_ASSIGN_IF(ltp, lt)
 	return errval;
-} /* rsb__mtx_split */
+}
 
 rsb_err_t rsb__leaves_merge(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix_idx_t manp, rsb_time_t * RSB_RESTRICT stp, rsb_time_t *RSB_RESTRICT atp, rsb_time_t *RSB_RESTRICT ltp, const int wv, int kc)
 {
@@ -1694,15 +1476,15 @@ rsb_err_t rsb__leaves_merge(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix
 	rsb_submatrix_idx_t nsbp, nsap; /* number of submatrices before and after merge  */
 	struct rsb_mtx_list_t ml; /* matrix list */
 	const int vl = 2; /* ?? */
-
-	RSB_DEBUG_ASSERT( mtxAp );
+	/* int kc = 0; */ /* keep coo */
 
 	rsb__mtx_list_init(&ml);
 
-	if(wv>2)
-		RSB_STDOUT("# max ptr diff is %zd units\n",rsb__submatrices_max_ptr_diff(mtxAp));
-	if(wv>2)
-		rsb__print_subms_idxs(mtxAp), rsb__print_leaves_idxs(mtxAp);
+	if(!mtxAp)
+	{
+		RSB_PERR_GOTO(err, RSB_ERRM_E_MTXAP);
+		goto ret;
+	}
 
 	nsbp = mtxAp->all_leaf_matrices_n;
 	if(wv>vl)
@@ -1716,7 +1498,7 @@ rsb_err_t rsb__leaves_merge(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix
 		const size_t rsbio = rsb__get_index_storage_amount(mtxAp);
 		int rnt = rsb_get_num_threads();
 		int nmt = rnt;
-		enum rsb_subm_srtc_t sc = RSB_MTX_CMP_NNZ_ASC;
+		int sc = RSB_MTX_CMP_NNZ_ASC;
 		rsb_submatrix_idx_t mctm = 0; /* matrices count to merge */
 		double mftm = 0.5; /* matrices fraction to merge */
 
@@ -1778,7 +1560,7 @@ rsb_err_t rsb__leaves_merge(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix
 			rsb_bool_t ifq = RSB_BOOL_FALSE; /* is first quadrant ? */
 			rsb_time_t lst = RSB_TIME_ZERO, llt = RSB_TIME_ZERO; /* local st,lt */
 			rsb_coo_idx_t * TA = NULL;
-			struct rsb_coo_mtx_t tcoo;
+			struct rsb_coo_matrix_t tcoo;
 
 			RSB_BZERO_P(&tcoo);
 
@@ -1793,7 +1575,7 @@ rsb_err_t rsb__leaves_merge(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix
 
 			llt = -rsb_time();
 			if(wv>vl)
-				RSB_STDOUT("By merging %p/%ld [%ld+%ld+%ld+%ld=%ld], gain relative %3.2lg%% or absolute %3.2lg%% (%zu bytes)\n", (const void*)mtxMp, (long int)(mtxMp-mtxAp), (long int)nzul, (long int)nzur, (long int)nzll, (long int)nzlr, (long int)mtxMp->nnz, rsavepcnt, asavepcnt, jmios);
+				RSB_STDOUT("By merging %p [%d+%d+%d+%d=%d], gain relative %3.2lg%% or absolute %3.2lg%% (%zu bytes)\n", (const void*)mtxMp, nzul, nzur, nzll, nzlr, mtxMp->nnz, rsavepcnt, asavepcnt, jmios);
 			RSB_ASSERT( nzul + nzur + nzll + nzlr == mtxMp->nnz );
 
 			mtxMp->bpntr = NULL;
@@ -1822,10 +1604,10 @@ rsb_err_t rsb__leaves_merge(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix
 			{
 				ifq = RSB_BOOL_FALSE;
 				if(wv>3)
-					RSB_STDOUT("lmax in IA/JA: %ld/%ld.\n", (long int)rsb__util_find_coo_max_index_val(submatrix->bpntr, submatrix->nnz), (long int)rsb__util_find_coo_max_index_val(submatrix->bindx, submatrix->nnz));
+					RSB_STDOUT("lmax in IA/JA: %d/%d.\n", rsb__util_find_max_index_val(submatrix->bpntr, submatrix->nnz), rsb__util_find_max_index_val(submatrix->bindx, submatrix->nnz));
 				errval = rsb__do_switch_leaf(submatrix, RSB_MATRIX_STORAGE_BCOR, RSB_FLAG_USE_FULLWORD_INDICES, submatrix->roff-roffM, submatrix->coff-coffM, TA);
 				if(wv>3)
-					RSB_STDOUT("smax in IA/JA: %ld/%ld.\n", (long int)rsb__util_find_coo_max_index_val(submatrix->bpntr, submatrix->nnz), (long int)rsb__util_find_coo_max_index_val(submatrix->bindx, submatrix->nnz));
+					RSB_STDOUT("smax in IA/JA: %d/%d.\n", rsb__util_find_max_index_val(submatrix->bpntr, submatrix->nnz), rsb__util_find_max_index_val(submatrix->bindx, submatrix->nnz));
 
 				if(RSB_SOME_ERROR(errval))
 				{
@@ -1959,12 +1741,12 @@ rsb_err_t rsb__leaves_merge(struct rsb_mtx_t * RSB_RESTRICT mtxAp, rsb_submatrix
 			}
 
 			if(RSB_SOME_ERROR(errval))
-			{
+			{ 
 				/* TODO:error reporting is missing */
 				RSB_PERR_GOTO(lerr, RSB_ERRM_ES);
 		       	}
 			if(wv>3)
-				RSB_STDOUT("tmax in IA/JA: %ld/%ld.\n", (long int)rsb__util_find_coo_max_index_val(mtxMp->bpntr, mtxMp->nnz), (long int)rsb__util_find_coo_max_index_val(mtxMp->bindx, mtxMp->nnz) );
+				RSB_STDOUT("tmax in IA/JA: %d/%d.\n", rsb__util_find_max_index_val(mtxMp->bpntr, mtxMp->nnz), rsb__util_find_max_index_val(mtxMp->bindx, mtxMp->nnz) );
 
 			llt += rsb_time();
 			lt += llt;
@@ -1987,6 +1769,12 @@ lerr:
 			// goto done;
 		} /* smi */
 
+		if(wv>vl)
+			/* RSB_STDOUT("Now: %2.3lf bpnz\n", ((double)rsb__get_index_storage_amount(mtxAp))/mtxAp->nnz), */
+			RSB_STDOUT("Now: "),
+			RSB_STDOUT(RSB_PRINTF_MATRIX_AT_SUMMARY_ARGS(mtxAp)),
+			RSB_STDOUT("\n");
+
 		errval = rsb__refresh_array_of_leaf_matrices(mtxAp);
 		if(RSB_SOME_ERROR(errval))
 	       	{
@@ -1995,38 +1783,17 @@ lerr:
 		       	RSB_PERR_GOTO(cer,RSB_ERRM_ES);
 		}
 		RSB_DO_FLAG_DEL(mtxAp->flags, RSB_FLAG_NON_ROOT_MATRIX);
-
-		if(wv>vl)
-			/* RSB_STDOUT("Now: %2.3lf bpnz\n", ((double)rsb__get_index_storage_amount(mtxAp))/mtxAp->nnz), */
-			RSB_STDOUT("Now: "),
-			RSB_STDOUT(RSB_PRINTF_MATRIX_AT_SUMMARY_ARGS(mtxAp)),
-			RSB_STDOUT("\n");
-
 #if RSB_STORE_IDXSA
 		mtxAp->idxsa = rsb__get_index_storage_amount(mtxAp);
 #endif
 	}
 	mt += rsb_time(); 
 	nsap = mtxAp->all_leaf_matrices_n;
-#if RSB_WANT_SSC
-	mtxAp->ssbc += (nsbp - nsap);
-	if(wv>1)
-		RSB_STDOUT("After merge has %ld spare subms.\n",(long int)mtxAp->ssbc);
-#endif
 	RSB_ASSIGN_IF(stp, st)
 	RSB_ASSIGN_IF(atp, at)
 	RSB_ASSIGN_IF(ltp, lt)
 	if(wv>0)
 		RSB_STDOUT("Merge (%d -> %d leaves) took w.c.t. of %0.4lgs, ~%0.4lgs of computing time (of which %0.4lgs sorting, %0.4lgs analysis)\n", nsbp, nsap, mt, lt, st, at);
-
-#if RSB_MERGE_IS_EXPERIMENTAL
-	if(! RSB_SOME_ERROR(errval) )
-	if(!rsb__mtx_chk(mtxAp))
-	{
-		errval = RSB_ERR_INTERNAL_ERROR;
-		RSB_PERR_GOTO(ret, RSB_ERRM_ES);
-	}
-#endif
 	goto err;
 cer:
 	RSB_ERROR("Critical Merge Error: cannot proceed. Merged matrix in inconsistent state !\n");
@@ -2034,13 +1801,14 @@ err:
 	rsb__mtx_list_free(&ml);
 ret:
 	return errval;
-} /* rsb__leaves_merge */
+}
 
 static rsb_err_t rsb__mtx_adjust_subm_ptrs(struct rsb_mtx_t *RSB_RESTRICT  mtxCp, const struct rsb_mtx_t *RSB_RESTRICT  mtxAp, rsb_long_t smc)
 {
 	/* 
 	 * Adjusts pointers displacements in the matrix tree and in the pointers list.
 	 */
+
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_submatrix_idx_t smi;
 	rsb_submatrix_idx_t n,si;
@@ -2069,11 +1837,11 @@ rsb_err_t rsb__mtx_realloc_with_spare_leaves(struct rsb_mtx_t **mtxApp, rsb_subm
 	/*
 	 * Will return RSB_ERR_ENOMEM on failure, in which the matrix will stay unchanged.
 	 * Once returned, shall fit (1 + rsb__submatrices_max_ptr_diff(*mtxApp) + slc) submatrices.
-	 * TODO: Consider guaranteed preallocation in rsb__allocate_recursive_sparse_matrix_from_row_major_coo & co.
+	 * TODO: to get rid of this, need guaranteed preallocation in rsb__allocate_recursive_sparse_matrix_from_row_major_coo
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t *mtxAp = NULL;
-	rsb_submatrix_idx_t smc;
+	rsb_submatrix_idx_t smc = 1 + rsb__submatrices_max_ptr_diff(*mtxApp);
 	rsb_submatrix_idx_t smi;
 
 	if( slc <= 0 )
@@ -2085,8 +1853,6 @@ rsb_err_t rsb__mtx_realloc_with_spare_leaves(struct rsb_mtx_t **mtxApp, rsb_subm
 	RSB_DEBUG_ASSERT( mtxApp);
 	RSB_DEBUG_ASSERT(*mtxApp);
 
-	smc = 1 + rsb__submatrices_max_ptr_diff(*mtxApp);
-
 	mtxAp = rsb__realloc(*mtxApp,sizeof(*mtxAp)*(smc+slc));
 
 	if(mtxAp == NULL)
@@ -2095,40 +1861,32 @@ rsb_err_t rsb__mtx_realloc_with_spare_leaves(struct rsb_mtx_t **mtxApp, rsb_subm
 		goto ret;
 	}
 
-#if RSB_WANT_SSC
-	mtxAp->ssbc += slc;
-	if(RSB_MTX_REALLOC_IS_EXPERIMENTAL)
-		RSB_STDOUT("After realloc has %ld spare subms.\n",(long int)mtxAp->ssbc);
-#endif
-
-	if(RSB_MTX_REALLOC_IS_EXPERIMENTAL)
-		RSB_STDOUT("in (%d -> %d) realloc, pointers of %d matrices might have to be readjusted: %p -> %p..%p  (%+d bytes)\n",smc,slc,smc,(void*)(*mtxApp),(void*)mtxAp,(void*)(mtxAp+smc+slc),(int)((rsb_byte_t*)mtxAp-(rsb_byte_t*)*mtxApp));
-
-	//RSB_BZERO((mtxAp+smc),(sizeof(*mtxAp)*slc));
 	for (smi=smc;smi<smc+slc;++smi)
 		mtxAp[smi].flags = RSB_REC_FREE_SUBM_FLAG;
 
 	if( mtxAp == *mtxApp )
 		goto ret;
 
+	if(0)
+		RSB_STDOUT("in (%d -> %d) realloc, pointers of %d matrices have to be readjusted: %p -> %p  (%+d bytes)\n",smc,slc,smc,*mtxApp,mtxAp,(int)((rsb_byte_t*)mtxAp-(rsb_byte_t*)*mtxApp));
 	errval = rsb__mtx_adjust_subm_ptrs( mtxAp, *mtxApp, smc );
-
 ret:
 	*mtxApp = mtxAp;
 	return errval;
-} /* rsb__mtx_realloc_with_spare_leaves */
+}
 
 rsb_submatrix_idx_t rsb__get_diagonal_submatrices_count(const struct rsb_mtx_t *mtxAp)
 {
 	/**
 	  \ingroup gr_internals
-	  \return count of submatrices laying on the diagonal, if the matrix is recursive. zero, otherwise.
+	  \return the count of submatrices which are on the diagonal, if the matrix is recursive. zero, otherwise.
 	  */
 	rsb_submatrix_idx_t i,j;
 	struct rsb_mtx_t * submatrix = NULL;
 	rsb_submatrix_idx_t dsc = 0;
 
-	RSB_DEBUG_ASSERT(mtxAp);
+	if(!mtxAp)
+		goto done;
 
 	if(rsb__is_terminal_recursive_matrix(mtxAp))
 	{
@@ -2140,10 +1898,10 @@ rsb_submatrix_idx_t rsb__get_diagonal_submatrices_count(const struct rsb_mtx_t *
 		if( submatrix && i==j && RSB_SUBMATRIX_IS_ON_DIAG(submatrix) )
 			dsc += rsb__get_diagonal_submatrices_count(submatrix);
 	}
+done:
 	return dsc;
 }
 
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__init_set_quad_submatrices_info(const struct rsb_mtx_partitioning_info_t * pinfop, struct rsb_mtx_t ** matrices, rsb_nnz_idx_t uuk, rsb_nnz_idx_t mk, rsb_nnz_idx_t uk, rsb_nnz_idx_t lk, rsb_nnz_idx_t llk, rsb_coo_idx_t mB, rsb_coo_idx_t kB, rsb_coo_idx_t roff, rsb_coo_idx_t coff)
 {
 	/**
@@ -2186,6 +1944,5 @@ rsb_err_t rsb__init_set_quad_submatrices_info(const struct rsb_mtx_partitioning_
 
 	RSB_DO_ERR_RETURN(errval)
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 /* @endcond */

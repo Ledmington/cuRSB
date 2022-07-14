@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -29,7 +29,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_REC2COO_H_INCLUDED
 #include "rsb_common.h"
 rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_rcoo(struct rsb_mtx_t * mtxAp, rsb_bool_t do_shift);
-rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(struct rsb_mtx_t * mtxAp, struct rsb_coo_mtx_t * coop);
-rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_unsorted(struct rsb_mtx_t * mtxAp, struct rsb_coo_mtx_t * coop);
+rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(struct rsb_mtx_t * mtxAp, struct rsb_coo_matrix_t * coop);
+rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_unsorted(struct rsb_mtx_t * mtxAp, struct rsb_coo_matrix_t * coop);
 #endif /* RSB_REC2COO_H_INCLUDED */
 /* @endcond */

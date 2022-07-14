@@ -175,13 +175,18 @@ dnl	/*!  \ingroup rsb_doc_kernels
 	 * block size.
 	 *
 	 * \return \rsb_errval_inp_param_msg
-ifelse(RSB_M4_IS_KERNEL_REGISTER_BLOCKED(b_rows,b_columns),1,`dnl
+ifelse(RSB_M4_IS_FORMAT_BCSS(matrix_storage),1,`dnl
 	 *
 	 * Since this is strictly blocked code, you should allow the rhs and the out
 	 * vector to accept a small overflow not bigger, respectively, than
 	 *       mod(blockrows-mod(matrixrows,blockrows),blockrows)
 	 * and
 	 *       mod(blockcols-mod(matrixcols,blockcols),blockcols)
+dnl	 *
+dnl	 * Note: We assume this quantity is the same for each block.
+dnl	 *
+dnl	 * WARNING : EXPERIMENTAL FUNCTION
+dnl	 * for block bigger than ~12x12 it seems that inline matrix multiplication code slows down the whole thing
 ')dnl
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -190,19 +195,16 @@ ifelse(RSB_M4_IS_FORMAT_BCSS(matrix_storage),1,`dnl
 pushdef(`args',`RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCSS_KERNEL_SIZE_DISPATCH_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,unrolling,,,mop,citype,k_diagonal,uplo))')dnl
 
 	register rsb_coo_idx_t columns,rows;
-#if !RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS
 	if(cpntr && rpntr)
 	{
 		columns=cpntr[1]-cpntr[0];
 		rows   =rpntr[1]-rpntr[0];
-		RSB_ASSERT(columns==1 && rows==1);
 	}
 	else
-#endif /* RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS */
 dnl #if RSB_EXPERIMENTAL_WANT_PURE_BCSS
 ifelse(RSB_M4_WANT_20110206_BOUNDED_BOX_PATCH,1,`dnl
 dnl 20110206	set the following 
-		columns = rows=1;
+		columns = rows=1;	/* experimental, for the bounded box patch */
 ',`dnl
 dnl 20110206	and commented the following 
 		columns=bc,rows=br;
@@ -222,24 +224,25 @@ foreach(`colsu',RSB_M4_COLUMNS_UNROLL,`dnl
 		errval = RSB_M4_BCSS_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,k_symmetry,rowsu,colsu,unrolling,mop,citype,k_diagonal,uplo)( args );
 		break;
 ')dnl
-
+	default: 
 #ifdef RSB_WANT_LOOPING_KERNELS 
-default: 	errval = RSB_M4_BCSS_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,k_symmetry,rowsu,RSB_M4_COLUMNS_FALLBACK_UNROLL,`l',mop,citype,k_diagonal,uplo)( args );
+		errval = RSB_M4_BCSS_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,k_symmetry,rowsu,RSB_M4_COLUMNS_FALLBACK_UNROLL,`l',mop,citype,k_diagonal,uplo)( args );
 #else /* RSB_WANT_LOOPING_KERNELS */
-default:	errval = RSB_ERR_UNSUPPORTED_OPERATION;
+	errval = RSB_ERR_UNSUPPORTED_OPERATION;
 #endif /* RSB_WANT_LOOPING_KERNELS */
 	}}
 	break;
 ')dnl
-
+	default:
 #ifdef RSB_WANT_LOOPING_KERNELS 
-default:	errval = RSB_M4_BCSS_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,k_symmetry,RSB_M4_ROWS_FALLBACK_UNROLL,RSB_M4_COLUMNS_FALLBACK_UNROLL,`l',mop,citype,k_diagonal,uplo)( args );
+		errval = RSB_M4_BCSS_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,k_symmetry,RSB_M4_ROWS_FALLBACK_UNROLL,RSB_M4_COLUMNS_FALLBACK_UNROLL,`l',mop,citype,k_diagonal,uplo)( args );
 #else /* RSB_WANT_LOOPING_KERNELS */
-default:	errval = RSB_ERR_UNSUPPORTED_OPERATION;
+	errval = RSB_ERR_UNSUPPORTED_OPERATION;
 #endif /* RSB_WANT_LOOPING_KERNELS */
 };
 popdef(`args')dnl
 ')dnl
+	dnl errval = RSB_ERR_UNSUPPORTED_TYPE;
 	return errval;
 }
 dnl
@@ -285,13 +288,22 @@ pushdef(`k_diagonal',$11)dnl
 pushdef(`uplo',$12)dnl	
 dnl
 ifelse(dnl
-dnl	Emit a non-empty character (non-`') if no code is to be generated:
-dnl ifelse(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_FORMAT_COLUMN_MAJOR(matrix_storage),RSB_M4_NOT(transposed)),1,`no',`')`'dnl	CSC SPSV
-dnl ifelse(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_FORMAT_ROW_MAJOR(matrix_storage),transposed),1,`no'`')dnl	CSR transposed SPSV
-ifelse(RSB_M4_IMPLY(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_KERNEL_REGISTER_UNBLOCKED(b_rows,b_columns)),`1',`',`no')`'dnl SPSV for non 1x1 blockings gets blocked
-ifelse(RSB_M4_OR(RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry),RSB_M4_IS_KERNEL_REGISTER_UNBLOCKED(b_rows,b_columns)),`1',`',`no')`'dnl any symmetric kernel for non 1x1 blockings
+dnl
+dnl	The following are cases which are NOT implemented.
+dnl	Each line emits a non empty character (`*') to block an implementation.
+dnl
+dnl	CSC SPSV gets blocked:
+dnl ifelse(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_FORMAT_COLUMN_MAJOR(matrix_storage),RSB_M4_NOT(transposed)),1,`no',`')`'dnl
+dnl	CSR transposed SPSV gets blocked:
+dnl ifelse(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_FORMAT_ROW_MAJOR(matrix_storage),transposed),1,`no'`')dnl
+dnl	SPSV for non 1x1 blockings gets blocked
+ifelse(RSB_M4_IS_SPSX_KERNEL_MOP(mop),1,ifelse(RSB_M4_AND(RSB_M4_SAME(b_rows,1),RSB_M4_SAME(b_columns,1)),`1',`',`no'))`'dnl
+dnl
+dnl	any symmetric kernel for non 1x1 blockings gets blocked
 dnl	TODO : should modify RSB_M4_EXTRA_SYMMETRIC_DIAGONAL_FIXING_KERNEL to support k_symmetry and blocking
-ifelse(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry)),1,`no',`')`'dnl any SPSV symmetric
+ifelse(RSB_M4_OR(RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry),RSB_M4_AND(RSB_M4_SAME(b_rows,1),RSB_M4_SAME(b_columns,1))),1,`',`no')`'dnl
+dnl	any SPSV symmetric gets blocked
+ifelse(RSB_M4_IS_SPSX_KERNEL_MOP(mop),1,ifelse(RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry),1,`no',`'))`'dnl
 dnl
 ,`',`1',`0')dnl
 dnl
@@ -309,16 +321,6 @@ popdef(`unrolling')dnl
 ')dnl
 dnl
 dnl
-dnl
-dnl
-dnl
-define(`RSB_M4_IMPOSSIBLE_IMPLEMENTATION_ERROR',`dnl
-dnl	RSB_ERR_UNIMPLEMENTED_YET
-dnl	RSB_ERR_UNSUPPORTED_FEATURE
-dnl	RSB_ERR_UNSUPPORTED_OPERATION
-dnl	RSB_ERR_BADARGS|RSB_ERR_UNSUPPORTED_OPERATION
-RSB_ERR_BADARGS`'dnl
-')dnl
 dnl
 dnl
 dnl
@@ -385,16 +387,16 @@ ifelse(mop,`scale',`dnl
 ifelse(mop,`negation',`dnl
 	 * Computes \f$A \leftarrow - A \f$
 ')dnl
-         * A blocked b_rows x b_columns, stored in matrix_storage format, RSB_M4_MATRIX_DIAGONAL_DENOMINATION(k_diagonal), of `type' mtype, with citype column indices.
+         * Matrix A should be blocked b_rows x b_columns, stored in matrix_storage format, RSB_M4_MATRIX_DIAGONAL_DENOMINATION(k_diagonal), of `type' mtype, with citype column indices.
 dnl
 ifelse(RSB_M4_BXXX_KERNEL_FUNCTION_HAS_IMPLEMENTATION($@),`1',`dnl
 	 * \return \rsb_errval_inp_param_msg
 	 */
 ',`dnl
-dnl
-	 * \return RSB_M4_IMPOSSIBLE_IMPLEMENTATION_ERROR (this function is not implemented).
+dnl	FIXME: the return error is not always adequate, here.
+	 * \return RSB_ERR_UNIMPLEMENTED_YET (this function is not implemented).
 	 */
-dnl
+dnl	/* or RSB_ERR_UNSUPPORTED_FEATURE ? */
 ')dnl
 dnl
 popdef(`uplo')dnl
@@ -433,26 +435,22 @@ pushdef(`citype',$10)dnl
 pushdef(`k_diagonal',$11)dnl	
 pushdef(`uplo',$12)dnl	
 dnl
-ifelse(RSB_M4_IS_FORMAT_BCSS(matrix_storage),1,`dnl
-pushdef(`fid',RSB_M4_KERNEL_DIRECT_DISPATCHER_FUNCTION_NAME(mtype,matrix_storage,transposition,k_symmetry,b_rows,b_columns,unrolling,mop,citype,k_diagonal,uplo))dnl
-dnl
 ifelse(RSB_M4_ARE_KERNEL_GENERATION_PARMS_ALLOWED(want_what,mtype,matrix_storage,transposition,k_symmetry,unrolling,,,mop,citype,k_diagonal,uplo),`1',`dnl
 dnl
 ifelse(want_what,`all',`dnl
 dnl
 ifelse(RSB_M4_IS_FORMAT_BCSS(matrix_storage),1,`dnl
-rsb_err_t fid`'dnl
+rsb_err_t RSB_M4_BCSS_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,k_symmetry,b_rows,b_columns,unrolling,mop,citype,k_diagonal,uplo)dnl
 RSB_M4_BCSS_KERNEL_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,b_rows,b_columns,unrolling,mop,citype,k_diagonal,uplo)dnl
 ')dnl
 ifdef(`ONLY_WANT_HEADERS',`;
 ',`
-dnl /* begin of fid function */
 RSB_M4_BCSS_KERNEL_FUNCTION(`BODY',mtype,matrix_storage,transposition,k_symmetry,b_rows,b_columns,unrolling,mop,citype,k_diagonal,uplo)dnl
 ')dnl
 ')dnl
 dnl
 ifelse(want_what,`ID',`dnl
-fid`'dnl
+RSB_M4_KERNEL_DIRECT_DISPATCHER_FUNCTION_NAME(mtype,matrix_storage,transposition,k_symmetry,b_rows,b_columns,unrolling,mop,citype,k_diagonal,uplo)`'dnl
 ')dnl
 dnl
 ifelse(want_what,`ARGS',`dnl
@@ -559,7 +557,7 @@ ifelse(RSB_M4_AND(RSB_M4_IS_SPMX_KERNEL_MOP(mop),RSB_M4_IS_DIAGONAL_IMPLICIT(k_d
 ifelse(has_implementation,`1',`dnl
 ',`dnl
 dnl	/* or RSB_ERR_UNSUPPORTED_FEATURE ? */
-	return RSB_M4_IMPOSSIBLE_IMPLEMENTATION_ERROR;`'
+	return RSB_ERR_UNIMPLEMENTED_YET;
 ')dnl
 dnl
 ifelse(has_implementation,`1',`dnl
@@ -568,10 +566,10 @@ dnl
 ifelse(RSB_M4_AND(RSB_M4_IS_SPMX_KERNEL_MOP(mop),RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry)),1,`dnl
 	/*
 ifelse(RSB_M4_want_verbose_comments,`1',`dnl
-		This function assumes the matrix symmetric, and will therefore update the
-		output vector in the 0,Mdim and -roff+coff,-roff+coff+Mdim range.
-		If you are using several threads and kernels, you should synchronize them
-		to update disjoing ranges.
+		WARNING : This function assumes the matrix symmetric, and therefore 
+		will write the output vector in the 0,Mdim and -roff+coff,-roff+coff+Mdim range.
+		So if you are using this function in a parallel environment, you should care about
+		proper locking of the output vectors.
 ')dnl
 ifelse(RSB_M4_AND(RSB_M4_IS_SPMX_SCALING_KERNEL_MOP(mop),RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry)),1,`dnl
 		The output vector zero-ing is impacted, too, so if you are using this kernel with
@@ -583,7 +581,7 @@ dnl
 dnl
 dnl
 dnl
-ifelse(RSB_M4_AND(RSB_M4_NOT(RSB_M4_IS_COMPLEX_TYPE(type)),RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry),RSB_M4_NOT(transposition,RSB_M4_TRANS_N)),1,`dnl
+ifelse(RSB_M4_OR(RSB_M4_AND(RSB_M4_NOT(RSB_M4_IS_COMPLEX_TYPE(type)),RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry),RSB_M4_NOT(transposition,RSB_M4_TRANS_N))),1,`dnl
 dnl
 ifelse(RSB_M4_SAME(transposition,RSB_M4_TRANS_C),1,`dnl
 	/* `For non complex types, hermitian defaults to plain transposition.' */
@@ -603,6 +601,14 @@ dnl
 	/* `This kernel performs the same as its transposed', transposition -> RSB_M4_TRANSPOSE_TRANSPOSITION(transposition). */
 	return RSB_M4_BCSS_KERNEL_FUNCTION(`ID',type,matrix_storage,RSB_M4_TRANSPOSE_TRANSPOSITION(transposition),k_symmetry,rowsu,colsu,unrolling,mop,citype,k_diagonal,uplo)dnl
 (RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCSS_KERNEL_FUNCTION(`ARGS',type,matrix_storage,RSB_M4_TRANSPOSE_TRANSPOSITION(transposition),k_symmetry,rowsu,colsu,unrolling,mop,citype)));
+dnl
+dnl ifelse(RSB_M4_SAME(transposition,RSB_M4_TRANS_C),1,`dnl
+dnl 	/*
+dnl 		The matrix is treated as symmetric hermitian.
+dnl 		FIXME: missing implementation.
+dnl 	*/
+dnl 	return RSB_ERR_UNIMPLEMENTED_YET;
+dnl ')dnl
 dnl
 ',`dnl
 dnl
@@ -627,11 +633,7 @@ ifelse(RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry),1,`dnl
 	register rsb_coo_idx_t i=0;
 ')dnl
 ',`dnl
-ifelse(is_a_backward_kernel,1,`
-	register rsb_coo_idx_t i=0;
-',`
 	register rsb_coo_idx_t i=0,j=0;
-')dnl
 ')dnl
 	register rsb_nnz_idx_t k=0;
 dnl
@@ -680,12 +682,7 @@ ifelse(RSB_M4_IS_SPXX_OP_SCALING_KERNEL_MOP(mop),1,`dnl
 ')dnl
 dnl
 dnl
-dnl	BEGIN CONDITIONAL DEBUG SECTION
-dnl
-ifelse(RSB_M4_DEBUG,`1',`	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in fid\n");
-',`')dnl
-dnl
-dnl	END CONDITIONAL DEBUG SECTION
+dnl	END VARIABLES DECLARATIONS
 dnl
 dnl	BEGIN CONDITIONAL VECTOR SCALING
 dnl
@@ -709,15 +706,13 @@ dnl
 ifelse(RSB_M4_want_verbose_comments,`1',` /*	Outer loop. Occurs on the major dimension.	*/ ')dnl
 dnl
 ifelse(is_an_externally_backward_kernel,1,`
-dnl	/*trick for unsigned indices: */
-dnl	//RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_FORMAT_COLUMN_MAJOR(matrix_storage),RSB_M4_NOT(RSB_M4_SAME(transposition,RSB_M4_TRANS_N))
-	for(Mi=Mdim-1; RSB_LIKELY((Mi+1)>0);--Mi)
+	for(Mi=Mdim-1; RSB_LIKELY((Mi+1)>0 /*trick for unsigned indices */);--Mi) //RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_FORMAT_COLUMN_MAJOR(matrix_storage),RSB_M4_NOT(RSB_M4_SAME(transposition,RSB_M4_TRANS_N))
 	{
 ',`dnl
 dnl
 ifelse(RSB_M4_AND(RSB_M4_WANT_20110206_BOUNDED_BOX_PATCH,RSB_M4_NOT(RSB_M4_IS_SCALING_OR_ZEROING_KERNEL_MOP(mop))),1,`dnl
 dnl	really, the above condition should also check for transposition! but in this way it does no wrong.
-	for(Mi=br;RSB_LIKELY(Mi<bc);++Mi)
+	for(Mi=br;RSB_LIKELY(Mi<bc);++Mi)	/* experimental, for the bounded box patch */
 ',`dnl
 	for(Mi=0;RSB_LIKELY(Mi<Mdim);++Mi)
 ')dnl
@@ -763,6 +758,9 @@ dnl
 ifelse(RSB_M4_IS_SPXX_KERNEL_MOP(mop),`1',`dnl
 ifelse(RSB_M4_is_transposed_spmv,1,`dnl
 		const mtype bt=postalphamult`'trhs[(tcolsu*xstride*(Mi))];
+dnl		const mtype *b = rhs+(tcolsu*bci);
+',`dnl
+dnl		const mtype bn = rhs[(tcolsu*xstride*(Mi))];	/*20120915: spurious instruction commented out*/
 ')dnl
 ')dnl
 		const rsb_nnz_idx_t fk=bpntr[Mi],lk=bpntr[Mi+1];
@@ -821,8 +819,10 @@ ifelse(RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry),1----,`dnl
 ifelse(RSB_M4_IS_SPMX_KERNEL_MOP(mop),1,`dnl
 ifelse(RSB_M4_IS_DIAGONAL_IMPLICIT(k_diagonal),1,`',`dnl
 ifelse(RSB_M4_want_verbose_comments,`1',`dnl
-/* Symmetric kernels should process the first block separately, if it contains `diagonal' elements. */
-dnl	In register blocked code this is not the case.
+/*
+		Symmetric kernels should process the first block separately, if it contains `diagonal' elements.
+		FIXME : this is NOT the case for blocked code.
+*/
 ')dnl
 		k=fk;
 		if(RSB_UNLIKELY(lk==k)) continue;/* nothing to do here */
@@ -918,7 +918,7 @@ pushdef(`ntransposition',RSB_M4_TRANSPOSE_TRANSPOSITION(transposition))dnl
 pushdef(`ttransposition',RSB_M4_TRANSPOSE_TRANSPOSITION(transposition))dnl
 ')dnl
 ')dnl
-dnl			// nt stay for either ntransposition or ttransposition
+dnl			// nt: ntransposition ttransposition
 			k=fk;
 			if(k==lk)continue;
 			j=bindx[k];
@@ -958,6 +958,11 @@ dnl			outi[0]+=postalphamult`cacc';
 ')dnl
 dnl
 dnl		}
+dnl
+dnl
+dnl
+dnl	FIXME : this code is only a quick hack for CSR!
+dnl
 dnl
 dnl		/* SPMV KERNEL ENDS HERE */
 popdef(`postalphamult')dnl
@@ -1000,7 +1005,7 @@ dnl		out[tcolsu*bci]/=RSB_M4_CONJ(VA[bpntr[Mi+1]-1],mtype,transposition,k_symmet
 dnl
 ')dnl
 dnl		
-		out[tcolsu*brit]/=aa;
+		out[tcolsu*bci]/=aa;
 dnl
 ')dnl
 dnl
@@ -1023,10 +1028,10 @@ pushdef(`skip_tail_row_elements',0)dnl
 dnl
 ifelse(is_a_backward_kernel,1,`
 dnl
-dnl	FIXME : backward kernels are only used for SPSV, and they start with one element less
+dnl	FIXME : backward kernels are noly used for SPSV, and they start with one element less
 dnl
 		for(k=lk-1-skip_tail_row_elements`'dnl
-,a=VA+k;k+1>=fk+1+skip_head_row_elements;--k,block_forward)
+,a=VA+k,mi=bindx[k];k+1>=fk+1+skip_head_row_elements  ;--k,block_forward,mi=bindx[k])
 dnl	/* k is the index of the block */
 ',`dnl
 		ifelse(skip_head_row_elements,1,block_forward;)
@@ -1034,7 +1039,6 @@ dnl	/* k is the index of the block */
 dnl	/* k is the index of the block */
 ')dnl
 		{
-ifelse(is_a_backward_kernel,1,`			const rsb_coo_idx_t mi=bindx[k];')
 ifelse(RSB_M4_SAME(transposition,RSB_M4_TRANS_N),1,`dnl
 			const mtype *b=out + (tcolsu*bci);
 			mtype *c=&ax_0;
@@ -1052,7 +1056,7 @@ dnl
 dnl
 ifelse(is_diag_d_spsv_kernel,1,`dnl
 ifelse(RSB_M4_IS_SPSX_OP_SCALING_KERNEL_MOP(mop),1,`dnl
-		out[tcolsu*brit]*=alpha;
+		out[tcolsu*bci]*=alpha;
 ')dnl
 ')dnl
 dnl
@@ -1178,6 +1182,15 @@ dnl		mtype *c=out+(rowsu*mi); /* declaration of c put here for experimental purp
 ')dnl
 dnl
 dnl
+dnl	FIXME : blocked TRS kernels are broken, in this way
+dnl
+dnl			mi=bindx[k];
+dnl			/* `mop' is mop */
+dnl
+dnl
+dnl
+dnl
+dnl
 popdef(`is_diag_d_spsv_kernel')dnl
 popdef(`tcolsu')dnl
 popdef(`trowsu')dnl
@@ -1222,16 +1235,12 @@ popdef(`block_forward')dnl
 popdef(`block_backward')dnl
 popdef(`extra_xstride')dnl
 popdef(`extra_ystride')dnl
-dnl } /* end of fid function */
 }
 dnl
 ')dnl
 dnl
 ')dnl
 dnl
-popdef(`fid')dnl
-dnl
-')dnl
 popdef(`uplo')dnl
 popdef(`want_what')dnl
 popdef(`k_diagonal')dnl
@@ -1348,7 +1357,6 @@ foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 foreach(`mop',RSB_M4_MATRIX_OPS,`dnl
 ifelse(RSB_M4_IS_SPMV_KERNEL_MOP(mop),1,`dnl
 foreach(`matrix_storage',RSB_M4_BCSS_FORMATS,`dnl
-ifelse(RSB_M4_NOT(RSB_M4_AND(RSB_M4_IS_FORMAT_BCXX(matrix_storage),RSB_M4_IS_SPXX_KERNEL_MOP(mop))),1,`dnl skip_register_block_dispatcher
 foreach(`unrolling',unrollings,`dnl
 foreach(`k_symmetry',RSB_M4_MATRIX_SYMMETRY,`dnl
 foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`dnl
@@ -1362,7 +1370,6 @@ RSB_M4_BCSS_KERNEL_SIZE_DISPATCH_FUNCTION(`all',type,matrix_storage,transpositio
 ')dnl
 ')dnl
 ')dnl
-')dnl skip_register_block_dispatcher
 ')dnl
 ')dnl
 ')dnl
@@ -1394,11 +1401,7 @@ foreach(`k_symmetry',RSB_M4_MATRIX_SYMMETRY,`dnl
 foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`dnl
 foreach(`citype',RSB_M4_MATRIX_COORDINATE_TYPES,`dnl
 foreach(`uplo',RSB_M4_MATRIX_UPLO_TYPES,`dnl
-ifelse(RSB_M4_NOT(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry))),1,`dnl
 RSB_M4_BCSS_KERNEL_FUNCTION(`all',type,matrix_storage,transposition,k_symmetry,rowsu,colsu,unrolling,mop,citype,k_diagonal,uplo)
-',`dnl
-dnl	no_symm_spsx
-')dnl
 ')dnl
 ')dnl
 ')dnl
@@ -1418,25 +1421,19 @@ foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 foreach(`mop',RSB_M4_MATRIX_OPS,`dnl
 ifelse(RSB_M4_IS_SPSV_KERNEL_MOP(mop),1,`dnl
 foreach(`matrix_storage',RSB_M4_BCSS_FORMATS,`dnl
-ifelse(RSB_M4_NOT(RSB_M4_AND(RSB_M4_IS_FORMAT_BCXX(matrix_storage),RSB_M4_IS_SPXX_KERNEL_MOP(mop))),1,`dnl skip_register_block_dispatcher
 foreach(`unrolling',unrollings,`dnl
 foreach(`k_symmetry',RSB_M4_MATRIX_SYMMETRY,`dnl
 foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`dnl
 foreach(`citype',RSB_M4_MATRIX_COORDINATE_TYPES,`dnl
 foreach(`k_diagonal',RSB_M4_MATRIX_DIAGONAL_TYPES,`dnl
 foreach(`uplo',RSB_M4_MATRIX_UPLO_TYPES,`dnl
-ifelse(RSB_M4_NOT(RSB_M4_AND(RSB_M4_IS_SPSX_KERNEL_MOP(mop),RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry))),1,`dnl
 RSB_M4_BCSS_KERNEL_SIZE_DISPATCH_FUNCTION(`all',type,matrix_storage,transposition,k_symmetry,unrolling,,,mop,citype,k_diagonal,uplo)
-',`dnl
-dnl	no_symm_spsx
 ')dnl
 ')dnl
 ')dnl
 ')dnl
 ')dnl
 ')dnl
-')dnl
-')dnl skip_register_block_dispatcher
 ')dnl
 ')dnl
 ')dnl

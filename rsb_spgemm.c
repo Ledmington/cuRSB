@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -106,7 +106,7 @@ err:
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
-static rsb_err_t rsb_spgemm_inner(const struct rsb_coo_mtx_t * acoo, const struct rsb_coo_mtx_t * bcoo, rsb_nnz_idx_t * cblocksp, rsb_coo_idx_t ** PA, rsb_coo_idx_t ** JA, void ** VA, size_t * opsp)
+static rsb_err_t rsb_spgemm_inner(const struct rsb_coo_matrix_t * acoo, const struct rsb_coo_matrix_t * bcoo, rsb_nnz_idx_t * cblocksp, rsb_coo_idx_t ** PA, rsb_coo_idx_t ** JA, void ** VA, size_t * opsp)
 {
 	/**
 	 * \ingroup gr_unfinished
@@ -124,7 +124,7 @@ static rsb_err_t rsb_spgemm_inner(const struct rsb_coo_mtx_t * acoo, const struc
 	rsb_coo_idx_t ai,aj;
 //	rsb_coo_idx_t ci,cj;
 	rsb_coo_idx_t cm,ck;
-	/*rsb_coo_idx_t am,ak;*/
+	/*rsb_coo_idx_t am,ak*/;
 	rsb_coo_idx_t /*bm,*/bk;
 	rsb_coo_idx_t al,bl;
 	size_t el_size=0;
@@ -158,9 +158,9 @@ static rsb_err_t rsb_spgemm_inner(const struct rsb_coo_mtx_t * acoo, const struc
 	/*ak=acoo->nc;*/
 
 	acc = rsb__calloc(el_size*bk);
-	if(!acc) {errval = RSB_ERR_ENOMEM;goto err;}
+	if(!acc) {errval = RSB_ERR_BADARGS;goto err;}
 	p = rsb__calloc(sizeof(rsb_nnz_idx_t)*(bk+1));
-	if(!p) {errval = RSB_ERR_ENOMEM;goto err;}
+	if(!p) {errval = RSB_ERR_BADARGS;goto err;}
 
 	if(PA && JA && VA)
 		*PA = rsb__calloc(sizeof(rsb_coo_idx_t)*(cm+1));
@@ -168,8 +168,7 @@ static rsb_err_t rsb_spgemm_inner(const struct rsb_coo_mtx_t * acoo, const struc
 	if(!*PA)
 	{
 		RSB_CONDITIONAL_FREE(*PA);
-		errval = RSB_ERR_ENOMEM;
-		goto err;
+		errval = RSB_ERR_BADARGS;goto err;
 	}
 
 	for(ai=0;ai<cm;++ai)
@@ -229,8 +228,7 @@ static rsb_err_t rsb_spgemm_inner(const struct rsb_coo_mtx_t * acoo, const struc
 			RSB_CONDITIONAL_FREE(*PA);
 			RSB_CONDITIONAL_FREE(*JA);
 			RSB_CONDITIONAL_FREE(*VA);
-			errval = RSB_ERR_ENOMEM;
-			goto err;
+			errval = RSB_ERR_BADARGS;goto err;
 		}
 #if RSB_WANT_OMP_RECURSIVE_SPGEMM_KERNELS
 	#pragma omp parallel RSB_NTC
@@ -247,9 +245,9 @@ static rsb_err_t rsb_spgemm_inner(const struct rsb_coo_mtx_t * acoo, const struc
 		if(tn)
 		{
 			acc_=rsb__calloc(el_size*bk);
-			if(!acc_) {errval = RSB_ERR_ENOMEM;}
+			if(!acc_) {errval = RSB_ERR_BADARGS;}
 			p_=rsb__calloc(sizeof(rsb_nnz_idx_t)*(bk+1));
-			if(!p_) {errval = RSB_ERR_ENOMEM;}
+			if(!p_) {errval = RSB_ERR_BADARGS;}
 		}
 		else
 		{
@@ -276,6 +274,7 @@ ierr:
 	}
 #endif /* RSB_WANT_OMP_RECURSIVE_SPGEMM_KERNELS */
 	}
+	/* CSR to COO conversion */
 	*PA = rsb__realloc(*PA,RSB_MAX(cblocks,RSB_MAX(1+cm,ck))*sizeof(rsb_nnz_idx_t));
 	RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_compressed_array_to_fullword_coo(*PA,cm,0,NULL));
 #if RSB_WANT_SPGEMM_MFLOPS
@@ -301,7 +300,7 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-static rsb_err_t rsb_do_spgemm_dense_inner(rsb_coo_idx_t ldc, rsb_coo_idx_t nr, rsb_coo_idx_t nc, rsb_bool_t isccolmajor, void *cVA_, const struct rsb_coo_mtx_t * acoo, const struct rsb_coo_mtx_t * bcoo, rsb_nnz_idx_t * cblocksp, size_t * opsp)
+static rsb_err_t rsb_do_spgemm_dense_inner(rsb_coo_idx_t ldc, rsb_coo_idx_t nr, rsb_coo_idx_t nc, rsb_bool_t isccolmajor, void *cVA_, const struct rsb_coo_matrix_t * acoo, const struct rsb_coo_matrix_t * bcoo, rsb_nnz_idx_t * cblocksp, size_t * opsp)
 {
 	/**
 	 * \ingroup gr_unfinished
@@ -311,10 +310,10 @@ static rsb_err_t rsb_do_spgemm_dense_inner(rsb_coo_idx_t ldc, rsb_coo_idx_t nr, 
 	//rsb_coo_idx_t bi;
 	//rsb_coo_idx_t ai,aj;
 	rsb_coo_idx_t cm,ck;
-	//rsb_coo_idx_t /*am,*/ak;
-	//rsb_coo_idx_t bm,bk;
+	rsb_coo_idx_t /*am,*/ak;
+	rsb_coo_idx_t bm,bk;
 	//rsb_coo_idx_t al,bl;
-	//size_t el_size=0;
+	size_t el_size=0;
 
 #if RSB_WANT_SPGEMM_MFLOPS
 	rsb_nnz_idx_t ops=0;
@@ -325,7 +324,7 @@ static rsb_err_t rsb_do_spgemm_dense_inner(rsb_coo_idx_t ldc, rsb_coo_idx_t nr, 
 
 	if(!acoo || !bcoo || !cblocksp /* || !rsb_are_matrices_spgemm_block_conformant(acoo,bcoo)*/)
 	{errval = RSB_ERR_BADARGS;goto err;}
-	//el_size = RSB_SIZEOF(acoo->typecode);
+	el_size = RSB_SIZEOF(acoo->typecode);
 
 	if( (isccolmajor && (ldc<nr)) ||  ((!isccolmajor) && (ldc<nc))
 	 || (acoo->nc != bcoo->nr) || (acoo->nr > nr) || (bcoo->nc > nc) 
@@ -344,10 +343,10 @@ static rsb_err_t rsb_do_spgemm_dense_inner(rsb_coo_idx_t ldc, rsb_coo_idx_t nr, 
 	bbindx=bcoo->JA;
 
 	cm=acoo->nr;
-	//bm=bcoo->nr;
-	//bk=bcoo->nc;
+	bm=bcoo->nr;
+	bk=bcoo->nc;
 	ck=bcoo->nc;
-	//ak=acoo->nc;
+	ak=acoo->nc;
 
 	{
 		rsb_nnz_idx_t opss=0;
@@ -401,7 +400,7 @@ static struct rsb_mtx_t * rsb_spgemm_tmp(rsb_type_t typecode, const struct rsb_m
 	rsb_nnz_idx_t nnz = 0;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_flags_t flags = RSB_FLAG_DEFAULT_RSB_MATRIX_FLAGS;
-	struct rsb_coo_mtx_t acsr,bcsr;
+	struct rsb_coo_matrix_t acsr,bcsr;
 	struct rsb_mtx_t *mtxCp = NULL;
 	rsb_time_t dt = RSB_CONST_IMPOSSIBLY_BIG_TIME;
 	rsb_coo_idx_t cm = 0,ck = 0;
@@ -418,16 +417,18 @@ static struct rsb_mtx_t * rsb_spgemm_tmp(rsb_type_t typecode, const struct rsb_m
 
 	if( !mtxAp || !mtxBp )
 	{
+		RSB_ERROR("Supplied a NULL matrix pointer.\n");
 		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,"Supplied a NULL matrix pointer.\n");
+		goto err;
 	}
 	RSB_DO_FLAG_DEL(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE);
 
 #if 0
 	if( mtxAp->typecode != mtxBp->typecode )
 	{
+		RSB_ERROR("Matrix types do not match.\n");
 		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,"Matrix types do not match.\n");
+		goto err;
 	}
 #else
 #endif
@@ -439,14 +440,16 @@ static struct rsb_mtx_t * rsb_spgemm_tmp(rsb_type_t typecode, const struct rsb_m
 
 	if( (transA != RSB_TRANSPOSITION_N) || (transB != RSB_TRANSPOSITION_N) )
 	{
+		RSB_ERROR("Transposition parameter not yet supported !\n");
 		errval = RSB_ERR_UNIMPLEMENTED_YET;
-		RSB_PERR_GOTO(err,"Transposition parameter not yet supported !\n");
+		goto err;
 	}
 
 	if(tak!=tbm)
 	{
+		RSB_ERROR("Matrix sizes do not match.\n");
 		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,"Matrix sizes do not match.\n");
+		goto err;
 	}
 
 	acsr.nr = mtxAp->nr;
@@ -456,8 +459,8 @@ static struct rsb_mtx_t * rsb_spgemm_tmp(rsb_type_t typecode, const struct rsb_m
 	acsr.typecode = typecode;
 	if((rsb__allocate_coo_matrix_t(&acsr)!=&acsr))
 	{
-		errval = RSB_ERR_INTERNAL_ERROR;
-		RSB_PERR_GOTO(err,"problem converting the A matrix\n");
+		RSB_ERROR("problem converting the A matrix\n");
+       		errval = RSB_ERR_INTERNAL_ERROR; goto err;
 	}
 	//acsr.nnz=mtxAp->nnz;
 	bcsr.nr = mtxBp->nr;
@@ -467,31 +470,39 @@ static struct rsb_mtx_t * rsb_spgemm_tmp(rsb_type_t typecode, const struct rsb_m
 	bcsr.typecode = typecode;
 	if((rsb__allocate_coo_matrix_t(&bcsr)!=&bcsr))
 	{
-		errval = RSB_ERR_INTERNAL_ERROR;
-		RSB_PERR_GOTO(err,"problem converting the B matrix\n");
+		RSB_ERROR("problem converting the B matrix\n");
+       		errval = RSB_ERR_INTERNAL_ERROR; goto err;
 	}
 	//bcsr.nnz=mtxBp->nnz;
 	errval = rsb__do_get_csr(typecode,mtxAp,acsr.VA,acsr.IA,acsr.JA,RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS);
 	if(RSB_SOME_ERROR(errval))
 	{
-		errval = RSB_ERR_INTERNAL_ERROR;
-		RSB_PERR_GOTO(err,"csr extraction problems from matrix A\n");
+		RSB_ERROR("csr extraction problems from matrix A\n");
+	      	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 	}
 	errval = rsb__do_get_csr(typecode,mtxBp,bcsr.VA,bcsr.IA,bcsr.JA,RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS);
 	if(RSB_SOME_ERROR(errval))
 	{
-		errval = RSB_ERR_INTERNAL_ERROR;
-		RSB_PERR_GOTO(err,"csr extraction problems from matrix B\n");
+		RSB_ERROR("csr extraction problems from matrix B\n");
+	      	errval = RSB_ERR_INTERNAL_ERROR; goto err;
 	}
 	acsr.nnz=acsr.IA[acsr.nr];
 	bcsr.nnz=bcsr.IA[bcsr.nr];
+
+	if(!mtxAp || !mtxBp)
+	{
+		RSB_ERROR(RSB_ERRM_ES);
+		errval = RSB_ERR_BADARGS;
+		goto err;
+	}
 
 	if(dtp)dt = - rsb_time();
 	if((errval = rsb_spgemm_inner(&acsr,&bcsr,&nnz,&IA,&JA,&VA,opsp))!=RSB_ERR_NO_ERROR)
 	/* FIXME: warning: allocation size may not be max(nnz,m) in mtxCp arrays, now ! */
 	{
+		//RSB_ERROR(RSB_ERRM_ES);
 		rsb__do_perror(NULL,errval);
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+		goto err;
 	}
 	if(dtp)dt += rsb_time();
 	//else rsb__test_print_coo_mm(mtxAp->typecode,mtxAp->flags,IA,JA,VA,mtxAp->nr,mtxBp->nc,nnz,RSB_BOOL_TRUE,RSB_DEFAULT_STREAM);
@@ -528,7 +539,7 @@ rsb_err_t rsb__do_spgemm_to_dense(rsb_type_t typecode, rsb_trans_t transA, const
 	rsb_nnz_idx_t nnz=0;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_flags_t flags = RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS;
-	struct rsb_coo_mtx_t acsr,bcsr;
+	struct rsb_coo_matrix_t acsr,bcsr;
 	rsb_time_t dt=RSB_CONST_IMPOSSIBLY_BIG_TIME;
 
 	RSB_BZERO_P(&acsr);
@@ -619,7 +630,7 @@ rsb_err_t rsb__do_spgemm_test_code(const int argc, char * const argv[])
 	const char * cfilename=NULL;
 	struct rsb_mtx_t *mtxAp = NULL;
 	struct rsb_mtx_t *mtxBp = NULL;
-	//int br,bc;
+	int br,bc;
 	/* 4x4 and 1x8 blockings give various results, as a numerical side effect */
 	//rsb_nnz_idx_t cblocks=0;
 	rsb_trans_t transA = RSB_TRANSPOSITION_N;
@@ -638,8 +649,8 @@ rsb_err_t rsb__do_spgemm_test_code(const int argc, char * const argv[])
 	rsb_time_t t = RSB_CONST_IMPOSSIBLY_BIG_TIME;
 	rsb_thread_t nt = rsb_get_num_threads(); 
 	size_t ops=0;
-	//rsb_option_t options[] = { RSB_BENCH_PROG_OPTS {0,0,0,0} };
-	//br=1,bc=8; br=4,bc=4; br=1,bc=1;
+	//rsb_option options[] = { RSB_BENCH_PROG_OPTS {0,0,0,0} };
+	br=1,bc=8; br=4,bc=4; br=1,bc=1;
 
 	RSB_DO_FLAG_ADD(flags,RSB_FLAG_SORT_INPUT);
 	filename = "pd.mtx";

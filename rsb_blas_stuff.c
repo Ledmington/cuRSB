@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -25,7 +25,7 @@ If not, see <http://www.gnu.org/licenses/>.
  * @author Michele Martone
  * @brief
  *
- * BLAS-like stuff
+ * BLAS like stuff
  * */
 #include "rsb_blas_stuff.h"
 

@@ -3,13 +3,13 @@
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- For block coordinates format.
+ But for block compressed sparse stripes format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 

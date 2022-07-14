@@ -20,8 +20,12 @@ dnl
 rsb_err_t rsb__do_add_submatrix_to_dense(const struct rsb_mtx_t * mtxAp, const void *alphap, void * Bp, rsb_nnz_idx_t ldb, rsb_nnz_idx_t nr, rsb_nnz_idx_t nc, rsb_bool_t rowmajor)
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
-	if(!mtxAp || !Bp || !alphap )
-		goto err;
+	rsb_nnz_idx_t n;
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	rsb_coo_idx_t	roff=0, coff=0;
+
+	if(!mtxAp || !Bp || !alphap ) {errval = RSB_ERR_BADARGS; goto err;}
+	roff=mtxAp->roff, coff=mtxAp->coff;
 
 foreach(`mtype',RSB_M4_TYPES,`dnl
 `#ifdef 'RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)
@@ -29,9 +33,7 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
 	{
 {
-	rsb_nnz_idx_t n;
-	const rsb_coo_idx_t roff=mtxAp->roff, coff=mtxAp->coff;
-	const mtype *VA=mtxAp->VA;
+	mtype *VA=mtxAp->VA;
 
 	if(rsb__is_coo_matrix(mtxAp))
 	{

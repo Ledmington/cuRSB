@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2019 Michele Martone
 
 This file is part of librsb.
 
@@ -29,83 +29,10 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb_util.h"
 #include "rsb.h"
 
-#define rsb__snprintf snprintf
+#define rsb__strcpy strcpy
+#define rsb__sprintf sprintf
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
-
-const char *rsb__get_errstr_ptr(rsb_err_t errval)
-{
-	/* return pointer to const error message string area */
-	const char *s = NULL;
-
-	switch(errval)
-	{
-		case RSB_ERR_GENERIC_ERROR:
-			s = RSB_ERRM_GENERIC_ERROR ;
-		break;
-		case RSB_ERR_UNSUPPORTED_OPERATION:
-			s = RSB_ERRM_UNSUPPORTED_OPERATION;
-		break;
-		case RSB_ERR_UNSUPPORTED_TYPE:
-			s = RSB_ERRM_UNSUPPORTED_TYPE;
-		break;
-		case RSB_ERR_UNSUPPORTED_FORMAT:
-			s = RSB_ERRM_UNSUPPORTED_FORMAT;
-		break;
-		case RSB_ERR_INTERNAL_ERROR:
-			s = RSB_ERRM_INTERNAL_ERROR;
-		break;
-		case RSB_ERR_BADARGS:
-			s = RSB_ERRM_BADARGS;
-		break;
-		case RSB_ERR_ENOMEM:
-			s = RSB_ERRM_ENOMEM;
-		break;
-		case RSB_ERR_UNIMPLEMENTED_YET:
-			s = RSB_ERRM_UNIMPLEMENTED_YET;
-		break;
-		case RSB_ERR_LIMITS:
-			s = RSB_ERRM_LIMITS;
-		break;
-		case RSB_ERR_NO_USER_CONFIGURATION:
-			s = RSB_ERRM_NO_USER_CONFIGURATION;
-		break;
-		case RSB_ERR_CORRUPT_INPUT_DATA:
-			s = RSB_ERRM_CORRUPT_INPUT_DATA;
-		break;
-		case RSB_ERR_FAILED_MEMHIER_DETECTION:
-			s = RSB_ERRM_FAILED_MEMHIER_DETECTION;
-		break;
-		case RSB_ERR_COULD_NOT_HONOUR_EXTERNALLY_ALLOCATION_FLAGS:
-			s = RSB_ERRM_COULD_NOT_HONOUR_EXTERNALLY_ALLOCATION_FLAGS;
-		break;
-		case RSB_ERR_UNSUPPORTED_FEATURE:
-			s = RSB_ERRM_UNSUPPORTED_FEATURE;
-		break;
-		case RSB_ERR_NO_STREAM_OUTPUT_CONFIGURED_OUT:
-			s = RSB_ERRM_NO_STREAM_OUTPUT_CONFIGURED_OUT;
-		break;
-		case RSB_ERR_INVALID_NUMERICAL_DATA:
-			s = RSB_ERRM_INVALID_NUMERICAL_DATA;
-		break;
-		case RSB_ERR_MEMORY_LEAK:
-			s = RSB_ERRM_MEMORY_LEAK;
-		break;
-		case RSB_ERR_ELEMENT_NOT_FOUND:
-			s = RSB_ERRM_ELEMENT_NOT_FOUND;
-		break;
-		/*
-		case RSB_ERR_FORTRAN_ERROR:
-		s = "A Fortran-specific error occurred.";
-		break;
-		*/
-		default:
-		s = RSB_ERRM_ES;
-		// might also consider "Unknown error code (%x)"
-	}
-	RSB_DEBUG_ASSERT(s);
-	return s;
-}
 
 rsb_err_t rsb__do_strerror_r(rsb_err_t errval, rsb_char_t * buf, size_t buflen)
 {
@@ -122,22 +49,84 @@ rsb_err_t rsb__do_strerror_r(rsb_err_t errval, rsb_char_t * buf, size_t buflen)
 		goto err;
 	}
 
-	s = rsb__get_errstr_ptr(errval);
-
+	switch(errval)
+	{
+		case RSB_ERR_GENERIC_ERROR:
+		s = "An unspecified error occurred.";
+		break;
+		case RSB_ERR_UNSUPPORTED_OPERATION:
+		s = "The user requested an operation which is not supported (e.g.: was opted out at build time).";
+		break;
+		case RSB_ERR_UNSUPPORTED_TYPE:
+		s = "The user requested to use a type which is not supported (e.g.: was opted out at build time).";
+		break;
+		case RSB_ERR_UNSUPPORTED_FORMAT:
+		s = "The user requested to use a matrix storage format which is not supported (e.g.: was opted out at build time).";
+		break;
+		case RSB_ERR_INTERNAL_ERROR:
+		s = "An error occurred which is not apparently caused by a user's fault (internal error).";
+		break;
+		case RSB_ERR_BADARGS:
+		s = "The user supplied some corrupt data as argument.";
+		break;
+		case RSB_ERR_ENOMEM:
+		s = "There is not enough dynamical memory to perform the requested operation.";
+		break;
+		case RSB_ERR_UNIMPLEMENTED_YET:
+		s = "The requested operation was not implemented yet in this code revision.";
+		break;
+		case RSB_ERR_LIMITS:
+		s = "The requested operation could not be executed, or index overflow will happen.";
+		break;
+		case RSB_ERR_NO_USER_CONFIGURATION:
+		s = "A file containing user set configuration was not present.";
+		break;
+		case RSB_ERR_CORRUPT_INPUT_DATA:
+		s = "User supplied data (e.g.: from file) was corrupt.";
+		break;
+		case RSB_ERR_FAILED_MEMHIER_DETECTION:
+		s = "Memory hierarchy info failed to be detected. You can bypass this by setting a meaningful RSB_USER_SET_MEM_HIERARCHY_INFO environment variable.";
+		break;
+		case RSB_ERR_COULD_NOT_HONOUR_EXTERNALLY_ALLOCATION_FLAGS:
+		s = "User gave flags for an inplace constructor in a copy-based routine.";
+		break;
+		case RSB_ERR_UNSUPPORTED_FEATURE:
+		s = "The requested feature (e.g.:blocking) is not available because it was opted out or not configured at built time.";
+		break;
+		case RSB_ERR_NO_STREAM_OUTPUT_CONFIGURED_OUT:
+		s = "Output to stream feature has been disabled at configure time.";
+		break;
+		case RSB_ERR_INVALID_NUMERICAL_DATA:
+		s = "User gave some input with invalid numerical data.";
+		break;
+		case RSB_ERR_MEMORY_LEAK:
+		s = "Probable memory leak (user did not deallocate librsb structures before calling rsb_lib_exit()).";
+		break;
+		/*
+		case RSB_ERR_FORTRAN_ERROR:
+		s = "A Fortran specific error occurred.";
+		break;
+		*/
+		default:
+		{
+			rsb__sprintf(sbuf,"Unknown error code (%x).",errval);
+			s = sbuf;
+			errval = RSB_ERR_BADARGS;
+			goto err;
+		}
+	}
 	errval = RSB_ERR_NO_ERROR;
-	rsb__snprintf(sbuf,buflen,"%s",s);
+	rsb__sprintf(sbuf,"%s",s);
 err:
 	return errval;
 }
 
 rsb_err_t rsb__do_perror(FILE *stream, rsb_err_t errval)
 {
+	rsb_char_t sbuf[RSB_MAX_STRERRLEN];
 	/*!
 	 * \ingroup gr_internals
-	 * Stateless function.
 	 */
-	rsb_char_t sbuf[RSB_MAX_STRERRLEN];
-
 	if( errval == RSB_ERR_NO_ERROR )
 		goto err;
 

@@ -55,7 +55,6 @@ define(`RSB_SPBLAS_FUNCTION_IDENTIFIER',`dnl
 pushdef(`type',$2)dnl
 pushdef(`mop',$1)dnl
 pushdef(`lang',$3)dnl
-ifelse(lang,`f90',RSB_M4_FORTRAN_SYMBOL_PREPEND_TO_C,`')`'dnl
 ifelse(lang,`f90',`dnl
 `blas_'dnl
 ',`dnl
@@ -471,17 +470,17 @@ ifelse(RSB_M4_MEMBER(mop,RSB_M4_SPBLAS_MATRIX_BEGIN_MOPS),`1',`,blas_sparse_matr
 dnl
 ifelse(want_what,`ARGS',`dnl
 ifelse(lang,`lang_c',`dnl
-ifelse(RSB_M4_MEMBER(mop,`dot'),`1',`const enum blas_conj_type conj, const rsb_blas_int_t nnz, const RSB_SPBLAS_OVER_TYPE(type `*',over)x,
-		const rsb_blas_int_t *indx, const RSB_SPBLAS_OVER_TYPE(type `*',over)y, const int incy, RSB_SPBLAS_OVER_TYPE(type `*',over)r,
-		const enum blas_base_type index_base')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`axpy'),`1',`const rsb_blas_int_t nnz, RSB_SPBLAS_OVER_TYPE(type,over) alpha, const RSB_SPBLAS_OVER_TYPE(type `*',over)x, const rsb_blas_int_t *indx,
-                 RSB_SPBLAS_OVER_TYPE(type `*',over)y, const int incy, const enum blas_base_type index_base')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`ga'),`1',`const rsb_blas_int_t nnz, const RSB_SPBLAS_OVER_TYPE(type `*',over)y, const int incy, RSB_SPBLAS_OVER_TYPE(type `*',over)x, const rsb_blas_int_t *indx,
-              const enum blas_base_type index_base')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`gz'),`1',`const rsb_blas_int_t nnz, RSB_SPBLAS_OVER_TYPE(type `*',over)y, const int incy, RSB_SPBLAS_OVER_TYPE(type `*',over)x, const rsb_blas_int_t *indx,
-              const enum blas_base_type index_base')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`sc'),`1',`const rsb_blas_int_t nnz, const RSB_SPBLAS_OVER_TYPE(type `*',over)x, RSB_SPBLAS_OVER_TYPE(type `*',over)y, const int incy, const rsb_blas_int_t *indx,
-              const enum blas_base_type index_base')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`dot'),`1',`enum blas_conj_type conj, int nnz, const RSB_SPBLAS_OVER_TYPE(type `*',over)x,
+		const int *indx, const RSB_SPBLAS_OVER_TYPE(type `*',over)y, int incy, RSB_SPBLAS_OVER_TYPE(type `*',over)r,
+		enum blas_base_type index_base')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`axpy'),`1',`int nnz, RSB_SPBLAS_OVER_TYPE(type,over) alpha, const RSB_SPBLAS_OVER_TYPE(type `*',over)x, const int *indx,
+                 RSB_SPBLAS_OVER_TYPE(type `*',over)y, int incy, enum blas_base_type index_base')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`ga'),`1',`int nnz, const RSB_SPBLAS_OVER_TYPE(type `*',over)y, int incy, RSB_SPBLAS_OVER_TYPE(type `*',over)x, const int *indx,
+              enum blas_base_type index_base')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`gz'),`1',`int nnz, RSB_SPBLAS_OVER_TYPE(type `*',over)y, int incy, RSB_SPBLAS_OVER_TYPE(type `*',over)x, const int *indx,
+              enum blas_base_type index_base')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`sc'),`1',`int nnz, const RSB_SPBLAS_OVER_TYPE(type `*',over)x, RSB_SPBLAS_OVER_TYPE(type `*',over)y, int incy, const int *indx,
+              enum blas_base_type index_base')`'dnl
 ')dnl
 ')dnl
 dnl
@@ -612,8 +611,8 @@ ifelse(RSB_M4_MEMBER(mop,`mm'),`1',`dnl
 RSB_M4_SPBLAS_DOC_COMMENT
 {
 	const type beta = RSB_M4_ONE(type);
-dnl	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spmm(rsb__blas_trans_to_rsb_trans(transA),RSB_SPBLAS_OVER_TYPE_ARGVAR_REFERENCE(type)alpha,rsb__BLAS_inner_matrix_retrieve(A),nrhs,rsb__blas_order_to_rsb_order(order),b,ldb,&beta,c,ldc,RSB_OP_FLAG_DEFAULT)))
-dnl	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spmm(rsb__BLAS_inner_matrix_retrieve(A),b,c,ldb,ldc,nrhs,rsb__blas_trans_to_rsb_trans(transA),RSB_SPBLAS_OVER_TYPE_ARGVAR_REFERENCE(type)alpha,&beta,rsb__blas_order_to_rsb_order(order),RSB_OP_FLAG_DEFAULT)))
+dnl	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spmm(rsb__blas_trans_to_rsb_trans(transA),RSB_SPBLAS_OVER_TYPE_ARGVAR_REFERENCE(type)alpha,rsb__BLAS_inner_matrix_retrieve(A),nrhs,rsb_blas_order_to_rsb_order(order),b,ldb,&beta,c,ldc,RSB_OP_FLAG_DEFAULT)))
+dnl	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spmm(rsb__BLAS_inner_matrix_retrieve(A),b,c,ldb,ldc,nrhs,rsb__blas_trans_to_rsb_trans(transA),RSB_SPBLAS_OVER_TYPE_ARGVAR_REFERENCE(type)alpha,&beta,rsb_blas_order_to_rsb_order(order),RSB_OP_FLAG_DEFAULT)))
 	RSB_SPB_INTERFACE_RETURN(rsb__BLAS_Xusmm(transA,RSB_SPBLAS_OVER_TYPE_ARGVAR_REFERENCE(type)alpha,A,b,ldb,&beta,c,ldc,nrhs,order))
 }
 	')`'dnl
@@ -622,7 +621,7 @@ ifelse(RSB_M4_MEMBER(mop,`sm'),`1',`dnl
 RSB_M4_SPBLAS_DOC_COMMENT
 {
 	const type beta = RSB_M4_ZERO(type);
-	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),RSB_SPBLAS_OVER_TYPE_ARGVAR_REFERENCE(type)alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb__blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
+	RSB_SPB_INTERFACE_RETURN(RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsm(rsb__blas_trans_to_rsb_trans(transT),RSB_SPBLAS_OVER_TYPE_ARGVAR_REFERENCE(type)alpha,rsb__BLAS_inner_matrix_retrieve(T),nrhs,rsb_blas_order_to_rsb_order(order),&beta,b,ldb,b,ldb)))
 }
 	')`'dnl
 dnl
@@ -671,15 +670,15 @@ ifelse(want_what,`ARGS',`dnl
 dnl
 ifelse(lang,`lang_c',`dnl
 dnl
-ifelse(RSB_M4_MEMBER(mop,`mv'),`1',`const enum blas_trans_type transA, RSB_SPBLAS_OVER_TYPE(type,over)alpha,
-    const blas_sparse_matrix A, const RSB_SPBLAS_OVER_TYPE(type `*',over)x, const int incx, RSB_SPBLAS_OVER_TYPE(type `*',over)y, const int incy')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`mv'),`1',`enum blas_trans_type transA, RSB_SPBLAS_OVER_TYPE(type,over)alpha,
+    blas_sparse_matrix A, const RSB_SPBLAS_OVER_TYPE(type `*',over)x, int incx, RSB_SPBLAS_OVER_TYPE(type `*',over)y, int incy')`'dnl
 ifelse(RSB_M4_MEMBER(mop,`sv'),`1',`enum blas_trans_type transT, RSB_SPBLAS_OVER_TYPE(type,over)alpha,
-    const blas_sparse_matrix T, RSB_SPBLAS_OVER_TYPE(type `*',over)x, const int incx')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`mm'),`1',`const enum blas_order_type order, const enum blas_trans_type transA,
-   const int nrhs, RSB_SPBLAS_OVER_TYPE(type,over)alpha, const blas_sparse_matrix A, const RSB_SPBLAS_OVER_TYPE(type `*',over)b, const int ldb,
-       RSB_SPBLAS_OVER_TYPE(type `*',over) c, const int ldc')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`sm'),`1',`const enum blas_order_type order, const enum blas_trans_type transT,
-               const int nrhs, RSB_SPBLAS_OVER_TYPE(type,over)alpha, const blas_sparse_matrix T, RSB_SPBLAS_OVER_TYPE(type `*',over)b, const int ldb')`'dnl
+    blas_sparse_matrix T, RSB_SPBLAS_OVER_TYPE(type `*',over)x, int incx')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`mm'),`1',`enum blas_order_type order, enum blas_trans_type transA,
+   int nrhs, RSB_SPBLAS_OVER_TYPE(type,over)alpha, blas_sparse_matrix A, const RSB_SPBLAS_OVER_TYPE(type `*',over)b, int ldb,
+       RSB_SPBLAS_OVER_TYPE(type `*',over) c, int ldc')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`sm'),`1',`enum blas_order_type order, enum blas_trans_type transT,
+               int nrhs, RSB_SPBLAS_OVER_TYPE(type,over)alpha, blas_sparse_matrix T, RSB_SPBLAS_OVER_TYPE(type `*',over)b, int ldb')`'dnl
 ')dnl
 ')dnl
 dnl
@@ -925,15 +924,15 @@ ifelse(lang,`lang_c',`dnl
 dnl
 dnl
 `blas_sparse_matrix A'dnl
-ifelse(RSB_M4_MEMBER(mop,`rows_scale'),`1',`,const RSB_SPBLAS_OVER_TYPE(type *,over) d, const enum blas_trans_type trans')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`rows_scale'),`1',`,const RSB_SPBLAS_OVER_TYPE(type *,over) d, enum blas_trans_type trans')`'dnl
 ifelse(RSB_M4_MEMBER(mop,`get_diag'),`1',`,RSB_SPBLAS_OVER_TYPE(type *,over) d')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`get_rows_sparse'),`1',`, RSB_SPBLAS_OVER_TYPE(type *,over) VA, rsb_blas_int_t * IA, rsb_blas_int_t * JA, rsb_blas_int_t * nnz, const rsb_blas_int_t fr, const rsb_blas_int_t lr')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`get_rows_nnz'),`1',`, const rsb_blas_int_t fr, const rsb_blas_int_t lr, rsb_blas_int_t * nnzp')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`get_rows_sparse'),`1',`, RSB_SPBLAS_OVER_TYPE(type *,over) VA, rsb_blas_int_t * IA, rsb_blas_int_t * JA, rsb_blas_int_t * nnz, rsb_blas_int_t fr, rsb_blas_int_t lr')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`get_rows_nnz'),`1',`, rsb_blas_int_t fr, rsb_blas_int_t lr, rsb_blas_int_t * nnzp')`'dnl
 ifelse(RSB_M4_MEMBER(mop,`get_matrix_nnz'),`1',`,rsb_blas_int_t * nnz')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`get_infinity_norm'),`1',`,RSB_SPBLAS_OVER_TYPE(type *, over)in, const enum blas_trans_type trans')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`set_elements'),`1',`,const rsb_blas_int_t * ia, const rsb_blas_int_t *ja, const RSB_SPBLAS_OVER_TYPE(type *,over) va, const rsb_blas_int_t nnz')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`get_element'),`1',`,const rsb_blas_int_t i, const rsb_blas_int_t j, RSB_SPBLAS_OVER_TYPE(type *,over) v')`'dnl
-ifelse(RSB_M4_MEMBER(mop,`set_element'),`1',`,const rsb_blas_int_t i, const rsb_blas_int_t j, RSB_SPBLAS_OVER_TYPE(type *,over) v')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`get_infinity_norm'),`1',`,RSB_SPBLAS_OVER_TYPE(type *, over)in, enum blas_trans_type trans')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`set_elements'),`1',`,const rsb_blas_int_t * ia, const rsb_blas_int_t *ja, const RSB_SPBLAS_OVER_TYPE(type *,over) va, rsb_blas_int_t nnz')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`get_element'),`1',`,rsb_blas_int_t i, rsb_blas_int_t j, RSB_SPBLAS_OVER_TYPE(type *,over) v')`'dnl
+ifelse(RSB_M4_MEMBER(mop,`set_element'),`1',`,rsb_blas_int_t i, rsb_blas_int_t j, RSB_SPBLAS_OVER_TYPE(type *,over) v')`'dnl
 dnl
 ')dnl
 dnl

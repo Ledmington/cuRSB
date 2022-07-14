@@ -13,9 +13,9 @@ dnl define(`RSB_M4_WANT_OMP_IN_KERNELS',`ifelse(`yes',`yes',`1',`')')dnl
 define(`RSB_M4_MAX_OMP_THREADS',`4')dnl	FIXME : TEMPORARY 
 dnl
 dnl	---------------------------------------------------------------------------
-dnl	Generate code with m4 debug info in it.
+dnl	The follwing triggers the generation of code with some m4 debug info in it.
 dnl
-define(`RSB_M4_DEBUG',`0')dnl
+define(`RSB_M4_DEBUG',`1')dnl
 dnl
 dnl	---------------------------------------------------------------------------
 dnl	If 1, enables register blocking, in kernels where this is supported (experimental).
@@ -31,9 +31,6 @@ dnl	---------------------------------------------------------------------------
 define(`RSB_M4_FITTING_SAMPLES',/*12 8*/4)dnl
 dnl
 dnl	---------------------------------------------------------------------------
-define(`RSB_M4_FORTRAN_CONVENTION',`gfortran')dnl
-dnl
-dnl	---------------------------------------------------------------------------
 define(`RSB_M4_BENCHMARK_MIN_SECONDS',/*0.5*/1.0)dnl
 dnl
 define(`RSB_M4_BENCHMARK_MIN_RUNS',/*5*/10)dnl
@@ -42,21 +39,17 @@ dnl	---------------------------------------------------------------------------
 define(`RSB_M4_BUFLEN',128)dnl
 dnl
 dnl	---------------------------------------------------------------------------
-dnl	Implemented types (from 1.3) (same values as RSB_M4_TYPES)
-define(`RSB_M4_IMPLEMENTED_TYPES',`double,float,float complex,double complex')dnl
-dnl
-dnl	---------------------------------------------------------------------------
 define(`RSB_M4_USE_RESTRICT',`ifelse(`yes',`yes',`1',`')')dnl
 dnl
 dnl	---------------------------------------------------------------------------
 dnl	Version strings.
 dnl
-define(`RSB_M4_WANT_LIBRSB_VER_DATE',`202204281922')dnl
+define(`RSB_M4_WANT_LIBRSB_VER_DATE',`202201181812')dnl
 define(`RSB_M4_WANT_LIBRSB_VER_MAJOR',`1')dnl
-define(`RSB_M4_WANT_LIBRSB_VER_MINOR',`3')dnl
-define(`RSB_M4_WANT_LIBRSB_LIBRSB_VER',`10300')dnl
+define(`RSB_M4_WANT_LIBRSB_VER_MINOR',`2')dnl
+define(`RSB_M4_WANT_LIBRSB_LIBRSB_VER',`10201')dnl
 define(`RSB_M4_WANT_LIBRSB_VER_PATCH',`0')dnl
-define(`RSB_M4_WANT_LIBRSB_VER_PRERS',`.1')dnl
+define(`RSB_M4_WANT_LIBRSB_VER_PRERS',`.11')dnl
 dnl
 dnl	---------------------------------------------------------------------------
 define(`RSB_M4_WANT_20110206_BOUNDED_BOX_PATCH',1)dnl

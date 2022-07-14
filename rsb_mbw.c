@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -23,24 +23,35 @@ If not, see <http://www.gnu.org/licenses/>.
 /**
  * @file
  * @author Michele Martone
- * @brief Memory bandwidth related (e.g.: read, write, and read-write) microbenchmarks for cache based machines.
+ * @brief Memory bandwidth related (e.g.: read, write, and read-write) microbenchmarks.
+ */
+/* 
+ * This code is for cache based machines.
+ * For machines not cache based it doesn't make sense ( e.g.: the Cell Broadband Engine SPE cores )
+ *
+ * TODO : 
+ *  * make sure loops get unrolled
+ *  * embed time parametrability
+ *
  */
 
 #include "rsb_common.h"
 #include "rsb.h"
+//#include <stdlib.h>	/* printf, srand */
+#include <limits.h>	/* CHAR_BIT (FIXME: we use RSB_CHAR_BIT) */
 #include <strings.h>	/* RSB_BZERO */
-#include <stdint.h> /* uintptr_t */
+/* should be sizeof(w_t) >= sizeof(void*)*/
+//typedef int w_t ;
+typedef size_t w_t ;
+//typedef double w_t ;	/**< a private typedef */
 
-#define RSB__PC_STRIDE 1 /* stride for pointer chasing */
+static size_t rsb__entropy;		/**< a private checksum only variable, necessary to avoid compiler optimization of memory scan operations */
 
-/* require sizeof(w_t) >= sizeof(void*) */
-typedef uintptr_t w_t;
-
-size_t rsb__entropy;		/**< private checksum-only variable, necessary to avoid compiler optimization of memory scan operations */
+//enum {WRITE = RSB_MB_WRITE,READ = RSB_MB_READ,FLUSH,RW = RSB_MB_RW,ZERO = RSB_MB_ZERO,MEMSET = RSB_MB_MEMSET,BZERO = RSB_MB_BZERO,CHASE = RSB_MB_LINEAR_CHASE};
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
-static const char * rsb__mbw_s2s(rsb_flags_t btype)
+const char * rsb_mbw_s2s(rsb_flags_t btype)
 {
 	/**
 		\ingroup gr_internals
@@ -48,9 +59,6 @@ static const char * rsb__mbw_s2s(rsb_flags_t btype)
 	 */
 	switch(btype)
 	{
-		case RSB_MB_INVALID:	
-			return "INVALID";
-			break;
 		case RSB_MB_READ	:	
 			return "READ";
 			break;
@@ -87,6 +95,7 @@ static const char * rsb__mbw_s2s(rsb_flags_t btype)
 	}
 }
 
+
 typedef int cb_t;
 typedef size_t zb_t ;
 
@@ -97,7 +106,6 @@ static void h2c(cb_t *bip, cb_t *bjp, zb_t bz)
 	 * morton to coordinate
 	 */
         int b;
-
         *bip=0;
         *bjp=0;
 //      RSB_STDERR("-> %ld\n",bz);
@@ -135,22 +143,19 @@ static int morton_pointer_chasing_pattern_init(w_t *p, size_t dim)
 	/**
 	 * \ingroup gr_internals
 	 *
-	 * TODO: Document me.
-	 * Note: requires dim==4^k for some k. If not, then only half benchmark is performed.
-	 * May fix this with a tiling approach.
+	 * NEW: document me  (e.g.: this function wants dim==4^n )
+	 * FIXME : when dim!=4^k for some k, then only half benchmark is performed. fix this with a tiling approach!
          */
-	const int stride = RSB__PC_STRIDE;
+	int stride = 1;
 	int words,i;
+//	dim=2*2*16*sizeof(w_t);
 	int ni=0,oi=0,e=0 /* dim>=2^e */;
 	int side=0;
 	{int tmp=dim/(stride*2*sizeof(w_t));while(tmp>0){++e;tmp/=2;}e/=2;e*=2;/* e is even */}
-
-	if(e<1)
-		return -1;
-
-	words = (1<<e);
+	if(e<1)return -1;
+	words=(1<<e);
 	side = (1<<(e/2));
-	oi = 0;
+	oi=0;
 	ni = 0;
 /*
 	RSB_STDERR("morton_pointer_chasing_pattern_init\n");
@@ -184,11 +189,11 @@ static int pointer_chasing_pattern_init(w_t *p, size_t dim)
          * Initializes a memory area to perform a linear pointer chasing.
          */
 	int i;
-	const int stride = RSB__PC_STRIDE;
-	const int words=dim/(stride * sizeof(w_t));
+	int stride=1;
+	int words=dim/(stride * sizeof(w_t));
 
 	for(i=1;i<=words;++i)
-		*(w_t**)&p[(i-1)*stride]=(w_t*)&p[(i*stride)%words];
+		*(w_t**)&p[(i-1)*stride]=(w_t*)&p[(i%words)*stride];
 
 /*        for (i = stride; i < range; i += stride) {
                 *(char **)&addr[i - stride] = (char*)&addr[i];
@@ -197,7 +202,7 @@ static int pointer_chasing_pattern_init(w_t *p, size_t dim)
 	return 0;
 }
 
-static int rsb__scan_cache(w_t *p, size_t dim, int should, size_t times, w_t *q)
+static int scan_cache(w_t *p, size_t dim, int should, size_t times, w_t *q)
 {
 	/**
 	 * \ingroup gr_internals
@@ -217,41 +222,39 @@ static int rsb__scan_cache(w_t *p, size_t dim, int should, size_t times, w_t *q)
 	 * \return RSB_ERR_NO_ERROR on correct operation, an error code (see \ref errors_section) otherwise.
 	 *
 	 * */
-	w_t n = 0;
+	w_t n=0;
 	int i,t;
-	const int words = dim / sizeof(w_t);
+	int words=dim/sizeof(w_t);
 	
-	RSB_DEBUG_ASSERT(times < INT_MAX);
-	if (times > INT_MAX) /* avoid t could overflow if times too large */
-		goto err;
-
 	if(should == RSB_MB_MEMCPY2 && !q)
-		goto err;
+		return -1;
+
+	/* FIXME : t and i could overflow */
 
 	if(should == RSB_MB_FLUSH)/* we ignore times */
 	{
 		#pragma omp parallel for schedule(static,1) RSB_NTC
 		for(i=0;i<words;++i)
-			n += p[i];
+			n+=p[i];
 	}
 	else
 	/*
 	 * Warning : if the compiler is really, really smart, it
-	 * could detect we are zeroing.
-	 * That could result in an excessively high value here.
+	 * could detect we are zeroing and give an excessively high value here!
 	 * */
-		/* Note: xlc -O4 was much smarter than us here (maybe on times!). */
+		/* FIXME : xlc -O4 is much smarter than us here (maybe on times!). */
 		if(should == RSB_MB_ZERO)
 			for(t=0;t<times;++t)
 			{
-				i=0;
-				for(;i+7<words;i+=8)
+				//for(i=0;i<words;++i)
+				//	p[i]=0 ;
+				for(i=0;i+7<words;i+=8)
 					p[i+0]=0,p[i+1]=0,
 					p[i+2]=0,p[i+3]=0,
 					p[i+4]=0,p[i+5]=0,
 					p[i+6]=0,p[i+7]=0;
 				for(;i<words;i++)
-					p[i]=0;
+					p[i+0]=0;
 			}
 	else
 		if(should == RSB_MB_BZERO)
@@ -260,7 +263,7 @@ static int rsb__scan_cache(w_t *p, size_t dim, int should, size_t times, w_t *q)
 	/*
 		WARNING : memcpy operations involve two buffers or two halves ! 
 		so be careful when interpreting these results:
-		memory bandwidth is double than transfer speed.
+		memory bandwidth is double than transfer speed!
 	 */
 	else
 		if(should == RSB_MB_MEMCPY)
@@ -271,27 +274,28 @@ static int rsb__scan_cache(w_t *p, size_t dim, int should, size_t times, w_t *q)
 			for(t=0;t<times;++t)
 				memcpy(p,q,dim);
 	else
-		/* Note: xlc -O4 was much smarter than us here (maybe on times!). */
+		/* FIXME : xlc -O4 is much smarter than us here (maybe on times!). */
 		if(should == RSB_MB_WRITE)
 			for(t=0;t<times;++t)
 			{
-				i=0;
-				for(;i+7<words;i+=8)
+				//for(i=0;i<words;++i)
+				//	p[i]=i ;
+				for(i=0;i+7<words;i+=8)
 					p[i+0]=i+0,p[i+1]=i+1,
 					p[i+2]=i+2,p[i+3]=i+3,
 					p[i+4]=i+4,p[i+5]=i+5,
 					p[i+6]=i+6,p[i+7]=i+7;
 				for(;i<words;i++)
-					p[i]=i;
+					p[i+0]=i+0;
 			}
 	else
-		/* Note: xlc -O4 was much smarter than us here (maybe on times!). */
+		/* FIXME : xlc -O4 is much smarter than us here (maybe on times!). */
 		if(should == RSB_MB_READ)
 			for(t=0;t<times;++t)
 			{
-				// double loop == loop overhead
-				i=0;
-				for(;i+7<words;i+=8)
+				//for(i=0;i<words;++i)
+					//n+=p[i];	// double loop == loop overhead
+				for(i=0;i+7<words;i+=8)
 					n+=p[i] +p[i+1] +p[i+2] +p[i+3] +p[i+4] +p[i+5] +p[i+6] +p[i+7];
 				for(;i<words;i++)
 					n+=p[i];
@@ -300,24 +304,20 @@ static int rsb__scan_cache(w_t *p, size_t dim, int should, size_t times, w_t *q)
 		if(should == RSB_MB_MORTON_CHASE || should == RSB_MB_LINEAR_CHASE)
 			for(t=0;t<times;++t)
 				for(i=0;i<words;++i)
-					p=*(w_t**)p;	/* pointer chasing */
+					p=*(w_t**)p;	/* this is pointer chasing, folks */
 	else
 		if(should == RSB_MB_RW)
 			for(t=0;t<times;++t)
 				for(i=0;i<words;++i)
 					p[i]+=i;
 	else
+//		if(should & MEMSET)
 		if(should == RSB_MB_MEMSET)
 			for(t=0;t<times;++t)
 				memset(p,0x0A0B0C0D,dim);
 	else
-		goto err;
-
-	// return n+*p;	/* WARNING: easily optimizable! should rather accumulate into a 'pool' of entropy! */
-	rsb__entropy += n+*p;
-	return RSB_ERR_NO_ERROR;
-err:
-	return RSB_ERR_GENERIC_ERROR;
+		return -1;
+	return n+*p;	/* WARNING ! easily optimizable! should mantain a pool of entropy! FIXME (could it be dangerous (p.chasing!?) ?) */
 }
 
 static int rsb_mbw_area_init_and_cache_flush(size_t sz, w_t *fc, w_t *p, int btype /*, int * entropy*/, size_t times)
@@ -336,7 +336,7 @@ static int rsb_mbw_area_init_and_cache_flush(size_t sz, w_t *fc, w_t *p, int bty
 		default:
 			return 0;
 	}
-	rsb__scan_cache(fc,sz,RSB_MB_FLUSH,times, NULL);	/* flush cache */
+	scan_cache(fc,sz,RSB_MB_FLUSH,times, NULL);	/* flush cache */
 }
 
 static rsb_time_t mbw_total_time( struct rsb_mbw_m_t *mbw_m  )
@@ -377,7 +377,7 @@ static rsb_err_t probe_approx_mbw( struct rsb_mbw_m_t * mbwm, rsb_time_t s )
 	if(s<min_time)
 		{errval = RSB_ERR_BADARGS;goto err;}
 
-	while(t<min_time && mbwm->times<=RSB_MAX_TIMES_T)
+	while(t<min_time && mbwm->times<=INT_MAX)	/* FIXME : INT_MAX could be undefined */
 	{
 		mbwm->times*=2;	/* we set times */
 		if((errval=mbw_test(mbwm))) /* we perform benchmarking */
@@ -407,20 +407,22 @@ static rsb_err_t mbw_test( struct rsb_mbw_m_t *mbw_m  )
 {
 	/**
 	 * \ingroup gr_internals
-	 * Run each memory benchmark.
-	 * Assume existence of hardware-managed caches.
+	 * Will perform a run of each memory benchmark.
+	 * It assumes the existence of hardware managed caches.
+	 *
+	 * TODO : m.sz should be big as the higher level cache.
 	 */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	w_t * p=NULL,*fc=NULL,*q=NULL;
 	struct rsb_mbw_m_t m; 
 	int i;
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 	if(!mbw_m)
 		return RSB_ERR_BADARGS;
 
 	m=*mbw_m;
 
-	/* if m.times is zero, probe for an appropriate value */
+	/* if m.times is zero we probe for an appropriate value */
 	if(m.times == 0 && (errval=probe_approx_mbw(&m,1.0)))
 	{
 		RSB_STDERR("uhm. timing problems ?!.\n");
@@ -428,8 +430,11 @@ static rsb_err_t mbw_test( struct rsb_mbw_m_t *mbw_m  )
 		goto errl;
 	}
 
-	/* 
-	 * In order for flushing to work effectively; the flush array must be big enough.
+	/* TODO :
+	 * we should be absolutely sure that
+	 * flushing works effectively; that is, that 
+	 * the flush array is big enough.
+	 *
 	 * Therefore it is advised to set m.hlcs to at least the size of the bigger cache.
 	 * */
 	p = rsb__aligned_malloc( m.sz , m.sz );
@@ -438,8 +443,10 @@ static rsb_err_t mbw_test( struct rsb_mbw_m_t *mbw_m  )
 
 	if(!p || !fc || !q)
 	{
-		if(!p || !q) { RSB_STDERR("problems allocating %zd bytes.\n",(size_t)m.sz  ); }
-		if(!fc) { RSB_STDERR("problems allocating %zd bytes.\n",(size_t)m.hlcs); }
+		RSB_STDERR("problems allocating %zd bytes.\n",m.sz);
+		RSB_CONDITIONAL_FREE(p);	
+		RSB_CONDITIONAL_FREE(q);	
+		RSB_CONDITIONAL_FREE(fc);	
 		errval = RSB_ERR_GENERIC_ERROR;
 		goto errl;
 	}
@@ -449,18 +456,21 @@ static rsb_err_t mbw_test( struct rsb_mbw_m_t *mbw_m  )
 		m.mb[i].btype=i;	/* we set benchmark type */
 		rsb_mbw_area_init_and_cache_flush(m.sz, fc, p, i/*, int * entropy*/, m.times);
 		m.mb[i].t = - rsb_time();
-		rsb__entropy += rsb__scan_cache(p,m.sz,i,m.times,q);	/* we perform measurement */
+		rsb__entropy+=scan_cache(p,m.sz,i,m.times,q);	/* we perform measurement */
 		m.mb[i].t += rsb_time();
 	}
 
 	// about commenting the following : DANGER
-	//if(m.entropy)fprintf(stderr,"the following number is printed only for tricking the compiler optimizer, and has no other use: %d\n",entropy); /* this is essential */
-	if(mbw_m)
-		*mbw_m=m;
+	//if(m.entropy)fprintf(stderr,"the following number is printed only for tricking the compiler optimizer, and has no sense: %d\n",entropy); /* this is essential */
+	if(p )rsb__free(p );
+	if(fc)rsb__free(fc);
+	if(q)rsb__free(q);
+	if(mbw_m) *mbw_m=m;
+	return 0;
 errl:
-	RSB_CONDITIONAL_FREE(p);
-	RSB_CONDITIONAL_FREE(fc);
-	RSB_CONDITIONAL_FREE(q);
+	if(p )rsb__free(p );
+	if(fc)rsb__free(fc);
+	if(q)rsb__free(q);
 	RSB_DO_ERR_RETURN(errval)
 }
 
@@ -468,66 +478,57 @@ static rsb_err_t mbw_ratio_printf(struct rsb_mbw_m_t *h, struct rsb_mbw_m_t *l)
 {
 	/**
 	 * \ingroup gr_internals
-	 * Print the ratio in performance of two measurements.
+	 * prints the ratio in performance of two measurements.
+	 * FIXME : new
 	 */
-	const double M = 1.0;
+	double M=/*1000000.0*/1.0;/* simplifies */
 	int i;
 
-	RSB_DEBUG_ASSERT(!(!h||!l));
+	if(!h||!l)
+		return RSB_ERR_BADARGS;
 
 	for(i=0;i<RSB_MB_N;++i)
 		RSB_INFO("#%-32s ratio  %lg \n"  ,
-			rsb__mbw_s2s(i),
+			rsb_mbw_s2s(i),
 			((((double)h->times)*h->sz)/(h->mb[i].t*M))/
 			((((double)l->times)*l->sz)/(l->mb[i].t*M))
 			);
 	return RSB_ERR_NO_ERROR;
 }
 
-static rsb_err_t mbw_printf(struct rsb_mbw_es_t *esp, struct rsb_mbw_m_t *m, int level)
+static rsb_err_t mbw_printf(struct rsb_mbw_m_t *m, int level)
 {
-#define RSB_MBW_M_T(MP,I) ((((double)MP->times)*MP->sz)/(MP->mb[i].t*M))
 	/**
 	 * \ingroup gr_internals
 		Prints out memory benchmarks results. 
-	 * TODO: if esp is here, it does not print anymore :-)
 	*/
 	int i;
-	const double M=1000000.0;
+	double M=1000000.0;
 
 	if(!m)
 		return RSB_ERR_BADARGS;
 
-	if(!esp)
-		RSB_INFO("#%-32s\tsize\tlevel\tbw(MBps)\n","size");
-
+	RSB_INFO("#%-32s\tsize\tlevel\tbw(MBps)\n","size");
 	for(i=0;i<RSB_MB_N;++i)
-	{
-		if(!esp)
-			RSB_INFO("%-32s\t%zd\t%zd\t%lg\n",rsb__mbw_s2s(m->mb[i].btype),(rsb_printf_int_t)m->sz,(rsb_printf_int_t)level,RSB_MBW_M_T(m,i));
-
-		if(esp)
-			esp[i].bw=RSB_MBW_M_T(m,i),
-			esp[i].sz=m->sz,
-			esp[i].lvl=level,
-			esp[i].mbt=m->mb[i].btype;
-	}
+		RSB_INFO("%-32s\t%zd\t%zd\t%lg\n",rsb_mbw_s2s(m->mb[i].btype),(rsb_printf_int_t)m->sz,(rsb_printf_int_t)level,(((double)m->times)*m->sz)/(m->mb[i].t*M));
 
 	return RSB_ERR_NO_ERROR;
-#undef RSB_MBW_M_T
 }
 
 rsb_err_t rsb__mem_hier_timings(struct rsb_mbw_cm_t * cm)
 {
 	/**
 	 * \ingroup gr_internals
-	 * Measures memory bandwidth in scanning increasingly sized arrays.
-	 * These are sized and aligned like initial memory hierarchies (caches) and then more.
+	 * Measures memory bandwidth in scanning arrays increasingly sized.
+	 * They are sized and aligned like initial memory hierarchies (caches) and then more.
+	 * 
+	 * TODO : should we measure in-memory (but out of cache) performance, too ?
+	 * TODO : what if user has opted out output functionality ?
 	 */
 	int cln=0,cl;
 	struct rsb_mbw_m_t mbw_m,*mbw_ms=NULL;
-	long cs = 0;
-	const long extra_levels = RSB_MEMSCAN_EXTRA_LEVELS;
+	long cs=0;
+	const long extra_level=2;
 
 	if( !cm )
 		return RSB_ERR_BADARGS;
@@ -539,9 +540,8 @@ rsb_err_t rsb__mem_hier_timings(struct rsb_mbw_cm_t * cm)
 		RSB_INFO("No information about caches, sorry\n");
 		return -1;
 	}
-
-	mbw_ms = rsb__calloc((cln+extra_levels) * sizeof(*mbw_ms));
-
+	mbw_ms = rsb__calloc((cln+extra_level) * sizeof(*mbw_ms));
+	//RSB_STDERR("%d\n",((cln+extra_level) * sizeof(*mbw_ms)));
 	if(!mbw_ms)
 	{
 		goto err;
@@ -550,8 +550,8 @@ rsb_err_t rsb__mem_hier_timings(struct rsb_mbw_cm_t * cm)
 	RSB_INFO("# This test will measure times in scanning arrays sized and aligned to fit in caches.\n");
 	RSB_INFO("# %d cache levels detected\n",cln);
 
-	/* we do measure for each level in the cache hierarchy plus extra_levels */
-	for(cl=1;cl<=cln+extra_levels;++cl)
+	/* we do measure for each level in the cache hierarchy plus two */
+	for(cl=1;cl<=cln+extra_level;++cl)
 	{
 		/* timing for cache level cl  */
 
@@ -574,7 +574,7 @@ rsb_err_t rsb__mem_hier_timings(struct rsb_mbw_cm_t * cm)
 		if(mbw_m.hlcs<1)
 			goto err;
 
-		if(RSB_SOME_ERROR(mbw_test(&mbw_m)))
+		if(mbw_test(&mbw_m))
 			goto err;
 
 		memcpy( &(mbw_ms[cl-1]) ,&mbw_m,sizeof(struct rsb_mbw_m_t));
@@ -582,96 +582,94 @@ rsb_err_t rsb__mem_hier_timings(struct rsb_mbw_cm_t * cm)
 
 	cm->mb=mbw_ms;
 	cm->cln=cln;
-	cm->extra_level=extra_levels;
-	return RSB_ERR_NO_ERROR;
+	cm->extra_level=extra_level;
+	return 0;
 err:
 	RSB_CONDITIONAL_FREE(mbw_ms);
 	RSB_STDERR("An error occurred during memory benchmarking.\n");
-	return RSB_ERR_GENERIC_ERROR;
+	return -1;
 }
 
-static rsb_err_t rsb__print_mem_hier_timings(struct rsb_mbw_es_t *esp, const struct rsb_mbw_cm_t * cm)
+rsb_err_t rsb__print_mem_hier_timings(struct rsb_mbw_cm_t * cm)
 {
 	/**
 	 * \ingroup gr_internals
-	 * Quiet if esp != NULL.
+	 * 
 	 */
 	long cl;
-	const long print_ratio=1;
+	long print_ratio=1;
 
 	if(!cm)
 		return RSB_ERR_BADARGS;
 
 	for(cl=1;cl<=cm->cln+cm->extra_level;++cl)
 	{
-		if(!esp)
-		{
-			if(cl<=cm->cln)
-				RSB_INFO("#Level %ld:\n",cl);
-			else
-				RSB_INFO("#Level %ld (RAM) (sample size 2^%ld times the last cache size):\n",cm->cln+1,cl-cm->extra_level);
-		}
-		mbw_printf(esp,&cm->mb[cl-1],cl);
+		if(cl<=cm->cln)
+			RSB_INFO("#Level %ld:\n",cl);
+		else
+			RSB_INFO("#Level %ld (RAM) (sample size 2^%ld times the last cache size):\n",cm->cln+1,cl-cm->extra_level);
+		mbw_printf(&cm->mb[cl-1],cl);
 
-		if(!esp)
 		if(cl>1 && print_ratio)
-			if(RSB_SOME_ERROR(mbw_ratio_printf(&cm->mb[cl-1],&cm->mb[cl-2])))
-			{ RSB_ERROR(RSB_ERRM_ES); /* Note: may propagate error code */ }
-
-		if( esp ) 
-			esp += RSB_MB_N;
+			if(mbw_ratio_printf(&cm->mb[cl-1],&cm->mb[cl-2]))
+				;/* TODO : an error code */
 	}
+
 	return RSB_ERR_NO_ERROR;
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 static rsb_err_t rsb_tlb_benchmark(void)
 {
 	/**
-		Unfinished code.
+		UNFINISHED : THIS CODE DOES NOT PERFORM ANYTHING USEFUL FOR NOW
 
-		Performance of this benchmark should expose shortcomings of memory fragmentation on performance.
+		The performance and eventually, unpredictability of this benchmark should 
+		expose the shortcomings of memory fragmentation on performance.
+
+		FIXME : potential overflows
 	 */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	size_t sz,psz,pn,wpp,times;
 	const size_t K=1024;
 	w_t * p=NULL;
 	w_t c=0;
 	rsb_int i,j;
 	rsb_time_t t;
+	double mBps;
 
 	RSB_WARN("TLB benchmark code is unfinished!\n");
 	RSB_STDERR("#TLB benchmark.\n");
 	for(sz=K*K/2;sz<K*K*K;sz*=2)
 	{
-		double mBps = 1.0;
-
+		//sz=1024*1024*32;
+		/* FIXME : problems with congruences ! */
 		psz=4096;
 		pn=sz/psz;
 		wpp=psz/sizeof(w_t);
-		times=100;
+		times=1000;
 		p = rsb__aligned_malloc( sz , sz );
+		//p = rsb__aligned_malloc( sz , psz );
 		if(!p)
-			goto err;
+			goto ok;
 		
-		t = -rsb_time();
+		t = - rsb_time();
 		for(j=0;j<times;++j)
 		{
 			rsb_time_t ft = -rsb_time();
 
-			errval = rsb__flush_cache(0);
-			if( RSB_SOME_ERROR(errval) ) 
-				goto err;
+			rsb__flush_cache(0);
 			ft += rsb_time();
 			t -= ft;
+
 			for(i=0;i<pn;++i)
 			{
 				c+=p[i*wpp];
 			}
 		}
 		t += rsb_time();
-		RSB__FREE(p);
+		rsb__free(p);
 
+		mBps=1.0;
+		//mBps*=sz;
 		mBps*=pn*sizeof(w_t);
 		mBps/=t;
 		mBps*=times;
@@ -680,16 +678,18 @@ static rsb_err_t rsb_tlb_benchmark(void)
 		RSB_STDERR("#TLB timing benchmark : scanned %zd entries spaced %zd bytes across %zd bytes in %lg s (%lg MBps)\n",pn,psz,sz,t,mBps);
 	}
 
-err:
-	return errval;
+ok:
+	return 0;
+//err:
+//	return -1;
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 static rsb_err_t rsb_indirect_scan_benchmark(long ss, long * spiffero, long times, rsb_time_t *bt)
 {
 	/**
+		TODO: error handling
 	*/
-	rsb_err_t errval = RSB_ERR_INTERNAL_ERROR;
+	/* FIXME: bounds of times: should be adaptive */
 	rsb_time_t dt,rt,lt;
 	rsb_coo_idx_t *IA=NULL;		/* the array to be scanned */
 	rsb_coo_idx_t acc=0;			/* accumulator */
@@ -697,8 +697,6 @@ static rsb_err_t rsb_indirect_scan_benchmark(long ss, long * spiffero, long time
 	void *CA=NULL;				/* the array setting the scan order */
 	long els=0,fas=0;
 	long i,ab,it;
-
-	times = RSB_MAX(1,times);
 	els=ss/(sizeof(rsb_coo_idx_t)),fas=4*ss;	/* the number of elements   */
 	if(els<1 || fas<1)
 		{ RSB_ERROR(RSB_ERRM_ES); goto err; }
@@ -709,25 +707,23 @@ static rsb_err_t rsb_indirect_scan_benchmark(long ss, long * spiffero, long time
 	if(!IP){RSB_ERROR(RSB_ERRM_ES);goto erri;}
 	if(!IA){RSB_ERROR(RSB_ERRM_ES);goto erri;}
 	if(!CA){RSB_ERROR(RSB_ERRM_ES);goto erri;}
-
 	// random fill
 	for(i=0;i<els;++i)
 		IA[i]=rand()%els;
 	// first phase: random scan
 	for(i=0;i<els;++i)
 		IP[i]=rand()%els;
-	rsb__scan_cache(CA,fas,RSB_MB_FLUSH,RSB_FLUSH_TIMES,NULL);	/* flush cache */
+	scan_cache(CA,fas,RSB_MB_FLUSH,RSB_FLUSH_TIMES,NULL);	/* flush cache */
 	dt = - rsb_time();
 	for(it=0;it<times;++it)
 		for(i=0;i<els;++i)
 			acc+=IA[IP[i]];
 	dt += rsb_time();
 	rt=dt/times;
-
 	// second phase: linear scan
 	for(i=0;i<els;++i)
 		IP[i]=i;
-	rsb__scan_cache(CA,fas,RSB_MB_FLUSH,RSB_FLUSH_TIMES,NULL);	/* flush cache */
+	scan_cache(CA,fas,RSB_MB_FLUSH,RSB_FLUSH_TIMES,NULL);	/* flush cache */
 	dt = - rsb_time();
 	for(it=0;it<times;++it)
 		for(i=0;i<els;++i)
@@ -735,37 +731,43 @@ static rsb_err_t rsb_indirect_scan_benchmark(long ss, long * spiffero, long time
 	dt += rsb_time();
 	lt=dt/times;
 	if(spiffero)
-		RSB_INFO("for %ld elements, %ld bytes, random access time: %lg, linear access time: %lg, ratio %lg (%ld times)\n",els,ab,rt,lt,rt/lt,times);
+		RSB_INFO("for %ld elements, %ld bytes, random access time: %lg, linear access time: %lg, ratio %lg\n",els,ab,rt,lt,rt/lt);
 	else
 		;/* tuning mode only */
 	if(spiffero)
 		*spiffero+=acc;
 	else
-	{	RSB_INFO("ignore this value: %zd\n",(size_t)acc);}
+	{	RSB_INFO("ignore this: %zd\n",(size_t)acc);}
 	if(bt)
 		*bt=(rt+lt)*times;
-	errval = RSB_ERR_NO_ERROR;
 erri:
 	RSB_CONDITIONAL_FREE(CA);
 	RSB_CONDITIONAL_FREE(IA);
 	RSB_CONDITIONAL_FREE(IP);
 err:
-	return errval;
+	return RSB_ERR_INTERNAL_ERROR;
 }
 
-	static void rsb__memory_benchmark_p1_memcpy(void)
+rsb_err_t rsb__memory_benchmark(void)
+{
+	/**
+	 * Will benchmark the memory hierarchy.
+	 * You should call rsb_lib_init(RSB_NULL_INIT_OPTIONS) before.
+	 */
+	struct rsb_mbw_cm_t cm;
+#if 1
+	/* NEW: mem scan benchmark */
 	{
-		// Phase 1 of memory benchmark: MEMCPY-like.
-		const long lcs = rsb__get_lastlevel_c_size();
-		long times = RSB_MEMSCAN_MIN_TIMES, tinc = 1;
+		//long lcs = rsb__get_lastlevel_c_size();
+		long /*spiffero=0,*/times = RSB_MEMSCAN_MIN_TIMES,tinc=1,reftimes=0;
 		const long wet = rsb_get_num_threads();
-		const long fsm = rsb__sys_free_system_memory();
+		long fsm = rsb__sys_free_system_memory();
 		int ci;
-		const size_t wss = RSB_MIN(fsm / 3, 4*wet*lcs);
-		long i;
-		const long els = wss/sizeof(rsb_coo_idx_t);
+//		size_t wss=4*wet*lcs*4;
+		size_t wss=fsm/3;
+		long i,els=wss/sizeof(rsb_coo_idx_t);
 		rsb_coo_idx_t *IS=NULL,*ID=NULL;
-		rsb_time_t bt = RSB_REAL_ZERO,dt = RSB_REAL_ZERO;
+		rsb_time_t /*mt = RSB_MEMSCAN_TIME,*/bt = RSB_REAL_ZERO,dt = RSB_REAL_ZERO;
 
 		if(wss<1)
 			goto errm;
@@ -776,10 +778,10 @@ err:
 		for(i=0;i<els;++i)
 			IS[i]=rand()%els;
 
-		while( times<(RSB_MEMSCAN_MAX_TIMES/2) && bt<RSB_MEMSCAN_TIME )
+		while(times<(RSB_MEMSCAN_MAX_TIMES/2) && bt<RSB_MEMSCAN_TIME)
 		{
 			int it;
-			times += tinc;
+			times+=tinc;
 			dt = - rsb_time();
 			for(it=0;it<tinc;++it)
 				RSB_A_MEMCPY_parallel(ID,IS,0,0,wss/RSB_CHAR_BIT,RSB_CHAR_BIT);
@@ -787,56 +789,53 @@ err:
 			bt+=dt;
 			tinc*=2;
 		}
-		RSB_INFO("# entering memory benchmark, phase 1 (%ldx repeated parallel MEMCPY of %zd bytes)\n", times, wss);
-
+		reftimes=times;
 		if(0)
-		{	RSB_WARN("first estimate of MEMCPY on %zd bytes: %lg GB/s (%ld times in %lg s)\n",(size_t)wss,
-			((((double)wss)*times)/bt)/1.e9,times,bt);
-		}
+		{RSB_WARN("first estimate of MEMCPY on %zd bytes: %lg GB/s (%ld times in %lg s)\n",(size_t)wss,
+			((((double)wss)*times)/bt)/1.e9,times,bt);}
+		/* FIXME: SHOULD FLUSH  */
 		for(i=0;i<els;++i)
 			IS[i]=rand()%els;
 		for(ci=1;ci<=wet;++ci)
 		{
 			int it;
-
-			rsb__flush_cache(0);
-
 			rsb__set_num_threads(ci);
 			dt = - rsb_time();
 			for(it=0;it<times;++it)
 				RSB_A_MEMCPY_parallel(ID,IS,0,0,wss/RSB_CHAR_BIT,RSB_CHAR_BIT);
 			dt += rsb_time();
 			bt=dt;
-			RSB_WARN("%zu cores MEMCPY on %zd bytes: %lg GB/s (%ld times in %lg s)\n",(size_t)ci,wss,
-				((((double)wss)*times)/bt)/1.e9,times,bt);
+		RSB_WARN("%zu cores MEMCPY on %zd bytes: %lg GB/s (%ld times in %lg s)\n",(size_t)ci,wss,
+			((((double)wss)*times)/bt)/1.e9,times,bt);
 		}
 		rsb__set_num_threads(wet);
+//		RSB_WARN("begin naive MEMCPY parallelism estimation %ld iterations\n",reftimes);
 errm:
 		RSB_CONDITIONAL_FREE(IS);
 		RSB_CONDITIONAL_FREE(ID);
 	}
+#endif
 
-	static void rsb__memory_benchmark_p2(void)
+
+#if 1
+	/* NEW: mem scan benchmark */
 	{
-		// Phase 2 of memory benchmark.
-		rsb_err_t errval = RSB_ERR_NO_ERROR;
-		const long fcs = rsb__get_first_level_c_size();
-		const long lcs = rsb__get_lastlevel_c_size();
-		const long rcs = lcs;
-		const long fsm = rsb__sys_free_system_memory();
+		long fcs = rsb__get_first_level_c_size();
+		long lcs = rsb__get_lastlevel_c_size();
+		long rcs=lcs;
+		long fsm = rsb__sys_free_system_memory();
 		long spiffero=0,times = RSB_MEMSCAN_MIN_TIMES,tinc=1,reftimes=0;
-		rsb_time_t bt = RSB_REAL_ZERO,dt = RSB_REAL_ZERO;
-
-		while( times<(RSB_MEMSCAN_MAX_TIMES/2) && bt<RSB_MEMSCAN_TIME )
-		{
-			times += tinc;
-			errval |= rsb_indirect_scan_benchmark(rcs,NULL,tinc,&dt);
-			bt+=dt;
-			tinc *= 2;
-		}
-		RSB_INFO("# entering memory benchmark, phase 2 (%ldx repeated parallel MEMCPY of %ld bytes)\n", times, fsm);
+		rsb_time_t /*mt = RSB_MEMSCAN_TIME,*/bt = RSB_REAL_ZERO,dt = RSB_REAL_ZERO;
 		RSB_WARN("begin experimental indirect array scan benchmark\n");
-		reftimes = times;
+		RSB_WARN("autotuning..\n");
+		while(times<(RSB_MEMSCAN_MAX_TIMES/2) && bt<RSB_MEMSCAN_TIME)
+		{
+			times+=tinc;
+			/*errval=*/rsb_indirect_scan_benchmark(rcs,NULL,tinc,&dt);
+			bt+=dt;
+			tinc*=2;
+		}
+		reftimes=times;
 		RSB_WARN("autotuning done. will proceed with presumably %lg s samples\n",bt);
 #define RSB_MEMSCAN_TIMES_FROM_REF(reftimes,refsize,bufsize) \
 	((refsize)<(bufsize)? \
@@ -844,69 +843,37 @@ errm:
 	RSB_MAX(((refsize)/(bufsize))*reftimes,RSB_MEMSCAN_MIN_TIMES))
 
 		times = RSB_MEMSCAN_TIMES_FROM_REF(reftimes,rcs,fcs);
-		errval|=rsb_indirect_scan_benchmark(fcs,&spiffero,times,&bt);
+		/*errval=*/rsb_indirect_scan_benchmark(fcs,&spiffero,times,&bt);
 		times = RSB_MEMSCAN_TIMES_FROM_REF(reftimes,rcs,(lcs-fcs)/2);
-		errval|=rsb_indirect_scan_benchmark(fcs+(lcs-fcs)/2,&spiffero,times,&bt);
+		/*errval=*/rsb_indirect_scan_benchmark(fcs+(lcs-fcs)/2,&spiffero,times,&bt);
 		times = RSB_MEMSCAN_TIMES_FROM_REF(reftimes,rcs,lcs);
-		errval|=rsb_indirect_scan_benchmark(lcs,&spiffero,times,&bt);
+		/*errval=*/rsb_indirect_scan_benchmark(lcs,&spiffero,times,&bt);
 		times = RSB_MEMSCAN_TIMES_FROM_REF(reftimes,rcs,4*lcs);
-		errval|=rsb_indirect_scan_benchmark(4*lcs,&spiffero,times,&bt);
+		/*errval=*/rsb_indirect_scan_benchmark(4*lcs,&spiffero,times,&bt);
 		times = RSB_MEMSCAN_TIMES_FROM_REF(reftimes,rcs,16*lcs);
-		errval|=rsb_indirect_scan_benchmark(RSB_MIN(fsm,16*lcs),&spiffero,times/2,&bt);
+		/*errval=*/rsb_indirect_scan_benchmark(RSB_MIN(fsm,16*lcs),&spiffero,times/2,&bt);
 		times = RSB_MEMSCAN_TIMES_FROM_REF(reftimes,rcs,32*lcs);
-		errval|=rsb_indirect_scan_benchmark(RSB_MIN(fsm,32*lcs),&spiffero,times/4,&bt);
+		/*errval=*/rsb_indirect_scan_benchmark(RSB_MIN(fsm,32*lcs),&spiffero,times/4,&bt);
 		times = RSB_MEMSCAN_TIMES_FROM_REF(reftimes,rcs,64*lcs);
-		errval|=rsb_indirect_scan_benchmark(RSB_MIN(fsm,64*lcs),&spiffero,times/4,&bt);
-		RSB_INFO("#please ignore this value: %ld\n",spiffero);
+		/*errval=*/rsb_indirect_scan_benchmark(RSB_MIN(fsm,64*lcs),&spiffero,times/4,&bt);
+		RSB_INFO("#please ignore this: %ld\n",spiffero);
 		RSB_INFO("end experimental indirect array scan benchmark\n");
-#undef RSB_MEMSCAN_TIMES_FROM_REF
-		// Note: we ignore errval.
 	}
+#endif
 
-rsb_err_t rsb__memory_benchmark(struct rsb_mbw_et_t * mbetp)
-{
-	/**
-	 * Benchmark the memory hierarchy.
-	 */
-	struct rsb_mbw_cm_t cm;
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	/* FIXME : temporarily here ! */
+	rsb_tlb_benchmark();
 
-	RSB_DEBUG_ASSERT(rsb_global_session_handle.rsb_g_initialized == RSB_BOOL_TRUE);
-
-	if(mbetp)
-		goto onlyforrecord;
-
-	rsb__memory_benchmark_p1_memcpy();
-
-	rsb__memory_benchmark_p2();
-	
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
-	rsb_tlb_benchmark(); /* Note: temporarily here (to be completed). */
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-
-	RSB_INFO("# entering memory benchmark, phase 3\n");
-onlyforrecord:	/* start here if only taking record */
-
-	if(RSB_SOME_ERROR(rsb__mem_hier_timings(&cm)))
+	if(rsb__mem_hier_timings(&cm))
 		goto err;
 
-	if( ! mbetp ) /* if struct then no print needed */
-		if(RSB_SOME_ERROR(rsb__print_mem_hier_timings(NULL,&cm)))
-			goto err;
-
-	if( mbetp )
-	{
-		RSB_DO_ERROR_CUMULATE(errval,rsb__mbw_es_fill(mbetp,&cm));
-		rsb__do_perror(NULL,errval);
-	}
+	if(rsb__print_mem_hier_timings(&cm))
+		goto err;
 
 	RSB_CONDITIONAL_FREE(cm.mb);
-	if(RSB_SOME_ERROR(errval))
-		goto err;
-
-	return RSB_ERR_NO_ERROR;
+	return 0;
 err:
-	return RSB_ERR_GENERIC_ERROR;
+	return -1;
 }
 
 rsb_err_t rsb__flush_cache(size_t sz)
@@ -915,7 +882,7 @@ rsb_err_t rsb__flush_cache(size_t sz)
 	 Flush caches by repeated memory scans.
 	 */
 	void * fc=NULL;
-	const size_t times = RSB_MIN_CACHE_FLUSH_SCAN_TIMES;
+	size_t times = RSB_MIN_CACHE_FLUSH_SCAN_TIMES;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 	if(sz==0)
@@ -926,98 +893,16 @@ rsb_err_t rsb__flush_cache(size_t sz)
 	fc = rsb__calloc(sz);
 	if(fc==NULL)
 		return RSB_ERR_ENOMEM;
-	errval = rsb__scan_cache(fc,sz,RSB_MB_FLUSH,times,NULL);	/* flush cache */
+	errval = scan_cache(fc,sz,RSB_MB_FLUSH,times,NULL);	/* flush cache */
 	RSB_CONDITIONAL_FREE(fc);	
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__mbw_es_print(const struct rsb_mbw_et_t * mbetp)
+#if 0
+int main(void)
 {
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	rsb_int_t sni;
-
-	if(mbetp)
-	{
-		// RSB_STDOUT("Record comprises %d memory benchmark samples.\n",mbetp->sn);
-                // RSB_STDOUT("Record comprises %d memory benchmark samples (each record %zd bytes).\n",mbetp->sn,sizeof(mbetp->et[0]));
-                // RSB_STDOUT("offset of sz : %zd bytes\n",((void*)&(mbetp->et[0].sz ))-(void*)(&mbetp->et[0]));
-                // RSB_STDOUT("offset of mbt: %zd bytes\n",((void*)&(mbetp->et[0].mbt))-(void*)(&mbetp->et[0]));
-                // RSB_STDOUT("offset of lvl: %zd bytes\n",((void*)&(mbetp->et[0].lvl))-(void*)(&mbetp->et[0]));
-                // RSB_STDOUT("offset of bw : %zd bytes\n",((void*)&(mbetp->et[0].bw ))-(void*)(&mbetp->et[0]));
-		RSB_INFO("#%-32s\tsize\tlevel\tbw(MBps)\n","");
-	}
-
-	for ( sni = 0; sni < mbetp->sn; ++sni )
-	{
-		printf("%-32s\t%d\t%d\t%lg\n",rsb__mbw_s2s(mbetp->et[sni].mbt),mbetp->et[sni].sz,mbetp->et[sni].lvl,mbetp->et[sni].bw);
-	}
-	return errval;
+	return rsb__memory_benchmark();
 }
-
-rsb_err_t rsb__mbw_es_fill(struct rsb_mbw_et_t * mbetp, const struct rsb_mbw_cm_t * cm)
-{
-	/*
-	 * accept an unused struct rsb_mbw_et_t; allocate and fill it.
-	 * */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-
-	if(!cm)
-		return RSB_ERR_BADARGS;
-
-	if(!mbetp || cm->cln == 0)
-		goto ret;
-
-	RSB_BZERO(mbetp,sizeof(*mbetp));
-	mbetp->sn=(cm->cln+cm->extra_level)*RSB_MB_N;
-	mbetp->et=rsb__calloc( mbetp->sn * sizeof(struct rsb_mbw_es_t) );
-
-	RSB_INFO("Will fill struct with %d samples...\n",mbetp->sn);
-
-	if ( ! mbetp->et )
-	{
-		errval = RSB_ERR_ENOMEM;
-		goto ret;
-	}
-
-
-	if (rsb__print_mem_hier_timings(mbetp->et,cm))
-		goto ret;
-
-	return RSB_ERR_NO_ERROR;
-ret:
-	return errval;
-}
-
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
-static rsb_err_t rsb__mbw_es_clone(struct rsb_mbw_et_t * mbetcp, const struct rsb_mbw_et_t * mbetsp)
-{
-	// unused.
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-
-	RSB_BZERO(mbetcp,sizeof(*mbetcp));
-	if( mbetsp->et )
-	{
-		mbetcp->et = rsb__clone_area(mbetsp->et,sizeof(*mbetsp->et)*mbetsp->sn);
-		if(mbetcp->et)
-			mbetcp->sn = mbetsp->sn;
-		else
-			errval = RSB_ERR_ENOMEM;
-	}
-	return errval;
-}
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-
-rsb_err_t rsb__mbw_es_free(struct rsb_mbw_et_t * mbetp)
-{
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-
-	if(!mbetp)
-		goto ret;
-
-	RSB_CONDITIONAL_FREE(mbetp->et);	
-	RSB_BZERO(mbetp,sizeof(*mbetp));
-ret:
-	return errval;
-}
+#endif
 
 /* @endcond */

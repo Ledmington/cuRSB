@@ -6,7 +6,7 @@
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -44,20 +44,32 @@ If not, see <http://www.gnu.org/licenses/>.
 #undef RSB_PS_ASSERT
 #define RSB_PS_ASSERT(e) 
 #endif /* RSB_PS_ASSERT */
-
-
-
-
-rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place(
+rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double(
+		double *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
+		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
+	       	size_t wsize, rsb_flags_t flags
+		)
+;rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float(
+		float *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
+		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
+	       	size_t wsize, rsb_flags_t flags
+		)
+;rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float_complex(
+		float complex *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
+		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
+	       	size_t wsize, rsb_flags_t flags
+		)
+;rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double_complex(
+		double complex *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
+		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
+	       	size_t wsize, rsb_flags_t flags
+		)
+;rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place(
 		void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
 		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
 	       	size_t wsize, rsb_flags_t flags, rsb_type_t typecode
 		)
 ;
-rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_test(void)
-;
 #endif /* RSB_MERGE_H_INCLUDED */
-
-
 
 /* @endcond */

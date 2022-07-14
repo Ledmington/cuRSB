@@ -25,8 +25,7 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 	rsb_nnz_idx_t ops=0; 
 	rsb_coo_idx_t ai,aj;
 	rsb_coo_idx_t al,bl,cl;
-	rsb_coo_idx_t bj;
-	//rsb_coo_idx_t bi;
+	rsb_coo_idx_t bi,bj;
 
 foreach(`mtype',RSB_M4_TYPES,`dnl
 `#ifdef 'RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)
@@ -40,7 +39,7 @@ dnl	for(ai=0;ai<cm;++ai)
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		//rsb_nnz_idx_t arb;
+		rsb_nnz_idx_t arb;
 		rsb_nnz_idx_t marker;
 
 		//assert(cblocks==PA[ai]);	// this is true on the serial execution of this loop
@@ -48,7 +47,7 @@ dnl	for(ai=0;ai<cm;++ai)
 		marker=cblocks+1;
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		//arb=ARP[ai+1]-ARP[ai];
+		arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -57,8 +56,7 @@ dnl	for(ai=0;ai<cm;++ai)
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				//bi=aj;
-				bj=BJA[bl];
+				bi=aj; bj=BJA[bl];
 				if(p[bj]<marker)
 					p[bj]=marker,
 					(JA)[cblocks++]=bj,
@@ -94,8 +92,7 @@ ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 	rsb_nnz_idx_t ops=0; 
 	rsb_coo_idx_t ai,aj;
 	rsb_coo_idx_t al,bl;
-	//rsb_coo_idx_t bi;
-	rsb_coo_idx_t bj;
+	rsb_coo_idx_t bi,bj;
 
 foreach(`mtype',RSB_M4_TYPES,`dnl
 `#ifdef 'RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)
@@ -109,11 +106,11 @@ dnl	for(ai=0;ai<cm;++ai)
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		//rsb_nnz_idx_t arb;
+		rsb_nnz_idx_t arb;
 
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		//arb=ARP[ai+1]-ARP[ai];
+		arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -122,8 +119,7 @@ dnl	for(ai=0;ai<cm;++ai)
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				//bi=aj;
-				bj=BJA[bl];
+				bi=aj; bj=BJA[bl];
 dnl				*(mtype*)(RSB_BLOCK_ROWMAJOR_ADDRESS(cVA,ldc,nr,nc,ai,bj,(sizeof(mtype))))+=aVA[al]*bVA[bl];
 
 				RSB_BLOCK_X_MAJOR_REFERENCE(cVA,ldc,ai,bj,isccolmajor)+=aVA[al]*bVA[bl];

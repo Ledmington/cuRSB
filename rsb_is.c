@@ -1,4 +1,4 @@
-/*
+/*                                                                                                                            
 
 Copyright (C) 2008-2021 Michele Martone
 
@@ -38,6 +38,8 @@ rsb_bool_t rsb__is_coo_matrix(const struct rsb_mtx_t *mtxAp)
 	 * */
 	rsb_bool_t is;
 	RSB_DEBUG_ASSERT(mtxAp);
+	if(!mtxAp)
+		return RSB_BOOL_FALSE;
 
 	is = (
 #ifdef RSB_MATRIX_STORAGE_BCOR
@@ -57,6 +59,8 @@ rsb_bool_t rsb__is_square(const struct rsb_mtx_t *mtxAp)
 	 * \ingroup gr_internals
 	 * */
 	RSB_DEBUG_ASSERT(mtxAp);
+	if(!mtxAp)
+		return RSB_BOOL_FALSE;
 
 	return (mtxAp->nr == mtxAp->nc)?RSB_BOOL_TRUE:RSB_BOOL_FALSE;
 }
@@ -66,16 +70,16 @@ rsb_bool_t rsb__is_hermitian(const struct rsb_mtx_t *mtxAp)
 	/*!
 	 * \ingroup gr_internals
 	 * */
+	if(!mtxAp)
+		return RSB_BOOL_FALSE;
 
 	return (rsb__get_hermitian_flag(mtxAp))?RSB_BOOL_TRUE:RSB_BOOL_FALSE;
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_bool_t rsb__is_triangle(rsb_flags_t flags)
 {
 	return (rsb__is_lower_triangle(flags) | rsb__is_upper_triangle(flags));
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED*/
 
 rsb_bool_t rsb__is_lower_triangle(rsb_flags_t flags)
 {
@@ -98,6 +102,9 @@ rsb_bool_t rsb__is_symmetric(const struct rsb_mtx_t *mtxAp)
 	/*!
 	 * \ingroup gr_internals
 	 * */
+	if(!mtxAp)
+		return RSB_BOOL_FALSE;
+
 	return (rsb__get_symmetry_flag(mtxAp))?RSB_BOOL_TRUE:RSB_BOOL_FALSE;
 }
 
@@ -106,6 +113,9 @@ rsb_bool_t rsb__is_not_unsymmetric(const struct rsb_mtx_t *mtxAp)
 	/*!
 	 * \ingroup gr_internals
 	 * */
+	if(!mtxAp)
+		return RSB_BOOL_FALSE;
+
 	if(rsb__get_hermitian_flag(mtxAp) || rsb__get_symmetry_flag(mtxAp))
 		return RSB_BOOL_TRUE;
 	else
@@ -116,13 +126,12 @@ rsb_bool_t rsb__is_csr_matrix(const struct rsb_mtx_t *mtxAp)
 {
 	/*!
 	 * \ingroup gr_internals
-	 */
+	 * */
 	const rsb_bool_t is_csr = RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_WANT_BCSS_STORAGE);
 
 	return is_csr;
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_bool_t rsb__is_bcss_matrix(const struct rsb_mtx_t *mtxAp)
 {
 	/*!
@@ -152,7 +161,6 @@ rsb_bool_t rsb__is_bcss_matrix(const struct rsb_mtx_t *mtxAp)
 #endif /* RSB_EXPERIMENTAL_USE_PURE_BCSS */
 	return ret;
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_bool_t rsb__is_css_matrix(const struct rsb_mtx_t *mtxAp)
 {
@@ -163,8 +171,13 @@ rsb_bool_t rsb__is_css_matrix(const struct rsb_mtx_t *mtxAp)
 	 * */
 	//rsb_bool_t ret = RSB_BOOL_FALSE;
 	rsb_blk_idx_t br, bc;
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
-	rsb__get_blocking_size(mtxAp, &br, &bc);
+	if(!mtxAp)
+		return RSB_BOOL_FALSE;
+
+	if((errval = rsb__get_blocking_size(mtxAp, &br, &bc))!=RSB_ERR_NO_ERROR)
+		return RSB_BOOL_FALSE;
 
 	return ( br==1 && bc==1 ) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
 }
@@ -178,6 +191,9 @@ rsb_bool_t rsb__is_bcsr_matrix(const struct rsb_mtx_t *mtxAp)
 	 * */
 	rsb_bool_t ret = RSB_BOOL_FALSE;
 
+	if(!mtxAp)
+		return ret;
+	
 #ifdef RSB_MATRIX_STORAGE_BCSR
 	if( ( mtxAp->matrix_storage & RSB_MATRIX_STORAGE_BCSR ) != 0 ) ret = RSB_BOOL_TRUE;
 #endif /* RSB_MATRIX_STORAGE_BCSR */
@@ -192,7 +208,6 @@ rsb_bool_t rsb__is_bcsr_matrix(const struct rsb_mtx_t *mtxAp)
 	return ret;
 }
 
-#if RSB_WANT_BCSC_LEAVES  
 rsb_bool_t rsb__is_bcsc_matrix(const struct rsb_mtx_t *mtxAp)
 {
 	/*!
@@ -220,7 +235,6 @@ rsb_bool_t rsb__is_bcsc_matrix(const struct rsb_mtx_t *mtxAp)
 #endif /* RSB_EXPERIMENTAL_USE_PURE_BCSS */
 	return ret;
 }
-#endif /* RSB_WANT_BCSC_LEAVES */
 
 rsb_bool_t rsb__have_fixed_blocks_matrix_flags(rsb_flags_t flags)
 {
@@ -231,7 +245,6 @@ rsb_bool_t rsb__have_fixed_blocks_matrix_flags(rsb_flags_t flags)
 	return RSB_DO_FLAG_HAS_INTERSECTION(flags,( RSB_FLAG_WANT_FIXED_BLOCKING_VBR | RSB_FLAG_WANT_BCSS_STORAGE | RSB_FLAG_WANT_COO_STORAGE ));
 }
 
-#ifdef RSB_FLAG_WANT_LINKED_STORAGE
 rsb_bool_t rsb__have_linked_storage(const rsb_flags_t flags)
 {
 	/*!
@@ -244,7 +257,6 @@ rsb_bool_t rsb__have_linked_storage(const rsb_flags_t flags)
 	return RSB_BOOL_FALSE;
 #endif /* RSB_FLAG_WANT_LINKED_STORAGE */
 }
-#endif
 
 rsb_bool_t rsb__is_terminal_recursive_matrix(const struct rsb_mtx_t *mtxAp)
 {
@@ -253,17 +265,22 @@ rsb_bool_t rsb__is_terminal_recursive_matrix(const struct rsb_mtx_t *mtxAp)
 	 * \return nonzero if the given matrix is terminal
 	 * FIXME : is this function really needed ?
 	 * FIXME : should return one for terminal of non recursive ?
-	 * TODO rsb__is_terminal_recursive_matrix -> rsb__is_terminal_matrix or rsb__is_leaf_matrix
+	 * TODO rsb__is_terminal_recursive_matrix -> rsb_is_terminal_matrix or rsb_is_leaf_matrix
 	 */
 	rsb_submatrix_idx_t i,j;
 	struct rsb_mtx_t * submatrix = NULL;
 	int smc = 0;
 
+	if(!mtxAp)
+		goto rz;
+
 	RSB_SUBMATRIX_FOREACH(mtxAp,submatrix,i,j)
-		if(submatrix)
-			++smc;
+	if(submatrix)
+		++smc;
 
 	return (smc==0);
+rz:
+	return 0; /* TODO: eliminate this case */
 }
 
 rsb_bool_t rsb__is_recursive_matrix(rsb_flags_t flags)
@@ -272,10 +289,10 @@ rsb_bool_t rsb__is_recursive_matrix(rsb_flags_t flags)
 	 * \ingroup gr_internals
 	 * \return nonzero if the given flags are for a recursive storage.
 	 */
-	return (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING));
+	return 
+	(RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING));
 }
 
-#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_bool_t rsb__is_fixed_block_matrix(const struct rsb_mtx_t *mtxAp)
 {
 	/*!
@@ -310,7 +327,6 @@ rsb_bool_t rsb__is_fixed_block_matrix(const struct rsb_mtx_t *mtxAp)
 #endif /* RSB_MATRIX_STORAGE_BCSC */
 		0;
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_bool_t rsb__util_are_flags_suitable_for_optimized_1x1_constructor(rsb_flags_t flags)
 {
@@ -331,37 +347,34 @@ rsb_bool_t rsb__is_root_matrix(const struct rsb_mtx_t *mtxAp)
 	return (!RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_NON_ROOT_MATRIX))?RSB_BOOL_TRUE:RSB_BOOL_FALSE;
 }
 
-static rsb_bool_t rsb__mtx_chk_intrnl(const struct rsb_mtx_t *mtxAp, const struct rsb_mtx_t *mtxRp)
+rsb_bool_t rsb__mtx_chk(const struct rsb_mtx_t *mtxAp)
 {
 	/*!
 	 	\ingroup gr_internals
 
-		Check function, useful when debugging or re-developing core functionality.
-
+		This is mainly used as a debugging tool when re-developing core functionality.
 		FIXME: will die in the presence of the RSB_FLAG_FORTRAN_INDICES_INTERFACE flag
-		TODO: move to rsb__mtx_check.c or rsb_chk.c
+		TODO: move to rsb__mtx_check.c
 		TODO: invoke rsb__check_bounds.
 	*/
-	rsb_bool_t return_ok = RSB_BOOL_FALSE;
-
-	if( RSB_INVALID_COO_INDEX(mtxAp->Mdim)  || RSB_INVALID_COO_INDEX(mtxAp->nr) || RSB_INVALID_NNZ_INDEX(mtxAp->nnz) )
+	if(!mtxAp)
 	{
-		RSB_PERR_GOTO(err,RSB_ERRM_BADDIM);
+	       	RSB_ERROR(RSB_ERRM_ES);
+		RSB_PERR_GOTO(err,RSB_ERRM_E_MTXAP);
 	}
 	
+	if( RSB_INVALID_COO_INDEX(mtxAp->Mdim)  || RSB_INVALID_COO_INDEX(mtxAp->nr) || RSB_INVALID_NNZ_INDEX(mtxAp->nnz) )
+	{
+	       	RSB_ERROR("out of allowed bounds dimensions !");
+		RSB_ERROR("bad matrix:"),RSB_ERROR_MATRIX_SUMMARY(mtxAp),RSB_ERROR(RSB_ERRM_NL);
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
 	if ( rsb__get_hermitian_flag(mtxAp) && rsb__get_symmetry_flag(mtxAp) )
 	{
 		RSB_PERR_GOTO(err,"bad flags: matrix at once hermitian and symmetric!\n");
 	}
-
-	if( (mtxAp)->all_leaf_matrices_n )
-	if( rsb__submatrices(mtxAp) < (mtxAp)->all_leaf_matrices_n )
-	{
-	       	RSB_ERROR("more leaf submatrices %ld than overall %ld is inconsistent!", (mtxAp)->all_leaf_matrices_n, rsb__submatrices(mtxAp) );
-		RSB_ERROR(RSB_ERRM_NL);
-		RSB_PERR_GOTO(err,RSB_ERRM_ES)
-	}
-
+	
 #if RSB_MERCY_FOR_LEGACY_INTERFACE
 	if(
 			rsb_get_matrix_n_rows(mtxAp)!=mtxAp->nr || 
@@ -425,15 +438,17 @@ static rsb_bool_t rsb__mtx_chk_intrnl(const struct rsb_mtx_t *mtxAp, const struc
 		RSB_SUBMATRIX_FOREACH(mtxAp,submatrix,i,j)
 		if(submatrix)
 		{
-			if(RSB__IS_SUBM_MISPLACED(submatrix,mtxAp) )
+			if(
+				(mtxAp->roff>submatrix->roff) || (mtxAp->coff>submatrix->coff) ||
+				(mtxAp->nr<submatrix->nr) || (mtxAp->nc<submatrix->nc) ||
+					0)
 			{
-				RSB_STDOUT(RSB_PRINTF_MTX_SUMMARIZED_ARGS("Maybe misplaced submatrix: ",submatrix,RSB_ERRM_NL));
-			       	RSB_PERR_GOTO(err,"submatrix %p at %d %d (root+%zd) seems misplaced\n",submatrix,submatrix->roff,submatrix->coff,submatrix-mtxRp);
+			       	RSB_PERR_GOTO(err,RSB_ERRM_ES) 
 			}
 
-			if(!rsb__mtx_chk_intrnl(submatrix,mtxRp))
+			if(!rsb__mtx_chk(submatrix))
 			{
-			       	RSB_PERR_GOTO(err,"submatrix %p at %d %d (root+%zd) seems corrupted\n",submatrix,submatrix->roff,submatrix->coff,submatrix-mtxRp);
+			       	RSB_PERR_GOTO(err,"submatrix at %d %d seems corrupted\n",submatrix->roff,submatrix->coff);
 			}
 		}
 	}
@@ -582,13 +597,10 @@ static rsb_bool_t rsb__mtx_chk_intrnl(const struct rsb_mtx_t *mtxAp, const struc
 		{
 			RSB_PERR_GOTO(err,RSB_ERRM_EM);
 		}
-#if RSB_WANT_DBC
 		if(mtxAp->element_count != mtxAp->block_count)
 		{
 			RSB_PERR_GOTO(err,RSB_ERRM_EM);
 		}
-#endif
-#if RSB_OLD_COO_CRITERIA
 		if(!mtxAp->bpntr)
 		{
 			RSB_PERR_GOTO(err,"!bpntr!\n");
@@ -601,27 +613,11 @@ static rsb_bool_t rsb__mtx_chk_intrnl(const struct rsb_mtx_t *mtxAp, const struc
 		{
 			RSB_PERR_GOTO(err,"bpntr[0]!=0!\n");
 		}
-#else
-		if(mtxAp->nnz != 0 && !mtxAp->bpntr)
-		{
-			RSB_PERR_GOTO(err,"!bpntr!\n");
-		}
-		if(mtxAp->nnz != 0 && !mtxAp->bindx)
-		{
-			RSB_PERR_GOTO(err,"!bindx!\n");
-		}
-		if(mtxAp->bpntr && mtxAp->nnz > 0 && mtxAp->bpntr[0]!=0)
-		{
-			RSB_PERR_GOTO(err,"bpntr[0]!=0!\n");
-		}
-		if(mtxAp->nnz==0)
-			goto ok;
-#endif
 		if(RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_WANT_COO_STORAGE))
 		{
 			if(!RSB_DO_FLAG_HAS(mtxAp->flags,(RSB_FLAG_USE_HALFWORD_INDICES)))
 			{
-				if(RSB_SOME_ERROR( rsb__util_is_sorted_coo_as_row_major(mtxAp->bpntr,mtxAp->bindx,mtxAp->nnz,mtxAp->typecode,NULL,mtxAp->flags)) )
+				if(RSB_SOME_ERROR( rsb__util_is_sorted_coo_as_row_major(mtxAp->VA,mtxAp->bpntr,mtxAp->bindx,mtxAp->nnz,mtxAp->typecode,NULL,mtxAp->flags)) ) 
 				{
 					RSB_PERR_GOTO(err,"COO matrix seems unsorted!\n");
 				}
@@ -665,6 +661,15 @@ static rsb_bool_t rsb__mtx_chk_intrnl(const struct rsb_mtx_t *mtxAp, const struc
 			{
 				RSB_PERR_GOTO(err,"(halfword) bindx seems unsorted!\n");
 			}
+
+
+
+	//		for(n=0;RSB_LIKELY(n<mtxAp->Mdim);++n)
+	//		{
+	//			rsb_nnz_idx_t i;
+	//			for(i=mtxAp->bpntr[n];i<mtxAp->bpntr[n+1];++i)
+	//				RSB_STDOUT("at %d %d\n",1+n,1+((rsb_half_idx_t*)(mtxAp->bindx))[i]);
+	//		}
 		}
 		else
 		{
@@ -675,23 +680,19 @@ static rsb_bool_t rsb__mtx_chk_intrnl(const struct rsb_mtx_t *mtxAp, const struc
 		}
 	}
 ok:
-	return_ok = RSB_BOOL_TRUE;
+	return RSB_BOOL_TRUE;
 err:
-	if( return_ok == RSB_BOOL_FALSE)
-	{
-		RSB_ERROR(RSB_PRINTF_MTX_SUMMARIZED_ARGS(RSB_ERRM_BS,mtxAp,RSB_ERRM_NL));
-	}
-	return return_ok;
-}
-
-rsb_bool_t rsb__mtx_chk(const struct rsb_mtx_t *mtxAp)
-{
-	return rsb__mtx_chk_intrnl(mtxAp, mtxAp);
+#if 1
+	RSB_ERROR("bad submatrix: "),RSB_ERROR_MATRIX_SUMMARY(mtxAp),RSB_ERROR(RSB_ERRM_NL);
+#endif
+	return RSB_BOOL_FALSE;
 }
 
 rsb_bool_t rsb__do_is_matrix_binary_loaded(const struct rsb_mtx_t * mtxAp)
 {
 	rsb_bool_t is_bio; // binary I/O matrix
+	if(!mtxAp)
+		return RSB_BOOL_FALSE;
 #if 0
 	struct rsb_mtx_t *fsm = rsb__do_get_first_submatrix(mtxAp);
 	is_bio=!((long)mtxAp<((long)fsm->bpntr) || (long)(mtxAp)>=((long)fsm->bpntr+mtxAp->nnz));

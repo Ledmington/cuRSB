@@ -89,11 +89,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-@HAVE_FORTRAN_EXAMPLES_TRUE@am__append_1 = fortran_rsb_fi$(EXEEXT)
-noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3) \
-	$(am__append_2)
-# Adding a C++ example implies CXXLINK to be set.
-@HAVE_LIBRSBPP_TRUE@@WANT_CPP_EXAMPLES_TRUE@am__append_2 = cplusplus$(EXEEXT)
+noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3)
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
 	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
@@ -104,27 +100,18 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/rsb-config.h
-CONFIG_CLEAN_FILES = make.sh Makefile_demo.am
+CONFIG_CLEAN_FILES = make.sh
 CONFIG_CLEAN_VPATH_FILES =
-@HAVE_C_EXAMPLES_TRUE@am__EXEEXT_1 = hello$(EXEEXT) snippets$(EXEEXT) \
-@HAVE_C_EXAMPLES_TRUE@	transpose$(EXEEXT) power$(EXEEXT) \
-@HAVE_C_EXAMPLES_TRUE@	autotune$(EXEEXT) backsolve$(EXEEXT)
+@HAVE_C_EXAMPLES_TRUE@am__EXEEXT_1 = hello$(EXEEXT) transpose$(EXEEXT) \
+@HAVE_C_EXAMPLES_TRUE@	power$(EXEEXT) autotune$(EXEEXT)
 @HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@am__EXEEXT_2 = hello-spblas$(EXEEXT) \
 @HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@	io-spblas$(EXEEXT)
-@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_FALSE@am__EXEEXT_3 = $(am__append_1)
 @HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@am__EXEEXT_3 = fortran$(EXEEXT) \
-@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@	$(am__append_1)
+@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@	fortran_rsb_fi$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 autotune_SOURCES = autotune.c
 autotune_OBJECTS = autotune.$(OBJEXT)
-am__DEPENDENCIES_1 =
-am__DEPENDENCIES_2 = $(LIBRSB_LIB) $(am__DEPENDENCIES_1)
-backsolve_SOURCES = backsolve.c
-backsolve_OBJECTS = backsolve.$(OBJEXT)
-am__cplusplus_SOURCES_DIST = cplusplus.cpp
-@HAVE_LIBRSBPP_TRUE@@WANT_CPP_EXAMPLES_TRUE@am_cplusplus_OBJECTS = cplusplus.$(OBJEXT)
-cplusplus_OBJECTS = $(am_cplusplus_OBJECTS)
-@HAVE_LIBRSBPP_TRUE@@WANT_CPP_EXAMPLES_TRUE@cplusplus_DEPENDENCIES = $(am__DEPENDENCIES_2)
+am__DEPENDENCIES_1 = $(LIBRSB_LIB)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
@@ -133,8 +120,7 @@ am__fortran_SOURCES_DIST = fortran.F90
 @HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@am_fortran_OBJECTS = fortran.$(OBJEXT)
 fortran_OBJECTS = $(am_fortran_OBJECTS)
 am__fortran_rsb_fi_SOURCES_DIST = fortran_rsb_fi.F90
-@HAVE_FORTRAN_EXAMPLES_TRUE@am_fortran_rsb_fi_OBJECTS =  \
-@HAVE_FORTRAN_EXAMPLES_TRUE@	fortran_rsb_fi.$(OBJEXT)
+@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@am_fortran_rsb_fi_OBJECTS = fortran_rsb_fi.$(OBJEXT)
 fortran_rsb_fi_OBJECTS = $(am_fortran_rsb_fi_OBJECTS)
 hello_SOURCES = hello.c
 hello_OBJECTS = hello.$(OBJEXT)
@@ -144,8 +130,6 @@ io_spblas_SOURCES = io-spblas.c
 io_spblas_OBJECTS = io-spblas.$(OBJEXT)
 power_SOURCES = power.c
 power_OBJECTS = power.$(OBJEXT)
-snippets_SOURCES = snippets.c
-snippets_OBJECTS = snippets.$(OBJEXT)
 transpose_SOURCES = transpose.c
 transpose_OBJECTS = transpose.$(OBJEXT)
 SCRIPTS = $(noinst_SCRIPTS)
@@ -164,10 +148,9 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/autotune.Po ./$(DEPDIR)/backsolve.Po \
-	./$(DEPDIR)/cplusplus.Po ./$(DEPDIR)/hello-spblas.Po \
-	./$(DEPDIR)/hello.Po ./$(DEPDIR)/io-spblas.Po \
-	./$(DEPDIR)/power.Po ./$(DEPDIR)/snippets.Po \
+am__depfiles_remade = ./$(DEPDIR)/autotune.Po \
+	./$(DEPDIR)/hello-spblas.Po ./$(DEPDIR)/hello.Po \
+	./$(DEPDIR)/io-spblas.Po ./$(DEPDIR)/power.Po \
 	./$(DEPDIR)/transpose.Po
 am__mv = mv -f
 PPFCCOMPILE = $(FC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -206,37 +189,16 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CXXFLAGS) $(CXXFLAGS)
-AM_V_CXX = $(am__v_CXX_@AM_V@)
-am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
-am__v_CXX_0 = @echo "  CXX     " $@;
-am__v_CXX_1 = 
-CXXLD = $(CXX)
-CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
-am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
-am__v_CXXLD_0 = @echo "  CXXLD   " $@;
-am__v_CXXLD_1 = 
-SOURCES = autotune.c backsolve.c $(cplusplus_SOURCES) \
-	$(fortran_SOURCES) $(fortran_rsb_fi_SOURCES) hello.c \
-	hello-spblas.c io-spblas.c power.c snippets.c transpose.c
-DIST_SOURCES = autotune.c backsolve.c $(am__cplusplus_SOURCES_DIST) \
-	$(am__fortran_SOURCES_DIST) $(am__fortran_rsb_fi_SOURCES_DIST) \
-	hello.c hello-spblas.c io-spblas.c power.c snippets.c \
-	transpose.c
+SOURCES = autotune.c $(fortran_SOURCES) $(fortran_rsb_fi_SOURCES) \
+	hello.c hello-spblas.c io-spblas.c power.c transpose.c
+DIST_SOURCES = autotune.c $(am__fortran_SOURCES_DIST) \
+	$(am__fortran_rsb_fi_SOURCES_DIST) hello.c hello-spblas.c \
+	io-spblas.c power.c transpose.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
-am__extra_recursive_targets = realclean-recursive
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 # Read a list of newline-separated strings from the standard input,
 # and print each of them once, without duplicates.  Input order is
@@ -256,8 +218,8 @@ am__define_uniq_tagged_files = \
   done | $(am__uniquify_input)`
 ETAGS = etags
 CTAGS = ctags
-am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile_demo.am.in \
-	$(srcdir)/make.sh.in $(top_srcdir)/depcomp
+am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/make.sh.in \
+	$(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -268,22 +230,15 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
-BASELIB_EXTRA_CFLAGS = @BASELIB_EXTRA_CFLAGS@
-BASENAME = @BASENAME@
-BASH = @BASH@
 CC = @CC@
 CCAS = @CCAS@
 CCASDEPMODE = @CCASDEPMODE@
 CCASFLAGS = @CCASFLAGS@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CMP = @CMP@
+CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CUT = @CUT@
-CXX = @CXX@
-CXXCPP = @CXXCPP@
-CXXDEPMODE = @CXXDEPMODE@
-CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -296,47 +251,38 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EOL = @EOL@
-EXAMPLES_MAKE_SH_LINK = @EXAMPLES_MAKE_SH_LINK@
 EXEEXT = @EXEEXT@
 FC = @FC@
 FCFLAGS = @FCFLAGS@
-FCLIBS = @FCLIBS@
 FGREP = @FGREP@
 GREP = @GREP@
-HAVE_C_EXAMPLES = @HAVE_C_EXAMPLES@
 HAVE_FORTRAN_EXAMPLES = @HAVE_FORTRAN_EXAMPLES@
-HAVE_SPARSE_BLAS_INTERFACE = @HAVE_SPARSE_BLAS_INTERFACE@
 HELP2MAN = @HELP2MAN@
+HIDDEN_VISIBILITY_CFLAGS = @HIDDEN_VISIBILITY_CFLAGS@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
-KERNELS_EXTRA_CFLAGS = @KERNELS_EXTRA_CFLAGS@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
-LIBRSBPP__CPPFLAGS = @LIBRSBPP__CPPFLAGS@
 LIBRSB_ABI_VERSION = @LIBRSB_ABI_VERSION@
-LIBRSB_CONFIG_FFLAGS = @LIBRSB_CONFIG_FFLAGS@
 LIBRSB_LIBRSB_VER = @LIBRSB_LIBRSB_VER@
 LIBRSB_MAIN_RELEASE = @LIBRSB_MAIN_RELEASE@
-LIBRSB_MKL_LIBS = @LIBRSB_MKL_LIBS@
 LIBRSB_VERSION = @LIBRSB_VERSION@
 LIBRSB_VER_DATE = @LIBRSB_VER_DATE@
 LIBRSB_VER_MAJOR = @LIBRSB_VER_MAJOR@
 LIBRSB_VER_MINOR = @LIBRSB_VER_MINOR@
 LIBRSB_VER_PATCH = @LIBRSB_VER_PATCH@
 LIBRSB_VER_PRERS = @LIBRSB_VER_PRERS@
-LIBRSB__BASE_DIR = @LIBRSB__BASE_DIR@
-LIBS = @LIBS@ $(FCLIBS)
+LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 M4 = @M4@
-MAKE = @MAKE@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
 MKDIR_P = @MKDIR_P@
@@ -348,9 +294,7 @@ OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OCTAVE = @OCTAVE@
 OCTAVE_FLAGS = @OCTAVE_FLAGS@
-OPENBSD_AUTORECONF_EXPORTS = @OPENBSD_AUTORECONF_EXPORTS@
 OPENMP_CFLAGS = @OPENMP_CFLAGS@
-OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OPENMP_FCFLAGS = @OPENMP_FCFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
@@ -363,31 +307,19 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
-RSBLIB_DOXYGEN_ALIASES = @RSBLIB_DOXYGEN_ALIASES@
-RSBLIB_DOXYGEN_DIRS = @RSBLIB_DOXYGEN_DIRS@
 RSB_CONST_MAX_SUPPORTED_THREADS = @RSB_CONST_MAX_SUPPORTED_THREADS@
 RSB_DETECTED_MEM_HIERARCHY_INFO = @RSB_DETECTED_MEM_HIERARCHY_INFO@
 RSB_RSBENCH_CFLAGS = @RSB_RSBENCH_CFLAGS@
 RSB_RSBENCH_LIBS = @RSB_RSBENCH_LIBS@
-RSB_RSBPP_LIBS = @RSB_RSBPP_LIBS@
 RSB_USER_SET_MEM_HIERARCHY_INFO = @RSB_USER_SET_MEM_HIERARCHY_INFO@
-RSB_WANT_M4_DBG = @RSB_WANT_M4_DBG@
-RSB_WANT_M4_FORTRAN_CONVENTION = @RSB_WANT_M4_FORTRAN_CONVENTION@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
-SHEBANG_SHELL = @SHEBANG_SHELL@
 SHELL = @SHELL@
-SOURCE_DATE_EPOCH = @SOURCE_DATE_EPOCH@
-SPATCH = @SPATCH@
 STRIP = @STRIP@
-VCS_REVISION = @VCS_REVISION@
+SVN_REVISION = @SVN_REVISION@
 VERSION = @VERSION@
-WANT_BLAS_SPARSE_MOD_INSTALL = @WANT_BLAS_SPARSE_MOD_INSTALL@
 WANT_COLUMN_UNLOOP_FACTORS = @WANT_COLUMN_UNLOOP_FACTORS@
-WANT_CPP_EXAMPLES = @WANT_CPP_EXAMPLES@
 WANT_HALFWORD_INDICES = @WANT_HALFWORD_INDICES@
-WANT_IHI = @WANT_IHI@
-WANT_LONG_IDX = @WANT_LONG_IDX@
 WANT_LOOPING_KERNELS = @WANT_LOOPING_KERNELS@
 WANT_MATRIX_ALL_META_OPS = @WANT_MATRIX_ALL_META_OPS@
 WANT_MATRIX_ALL_OPS = @WANT_MATRIX_ALL_OPS@
@@ -398,7 +330,6 @@ WANT_MATRIX_LINKED_STORAGE = @WANT_MATRIX_LINKED_STORAGE@
 WANT_MATRIX_OPS = @WANT_MATRIX_OPS@
 WANT_MATRIX_STORAGE = @WANT_MATRIX_STORAGE@
 WANT_MATRIX_VB_STORAGE = @WANT_MATRIX_VB_STORAGE@
-WANT_PKGCONFIG = @WANT_PKGCONFIG@
 WANT_ROW_UNLOOP_FACTORS = @WANT_ROW_UNLOOP_FACTORS@
 WANT_SIMPLE_LOOP_UNROLL_DEFAULT_FACTOR = @WANT_SIMPLE_LOOP_UNROLL_DEFAULT_FACTOR@
 WANT_SPSM_DIAG_CHECK = @WANT_SPSM_DIAG_CHECK@
@@ -409,7 +340,6 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
-ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 ac_ct_FC = @ac_ct_FC@
 am__include = @am__include@
@@ -431,11 +361,8 @@ dvidir = @dvidir@
 enable_openmp = @enable_openmp@
 enable_restrict = @enable_restrict@
 exec_prefix = @exec_prefix@
-have_gcov = @have_gcov@
-have_gprof = @have_gprof@
 have_grep = @have_grep@
 have_sed = @have_sed@
-have_troff = @have_troff@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -447,10 +374,8 @@ infodir = @infodir@
 install_sh = @install_sh@
 libdir = @libdir@
 libexecdir = @libexecdir@
-librsbpp = @librsbpp@
 localedir = @localedir@
 localstatedir = @localstatedir@
-lt_cv_prog_gnu_ld = @lt_cv_prog_gnu_ld@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
@@ -458,93 +383,64 @@ pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
-rsblib = @rsblib@
-rsbtest = @rsbtest@
 runstatedir = @runstatedir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 srcdir = @srcdir@
-subdirs = @subdirs@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 subdir = examples
+
+#include $(top_srcdir)/Makefile
+EXTRA_DIST = $(top_srcdir)/pd.mtx $(top_srcdir)/vf.mtx make.sh $(srcdir)/make.sh.in $(srcdir)/benchex.sh
 CLEANFILES = make.sh
-noinst_SCRIPTS = make.sh bench.sh benchex.sh
-EXPSOURCES_RSB = $(srcdir)/hello.c $(srcdir)/transpose.c \
-	$(srcdir)/power.c $(srcdir)/autotune.c $(srcdir)/backsolve.c \
-	$(srcdir)/cplusplus.cpp $(srcdir)/snippets.c
+noinst_SCRIPTS = make.sh
+EXPSOURCES_RSB = $(srcdir)/hello.c $(srcdir)/transpose.c $(srcdir)/power.c $(srcdir)/autotune.c
 EXPSOURCES_NSB = $(srcdir)/hello-spblas.c $(srcdir)/io-spblas.c
 EXPSOURCES_FEX = $(srcdir)/fortran.F90 $(srcdir)/fortran_rsb_fi.F90
 EXPSOURCES = $(EXPSOURCES_RSB) $(EXPSOURCES_NSB) $(EXPSOURCES_FEX)
-EXSTUFF = $(top_srcdir)/pd.mtx $(top_srcdir)/vf.mtx make.sh $(srcdir)/benchex.sh $(srcdir)/bench.sh $(EXPSOURCES) \
-	   $(builddir)/Makefile_demo.am $(srcdir)/configure.ac
-
-EXTRA_DIST = $(EXSTUFF) $(srcdir)/make.sh.in \
-	   $(srcdir)/Makefile_demo.am.in
-
-LIBRSB_LIB = $(abs_top_builddir)/librsb.la
-@HAVE_LIBRSBPP_FALSE@EXAMPLES_LINK = $(LINK)
-@HAVE_LIBRSBPP_TRUE@EXAMPLES_LINK = $(CXXLINK)
+EXSTUFF = $(EXTRA_DIST) $(EXPSOURCES) 
+LIBRSB_LIB = $(abs_top_builddir)/librsb.la 
 @HAVE_C_EXAMPLES_TRUE@hello_DEPENDENCIES = $(LIBRSB_LIB)
 @HAVE_C_EXAMPLES_TRUE@autotune_DEPENDENCIES = $(LIBRSB_LIB)
-@HAVE_C_EXAMPLES_TRUE@backsolve_DEPENDENCIES = $(LIBRSB_LIB)
 @HAVE_C_EXAMPLES_TRUE@transpose_DEPENDENCIES = $(LIBRSB_LIB)
 @HAVE_C_EXAMPLES_TRUE@power_DEPENDENCIES = $(LIBRSB_LIB)
-@HAVE_C_EXAMPLES_TRUE@snippets_DEPENDENCIES = $(LIBRSB_LIB)
 @HAVE_C_EXAMPLES_TRUE@hello_LDADD = $(default_ldadd)
 @HAVE_C_EXAMPLES_TRUE@autotune_LDADD = $(default_ldadd)
-@HAVE_C_EXAMPLES_TRUE@backsolve_LDADD = $(default_ldadd)
 @HAVE_C_EXAMPLES_TRUE@transpose_LDADD = $(default_ldadd)
 @HAVE_C_EXAMPLES_TRUE@power_LDADD = $(default_ldadd)
-@HAVE_C_EXAMPLES_TRUE@snippets_LDADD = $(default_ldadd)
-@HAVE_C_EXAMPLES_TRUE@hello_LINK = $(EXAMPLES_LINK)
-@HAVE_C_EXAMPLES_TRUE@autotune_LINK = $(EXAMPLES_LINK)
-@HAVE_C_EXAMPLES_TRUE@backsolve_LINK = $(EXAMPLES_LINK)
-@HAVE_C_EXAMPLES_TRUE@transpose_LINK = $(EXAMPLES_LINK)
-@HAVE_C_EXAMPLES_TRUE@power_LINK = $(EXAMPLES_LINK)
-@HAVE_C_EXAMPLES_TRUE@snippets_LINK = $(EXAMPLES_LINK)
 @HAVE_C_EXAMPLES_FALSE@EXTRAPROGRAMSC = 
-@HAVE_C_EXAMPLES_TRUE@EXTRAPROGRAMSC = hello$(EXEEXT) snippets$(EXEEXT) transpose$(EXEEXT) power$(EXEEXT) autotune$(EXEEXT) backsolve$(EXEEXT)
+@HAVE_C_EXAMPLES_TRUE@EXTRAPROGRAMSC = hello$(EXEEXT) transpose$(EXEEXT) power$(EXEEXT) autotune$(EXEEXT)
 @HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@io_spblas_DEPENDENCIES = $(LIBRSB_LIB)
 @HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@io_spblas_LDADD = $(default_ldadd)
 @HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@hello_spblas_LDADD = $(default_ldadd)
 @HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@hello_spblas_DEPENDENCIES = $(LIBRSB_LIB)
-@HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@io_spblas_LINK = $(EXAMPLES_LINK)
-@HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@hello_spblas_LINK = $(EXAMPLES_LINK)
 @HAVE_C_EXAMPLES_FALSE@EXTRAPROGRAMSSPBLAS = 
 @HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_FALSE@EXTRAPROGRAMSSPBLAS = 
 @HAVE_C_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@EXTRAPROGRAMSSPBLAS = hello-spblas$(EXEEXT) io-spblas$(EXEEXT)
 
 # NOTE: see main Makefile's default_ldadd 
-default_ldadd = -L$(top_builddir) $(LIBRSB_LIB) ${RSB_RSBENCH_LIBS}
+default_ldadd = -L$(top_builddir) $(LIBRSB_LIB)
 AM_CFLAGS = -I$(top_builddir) -I$(top_srcdir)
 AM_FCFLAGS = -I$(top_builddir) -I$(top_srcdir)
-@HAVE_PKGCONFIG_INSTALL_TRUE@PKG_CONFIG_PATH = "$(DESTDIR)$(libdir)/pkgconfig"
-@HAVE_FORTRAN_EXAMPLES_TRUE@fortran_rsb_fi_DEPENDENCIES = $(LIBRSB_LIB)
-@HAVE_FORTRAN_EXAMPLES_TRUE@fortran_rsb_fi_LDADD = $(default_ldadd)
-@HAVE_FORTRAN_EXAMPLES_TRUE@fortran_rsb_fi_SOURCES = fortran_rsb_fi.F90
-@HAVE_FORTRAN_EXAMPLES_TRUE@fortran_rsb_fi_LIBTOOLFLAGS = --preserve-dup-deps
 @HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@fortran_DEPENDENCIES = $(LIBRSB_LIB)
 @HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@fortran_LDADD = $(default_ldadd)
+@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@fortran_LINK = $(FCLINK)
 @HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@fortran_SOURCES = fortran.F90
-@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@fortran_LIBTOOLFLAGS = --preserve-dup-deps
+@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@fortran_rsb_fi_DEPENDENCIES = $(LIBRSB_LIB)
+@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@fortran_rsb_fi_LDADD = $(default_ldadd)
+@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@fortran_rsb_fi_LINK = $(FCLINK)
+@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@fortran_rsb_fi_SOURCES = fortran_rsb_fi.F90
 @HAVE_FORTRAN_EXAMPLES_FALSE@EXTRAPROGRAMSFORTRAN = 
-@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_FALSE@EXTRAPROGRAMSFORTRAN = $(am__append_1)
-@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@EXTRAPROGRAMSFORTRAN = fortran$(EXEEXT) \
-@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@	$(am__append_1)
-@HAVE_FORTRAN_EXAMPLES_TRUE@@WANT_FORTRAN_LINKER_FALSE@fortran_rsb_fi_LINK = $(EXAMPLES_LINK)
-@HAVE_FORTRAN_EXAMPLES_TRUE@@WANT_FORTRAN_LINKER_TRUE@fortran_rsb_fi_LINK = $(FCLINK)
-@HAVE_FORTRAN_EXAMPLES_TRUE@@WANT_FORTRAN_LINKER_FALSE@fortran_LINK = $(EXAMPLES_LINK)
-@HAVE_FORTRAN_EXAMPLES_TRUE@@WANT_FORTRAN_LINKER_TRUE@fortran_LINK = $(FCLINK)
-@HAVE_LIBRSBPP_TRUE@@WANT_CPP_EXAMPLES_TRUE@cplusplus_SOURCES = cplusplus.cpp
-@HAVE_LIBRSBPP_TRUE@@WANT_CPP_EXAMPLES_TRUE@cplusplus_LDADD = $(default_ldadd)
+@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_FALSE@EXTRAPROGRAMSFORTRAN = 
+@HAVE_FORTRAN_EXAMPLES_TRUE@@HAVE_SPARSE_BLAS_INTERFACE_TRUE@EXTRAPROGRAMSFORTRAN = fortran$(EXEEXT) fortran_rsb_fi$(EXEEXT)
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .F90 .c .cpp .lo .o .obj
+.SUFFIXES: .F90 .c .lo .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -576,8 +472,6 @@ $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 $(am__aclocal_m4_deps):
 make.sh: $(top_builddir)/config.status $(srcdir)/make.sh.in
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-Makefile_demo.am: $(top_builddir)/config.status $(srcdir)/Makefile_demo.am.in
-	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 clean-noinstPROGRAMS:
 	@list='$(noinst_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -590,15 +484,7 @@ clean-noinstPROGRAMS:
 
 autotune$(EXEEXT): $(autotune_OBJECTS) $(autotune_DEPENDENCIES) $(EXTRA_autotune_DEPENDENCIES) 
 	@rm -f autotune$(EXEEXT)
-	$(AM_V_GEN)$(autotune_LINK) $(autotune_OBJECTS) $(autotune_LDADD) $(LIBS)
-
-backsolve$(EXEEXT): $(backsolve_OBJECTS) $(backsolve_DEPENDENCIES) $(EXTRA_backsolve_DEPENDENCIES) 
-	@rm -f backsolve$(EXEEXT)
-	$(AM_V_GEN)$(backsolve_LINK) $(backsolve_OBJECTS) $(backsolve_LDADD) $(LIBS)
-
-cplusplus$(EXEEXT): $(cplusplus_OBJECTS) $(cplusplus_DEPENDENCIES) $(EXTRA_cplusplus_DEPENDENCIES) 
-	@rm -f cplusplus$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(cplusplus_OBJECTS) $(cplusplus_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(autotune_OBJECTS) $(autotune_LDADD) $(LIBS)
 
 fortran$(EXEEXT): $(fortran_OBJECTS) $(fortran_DEPENDENCIES) $(EXTRA_fortran_DEPENDENCIES) 
 	@rm -f fortran$(EXEEXT)
@@ -610,27 +496,23 @@ fortran_rsb_fi$(EXEEXT): $(fortran_rsb_fi_OBJECTS) $(fortran_rsb_fi_DEPENDENCIES
 
 hello$(EXEEXT): $(hello_OBJECTS) $(hello_DEPENDENCIES) $(EXTRA_hello_DEPENDENCIES) 
 	@rm -f hello$(EXEEXT)
-	$(AM_V_GEN)$(hello_LINK) $(hello_OBJECTS) $(hello_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(hello_OBJECTS) $(hello_LDADD) $(LIBS)
 
 hello-spblas$(EXEEXT): $(hello_spblas_OBJECTS) $(hello_spblas_DEPENDENCIES) $(EXTRA_hello_spblas_DEPENDENCIES) 
 	@rm -f hello-spblas$(EXEEXT)
-	$(AM_V_GEN)$(hello_spblas_LINK) $(hello_spblas_OBJECTS) $(hello_spblas_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(hello_spblas_OBJECTS) $(hello_spblas_LDADD) $(LIBS)
 
 io-spblas$(EXEEXT): $(io_spblas_OBJECTS) $(io_spblas_DEPENDENCIES) $(EXTRA_io_spblas_DEPENDENCIES) 
 	@rm -f io-spblas$(EXEEXT)
-	$(AM_V_GEN)$(io_spblas_LINK) $(io_spblas_OBJECTS) $(io_spblas_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(io_spblas_OBJECTS) $(io_spblas_LDADD) $(LIBS)
 
 power$(EXEEXT): $(power_OBJECTS) $(power_DEPENDENCIES) $(EXTRA_power_DEPENDENCIES) 
 	@rm -f power$(EXEEXT)
-	$(AM_V_GEN)$(power_LINK) $(power_OBJECTS) $(power_LDADD) $(LIBS)
-
-snippets$(EXEEXT): $(snippets_OBJECTS) $(snippets_DEPENDENCIES) $(EXTRA_snippets_DEPENDENCIES) 
-	@rm -f snippets$(EXEEXT)
-	$(AM_V_GEN)$(snippets_LINK) $(snippets_OBJECTS) $(snippets_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(power_OBJECTS) $(power_LDADD) $(LIBS)
 
 transpose$(EXEEXT): $(transpose_OBJECTS) $(transpose_DEPENDENCIES) $(EXTRA_transpose_DEPENDENCIES) 
 	@rm -f transpose$(EXEEXT)
-	$(AM_V_GEN)$(transpose_LINK) $(transpose_OBJECTS) $(transpose_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(transpose_OBJECTS) $(transpose_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -639,13 +521,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/autotune.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/backsolve.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cplusplus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hello-spblas.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hello.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/io-spblas.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/power.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/snippets.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/transpose.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -684,33 +563,11 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
 
-.cpp.o:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
-
-.cpp.obj:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-.cpp.lo:
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
-
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
-realclean-local: 
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -839,13 +696,10 @@ clean-am: clean-generic clean-libtool clean-noinstPROGRAMS \
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/autotune.Po
-	-rm -f ./$(DEPDIR)/backsolve.Po
-	-rm -f ./$(DEPDIR)/cplusplus.Po
 	-rm -f ./$(DEPDIR)/hello-spblas.Po
 	-rm -f ./$(DEPDIR)/hello.Po
 	-rm -f ./$(DEPDIR)/io-spblas.Po
 	-rm -f ./$(DEPDIR)/power.Po
-	-rm -f ./$(DEPDIR)/snippets.Po
 	-rm -f ./$(DEPDIR)/transpose.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -893,13 +747,10 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/autotune.Po
-	-rm -f ./$(DEPDIR)/backsolve.Po
-	-rm -f ./$(DEPDIR)/cplusplus.Po
 	-rm -f ./$(DEPDIR)/hello-spblas.Po
 	-rm -f ./$(DEPDIR)/hello.Po
 	-rm -f ./$(DEPDIR)/io-spblas.Po
 	-rm -f ./$(DEPDIR)/power.Po
-	-rm -f ./$(DEPDIR)/snippets.Po
 	-rm -f ./$(DEPDIR)/transpose.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
@@ -917,8 +768,6 @@ ps: ps-am
 
 ps-am:
 
-realclean-am: realclean-local
-
 uninstall-am: uninstall-local
 
 .MAKE: install-am install-strip
@@ -935,28 +784,13 @@ uninstall-am: uninstall-local
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	realclean realclean-am realclean-local tags tags-am uninstall \
-	uninstall-am uninstall-local
+	tags tags-am uninstall uninstall-am uninstall-local
 
 .PRECIOUS: Makefile
 
 tests:	$(noinst_PROGRAMS) all
-	if test $(abs_top_builddir) != $(abs_top_srcdir) ; then cp $(abs_top_srcdir)/pd.mtx $(abs_top_srcdir)/vf.mtx $(abs_srcdir) ; fi
-@HAVE_RUNNABLE_TESTS_TRUE@	(                                                       PATH="$(abs_top_builddir):$(PATH)" $(BASH) $(abs_srcdir)/bench.sh;   )
 	for mf in pd.mtx vf.mtx ; do if test -f $(abs_builddir)/$$mf ; then true; else cp -p $(abs_top_srcdir)/$$mf $(abs_builddir)/$$mf ; fi; done
 	for ii in $(noinst_PROGRAMS) ; do echo $(abs_builddir)/$$ii ; if  $(abs_builddir)/$$ii ; then true ; else exit -1 ;fi ; done
-@HAVE_C_EXAMPLES_TRUE@	./autotune$(EXEEXT)  $(abs_top_srcdir)/pd.mtx
-
-.PHONY: itests
-itests:
-	test -w $(DESTDIR)$(docdir)/examples/make.sh || { echo "Did you install librsb before running 'make itests' ?"; false; }
-@HAVE_RUNNABLE_TESTS_TRUE@	(                                                       PATH="$(bindir):$(PATH)" $(BASH) $(DESTDIR)$(docdir)/examples/bench.sh;   )
-@HAVE_RUNNABLE_TESTS_TRUE@	( cd $(DESTDIR)$(docdir)/examples/ && test -f pd.mtx && PATH="$(bindir):$(PATH)" $(BASH) $(DESTDIR)$(docdir)/examples/benchex.sh; )
-@HAVE_AUTORECONF_TRUE@@WANT_CPP_EXAMPLES_TRUE@	( $(OPENBSD_AUTORECONF_EXPORTS) cd $(DESTDIR)$(docdir)/examples/ && touch NEWS README AUTHORS ChangeLog && autoreconf -i && PATH="$(bindir):$(PATH)" ./configure --disable-dependency-tracking --host="$(host)" CC="`$(bindir)/librsb-config --cc`" CXX="`$(bindir)/librsb-config --cxx`" FC="`$(bindir)/librsb-config --fc`" MAKE="$(MAKE)" && $(MAKE) clean && $(MAKE) && $(MAKE) test && $(MAKE) distclean; )
-@HAVE_CMP_TRUE@@HAVE_RSBLIB_TRUE@@WANT_CPP_EXAMPLES_TRUE@	cd ${srcdir}/../rsblib/examples; \
-@HAVE_CMP_TRUE@@HAVE_RSBLIB_TRUE@@WANT_CPP_EXAMPLES_TRUE@		for f in *.cpp; do $(CMP) $$f $(DESTDIR)$(docdir)/examples/$$f; done
-@HAVE_CMP_TRUE@@WANT_CPP_EXAMPLES_TRUE@	for f in $(DIST_SOURCES); do $(CMP) $(abs_srcdir)/$$f $(DESTDIR)$(docdir)/examples/$$f; done
-	cd $(DESTDIR)$(docdir)/examples && WANT_CLEANUP=true PKG_CONFIG_PATH="$(PKG_CONFIG_PATH)" srcdir='' builddir='' LIBRSB_CONFIG="$(bindir)/librsb-config" $(BASH) make.sh
 
 all: $(EXTRA_DIST)
 
@@ -967,23 +801,15 @@ vf.mtx: $(top_srcdir)/vf.mtx
 	cp $< $@ 
 
 install-data-local:
-	$(MKDIR_P) "$(DESTDIR)$(docdir)"
-	$(MKDIR_P) "$(DESTDIR)$(docdir)/examples/"
+	$(mkdir_p) "$(DESTDIR)$(docdir)"
+	$(mkdir_p) "$(DESTDIR)$(docdir)/examples/"
 	$(INSTALL_DATA) $(EXSTUFF) "$(DESTDIR)$(docdir)/examples/"
 	chmod +x "$(DESTDIR)$(docdir)/examples/make.sh"
-	mv "$(DESTDIR)$(docdir)/examples/Makefile_demo.am" $(DESTDIR)$(docdir)/examples/Makefile.am
 
 uninstall-local:
-@HAVE_BASENAME_TRUE@	for f in $(EXSTUFF) ; do b="`$(BASENAME) $$f`"; if test -f "$(DESTDIR)$(docdir)/examples/"$$b ; then  rm "$(DESTDIR)$(docdir)/examples/"$$b ; fi ; done
-@HAVE_BASENAME_FALSE@	for f in $(EXSTUFF) ; do if test -f "$(DESTDIR)$(docdir)/examples/"$$f ; then  rm "$(DESTDIR)$(docdir)/examples/"$$f ; fi ; done # broken on out-of-dir
+	for f in $(EXSTUFF) ; do if test -f "$(DESTDIR)$(docdir)/examples/"$$f ; then  rm "$(DESTDIR)$(docdir)/examples/"$$f ; fi ; done
 	if test -d "$(DESTDIR)$(docdir)/examples" ; then rmdir "$(DESTDIR)$(docdir)/examples" || true ; fi
-	if test -f "$(DESTDIR)$(docdir)/examples/Makefile.am" ; then rm "$(DESTDIR)$(docdir)/examples/Makefile.am" || true ; fi
 	if test -d "$(DESTDIR)$(docdir)" ; then rmdir "$(DESTDIR)$(docdir)" || true ; fi
-
-.PHONY: realclean
-realclean:
-	rm -f *.eps *.rpr *.tex *.txt *.mtx
-	$(MAKE) clean
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

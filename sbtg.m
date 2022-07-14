@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2021 Michele Martone
+# Copyright (C) 2008-2018 Michele Martone
 # 
 # This file is part of librsb.
 # 
@@ -35,8 +35,6 @@ global matrix_diagonal=['e','i']; # explicit or implicit, FIXME
 #global matrix_types_array=['g','u','l','s','h'];
 global matrix_types_array=['g','u','l','s','h'];
 #
-global blas_ctor_funcs=['r']; # 'r'=random ;'c','b','v'
-#
 global blas_trans_codes_array=['n','t','c'];
 #global blas_trans_codes_array=['n'];
 #global blas_trans_codes_array=['c'];
@@ -64,22 +62,16 @@ global incy_array=[1,2];
 #
 #global blas_type_codes_array=['s','d','c','z'];
 #global blas_type_codes_array=['s'];
-sbtgprepend = getenv("abs_builddir");
-if length (sbtgprepend ) > 0
-	sbtgprepend = [sbtgprepend,"/"];
-end
-source([sbtgprepend,"sbtg-types.m"]);
+source("./sbtg-types.m")
 #
 #global max_random_matrix_size_a=[1,2,3,4];
 #global max_random_matrix_size_a=[1,2,3,4,5];
 #
 global max_random_matrix_size_a=[2];
 #
-global blas_op_codes_num=3;
-#global blas_op_codes_num=2;
-#global blas_op_codes_num=1;
+global blas_op_codes_num=2;
 #
-#rand("seed",0);
+#global blas_op_codes_num=1;
 #
 global sbtg_random_fixed_seq=0; # if 1, the generated file will be the same on multiple runs
 global sbtg_random_init_seed=[0];
@@ -139,13 +131,13 @@ function res=dump_c_vec(v,lang)
 	endif
 end
 
-function res=dump_vec(v,type,id,comment,lang,mvec)
+function res=dump_vec(v,type,id,comment,lang)
+	if(nargin<5)
+		lang="c";
+	endif
 	if lang == "c"
-		res=sprintf("%s %s[]=%s",type,id,dump_c_vec(v,lang));
+		res=sprintf("%s %s[]=%s",type,id,dump_c_vec(v));
 	else
-		if(nargin<6)
-			mvec=0;
-		endif
 		if size(v,1)==0
 			vv=[-999999];
 		else
@@ -156,15 +148,7 @@ function res=dump_vec(v,type,id,comment,lang,mvec)
 		else
 			bs="";
 		endif
-		if(mvec > 0)
-			sc=sprintf("%d",size(vv,1));
-			c_vec=["(reshape(",dump_c_vec(vv,lang),",(/",sc,",1/)))"];
-			sd=",1";
-		else
-			c_vec=dump_c_vec(vv,lang);
-			sd="";
-		endif
-		res=sprintf("%s :: %s(%d%s)=%s%s",type,id,size(vv,1),sd,bs,c_vec);
+		res=sprintf("%s :: %s(%d)=%s%s",type,id,size(vv,1),bs,dump_c_vec(vv,lang));
 		if size(v,1)==0
 			res=[res," ! fortran does not support empty arrays"];
 		endif
@@ -183,6 +167,7 @@ function res=decl_var(lang,type,id,val)
 end
 
 function res=dump_c_coo(a,ts,lang)
+	#lang ignored, for now
 	#global ts;
 	global findent;
 	#
@@ -208,19 +193,17 @@ function res=dump_c_coo(a,ts,lang)
 	if lang == "c"
 #		its="rsb_coo_idx_t";
 		its="int";
-		cts="rsb_coo_idx_t";
-		nts="rsb_nnz_idx_t";
-#		res=sprintf("%s	const rsb_nnz_idx_t nnz=%d;\n",res,nz);
-		res=sprintf("%s	const int nnz=%d;\n",res,nz);
-		res=sprintf("%s	const %s nr=%d;\n",res,cts,nr);
-		res=sprintf("%s	const %s nc=%d;\n",res,cts,nc);
-		res=sprintf("%s\tconst %s\n\tconst %s\n\tconst %s",res,dump_vec(I,cts,"IA","",lang),dump_vec(JI,cts,"JA","",lang),dump_vec(V,ts,"VA","",lang));
+#		res=sprintf("%s	rsb_nnz_idx_t nnz=%d;\n",res,nz);
+		res=sprintf("%s	int nnz=%d;\n",res,nz);
+		res=sprintf("%s	%s nr=%d;\n",res,its,nr);
+		res=sprintf("%s	%s nc=%d;\n",res,its,nc);
+		res=sprintf("%s\t%s\n\t%s\n\t%s",res,dump_vec(I,its,"IA"),dump_vec(JI,its,"JA"),dump_vec(V,ts,"VA"));
 	else
 	# FIXME: WRITE ME
-		its="INTEGER(KIND=RSB_IDX_KIND)";
-		res=[res,findent,decl_var(lang,"INTEGER(KIND=RSB_IDX_KIND)","nnz",nz)];
-		res=[res,findent,decl_var(lang,"INTEGER(KIND=RSB_IDX_KIND)","nr",nr)];
-		res=[res,findent,decl_var(lang,"INTEGER(KIND=RSB_IDX_KIND)","nc",nc)];
+		its="INTEGER";
+		res=[res,findent,decl_var(lang,"INTEGER","nnz",nz)];
+		res=[res,findent,decl_var(lang,"INTEGER","nr",nr)];
+		res=[res,findent,decl_var(lang,"INTEGER","nc",nc)];
 		res=[sprintf("%s%s%s\n%s%s\n%s%s",res,findent,dump_vec(I+1,its,"IA","",lang),findent,dump_vec(JI+1,its,"JA","",lang),findent,dump_vec(V,ts,"VA","",lang))];
 	endif
 end
@@ -316,13 +299,10 @@ function res=check_message(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy,tc,op,lan
 		tc,size(a,1),size(a,2),mt,md,bs,br,bc,op,alpha,beta,incx,incy,trans);
 end
 
-function res=check_csmm(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy,tc,op,lang,mvec)
+function res=check_csmm(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy,tc,op,lang)
 	global findent;
 	global ftab;
 	global matrix_diagonal;
-	if nargin<14
-		mvec = 0;
-	end
 	#
 	md=matrix_diagonal(mdi);
 	ts="int";
@@ -343,20 +323,15 @@ function res=check_csmm(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy,tc,op,lang,m
 	if nargin < 11+2
 		lang="c";
 	endif
-	if(mvec > 0)
-		sd="i,1";
-	else
-		sd="i";
-	end
-	if lang == "c"
 	cm=[check_message(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy,tc,op,lang)];
 	nok=[cm," is not ok"];
 	ok=[cm," is ok"];
-	res=[res,sprintf("	if( (errval = rsb__do_are_same(y,cy,nr,%s,%d,%d)) != RSB_ERR_NO_ERROR )",typecode,incy,incy),"{ "];
-	res=[res," rsb__debug_print_vectors_diff(y,cy,nr,",typecode,sprintf(",%d,%d,RSB_VECTORS_DIFF_DISPLAY_N",incy,incy),"); "];
+	if lang == "c"
+	res=[res,sprintf("	if( (errval = rsb__do_are_same(y,cy,nr,%s,%d,%d)) != RSB_ERR_NO_ERROR )",typecode,incy,incy),"\n	{\n"];
+	res=[res,"\t	rsb__debug_print_vectors_diff(y,cy,nr,",typecode,sprintf(",%d,%d,RSB_VECTORS_DIFF_DISPLAY_N",incy,incy),");\n"];
 #	res=[res,"		RSB_ERROR(\"",nok,"\\n\");\n"];
 #	res=[res,"		goto err;\n	}\n		else printf(\"",ok,"\\n\");\n"];
-	res=[res," goto ferr; }\n		else printf(\"",ok,"\\n\");\n"];
+	res=[res,"		goto ferr;\n	}\n		else printf(\"",ok,"\\n\");\n"];
 #	res=[res,sprintf("\nif(memcmp(y,cy,sizeof(%s)*nr))",ts),"\n{\n"];
 #	res=[res,"\t	if(( errval = rsb__debug_print_vectors_diff(y,cy,nr,",typecode,")) != RSB_ERR_NO_ERROR)\n		goto err;"];
 #	res=[res,sprintf("\nRSB_OCTAVE_ERROR(\"spmv test matrix %d/%d blocked %d x %d is not ok\\n\");\n",n,u,br,bc)];
@@ -366,33 +341,30 @@ function res=check_csmm(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy,tc,op,lang,m
 #	res=[res,sprintf("		goto err;\n	}\n	else\n		printf(\"%s test matrix %d blocked %d x %d is ok\\n\");\n",op,n,br,bc) ];
 #	res=[res,sprintf("\nprintf(\"spmv test\\n\");\n")];
 	elseif lang == "f"
-		nok=["LCS,\" is not ok\""];
-		ok=["LCS,\" is ok\""];
 		res=[res,findent,sprintf("DO i=1,%d\n",size(a,1))]; # FIXME: with transA and non square matrices, this breaks
-		res=[res,findent,ftab,"IF(y(",sd,").NE.cy(",sd,"))PRINT*,",nok,"\n"];
-		res=[res,findent,ftab,"IF(y(",sd,").NE.cy(",sd,"))errval=-1\n"];
-		res=[res,findent,ftab,"IF(y(",sd,").NE.cy(",sd,"))GOTO 9997\n"];
-#		res=[res,findent,findent,"IF(y(i",sd,").NE.cy(i))THEN\n"];
+		res=[res,findent,ftab,"IF(y(i).NE.cy(i))PRINT*,\"",nok,"\"\n"];
+		res=[res,findent,ftab,"IF(y(i).NE.cy(i))GOTO 9997\n"];
+#		res=[res,findent,findent,"IF(y(i).NE.cy(i))THEN\n"];
 #		res=[res,findent,findent,findent,"errval =-1\n"];
 #		res=[res,findent,findent,findent,"GOTO 9997\n"];
 #		res=[res,findent,findent,"ENDIF\n"];
 		res=[res,findent,"ENDDO\n"];
-		res=[res,findent,"PRINT*,",ok,"\n"];
+		res=[res,findent,"PRINT*,\"",ok,"\"\n"];
 #		res=[res,"rsb__debug_print_vectors_diff(y,cy,nr,",typecode,");\n"];
 #		res=[res,"RSB_ERROR(\"",check_message(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy,tc,op)," is not ok\\n\");\n"];
 #		res=[res,sprintf("		goto err;\n	}\n		else printf(\"%s is ok\\n\");\n",check_message(a,mti,mdi,br,bc,alpha,beta,transi,incx,incy,tc,op) ) ];
 	elseif lang == "p"
 		res=[res,findent,sprintf("DO i=1,%d\n",size(a,1))]; # FIXME: with transA and non square matrices, this breaks
-#		res=[res,findent,findent,"IF(y(",sd,").NE.cy(",sd,"))PRINT*,\"",nok,"\"\n"];
-		res=[res,findent,findent,"IF(y(",sd,").NE.cy(",sd,"))PRINT*,\"results mismatch:\",y,\"instead of\",cy","\n"];
-		res=[res,findent,findent,"IF(y(",sd,").NE.cy(",sd,"))info=-1\n"];
-		res=[res,findent,findent,"IF(y(",sd,").NE.cy(",sd,"))GOTO 9996\n"];
+#		res=[res,findent,findent,"IF(y(i).NE.cy(i))PRINT*,\"",nok,"\"\n"];
+		res=[res,findent,findent,"IF(y(i).NE.cy(i))PRINT*,\"results mismatch:\",y,\"instead of\",cy","\n"];
+		res=[res,findent,findent,"IF(y(i).NE.cy(i))info=-1\n"];
+		res=[res,findent,findent,"IF(y(i).NE.cy(i))GOTO 9996\n"];
 		res=[res,findent,"ENDDO\n"];
 #		res=[res,findent,"PRINT*,\"",ok,"\"\n"];
 	endif
 end 
 
-function res=check_spsv(a,mti,mdi,br,bc,alpha,beta_,transi,incx,incy,tc,op,lang,mvec)
+function res=check_spsv(a,mti,mdi,br,bc,alpha,beta_,transi,incx,incy,tc,op,lang)
 	if nargin==6+2+2
 		res=check_csmm(a,mti,mdi,br,bc,alpha,beta_,transi,incx,incy);
 	elseif nargin==7+2+2
@@ -401,8 +373,6 @@ function res=check_spsv(a,mti,mdi,br,bc,alpha,beta_,transi,incx,incy,tc,op,lang,
 		res=check_csmm(a,mti,mdi,br,bc,alpha,beta_,transi,incx,incy,tc,op);
 	elseif nargin==8+2+2+1
 		res=check_csmm(a,mti,mdi,br,bc,alpha,beta_,transi,incx,incy,tc,op,lang);
-	elseif nargin==8+2+2+1+1
-		res=check_csmm(a,mti,mdi,br,bc,alpha,beta_,transi,incx,incy,tc,op,lang,mvec);
 	endif
 end 
 
@@ -414,13 +384,17 @@ function sx=stride_apply(x,incx)
 	end
 end
 
-function res=dump_csmm(a,mti,mdi,br,bc,alpha,mvec,beta,transi,ts,incx,incy,lang)
+function res=dump_csmm(a,mti,mdi,br,bc,alpha,beta,transi,ts,incx,incy,lang)
 	global findent;
 	global matrix_types_array;
 	global matrix_diagonal;
 	#
 	extra=br+bc; # padding far more than necessary: will do no harm
 	extra=0; # FIXME: for now it's ok
+	#
+	if nargin < 10+2
+		lang="c";
+	endif
 	#
 	mt=matrix_types_array(mti);
 	md=matrix_diagonal(mdi);
@@ -463,34 +437,37 @@ function res=dump_csmm(a,mti,mdi,br,bc,alpha,mvec,beta,transi,ts,incx,incy,lang)
 	sx=stride_apply(x,incx);
 	if lang == "c"
 		res=[res,sprintf("		/* x: %d */\n",length(sx))];
-		res=[res,"\tconst ",dump_vec(sx,ts,"x","/* reference x */\n",lang)];
-		res=[res,"\tconst ",dump_vec(scy,ts,"cy","/* reference cy after */\n",lang)];
+		res=[res,"\t",dump_vec(sx,ts,"x","/* reference x */\n")];
+		res=[res,"\t",dump_vec(scy,ts,"cy","/* reference cy after */\n")];
 		sbcy=sy;
-#		res=[res,"\tconst ",dump_vec(sbcy,ts,"bcy","/* reference bcy before */\n",lang)];
-#		res=[res,"\t",dump_vec(sy,ts,"y","/* y */\n",lang),"\n"];
-#		res=[res,"\t",sprintf("rsb__memcpy(y,bcy,(%d*%d+%d)*sizeof(%s)); /* because y will get overwritten otherwise */\n",incy,nr,extra,ts)];
-		res=[res,"\t",dump_vec(sbcy,ts,"y","/* y */\n",lang),"\n"];
+#		res=[res,"\t",dump_vec(sbcy,ts,"bcy","/* reference bcy before */\n")];
+#		res=[res,"\t",dump_vec(sy,ts,"y","/* y */\n"),"\n"];
+#		res=[res,"\t",sprintf("rsb_memcpy(y,bcy,(%d*%d+%d)*sizeof(%s)); /* because y will get overwritten otherwise */\n",incy,nr,extra,ts)];
+		res=[res,"\t",dump_vec(sbcy,ts,"y","/* y */\n"),"\n"];
 		res=sprintf("%s\t\n	const char*lsc=\"System and hardcoded solution: y' <- y + %d A^%c * x \\n\"%s",res,alpha,transc,print_matrix(aa,"k"));
 		res=sprintf("%s\t%s",res,print_matrix(cy,"k","y'"));
 		res=sprintf("%s\t%s",res,print_matrix(y,"k","y"));
 		res=sprintf("%s\t%s;",res,print_matrix(x,"k","x"));
 	else
-		res=[res,findent,dump_vec(sx,ts,"x","! reference x \n",lang,mvec)];
-		res=[res,findent,dump_vec(scy,ts,"cy","! reference cy after \n",lang,mvec)];
+		res=[res,findent,dump_vec(sx,ts,"x","! reference x \n",lang)];
+		res=[res,findent,dump_vec(scy,ts,"cy","! reference cy after \n",lang)];
 		sbcy=sy;
-#		res=[res,findent,dump_vec(sbcy,ts,"bcy","! reference bcy before \n",lang,mvec)];
-#		res=[res,findent,dump_vec(sy,ts,"y","! y will be overwritten\n",lang,mvec),"\n"];
+#		res=[res,findent,dump_vec(sbcy,ts,"bcy","! reference bcy before \n",lang)];
+#		res=[res,findent,dump_vec(sy,ts,"y","! y will be overwritten\n",lang),"\n"];
 #		res=[res,findent,"y=bcy\n"];
-		res=[res,findent,dump_vec(sbcy,ts,"y","! y will be overwritten\n",lang,mvec),"\n"];
+		res=[res,findent,dump_vec(sbcy,ts,"y","! y will be overwritten\n",lang),"\n"];
 	endif
 end 
 
-function res=dump_spsv(a,mdi,br,bc,alpha,mvec,transi,ts,incx,incy,lang)
+function res=dump_spsv(a,mdi,br,bc,alpha,nrhs,transi,ts,incx,incy,lang)
 	global findent;
 	global matrix_diagonal;
 	#
 	md=matrix_diagonal(mdi);
 	#
+	if nargin < 11
+		lang="c";
+	endif
 	# FIXME: problems with incy != 1
 	beta=0;
 	extra=br+bc; # padding far more than necessary: will do no harm
@@ -530,24 +507,24 @@ function res=dump_spsv(a,mdi,br,bc,alpha,mvec,transi,ts,incx,incy,lang)
 	res="";
 	if lang == "c"
 		res=[res,sprintf("/* type is %s */\n",ts),"\n"];
-	#	res=[res,"\tconst ",dump_vec(sx,ts,"x","/* reference x */\n",lang)]; # for ot-spsv.c
-		res=[res,"\tconst ",dump_vec(scy,ts,"cy","/* reference cy after */\n",lang)];
+		res=[res,"\t",dump_vec(sx,ts,"x","/* reference x */\n")]; # for ot-spsv.c
+		res=[res,"\t",dump_vec(scy,ts,"cy","/* reference cy after */\n")];
 	#	sbcy=sy;
-	#	res=[res,"\tconst ",dump_vec(sbcy,ts,"bcy","/* reference y before */\n",lang)];
-	#	res=[res,"\t",dump_vec(sy,ts,"y","/* y */\n",lang),"\n"];
-		res=[res,"\t",dump_vec(sx,ts,"y","/* y */\n",lang),"\n"];
+	#	res=[res,"\t",dump_vec(sbcy,ts,"bcy","/* reference y before */\n")];
+	#	res=[res,"\t",dump_vec(sy,ts,"y","/* y */\n"),"\n"];
+		res=[res,"\t",dump_vec(sx,ts,"y","/* y */\n"),"\n"];
 		res=sprintf("%s\t\n	const char*lsc=\"System and hardcoded solution: y' <- %d A^-%c * y \\n\"%s",res,alpha,transc,print_matrix(aa,"k"));
 		res=sprintf("%s\t%s",res,print_matrix(cy,"k","y"));
 		res=sprintf("%s\t%s;\n",res,print_matrix(x,"k","y'"));
-	#	res=[res,"\t",sprintf("rsb__memcpy(y,bcy,%d*sizeof(%s)); /* because y will get overwritten otherwise */\n",nr+extra,ts)];
-	#	res=[res,"\t",sprintf("rsb__memcpy(y,x,%d*sizeof(%s)); /* because y will get overwritten otherwise */\n",nr+extra,ts)];
-	#	res=[res,"\t",sprintf("rsb__memcpy(y,x,(%d*%d+%d)*sizeof(%s)); /* because y will get overwritten otherwise */\n",incy,nr,extra,ts)];
+	#	res=[res,"\t",sprintf("rsb_memcpy(y,bcy,%d*sizeof(%s)); /* because y will get overwritten otherwise */\n",nr+extra,ts)];
+	#	res=[res,"\t",sprintf("rsb_memcpy(y,x,%d*sizeof(%s)); /* because y will get overwritten otherwise */\n",nr+extra,ts)];
+	#	res=[res,"\t",sprintf("rsb_memcpy(y,x,(%d*%d+%d)*sizeof(%s)); /* because y will get overwritten otherwise */\n",incy,nr,extra,ts)];
 	else
-		res=[res,findent,dump_vec(sx,ts,"x","! reference x \n",lang,mvec)];
-		res=[res,findent,dump_vec(scy,ts,"cy","! reference cy after \n",lang,mvec)];
+		res=[res,findent,dump_vec(sx,ts,"x","! reference x \n",lang)];
+		res=[res,findent,dump_vec(scy,ts,"cy","! reference cy after \n",lang)];
 		sbcy=sy;
-	#	res=[res,findent,dump_vec(sbcy,ts,"bcy","! reference bcy before \n",lang,mvec)];
-		res=[res,findent,dump_vec(sy,ts,"y","! y \n",lang,mvec),"\n"];
+	#	res=[res,findent,dump_vec(sbcy,ts,"bcy","! reference bcy before \n",lang)];
+		res=[res,findent,dump_vec(sy,ts,"y","! y \n",lang),"\n"];
 		res=[res,findent,"y=x\n"];
 	end 
 end 
@@ -657,15 +634,13 @@ function op=blas_op_codes_array(oi)
 	op="usmv";
 	elseif oi==2
 	op="ussv";
-	elseif oi==3
-	op="usmm";
 	else
 	# error
 	op="????"
 	end
 end
 
-function res=blas_tester_function(what,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy,ct)
+function res=blas_tester_function(what,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy)
 	global blas_trans_codes_array;
 	global matrix_types_array;
 	global blas_type_codes_array;
@@ -724,179 +699,108 @@ function res=blas_tester_function(what,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,inc
 #		res=[res,"	rsb_err_t errval = RSB_ERR_NO_ERROR;\n"];
 		res=[res,"	rsb_err_t errval = RSB_BLAS_ERROR;\n"];
 		res=[res,"\tblas_sparse_matrix A = ",bih,";\n"];
-		res=[res,sprintf("\tconst enum blas_trans_type transT=%s;\n",tr)];
-		res=[res,sprintf("\tconst int incy=%d;\n",incy)];
+		res=[res,sprintf("\tenum blas_trans_type transT=%s;\n",tr)];
+		res=[res,sprintf("\tint incx=%d;\n",incx)];
 		if op=="usmv"
-			res=[res,sprintf("\tconst int incx=%d;\n",incx)];
-		elseif op=="ussv"
-			res=[res,sprintf("\tconst int incx=%d;\n",incx)];
-		elseif op=="usmm"
-			res=[res,sprintf("\tconst int ldX=%d;\n",n)]; # note: this only OK for square
-			res=[res,sprintf("\tconst int ldY=%d;\n",n)]; # note: this only OK for square
+			res=[res,sprintf("\tint incy=%d;\n",incy)];
 		endif
-		res=[res,sprintf("\tconst %s alpha=%d;\n",tn,alpha)];
+		res=[res,sprintf("\t%s alpha=%d;\n",tn,alpha)];
 		res=sprintf("%s\t%s",res,print_matrix(a,"c"));
 		res=sprintf("%s\t/* declaration of VA,IA,JA */\n %s",res,dump_c_coo(a,tn,"c"));
-		if ct=='v'
-			res=[res,"	",dump_vec(ones(n,1),"rsb_coo_idx_t","K","// K\n",lang)];
-			res=[res,"	",dump_vec(ones(n,1),"rsb_coo_idx_t","L","// L\n",lang)];
-		endif
-		mvec=1;
 		if op=="usmv"
-			res=[res,dump_csmm(a,mti,mdi,1,1,alpha,mvec,beta,tri,tn,incx,incy,lang)];
-		elseif op=="usmm"
-			res=[res,dump_csmm(a,mti,mdi,1,1,alpha,mvec,beta,tri,tn,incx,incy,lang)];
+			res=[res,dump_csmm(a,mti,mdi,1,1,alpha,beta,tri,tn,incx,incy)];
 		else
-			res=[res,dump_spsv(a,mdi,1,1,alpha,mvec,tri,tn,incx,incy,lang)];
+			nrhs=1; res=[res,dump_spsv(a,mdi,1,1,alpha,nrhs,tri,tn,incx,incy)];
 		endif
 
-		res=sprintf("%s\t\n\t%s%s%s%s%s\n",res,"if(!RSB_BLAS_SUPPORTED_TYPE('",bc,"')){printf(\"type=",bc," unsupported: skipping test.\\n\");errval=RSB_ERR_UNSUPPORTED_TYPE;goto err;}");
+		res=sprintf("%s\t%s%s%s%s%s\n",res,"if(!RSB_BLAS_SUPPORTED_TYPE('",bc,"')){printf(\"type=",bc," unsupported: skipping test.\\n\");errval=RSB_ERR_UNSUPPORTED_TYPE;goto err;}");
 		res=sprintf("%s\t%s%s%s\n",res,"if((nnz == 0 ) && !RSB_BLAS_SUPPORT_EMPTY ){ printf(\"empty matrices are unsupported: skipping test.\\n\");errval=RSB_ERR_UNSUPPORTED_TYPE;goto err;}\n");
-		if ct=='c'
-			res=sprintf("%s\t%s%s%s\n",res,"A = BLAS_",bc,"uscr_begin(nr,nc);");
-		endif
-		if ct=='b'
-			res=sprintf("%s\t%s%s%s\n",res,"A = BLAS_",bc,"uscr_block_begin(1,1,nr,nc);");
-		endif
-		if ct=='v'
-			res=sprintf("%s\t%s%s%s\n",res,"A = BLAS_",bc,"uscr_variable_block_begin(nr,nc,K,L);");
-		endif
+		res=sprintf("%s\t%s%s%s\n",res,"A = BLAS_",bc,"uscr_begin(nr,nc);");
 #		gotoferrlabel="goto ferr;";
 		gotoferrlabel="{RSB_ERROR(\"!\\n\");goto ferr;}";
 		gotoferrlabel_pah="{RSB_ERROR(\"uscr_begin() gave %d!\\n\",A);goto ferr;}";
 		gotoferrlabel_ussp="{RSB_ERROR(\"ussp() gave %d!\\n\",A);goto ferr;}";
 		gotoferrlabel_inse="{RSB_ERROR(\"uscr_insert_entries() gave %d!\\n\",A);goto ferr;}";
 		gotoferrlabel_end="{RSB_ERROR(\"uscr_end() gave %d!\\n\",A);goto ferr;}";
-#		res=sprintf("%s\t%s%s\n",res,"if( A == blas_invalid_handle )",gotoferrlabel_pah);
-		res=sprintf("%s\t%s%s\n",res,"if( A == -1 )",gotoferrlabel_pah);
+#		res=sprintf("%s\t%s%s\n",res,"if( A == blas_invalid_handle )\n		",gotoferrlabel_pah);
+		res=sprintf("%s\t%s%s\n",res,"if( A == -1 )\n		",gotoferrlabel_pah);
 		if op=="ussv"
 			if mt=='u'
-				res=[res,"	if( BLAS_ussp(A,blas_upper_triangular) != RSB_BLAS_NO_ERROR ) "];
+				res=[res,"	if( BLAS_ussp(A,blas_upper_triangular) != RSB_BLAS_NO_ERROR )\n"]; # NEW
 			elseif mt=='l'
-				res=[res,"	if( BLAS_ussp(A,blas_lower_triangular) != RSB_BLAS_NO_ERROR ) "];
+				res=[res,"	if( BLAS_ussp(A,blas_lower_triangular) != RSB_BLAS_NO_ERROR )\n"]; # NEW
 			else
-				res=[res,"	if( BLAS_ussp(A,blas_lower_triangular) != RSB_BLAS_NO_ERROR ) "];
+				res=[res,"	if( BLAS_ussp(A,blas_lower_triangular) != RSB_BLAS_NO_ERROR )\n"]; # NEW
 			endif
-			res=[res," ",gotoferrlabel_ussp,"\n"];
+			res=[res,"		",gotoferrlabel_ussp,"\n"];
 			#res=[res,"\tBLAS_ussp(A,blas_upper_triangular);\n"]; # NEW
 		endif
 		if md=='i'
-			res=[res,"	if( BLAS_ussp(A,blas_unit_diag) != RSB_BLAS_NO_ERROR ) "];
-			res=[res," ",gotoferrlabel_ussp,"\n"];
+			res=[res,"	if( BLAS_ussp(A,blas_unit_diag) != RSB_BLAS_NO_ERROR )\n"];
+			res=[res,"		",gotoferrlabel_ussp,"\n"];
 		endif
 		if mt=='s'
-			res=[res,"	if( BLAS_ussp(A,blas_lower_symmetric) != RSB_BLAS_NO_ERROR ) "];
-			res=[res," ",gotoferrlabel_ussp,"\n"];
+			res=[res,"	if( BLAS_ussp(A,blas_lower_symmetric) != RSB_BLAS_NO_ERROR )\n"];
+			res=[res,"		",gotoferrlabel_ussp,"\n"];
 		endif
 		if mt=='h'
-			res=[res,"	if( BLAS_ussp(A,blas_lower_hermitian) != RSB_BLAS_NO_ERROR ) "];
-			res=[res," ",gotoferrlabel_ussp,"\n"];
+			res=[res,"	if( BLAS_ussp(A,blas_lower_hermitian) != RSB_BLAS_NO_ERROR )\n"];
+			res=[res,"		",gotoferrlabel_ussp,"\n"];
 		endif
-		res=sprintf("%s\t%s%s%s%s\n",res,"if( BLAS_",bc,"uscr_insert_entries(A,nnz,VA,IA,JA) != RSB_BLAS_NO_ERROR)",gotoferrlabel_inse);
-		res=[res,sprintf("\t%s%s%s%s\n","if( BLAS_",bc,"uscr_end(A) != RSB_BLAS_NO_ERROR )",gotoferrlabel_end)];
+		res=sprintf("%s\t%s%s%s%s\n",res,"if( BLAS_",bc,"uscr_insert_entries(A,nnz,VA,IA,JA) != RSB_BLAS_NO_ERROR)\n		",gotoferrlabel_inse);
+		res=[res,sprintf("\t%s%s%s%s\n","if( BLAS_",bc,"uscr_end(A) != RSB_BLAS_NO_ERROR )\n		",gotoferrlabel_end)];
 	
 		if op=="usmv"
-			res=[res,sprintf("\tif( BLAS_%s%s(transT,%salpha,A,x,incx,y,incy) != RSB_BLAS_NO_ERROR )%s\n",bc,op,pointer_symbol_if_type(tc),gotoferrlabel)];
-			res=[res,check_csmm(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang)];
-		elseif op=="usmm"
-			res=[res,sprintf("\tif( BLAS_%s%s(blas_colmajor,transT,1,%salpha,A,x,ldX,y,ldY) != RSB_BLAS_NO_ERROR )%s\n",bc,op,pointer_symbol_if_type(tc),gotoferrlabel)];
+			res=[res,sprintf("\tif( BLAS_%s%s(transT,%salpha,A,x,incx,y,incy) != RSB_BLAS_NO_ERROR )\n		%s\n",bc,op,pointer_symbol_if_type(tc),gotoferrlabel)];
 			res=[res,check_csmm(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang)];
 		elseif op=="ussv"
-			res=[res,sprintf("\tif( BLAS_%s%s(transT,%salpha,A,y,incx) != RSB_BLAS_NO_ERROR )%s\n",bc,op,pointer_symbol_if_type(tc),gotoferrlabel)];
+			res=[res,sprintf("\tif( BLAS_%s%s(transT,%salpha,A,y,incx) != RSB_BLAS_NO_ERROR )\n		%s\n",bc,op,pointer_symbol_if_type(tc),gotoferrlabel)];
 			res=[res,check_spsv(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang)];
 		endif
-		res=[res,sprintf("%s%s\n","\n\tif( BLAS_usds(A) != RSB_BLAS_NO_ERROR )",gotoferrlabel)];
+		res=[res,sprintf("%s%s\n","\n\tif( BLAS_usds(A) != RSB_BLAS_NO_ERROR )\n		",gotoferrlabel)];
 		cm=[check_message(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op)];
 		nok=[cm," is not ok"];
-#		res=[res,"	goto ok;\n"];
-		res=[res,"	errval = RSB_ERR_NO_ERROR;\n"];
-		res=[res,"ferr:\t"];
-		res=[res,"if(errval != RSB_ERR_NO_ERROR){ "];
-		res=[res," RSB_ERROR(\"",nok,"\\n\"); "];
-		res=[res," RSB_ERRLN(lsc); "];
-		res=[res," RSB_ERROR(\"Computed solution: y'=\\n\"); "];
+		res=[res,"	goto ok;\n"];
+		res=[res,"ferr:\n"];
+		res=[res,"	RSB_ERROR(\"",nok,"\\n\");\n"];
+		res=[res,"	RSB_ERROR(lsc);\n"];
+		res=[res,"	RSB_ERROR(\"Computed solution: y'=\\n\");\n"];
 		typecode=["'",toupper(tc),"'"];
-		res=[res,"	rsb_sbtc_print_vec(y,nr*incy,",typecode,"); }\n"];
-		res=[res,"err:\t"];
+		res=[res,"	rsb_sbtc_print_vec(y,nr,",typecode,");\n"];
+		res=[res,"err:\n"];
 #		res=[res,sprintf("	%s","return RSB_ERR_NO_ERROR;\n\n	BLAS_usds(A);\n")];
-		res=[res,sprintf("return errval;\n")];
-#		res=[res,sprintf("ok:	return RSB_ERR_NO_ERROR;\n")];
-		res=[res,sprintf("}\n")];
+		res=[res,sprintf("	return errval;\n")];
+		res=[res,sprintf("ok:	return RSB_ERR_NO_ERROR;\n}\n")];
 	endif
 	#
 	elseif lang=="f"
 	#
-		if(rand()>0.5)
-			bpfx=sprintf("BLAS_%s",bc);
-			bspfx=sprintf("BLAS_%s",bc);
-			bipfx=bc;
-		else
-			bpfx="";
-			bspfx=bc;
-			bipfx="";
-		endif
-	#
-		dprv=rand()*3;
-		bdpfx="";
-		if(dprv>1)
-			bdpfx=sprintf("%s",bc);
-		endif
-		if(dprv>2)
-			bdpfx=sprintf("BLAS_%s",bc);
-		endif
-	#
+		
 		if what=="CALL"
 			res=[res,findent,"",id,""];
 		endif
 		if what=="decl"
 			res=[res,findent,"SUBROUTINE ",id,"(errval)\n"];
 			res=[res,findent,"USE blas_sparse\n"];
-			res=[res,findent,"USE rsb ! for RSB_IDX_KIND\n"];
 			res=[res,findent,"IMPLICIT NONE\n"];
 			res=[res,findent,"INTEGER::errval,istat=0,i\n"];
-			res=[res,findent,"INTEGER(KIND=RSB_IDX_KIND)::mone=-1,pone=+1\n"];
 			res=[res,findent,"INTEGER::A\n"];
 			res=[res,findent,"INTEGER::transT=",tr,"\n"];
-			res=[res,findent,decl_var(lang,"INTEGER(KIND=RSB_IDX_KIND)","incx",incx)];
+			res=[res,findent,decl_var(lang,"INTEGER","incx",incx)];
 			if op=="usmv"
-			res=[res,findent,decl_var(lang,"INTEGER(KIND=RSB_IDX_KIND)","incy",incy)];
-			elseif op=="usmm"
-			res=[res,findent,decl_var(lang,"INTEGER(KIND=RSB_IDX_KIND)","incy",incy)];
-			res=[res,findent,decl_var(lang,"INTEGER(KIND=RSB_IDX_KIND)","ldX",n)];
-			res=[res,findent,decl_var(lang,"INTEGER(KIND=RSB_IDX_KIND)","ldY",n)];
+			res=[res,findent,decl_var(lang,"INTEGER","incy",incy)];
 			endif
 			res=[res,findent,decl_var(lang,tn,"alpha",alpha)];
 			a=gen_test_matrix(op,n,tc,mti,mdi);
-			cm=[check_message(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang)];
-      			res=[res,findent,"CHARACTER(LEN=*),PARAMETER :: LCS = \"&\n",findent," &",cm,"\"","\n"];
 			res=sprintf("%s%s\n",res,print_matrix(a,lang));
 			res=sprintf("%s%s! declaration of VA,IA,JA \n%s\n",res,findent,dump_c_coo(a,tn,lang));
-			if ct=='v'
-				res=[res,findent,dump_vec(ones(n,1),"INTEGER(KIND=RSB_IDX_KIND)","K","! K\n",lang)];
-				res=[res,findent,dump_vec(ones(n,1),"INTEGER(KIND=RSB_IDX_KIND)","L","! L\n",lang)];
-			endif
-			if( ( rand()*2>1 && incx==1 && incy==1 ) || op == "usmm" )
-				mvec=1;
-			else
-				mvec=0;
-			endif
 			if op=="usmv"
-				res=[res,dump_csmm(a,mti,mdi,1,1,alpha,mvec,beta,tri,tn,incx,incy,lang)];
-			elseif op=="usmm"
-				res=[res,dump_csmm(a,mti,mdi,1,1,alpha,mvec,beta,tri,tn,incx,incy,lang)];
+				res=[res,dump_csmm(a,mti,mdi,1,1,alpha,beta,tri,tn,incx,incy,lang)];
 			else
-				res=[res,dump_spsv(a,mdi,1,1,alpha,mvec,tri,tn,incx,incy,lang)];
+			nrhs=1; res=[res,dump_spsv(a,mdi,1,1,alpha,nrhs,tri,tn,incx,incy,lang)];
 			endif
 			res=[res,findent,"errval=0\n"];
-			if ct=='c'
-				res=[res,findent,sprintf("CALL %suscr_begin(nr,nc,A,errval)\n",bspfx)];
-			endif
-			if ct=='b'
-				res=[res,findent,sprintf("CALL %suscr_block_begin(pone,pone,nr,nc,A,errval)\n",bspfx)];
-			endif
-			if ct=='v'
-				res=[res,findent,sprintf("CALL %suscr_variable_block_begin(nr,nc,K,L,A,errval)\n",bspfx)];
-			endif
+			res=[res,findent,sprintf("CALL %suscr_begin(nr,nc,A,errval)\n",bc)];
 			res=[res,findent,"IF(errval.NE.0)GOTO 9999\n"];
 ###############################################################################
 			if op=="ussv"
@@ -918,58 +822,23 @@ function res=blas_tester_function(what,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,inc
 				res=[res,findent,"CALL ussp(A,blas_lower_hermitian,istat)\n"];
 			endif
 			res=[res,findent,"IF(istat.NE.0)GOTO 9997\n"];
-			if(rand()*3>1)
-				res=[res,findent,sprintf("CALL %suscr_insert_row(A,mone,nnz,VA,JA,istat)\n",bpfx)];
-				res=[res,findent,"IF(istat.EQ.0)THEN\n",findent,"  istat=-1;GOTO 9997;\n",findent,"ELSE\n",findent,"  istat=0;\n",findent,"ENDIF\n"];
-			elseif(rand()*2>1)
-				res=[res,findent,sprintf("CALL %suscr_insert_col(A,mone,nnz,VA,IA,istat)\n",bpfx)];
-				res=[res,findent,"IF(istat.EQ.0)THEN\n",findent,"  istat=-1;GOTO 9997;\n",findent,"ELSE\n",findent,"  istat=0;\n",findent,"ENDIF\n"];
-			endif
-			if(rand()*2>1)
-				res=[res,findent,sprintf("CALL %suscr_insert_entries(A,nnz,VA,IA,JA,istat)\n",bpfx)];
-				res=[res,findent,"IF(istat.NE.0)GOTO 9997\n"];
-			else
-				for i=1:nnz(a)
-					if ct=='v'
-						res=[res,findent,sprintf("CALL %suscr_insert_block(A,VA(%d:),pone,pone,IA(%d),JA(%d),istat)\n",bipfx,i,i,i)];
-					else
-					if(rand()*2>1)
-						res=[res,findent,sprintf("CALL %suscr_insert_entry(A,VA(%d),IA(%d),JA(%d),istat)\n",bpfx,i,i,i)];
-					else
-						res=[res,findent,sprintf("CALL %suscr_insert_clique(A,pone,pone,VA(%d:),pone,pone,IA(%d:),JA(%d:),istat)\n",bspfx,i,i,i)];
-					endif
-					endif
-					res=[res,findent,"IF(istat.NE.0)GOTO 9997\n"];
-				endfor
-			endif
+			res=[res,findent,"CALL uscr_insert_entries(A,nnz,VA,IA,JA,istat)\n"];
+			res=[res,findent,"IF(istat.NE.0)GOTO 9997\n"];
 ###############################################################################
-			res=[res,findent,sprintf("CALL %suscr_end(A,istat)\n",bdpfx)];
+			res=[res,findent,"CALL uscr_end(A,istat)\n"];
 			res=[res,findent,"IF(istat.NE.0)GOTO 9997\n"];
 			if op=="usmv"
-				if(mvec>0)
-					res=[res,findent,sprintf("CALL %susmm(blas_colmajor,transT,pone,alpha,A,x,nr,y,nc,istat)\n",bspfx),""];
-				else
-					res=[res,findent,sprintf("CALL %s%s(transT,alpha,A,x,incx,y,incy,istat)\n",bpfx,op),""];
-				endif
+				res=[res,findent,sprintf("CALL %s(transT,alpha,A,x,incx,y,incy,istat)\n",op),""];
 				res=[res,findent,"IF(istat.NE.0)GOTO 9997\n"];
-				res=[res,check_csmm(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang,mvec)];
-			elseif op=="usmm"
-				res=[res,findent,sprintf("CALL %s%s(blas_colmajor,transT,1,alpha,A,x,ldX,y,ldY,istat)\n",bpfx,op),""];
-				res=[res,findent,"IF(istat.NE.0)GOTO 9997\n"];
-				res=[res,check_csmm(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang,mvec)];
+				res=[res,check_csmm(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang)];
 			elseif op=="ussv"
-				if(mvec>0)
-					res=[res,findent,sprintf("CALL %sussm(blas_colmajor,transT,pone,alpha,A,y,nr,istat)\n",bspfx),""];
-				else
-					res=[res,findent,sprintf("CALL %s%s(transT,alpha,A,y,incx,istat)\n",bpfx,op)];
-				endif
-				res=[res,findent,"IF(istat.NE.0)GOTO 9997\n"];
-				res=[res,check_spsv(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang,mvec)];
+				res=[res,findent,sprintf("CALL %s(transT,alpha,A,y,incx,istat)\n",op)];
+			res=[res,findent,"IF(istat.NE.0)GOTO 9997\n"];
+				res=[res,check_spsv(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang)];
 			endif
-#			res=[res,findent,"GOTO 9998\n"];
-#			res=[res,"9997",findent,"errval=-1\n"];
-			res=[res,"9997",findent,"IF(istat.NE.0)errval=-1\n"];
-#			res=[res,"9998",findent,"CONTINUE\n"];
+			res=[res,findent,"GOTO 9998\n"];
+			res=[res,"9997",findent,"errval=-1\n"];
+			res=[res,"9998",findent,"CONTINUE\n"];
 			res=[res,findent,"CALL usds(A,istat)\n"];
 			res=[res,findent,"IF(istat.NE.0)errval=-1\n"];
 			res=[res,"9999",findent,"CONTINUE\n"];
@@ -1006,20 +875,15 @@ function res=blas_tester_function(what,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,inc
 			res=[res,findent,decl_var(lang,"INTEGER","incx",incx)];
 			if op=="usmv"
 			res=[res,findent,decl_var(lang,"INTEGER","incy",incy)];
-			elseif op=="usmm"
-			res=[res,findent,decl_var(lang,"INTEGER","incy",incy)];
 			endif
 			res=[res,findent,decl_var(lang,tn,"alpha",alpha)];
 			res=[res,findent,decl_var(lang,tn,"beta",beta)];
 			res=sprintf("%s%s\n",res,print_matrix(a,lang));
 			res=sprintf("%s%s! declaration of VA,IA,JA \n%s\n",res,findent,dump_c_coo(a,tn,lang));
-			mvec=0;
 			if op=="usmv"
-				res=[res,dump_csmm(a,mti,mdi,1,1,alpha,mvec,beta,tri,tn,incx,incy,lang)];
-			elseif op=="usmm"
-				res=[res,dump_csmm(a,mti,mdi,1,1,alpha,mvec,beta,tri,tn,incx,incy,lang)];
+				res=[res,dump_csmm(a,mti,mdi,1,1,alpha,beta,tri,tn,incx,incy,lang)];
 			else
-				res=[res,dump_spsv(a,mdi,1,1,alpha,mvec,tri,tn,incx,incy,lang)];
+			nrhs=1; res=[res,dump_spsv(a,mdi,1,1,alpha,nrhs,tri,tn,incx,incy,lang)];
 			endif
 			res=[res,findent,"errval=0\n"];
 #			res=[res,findent,"afmt='CSR'\n"];
@@ -1057,8 +921,6 @@ function res=blas_tester_function(what,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,inc
 				res=[res,findent,"IF(info.NE.0)PRINT *,\"psb_spmm failed\"\n"];
 				res=[res,findent,"IF(info.NE.0)GOTO 9996\n"];
 				res=[res,check_csmm(a,mti,mdi,1,1,alpha,beta,tri,incx,incy,tc,op,lang)];
-			elseif op=="usmm"
-				;
 			elseif op=="ussv"
 #				res=[res,findent,"x(:)=y(:)\n"];
 #				res=[res,findent,"beta=0\n"];
@@ -1106,7 +968,6 @@ global incy_array;
 global findent;
 global matrix_types_array;
 global matrix_diagonal;
-global blas_ctor_funcs;
 #
 if what=="decl"
 	what_here="decl";
@@ -1114,24 +975,6 @@ else
 	what_here="CALL";
 endif
 #
-if what_here=="CALL"
-if lang=="c"
-	res="";
-	res=[res,sprintf("	printf(\"Test print BEGIN\\n\");\n")];
-	for ti=1:length(blas_type_codes_array)
-		tc=blas_type_codes_array(ti);
-		tn=blas_types_array(tc,lang);
-		res=sprintf("%s\t%s"  ,res,"{\n");
-		res=sprintf("%s\t const %s v [] = {1,2,3};\n%s",res,tn);
-		res=sprintf("%s\t rsb_sbtc_print_vec(v,sizeof(v)/sizeof(v[0]),toupper('%s'));\n",res,tc);
-		res=sprintf("%s\t%s"  ,res,"}\n");
-	endfor
-	res=[res,sprintf("	printf(\"Test print END\\n\");\n")];
-	printf("%s",res);
-endif
-endif
-#
-for cfi=1:length(blas_ctor_funcs)
 #for mdi=2:length(matrix_diagonal)
 for mdi=1:length(matrix_diagonal)
 for mti=1:length(matrix_types_array)
@@ -1153,19 +996,8 @@ res="";
 beta=beta_array(betai);
 alpha=alpha_array(alphai);
 op=blas_op_codes_array(oi);
-if ( op == "usmm" && ( beta != 1 || incx != 1 || incy != 1  ) ) continue; end # only incx==1 incy==1 make sense for usmm
 mt=matrix_types_array(mti);
 md=matrix_diagonal(mdi);
-ct=blas_ctor_funcs(cfi);
-ctrv=rand()*3;
-if(ctrv>1)
-	ct='c';
-else
-	ct='b';
-endif
-if(ctrv>2)
-	ct='v';
-endif
 #
 #op
 #mt
@@ -1185,13 +1017,13 @@ if (!(op=="ussv" && lang!="p"  && (beta!=1 || incy!=incx))) && (!(op=="usmv" && 
 if lang=="c"
 #
 if what_here=="CALL"
-	fid=blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy,ct);
+	fid=blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy);
 	res=sprintf("%s\t errval = %s;\n",res,fid);
 #	res=sprintf("%s\tif( errval != RSB_ERR_NO_ERROR )++failed;else++passed;\n",res);
 res=sprintf("%s\tif( errval== RSB_ERR_NO_ERROR )++passed;else{if(errval==RSB_ERR_UNSUPPORTED_TYPE)++skipped,errval=RSB_ERR_NO_ERROR ;else++failed;}\n",res);
 	res=sprintf("%s\tif( errval != RSB_ERR_NO_ERROR )RSB_ERROR(\"%s failed!\\n\");\n",res,fid);
 else
-	res=sprintf("%s",sprintf("%s\t%s",res,blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy,ct)));
+	res=sprintf("%s",sprintf("%s\t%s",res,blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy)));
 	res=sprintf("%s\n",res);
 endif
 #
@@ -1199,21 +1031,21 @@ endif
 elseif lang=="f"
 #
 if what_here=="CALL"
-	res=[res,findent,"CALL ",blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy,ct),"(errval)\n"];
+	res=[res,findent,"CALL ",blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy),"(errval)\n"];
 	res=[res,findent,"IF(errval.LT.0)failed=failed+1\n"];
 	res=[res,findent,"IF(errval.EQ.0)passed=passed+1\n"];
 	res=[res,findent,"\n"];
 else
 #	res=[res,"! declaration ... \n"];
 	res=[res,"! \n"];
-	res=[res,"",blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy,ct),""];
+	res=[res,"",blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy),""];
 #	res=[res,findent,"! TODO: still unimplemented \n"];
 endif
 #
 elseif lang=="p"
 #
 if what_here=="CALL"
-	res=[res,findent,"CALL ",blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy,ct),"(errval,afmt,ictxt)\n"];
+	res=[res,findent,"CALL ",blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy),"(errval,afmt,ictxt)\n"];
 	res=[res,findent,"IF(errval.NE.0)failed=failed+1\n"];
 	res=[res,findent,"IF(errval.EQ.0)passed=passed+1\n"];
 	res=[res,findent,"errval=0\n"];
@@ -1221,14 +1053,13 @@ if what_here=="CALL"
 else
 #	res=[res,"! declaration ... \n"];
 	res=[res,"! \n"];
-	res=[res,"",blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy,ct),""];
+	res=[res,"",blas_tester_function(what_here,lang,mti,mdi,tc,oi,rms,tri,alpha,beta,incx,incy),""];
 #	res=[res,findent,"! TODO: still unimplemented \n"];
 endif
 #
 endif
 	printf("%s",res);
 #
-end
 end
 end
 end

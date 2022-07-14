@@ -32,22 +32,6 @@ dnl
 #error "You are using Sparse BLAS headers from librsb -- You should include <rsb.h> first!"
 #endif /* RSB_RSB_H_INCLUDED */
 dnl
-dnl
-ifelse(RSB_M4_LONG_IDX,`0',`',`dnl
-/* The user wants a long type for indices. */
-#if ( defined(__cplusplus) && (__cplusplus>=201103L) )
-#include <cstdint>
-#else  /* __cplusplus */
-#include <stdint.h>
-#endif /* __cplusplus */
-#define rsb_blas_int_t int64_t
-')dnl
-dnl alternative A:
-define(`rsb_blas_pname_t',`int')dnl here and in internal headers.
-dnl alternative B:
-dnl typedef int rsb_blas_pname_t;
-dnl
-dnl
 ',`dnl
 ')dnl
 dnl
@@ -74,12 +58,8 @@ RSB_INTERNALS_COMMON_HEAD_DECLS
 dnl #include "blas_sparse/blas_sparse.h"
 dnl #include "blas_sparse/blas_sparse_proto.h"
 dnl
-ifelse(RSB_M4_LONG_IDX,`0',`dnl
-define(`rsb_blas_int_t',`int')dnl generate an interface using `int'; if commented, will use the `rsb_blas_int_t' typedef
-',`dnl
-dnl
-')dnl
-define(`RSB_WRAPPER_PREFIX',`rsb__wp_')`'dnl
+define(`rsb_blas_int_t',`int')dnl
+define(`RSB_WRAPPER_PREFIX',`rsb_wp_')`'dnl
 dnl
 define(`RSB_SPARSE_BLAS_INTERFACE_REWRAPPER_L1',`dnl
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
@@ -233,10 +213,11 @@ dnl
 ifdef(`ONLY_WANT_HEADERS',`
 `#define' BLAS_ussp RSB_WRAPPER_PREFIX`_'BLAS_ussp
 `#define' BLAS_usgp RSB_WRAPPER_PREFIX`_'BLAS_usgp
-rsb_blas_int_t BLAS_ussp( blas_sparse_matrix A, rsb_blas_pname_t pname );
-rsb_blas_int_t BLAS_usgp( blas_sparse_matrix A, rsb_blas_pname_t pname );
+rsb_blas_int_t BLAS_ussp( blas_sparse_matrix A, rsb_blas_int_t pname );
+rsb_blas_int_t BLAS_usgp( blas_sparse_matrix A, rsb_blas_int_t pname );
+blas_sparse_matrix rsb_load_spblas_matrix_file_as_matrix_market(const rsb_char_t * filename, rsb_type_t typecode ); /* This is a librsb extension. */
 ',`dnl
-rsb_blas_int_t BLAS_usgp( blas_sparse_matrix A, rsb_blas_pname_t pname ) /*  FIXME: temporarily here */
+rsb_blas_int_t BLAS_usgp( blas_sparse_matrix A, rsb_blas_int_t pname ) /*  FIXME: temporarily here */
 {
 	/**
 	 \ingroup rsb_doc_sparse_blas
@@ -248,9 +229,9 @@ rsb_blas_int_t BLAS_usgp( blas_sparse_matrix A, rsb_blas_pname_t pname ) /*  FIX
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-`#define'  `'RSB_M4_FORTRAN_SYMBOL_PREPEND_TO_C`'blas_usgp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'	RSB_WRAPPER_PREFIX`'`'RSB_M4_FORTRAN_SYMBOL_PREPEND_TO_C`'blas_usgp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'
+`#define'  blas_usgp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'	RSB_WRAPPER_PREFIX`'blas_usgp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'
 `#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */'
-void `'RSB_M4_FORTRAN_SYMBOL_PREPEND_TO_C`'blas_usgp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'( blas_sparse_matrix*A, rsb_blas_pname_t *pname, rsb_blas_int_t * istat ) /*  FIXME: temporarily here */
+void blas_usgp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'( blas_sparse_matrix*A, rsb_blas_int_t*pname, rsb_blas_int_t * istat ) /*  FIXME: temporarily here */
 {
 	/** \ingroup rsb_doc_sparse_blas
 	 \rsb_spblasl2_gp_msg
@@ -262,9 +243,9 @@ void `'RSB_M4_FORTRAN_SYMBOL_PREPEND_TO_C`'blas_usgp`'RSB_M4_FORTRAN_SYMBOL_ADD_
 }
 
 #if !RSB_WITH_SPARSE_BLAS_INTERFACE
-`#define'  `'RSB_M4_FORTRAN_SYMBOL_PREPEND_TO_C`'blas_ussp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'	`'RSB_M4_FORTRAN_SYMBOL_PREPEND_TO_C`'RSB_WRAPPER_PREFIX`'blas_ussp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'
+`#define'  blas_ussp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'	RSB_WRAPPER_PREFIX`'blas_ussp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'
 `#endif /* RSB_WITH_SPARSE_BLAS_INTERFACE */'
-void `'RSB_M4_FORTRAN_SYMBOL_PREPEND_TO_C`'blas_ussp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'( blas_sparse_matrix*A, rsb_blas_pname_t *pname, rsb_blas_int_t * istat ) /*  FIXME: temporarily here */
+void blas_ussp`'RSB_M4_FORTRAN_SYMBOL_ADD_TO_C`'( blas_sparse_matrix*A, rsb_blas_int_t*pname, rsb_blas_int_t * istat ) /*  FIXME: temporarily here */
 {
 	/**
 	 \ingroup rsb_doc_sparse_blas
@@ -276,7 +257,7 @@ void `'RSB_M4_FORTRAN_SYMBOL_PREPEND_TO_C`'blas_ussp`'RSB_M4_FORTRAN_SYMBOL_ADD_
 	RSB_SPB_INTERFACE_RETURN_VOID()
 }
 
-rsb_blas_int_t BLAS_ussp( blas_sparse_matrix A, rsb_blas_pname_t pname ) /*  FIXME: temporarily here */
+rsb_blas_int_t BLAS_ussp( blas_sparse_matrix A, rsb_blas_int_t pname ) /*  FIXME: temporarily here */
 {
 	/**
 	 \ingroup rsb_doc_sparse_blas
@@ -288,29 +269,6 @@ rsb_blas_int_t BLAS_ussp( blas_sparse_matrix A, rsb_blas_pname_t pname ) /*  FIX
 }
 
 ')
-
-dnl
-ifdef(`ONLY_WANT_HEADERS',`
-blas_sparse_matrix rsb_blas_file_mtx_load(const rsb_char_t * filename, rsb_type_t typecode ); /* This is a librsb extension. */
-',`dnl
-blas_sparse_matrix rsb_blas_file_mtx_load(const rsb_char_t * filename, rsb_type_t typecode )
-{
-	/*!
- 	\ingroup rsb_doc_sparse_blas
-	Load Matrix Market matrix file of specified type to a matrix, and return Sparse BLAS handler.
-
-	\param \rsb_filename_inp_param_msg
-	\param \rsb_type_o_param_msg
-	\return \rsb_spblasl2_A_msg_ftn_rt
-
-	\n
-	 */
-	RSB_SPB_INTERFACE_PREAMBLE
-{
-	RSB_SPB_INTERFACE_RETURN_EXP( rsb__load_spblas_matrix_file_as_matrix_market(filename,typecode) )
-}
-}
-')dnl
 
 dnl
 ifdef(`ONLY_WANT_HEADERS',`

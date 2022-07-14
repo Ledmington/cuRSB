@@ -24,6 +24,15 @@ dnl
 extern "C" {
 #endif /* __cplusplus */
 
+ifdef(`RSB_M4_WANT_OMP',`dnl
+dnl	FIXME : this should be moved elsewhere
+`#define RSB_WANT_OMP        '1
+`#define RSB_MAX_OMP_THREADS 'RSB_M4_MAX_OMP_THREADS
+ifdef(`ONLY_WANT_HEADERS',`',`dnl
+#include <omp.h>       /* OpenMP parallelism (EXPERIMENTAL) */
+')
+')dnl
+
 dnl
 #include "rsb_common.h"
 dnl #include "rsb_internals.h"
@@ -37,12 +46,11 @@ dnl
 dnl
 foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
-ifdef(`ONLY_WANT_HEADERS',`
-',`dnl
-dnl
 dnl `rsb_err_t rsb_do_csr_ilu0_'touppercase(RSB_M4_CHOPSPACES(mtype))`(struct rsb_mtx_t * mtxAp)'dnl
-`static rsb_err_t rsb_do_csr_ilu0_'touppercase(RSB_M4_CHOPSPACES(mtype))`(struct rsb_coo_mtx_t * coop)'dnl
+`rsb_err_t rsb_do_csr_ilu0_'touppercase(RSB_M4_CHOPSPACES(mtype))`(struct rsb_coo_matrix_t * coop)'dnl
 dnl `rsb_err_t rsb_do_csr_ilu0_'touppercase(RSB_M4_CHOPSPACES(mtype))(mtype `*VA, const rsb_coo_idx_t *PA, const rsb_coo_idx_t *JA)'dnl
+ifdef(`ONLY_WANT_HEADERS',`;
+',`dnl
 {
 	/**
 	 * \ingroup gr_internals
@@ -112,36 +120,14 @@ ifdef(`ONLY_WANT_HEADERS',`;
 ',`dnl
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	struct rsb_coo_mtx_t coo;
+	struct rsb_coo_matrix_t coo;
 
-	if(!mtxAp)
-	{
-		RSB_ERROR(RSB_ERRM_ES);
-		errval = RSB_ERR_BADARGS;
-		goto err;
-	}
-
-	if(     !rsb__is_terminal_recursive_matrix(mtxAp) ||
-		!rsb__is_css_matrix(mtxAp) ||
-		(mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES) ||
-		rsb__is_symmetric(mtxAp) ||
-		!rsb__is_square(mtxAp) ||
-		rsb__submatrices(mtxAp)!=1 ||
+	if(!mtxAp || !rsb__is_terminal_recursive_matrix(mtxAp) ||
+		 !rsb__is_css_matrix(mtxAp) || (mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES) ||
+		 /*mtxAp->typecode != RSB_NUMERICAL_TYPE_DOUBLE  || */!rsb__is_square(mtxAp) || rsb__is_symmetric(mtxAp) ||
  		RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_UNIT_DIAG_IMPLICIT)
 		)
 	{
-		if(!rsb__is_terminal_recursive_matrix(mtxAp))
-			RSB_ERROR(RSB_ERRM_NT);
-		if(!rsb__is_css_matrix(mtxAp))
-			RSB_ERROR("not a CSR matrix!\n");
-		/*if(rsb__is_root_matrix(mtxAp)!=RSB_BOOL_TRUE)
-			RSB_ERROR("non-root matrix!\n");*/
-		if( rsb__submatrices(mtxAp)!=1)
-			RSB_ERROR("non-single submatrix (%d)!\n",rsb__submatrices(mtxAp));
-		if( rsb__is_symmetric(mtxAp))
-			RSB_ERROR("matrix is symmetric!\n");
-		if(!rsb__is_square(mtxAp))
-			RSB_ERROR(RSB_ERRM_NON_SQUARE);
 		RSB_ERROR(RSB_ERRM_ES);
 		errval = RSB_ERR_BADARGS;
 		goto err;
@@ -164,11 +150,11 @@ err:
 ')dnl
 dnl
 
-rsb_err_t rsb__prec_csr_ilu0(struct rsb_coo_mtx_t * coop)`'dnl
+rsb_err_t rsb__prec_csr_ilu0(struct rsb_coo_matrix_t * coop)`'dnl
 ifdef(`ONLY_WANT_HEADERS',`;
 ',`dnl
 {
-	// FIXME: temporary
+	// FIXME: termporary
 	if(coop->nr==1)
 		goto err;
 foreach(`mtype',RSB_M4_TYPES,`dnl

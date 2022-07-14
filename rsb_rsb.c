@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -21,7 +21,7 @@ If not, see <http://www.gnu.org/licenses/>.
 */
 /*! @file
  *  @author Michele Martone
- *  @brief Implementation of the library user interface specified in rsb.h and rsb_types.h.
+ *  @brief Implementation of the library user interface.
  */
 /*
  *  The user interface functions and data structures for this library implementations.
@@ -33,7 +33,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #include <stdio.h>
 #include "rsb_do.h"
 
-struct rsb_session_handle_t rsb_global_session_handle;
+RSB_INTERNALS_COMMON_HEAD_DECLS
 
 #define RSB_INTERFACE_RETURN_MTX_ERRP(MTXAP,ERRVAL,ERRVALP) \
 	                                 RSB_INTERFACE_ENDCMD \
@@ -42,10 +42,6 @@ struct rsb_session_handle_t rsb_global_session_handle;
 #define RSB_INTERFACE_RETURN_ERR(ERRVAL) 	RSB_INTERFACE_ENDCMD RSB_DO_ERR_RETURN_INTERFACE(ERRVAL)
 /* #define RSB_INTERFACE_RETURN_ERR_SILENT(ERRVAL) RSB_INTERFACE_ENDCMD return (ERRVAL); */
 #define RSB_INTERFACE_RETURN_VAL(VAL)    RSB_INTERFACE_ENDCMD {return (VAL);}
-
-#define RSB_INITIALIZE_CHECK_MTX_ERRP(ERRVALP)	if( ! rsb__do_was_initialized() ) { RSB_ERROR(RSB_ERRM_UL); RSB_INTERFACE_RETURN_MTX_ERRP(NULL,RSB_ERR_UNSUPPORTED_OPERATION,ERRVALP) }
-
-#define RSB_NULL_IF_NUL(P) (((P)&&!*(P))?NULL:(P)) /* convert '' to NULL */
 
 /*!
  * \internal
@@ -69,16 +65,9 @@ rsb_err_t rsb_lib_init(struct rsb_initopts * iop)
 	   Options may be specified also after \ref rsb_lib_init() by calling \ref rsb_lib_reinit().
 	   \n
 	   One may call #RSB_REINIT_SINGLE_VALUE_GET  with flag  #RSB_IO_WANT_IS_INITIALIZED_MARKER  to verify whether the library has been initialized or not.
-	   \n
-	   If the \c RSB_NUM_THREADS environment variable is set, \ref rsb_lib_init() uses it and sets the number of active threads, thus overriding what detected by the OpenMP runtime (e.g. \c OMP_NUM_THREADS).
 	  
 	   \param \rsb_io_str_msg
 	   \return \rsberrcodemsg
-
-	   An example snippet declaring an error variable accumulator at program's beginning:
-           \snippet examples/snippets.c Declare error codes variable
-           and initializing the library soon thereafter:
-           \snippet examples/snippets.c Initialize the library
 	   \see_lib_init
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -89,7 +78,6 @@ rsb_err_t rsb_lib_init(struct rsb_initopts * iop)
 
 /* @cond INNERDOC  */
 /* TODO: this is a "in development" function, not yet declared in rsb.h ; shall make it official when complete */
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__lib_get_info_str(int what, rsb_char_t* sbuf, size_t buflen)
 {
 	/* \see_lib_init */
@@ -98,24 +86,16 @@ rsb_err_t rsb__lib_get_info_str(int what, rsb_char_t* sbuf, size_t buflen)
 	errval = rsb__do_lib_get_info_str(what,sbuf,buflen);
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 /* @endcond */
 
 rsb_err_t rsb_lib_set_opt(enum rsb_opt_t iof, const void*iop)
 {
 	/*!
-	   \ingroup rsb_doc_library rsb_doc_rsb
-
 	 Sets value of a library option.
-	 \n
  	 A value specified by the request flag \c iof  will be fetched from \c *iop and will be used to update the selected option in the library internal state.
 
 	 \rsb_iof_param_msg
 	 \rsb_iop_out_param_msg
-
-	 Example snip:
-	 \snippet examples/snippets.c Setting a single optional library parameter
-
 	 \see \rsb_iof_macros
 	 \see_lib_init
 	 */
@@ -128,10 +108,7 @@ rsb_err_t rsb_lib_set_opt(enum rsb_opt_t iof, const void*iop)
 rsb_err_t rsb_lib_get_opt(enum rsb_opt_t iof, void*iop)
 {
 	/*!
-	   \ingroup rsb_doc_library rsb_doc_rsb
-
 	 Gets value of a library option.
-	 \n
  	 A value specified by the request flag \c iof  will be fetched from the library internal state and \c *iop will be updated accordingly.
 
 	 \rsb_iof_param_msg
@@ -151,7 +128,6 @@ rsb_err_t rsb_lib_set_opt_str(const rsb_char_t* opnp, const rsb_char_t* opvp)
 	   \ingroup rsb_doc_library rsb_doc_rsb
 
 	   Specifies individual library options in order to fine-tune the library behaviour.
-	   \n
 	   Both the option name and the value shall be expressed as strings, identical to their preprocessor identifiers (see #rsb_opt_t ).
 	   The \c opnp string will be translated internally to the corresponding request flag values, and the passed value will be parsed out of the \c opvp string.
 	   \n
@@ -159,8 +135,6 @@ rsb_err_t rsb_lib_set_opt_str(const rsb_char_t* opnp, const rsb_char_t* opvp)
 	   \param \rsb_io_str_msg_opnp
 	   \param \rsb_io_str_msg_opvp
 	   \return \rsberrcodemsg
-
-           \snippet examples/snippets.c rsb_lib_reinit__rsb_lib_set_opt_str_snip
 
 	   \see_lib_init
 	 */
@@ -188,9 +162,6 @@ rsb_err_t rsb_lib_reinit(struct rsb_initopts * iop)
 	   
 	   \param \rsb_io_str_msg
 	   \return \rsberrcodemsg
-
-           \snippet examples/snippets.c rsb_lib_reinit__rsb_lib_set_opt_str_snip
-
 	   \see_lib_init
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -218,17 +189,9 @@ rsb_err_t rsb_lib_exit(struct rsb_initopts * iop)
 	   terminate program execution (rather than forcing a new initialization with \ref rsb_lib_init()).
 	   \n
 	   Parameter  \c iop  is reserved for future use; for now it is safe to pass #RSB_NULL_EXIT_OPTIONS.
-	   \n
-	   It should be safe to call \ref rsb_lib_exit() more than once.
-	   \n
 
 	   \param \rsb_io_str_msg
 	   \return \rsberrcodemsg
-
-	   An example snippet declaring an error variable accumulator at program's beginning:
-           \snippet examples/snippets.c Declare error codes variable
-           and finalizing the library at program's end:
-           \snippet examples/snippets.c Finalize the library
 	   \see_lib_init
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -247,25 +210,16 @@ struct rsb_mtx_t * rsb_mtx_alloc_from_coo_const(const void *VA, const rsb_coo_id
 	   \param \rsb_ro_va_ia_ja_desc_msg
 	   \param \rsb_nnzA_inp_param_msg
 	   \param \rsb_type_param_msg
-	   \param \rsb_nrcows_A_sparse_inp_param_msg If any of \rsb_nrA or \rsb_ncA is zero, it will be detected on the basis of the \c IA and \c JA arrays and \rsb_flagsA.
+	   \param \rsb_nrcows_A_sparse_inp_param_msg
 	   \param \rsb_nrbows_A_sparse_inp_param_msg
 	   \param \rsb_flagsa_coc_param_msg
 	   \param \rsb_errvp_inp_param_msg
 	   \return \rsbmtxpmessage
-
-	   Example snip:
-	   \snippet examples/snippets.c Allocate matrix without error flags check
-	   And another, with duplicate sum flags:
-	   \snippet examples/snippets.c Allocate matrix with error flags check
-	   And yet another, allocating a triangular matrix:
-	   \snippet examples/snippets.c Allocate a matrix with triangular flags
-
-           \see_lib_alloc
+	   \see_lib_alloc
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t * mtxAp = NULL;
 	RSB_INTERFACE_PREAMBLE
-	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	mtxAp = rsb__do_mtx_alloc_from_coo_const(VA,IA,JA,nnzA,typecode,nrA,ncA,brA,bcA,flagsA,&errval);
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxAp,errval,errvalp);
 }
@@ -293,7 +247,6 @@ struct rsb_mtx_t * rsb_mtx_alloc_from_coo_inplace(void *VA, rsb_coo_idx_t * IA, 
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t * mtxAp = NULL;
 	RSB_INTERFACE_PREAMBLE
-	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	mtxAp = rsb__do_mtx_alloc_from_coo_inplace(VA,IA,JA,nnzA,typecode,nrA,ncA,brA,bcA,flagsA,&errval);
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxAp,errval,errvalp);
 }
@@ -310,8 +263,6 @@ struct rsb_mtx_t * rsb_mtx_free(struct rsb_mtx_t * mtxAp)
 	   \param \rsb_mtxt_inp_param_msg_a
 	   \return \rsb_ret_null
 
-           Example freeing a sparse matrix:
-           \snippet examples/snippets.c Free a sparse matrix
 	   \see_lib_alloc
 	 */
 	struct rsb_mtx_t * mtxBp = NULL;
@@ -326,17 +277,17 @@ rsb_err_t rsb_mtx_clone(struct rsb_mtx_t ** mtxBpp, rsb_type_t typecode, rsb_tra
 	   \ingroup rsb_doc_matrix_assembly rsb_doc_rsb
 
 	   This function clones a given matrix, allocating a fresh data structure or overwriting an existing one.
-	   \n
+
 	   Target type (specified by \c typecode) can be different from that in the matrix.
-	   \c
+
 	   If \c alphap=NULL, the cloned matrix will not be scaled.
-	   \n
+
 	   This new structure will be completely separated and independent from the original one.
-	   \n
+
+	   */
+	/**
 	   Examples:
-	 */
-	 /**
-\code{.c}
+\code
 // will clone the matrix exactly
 errval = rsb_mtx_clone(&mtxBp,RSB_NUMERICAL_TYPE_SAME_TYPE,RSB_TRANSPOSITION_N,NULL,mtxAp,RSB_FLAG_IDENTICAL_FLAGS);
 // will clone the transpose of the matrix
@@ -344,8 +295,8 @@ errval = rsb_mtx_clone(&mtxBp,RSB_NUMERICAL_TYPE_SAME_TYPE,RSB_TRANSPOSITION_T,N
 // will clone the lower triangle of the matrix
 errval = rsb_mtx_clone(&mtxBp,RSB_NUMERICAL_TYPE_SAME_TYPE,RSB_TRANSPOSITION_N,NULL,mtxAp,RSB_FLAG_TRIANGULAR|RSB_FLAG_LOWER);
 \endcode
-	 */
-	 /**
+	   */
+	/**
 	   \param \rsb_mtxtpp_inp_param_msg_b If \c *mtxBpp==NULL, a fresh clone will be assigned there; if not, the existing matrix structure will be freed and allocated to host the new one. The case \c *mtxBpp==mtxAp is supported.
 	   \param \rsb_type_o_param_msg
 	   \param \rsb_transa_inp_param_msg
@@ -353,9 +304,6 @@ errval = rsb_mtx_clone(&mtxBp,RSB_NUMERICAL_TYPE_SAME_TYPE,RSB_TRANSPOSITION_N,N
 	   \param \rsb_mtxt_inp_param_msg_a
 	   \param \rsb_flags_stru_fla_msg
 	   \return \rsberrcodemsg
-
-	   Example snip:
-	   \snippet examples/snippets.c Clone and transpose a sparse matrix
 
 	   \see_lib_alloc
 	 */
@@ -462,15 +410,8 @@ rsb_err_t rsb_spmv_nt(const void *alphap, const struct rsb_mtx_t * mtxAp, const 
 		rsb_spmv(RSB_TRANSPOSITION_T,alphap,mtxAp,x2p,incX,betap,y2p,incY);
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
-#endif
 
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
-/* Postponed... (from rsb.h) */
-rsb_err_t rsb_spata(const void *alphap, const struct rsb_mtx_t * mtxAp, const void * Xp, rsb_coo_idx_t incX, const void * betap, void * Yp, rsb_coo_idx_t incY);
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
-/* Postponed... */
-rsb_err_t rsb_spata(const void *alphap, const struct rsb_mtx_t * mtxAp, const void * Xp, rsb_coo_idx_t incX, const void * betap, void * Yp, rsb_coo_idx_t incY)
+rsb_err_t rsb_spmv_ata(const void *alphap, const struct rsb_mtx_t * mtxAp, const void * Xp, rsb_coo_idx_t incX, const void * betap, void * Yp, rsb_coo_idx_t incY)
 {
 	/*!
 	   \ingroup rsb_doc_matrix_operations rsb_doc_rsb
@@ -489,15 +430,12 @@ rsb_err_t rsb_spata(const void *alphap, const struct rsb_mtx_t * mtxAp, const vo
 	   \warning \rsb_warn_unimplemented_msg
 	   \warning \rsb_warn_untested_msg
 	 */
-	/* FIXME: untested; details to be finished ! */
 	rsb_err_t errval = RSB_ERR_UNIMPLEMENTED_YET;
 	RSB_INTERFACE_PREAMBLE
-	errval = rsb__do_spata(alphap, mtxAp, Xp, incX, betap, Yp, incY);
 	RSB_INTERFACE_RETURN_ERR(errval)
+	// FIXME: this is only a placeholder, waiting for a combined implementation.
 }
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
-#if 0
 rsb_err_t rsb_spmv_power(rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t * mtxAp,  rsb_int_t exp, const void * Xp, rsb_coo_idx_t incX, const void * betap, void * Y, rsb_coo_idx_t incY)
 {
 	/*!
@@ -550,11 +488,6 @@ rsb_err_t rsb_spmv(rsb_trans_t transA, const void *alphap, const struct rsb_mtx_
 	   \param \rsb_y_out_param_msg
 	   \param \rsb_incy_inp_param_msg
 	   \return \rsberrcodemsg
-
-	   Example snip:
-	   \snippet examples/snippets.c Multiply a sparse matrix by a dense vector
-
-	   \rsb_librsbpp_env
 	   \see_lib_spmx
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -597,10 +530,6 @@ rsb_err_t rsb_spsv(rsb_trans_t transT, const void * alphap, const struct rsb_mtx
 	   \param \rsb_incy_inp_param_msg
 	   \return \rsberrcodemsg
 	   \rsb_spsv_no_zero
-
-	   Example backsolving a triangular system:
-	   \snippet examples/snippets.c Backsolve a triangular system
-
 	   \see_lib_spsx
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -736,56 +665,6 @@ rsb_err_t rsb_coo_sort(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
 
-rsb_err_t rsb_coo_cleanup(rsb_coo_idx_t* nnzp, void* VA, rsb_coo_idx_t* IA, rsb_coo_idx_t* JA, rsb_nnz_idx_t nnzA, rsb_coo_idx_t nrA, rsb_coo_idx_t ncA, rsb_type_t typecode, rsb_flags_t flagsA )
-{
-	/*!
-	   \ingroup gr_util rsb_doc_rsb
-
-	   Compacts the given COO input arrays representing a sparse matrix \f$A\f$.
-	   Will either sum together duplicates or use the last one, depending on whether #RSB_FLAG_DUPLICATES_KEEP_LAST or #RSB_FLAG_DUPLICATES_SUM is present in flagsA.
-
-	   It is important that the input is sorted and flagsA shall contain RSB_FLAG_SORTED_INPUT, otherwise the algorithm's complexity will be quadratic.
-
-	   \param nnzp  Pointer to the number of nonzeroes after the cleanup. 
-	   \param \rsb_wr_va_ia_ja_desc_msg
-	   \param \rsb_nnzA_inp_param_msg
-	   \param \rsb_nrcows_A_sparse_inp_param_msg
-	   \param \rsb_type_param_msg
-	   \param \rsb_flagsa_inp_param_msg If unsure, use #RSB_FLAG_NOFLAGS.
-	   \return \rsberrcodemsg
-	   \see_lib_util
-	   \see rsb_coo_sort
-
-	   \warning	This is an experimental librsb-1.3 function.
-
-	   \note By invoking with swapped \c IA and \c JA (and swapping \c nrA and \c ncA as well) one can obtain column major order.
-
-	 */
-	 /**
-	   Examples:
-
-	   \snippet examples/snippets.c COO cleanup 1
-
-	   \snippet examples/snippets.c COO cleanup 2
-	 */
-
-	/* TODO: "By invoking" .. in doc/Doxyfile. */
-	/* Cleans up and compacts the given COO input arrays representing a sparse matrix \f$A\f$.  Will delete any nonzero non compliant with the given flags. */
-	/* Relevant flags are: RSB_FLAG_UNIT_DIAG_IMPLICIT, RSB_FLAG_LOWER_TRIANGULAR, RSB_FLAG_UPPER_TRIANGULAR, RSB_FLAG_DISCARD_ZEROS. */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	rsb_nnz_idx_t nnz = 0;
-
-	RSB_INTERFACE_PREAMBLE
-	/* rsb_coo_idx roff=0,coff=0;
-	errval = rsb__do_cleanup_nnz(VA,IA,JA,nnzA,roff,coff,nrA,ncA,nnzp,typecode,flagsA); */
-	/* TODO: if sorted shall look for duplicates */
-	if( nnzp )
-		nnz = rsb__weed_out_duplicates(IA,JA,VA,nnzA,typecode,flagsA);
-	RSB_SET_IF_NOT_NULL(nnzp,nnz);
-	/* TODO: shall accumulate duplicates */
-	RSB_INTERFACE_RETURN_ERR(errval)
-}
-
 rsb_err_t rsb_file_mtx_get_dims(const char * filename, rsb_coo_idx_t* nrp, rsb_coo_idx_t *ncp, rsb_coo_idx_t *nzp, rsb_flags_t*flagsp)
 {
 	/*!
@@ -798,13 +677,11 @@ rsb_err_t rsb_file_mtx_get_dims(const char * filename, rsb_coo_idx_t* nrp, rsb_c
 	   \param \rsb_flagsp_inp_param_msg
 	   \return \rsberrcodemsg If read dimensions are illegal (see #rsb_coo_idx_t,#rsb_nnz_idx_t), #RSB_ERR_LIMITS will be returned.
 
-	   Example getting dimensions of a sparse matrix stored in a Matrix Market file:
-	   \snippet examples/snippets.c Get dimensions of sparse matrix stored in Matrix Market file
-
 	   \rsb_matrixmarketonlynote_m
-	   \note Upper/lower flags will not be reported; hermitiannes do.
+	   \note Upper/lower flags will not be reported.
 	   \see_lib_get
 	*/
+	/* TODO: do we detect/read hermitiann'ess ? */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	RSB_INTERFACE_PREAMBLE
 	errval = rsb__do_file_mtx_get_dims(filename, nrp, ncp, nzp, flagsp);
@@ -839,19 +716,13 @@ rsb_err_t rsb_strerror_r(rsb_err_t errval, rsb_char_t * buf, size_t buflen)
 	   \ingroup rsb_doc_error_handling rsb_doc_rsb
 
 	   Writes a textual description of an error code in the specified string buffer.
-	   No more than buflen characters will be written (comprehensive of the terminating \c NUL character).
+	   No more than buflen characters will be written (comprehensive of the terminting \c NUL character).
 	  
 	   \param \rsb_errval_inp_param_msg
 	   \param \rsb_buf_inp_param_msg
 	   \param \rsb_buflen_inp_param_msg
 
 	   \return \rsberrcodemsg
-
-           Examples:
-           \snippet examples/snippets.c Copy error message to string
-	or
-           \snippet examples/snippets.c snip__rsb_strerror_r
-
 	   \see_lib_error
 	 */
 	RSB_INTERFACE_PREAMBLE
@@ -865,16 +736,13 @@ rsb_err_t rsb_mtx_upd_vals(struct rsb_mtx_t * mtxAp, enum rsb_elopf_t elop_flags
 	   \ingroup rsb_doc_matrix_handling rsb_doc_rsb
 
 	   \f$ A \leftarrow op (A,\Omega) \f$
-	   Updates the matrix \f$A\f$ by applying either a row-wise or an elemental operation \f$op\f$, which is determined by \c elop_flags.
+	   Updates the matrix \f$A\f$ by applying either a rowwise or an elemental operation \f$op\f$, which is determined by \c elop_flags.
 	   If an unary operation is selected, \c omegap can be \c NULL.
 
 	   \param \rsb_mtxt_inp_param_msg_a
 	   \param \rsb_flags_elop_param_msg
 	   \param \rsb_omega_inp_param_msg
 	   \return \rsberrcodemsg
-
-           Example snip:
-	   \snippet examples/snippets.c snip__rsb_mtx_upd_vals
 
 	   \see_lib_set
 	 */
@@ -929,12 +797,8 @@ rsb_err_t rsb_mtx_get_vals(const struct rsb_mtx_t * mtxAp, void * VA, const rsb_
 	   \param \rsb_flags_getv_inp_param_msg
 	   \return \rsberrcodemsg
 
-	   Example snip:
-           \snippet examples/snippets.c snip__rsb_mtx_get_vals
-
            \see_lib_get
 	 */
-
 	/* may return an ...UNFINALIZED... error here ... */
 	/* TODO: could document better error behaviour (e.g.: what if all updated except one ? ) */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -958,13 +822,11 @@ rsb_err_t rsb_file_mtx_save(const struct rsb_mtx_t * mtxAp, const rsb_char_t * f
 
 	   \rsb_matrixmarketonlynote_m
 
-           Example, printing a matrix to standard output:
-           \snippet examples/snippets.c Print a matrix to standard output
            \see_lib_info
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	RSB_INTERFACE_PREAMBLE
-	errval = rsb__do_file_mtx_save(mtxAp,RSB_NULL_IF_NUL(filename));
+	errval = rsb__do_file_mtx_save(mtxAp,filename);
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
 
@@ -983,10 +845,6 @@ rsb_err_t rsb_file_vec_save(const rsb_char_t * filename, rsb_type_t typecode, co
 	   \return \rsberrcodemsg
 
 	   \rsb_matrixmarketonlynote_v
-
-	   Example printing to standard output:
-	   \snippet examples/snippets.c Print to stdout an nrA-long numerical vector
-
            \see_lib_info
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -1009,9 +867,6 @@ rsb_err_t rsb_file_vec_load(const rsb_char_t * filename, rsb_type_t typecode, vo
 	   \param \rsb_yvlp_param_msg
 	   \return \rsberrcodemsg
 
-	   Example loading vector matrix from file
-	   \snippet examples/snippets.c Load vector matrix from file
-
 	   \rsb_matrixmarketonlynote_v
            \see_lib_info
 	 */
@@ -1027,7 +882,6 @@ struct rsb_mtx_t * rsb_file_mtx_load(const rsb_char_t * filename, rsb_flags_t fl
 	   \ingroup rsb_doc_input_output rsb_doc_rsb
 
 	   Loads a sparse matrix from the specified matrix file, assembling it in the format specified by \rsb_flags, using the numerical type representation as specified by the user.
-	   \rsb_extra_internal_verbosity
 
 	   \param \rsb_filename_inp_param_msg
 	   \param \rsb_flagsa_inp_param_msg
@@ -1036,15 +890,11 @@ struct rsb_mtx_t * rsb_file_mtx_load(const rsb_char_t * filename, rsb_flags_t fl
 	   \return \rsbmtxpmessage
 
 	   \rsb_matrixmarketonlynote_m
-
-           Example loading a matrix from a Matrix Market file:
-           \snippet examples/snippets.c Load a matrix from Matrix Market file
 	   \see_lib_info
 	 */
 	struct rsb_mtx_t * mtxAp = NULL;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	RSB_INTERFACE_PREAMBLE
-	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	mtxAp = rsb__dodo_load_matrix_file_as_matrix_market(filename, flagsA, typecode, &errval);
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxAp,errval,errvalp);
 }
@@ -1071,9 +921,6 @@ struct rsb_mtx_t * rsb_sppsp(rsb_type_t typecode, rsb_trans_t transA, const void
 	   \param \rsb_errvp_inp_param_msg
 	   \return \rsbmtxpmessage
 
-	   Example snip:
-	   \snippet examples/snippets.c snip__rsb_sppsp
-
 	   \see_lib_gemm
 
 	   \warning \rsb_warn_not_th_tested_msg
@@ -1082,7 +929,6 @@ struct rsb_mtx_t * rsb_sppsp(rsb_type_t typecode, rsb_trans_t transA, const void
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t * mtxCp = NULL;
 	RSB_INTERFACE_PREAMBLE
-	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	mtxCp = rsb__do_matrix_sum(typecode,transA,alphap,mtxAp,transB,betap,mtxBp,&errval);
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxCp,errval,errvalp);
 }
@@ -1109,9 +955,6 @@ struct rsb_mtx_t * rsb_spmsp(rsb_type_t typecode, rsb_trans_t transA, const void
 	   \param \rsb_errvp_inp_param_msg
 	   \return \rsbmtxpmessage
 
-	   Example snip:
-	   \snippet examples/snippets.c snip__rsb_spmsp
-
 	   \warning Parameters \c alphap,betap,transA,transB  are not yet taken in consideration. The following defaults are valid: \f$\alpha=1.0\f$ and \f$\beta=1.0\f$, and \c transA=transB=#RSB_TRANSPOSITION_N.
 
 	   \see_lib_gemm
@@ -1121,7 +964,6 @@ struct rsb_mtx_t * rsb_spmsp(rsb_type_t typecode, rsb_trans_t transA, const void
 	struct rsb_mtx_t * mtxCp = NULL;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	RSB_INTERFACE_PREAMBLE
-	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	mtxCp = rsb__do_matrix_mul(typecode,transA,alphap,mtxAp,transB,betap,mtxBp,&errval);
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxCp,errval,errvalp);
 }
@@ -1141,13 +983,9 @@ rsb_err_t rsb_mtx_add_to_dense(const void *alphap, const struct rsb_mtx_t * mtxA
 	   \param \rsb_rowmajor_B_inp_param_msg
 	   \param \rsb_dmtx_abi_param_msg_b
 	   \return \rsberrcodemsg
-
-           Example snip:
-	   \snippet examples/snippets.c snip__rsb_mtx_add_to_dense
+	   \warning \rsb_warn_not_th_tested_msg
 
 	   \note Please note that it suffices to 'transpose' \c Bp's description parameters to get \f$A\f$ transposed summed in.
-	   \note Symmetry is currently not expanded.
-	   \note Threaded, for large enough matrices.
 	   \see_lib_gemm
 	 */
 	/* TODO: add transA */
@@ -1162,16 +1000,12 @@ rsb_trans_t rsb_psblas_trans_to_rsb_trans(const char psbtrans)
 	/*!
 	   \ingroup rsb_doc_misc rsb_doc_rsb
 	
-	    Translate a PSBLAS transposition value character to a \librsb one.
+	    Translate a PSBLAS transposition value character to a \librsb one. 
 	    \n
 	    See the PSBLAS library website/documentation for valid input values.
 
 	   \param \rsb_psb_trans_inp_param_msg 
 	   \return A valid transposition code; that is #RSB_TRANSPOSITION_N for 'N', #RSB_TRANSPOSITION_T for 'T', RSB_TRANSPOSITION_C for 'C',  (See \ref matrix_transposition_flags_section).
-
-           Example snip:
-	   \snippet examples/snippets.c main_rsb_psblas_trans_to_rsb_trans
-
 	   \see_lib_psblas
 	 */
 	rsb_trans_t rsbtrans = RSB_TRANSPOSITION_INVALID;
@@ -1202,7 +1036,6 @@ struct rsb_mtx_t * rsb_mtx_alloc_from_csr_const(const void *VA, const rsb_coo_id
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t * mtxAp = NULL;
 	RSB_INTERFACE_PREAMBLE
-	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	mtxAp = rsb__do_mtx_alloc_from_csr_const(VA,RP,JA,nnzA,typecode,nrA,ncA,brA,bcA,flagsA,&errval);
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxAp,errval,errvalp);
 }
@@ -1223,16 +1056,12 @@ struct rsb_mtx_t * rsb_mtx_alloc_from_csc_const(const void *VA, const rsb_coo_id
 	   \param \rsb_errvp_inp_param_msg
 	   \return \rsbmtxpmessage
 	   \see_lib_alloc
-
-           Example:
-           \snippet examples/snippets.c snip__rsb_mtx_alloc_from_csc_const
 	 */
 	// FIXME: flags and index and alloc mangling, here 
 	// FIXME: UNTESTED, AND NNZ<M ?
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t * mtxAp = NULL;
 	RSB_INTERFACE_PREAMBLE
-	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
        	mtxAp = rsb__do_mtx_alloc_from_csc_const(VA,IA,CP,nnzA,typecode,nrA,ncA,brA,bcA,flagsA,&errval);
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxAp,errval,errvalp);
 }
@@ -1259,7 +1088,6 @@ struct rsb_mtx_t * rsb_mtx_alloc_from_csr_inplace (void *VA, rsb_nnz_idx_t * RP,
 	struct rsb_mtx_t * mtxAp = NULL;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	RSB_INTERFACE_PREAMBLE
-	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	mtxAp = rsb__do_mtx_alloc_from_csr_inplace (VA, RP, JA, nnzA, typecode, nrA, ncA, brA, bcA, flagsA, &errval );
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxAp,errval,errvalp);
 }
@@ -1278,10 +1106,6 @@ rsb_err_t rsb_mtx_switch_to_csr(struct rsb_mtx_t * mtxAp, void ** VAp, rsb_coo_i
 
 	   \note \rsb_note_switch_in_place
 	   \warning \rsb_warn_not_th_tested_msg
-
-           Example:
-           \snippet examples/snippets.c snip__rsb_mtx_switch_to_csr
-
 	   \see_lib_conv
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -1364,10 +1188,6 @@ rsb_err_t rsb_mtx_get_rows_sparse(rsb_trans_t transA, const void * alphap, const
 	   \param \rsb_transa_inp_param_msg
 	   \param \rsb_flags_getrs_inp_param_msg
 	   \return \rsberrcodemsg
-	   
-           Example snip:
-	   \snippet examples/snippets.c snip__rsb_mtx_get_rows_sparse
-
 	   \see_lib_get
          */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -1380,8 +1200,8 @@ rsb_err_t rsb_mtx_get_coo_block(const struct rsb_mtx_t * mtxAp, void* VA, rsb_co
 {
 	/*!
 	   \ingroup rsb_doc_matrix_conversion rsb_doc_rsb
+
 	   Writes in COO format the specified submatrix.
-	   \n
 	   Works in two stages: first the user invokes it with \c VA,IA,JA set to \c NULL  to get \c *rnzp.
 	   Then the \c VA,IA,JA arrays can be allocated, and the function called again, this time with \c rnzp=NULL but the \c VA,IA,JA arrays pointers non \c NULL (or at least, one of them).
 
@@ -1393,13 +1213,10 @@ rsb_err_t rsb_mtx_get_coo_block(const struct rsb_mtx_t * mtxAp, void* VA, rsb_co
 	   \param \rsb_inp_rnz_msg
 	   \param \rsb_flags_getcb_inp_param_msg
 	   \return \rsberrcodemsg
-
+	*/
+	/**
 	   Examples:
-           \snippet examples/snippets.c Extract one sparse matrix block
-*/
-/**
-	   And other examples:
-\code{.c}
+\code
 // get nnz count first
 errval=rsb_mtx_get_coo_block(mtxAp,NULL,NULL,NULL,frA,lrA,fcA,lcA,NULL,NULL,&rnz,flags )
 // allocate VA, IA, JA to rnz elements
@@ -1407,8 +1224,8 @@ errval=rsb_mtx_get_coo_block(mtxAp,NULL,NULL,NULL,frA,lrA,fcA,lcA,NULL,NULL,&rnz
 // get the  rnz  values then
 errval=rsb_mtx_get_coo_block(mtxAp,  VA,  IA,  JA,frA,lrA,fcA,lcA,NULL,NULL,NULL,flags )
 \endcode
-*/
-/**
+	   */
+	/**
 	   \warning Expect this function to change soon (e.g.: have scaling parameters, etc.). Contact the author if you intend to use it.
 	   \see_lib_get
 	 */
@@ -1443,7 +1260,6 @@ rsb_err_t rsb_spmm(rsb_trans_t transA, const void * alphap, const struct rsb_mtx
 	   \param \rsb_c_inp_param_msg
 	   \param \rsb_ldc_inp_param_msg
  	   \return \rsberrcodemsg
-	   \rsb_librsbpp_env
 	   \see_lib_spmx
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -1478,9 +1294,6 @@ rsb_err_t rsb_spmsp_to_dense(rsb_type_t typecode, rsb_trans_t transA, const void
 
 	   \warning Parameters \c alphap,betap,transA,transB  are not yet taken in consideration. The following defaults are valid: \f$\alpha=1.0\f$ and \f$\beta=1.0\f$, and \c transA=transB=#RSB_TRANSPOSITION_N.
 
-           Example snip:
-	   \snippet examples/snippets.c snip__rsb_spmsp_to_dense
-
 	   \see_lib_gemm
 	 */
 	/* \todo \rsb_todo_unfinished_inc_msg */
@@ -1504,16 +1317,11 @@ rsb_err_t rsb_mtx_rndr(const char * filename, const struct rsb_mtx_t*mtxAp, rsb_
 	   \param \rsb_render_pmheight_inp_param_msg
 	   \param \rsb_render_rflags_inp_param_msg
 
-           Example rendering a sparse matrix to Postscript:
-	   \snippet examples/snippets.c Render a Sparse matrix to Postscript
-
-	   Setting environment variable \c RSB_USE_HOSTNAME=0 prevents hostname being in the EPS plot internal comments.
-
 	   \see_lib_rndr
 	*/
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	RSB_INTERFACE_PREAMBLE
-	errval = rsb__do_mtx_render(RSB_NULL_IF_NUL(filename), mtxAp, pmWidth, pmHeight, rflags);
+	errval = rsb__do_mtx_render(filename, mtxAp, pmWidth, pmHeight, rflags);
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
 
@@ -1532,11 +1340,9 @@ rsb_err_t rsb_file_mtx_rndr(void * pmp, const char * filename, rsb_coo_idx_t pml
 	   \param \rsb_render_rflags_inp_param_msg
 	   \return \rsberrcodemsg
 	   
-	   \note At the time being, \c pmlWidth is required to be equal to \c pmWidth.
+	   \warning \rsb_warn_not_th_tested_msg
 
-	   Example rendering a matrix from a Matrix Market file to a pixelmap in memory:
-	   \snippet examples/snippets.c Render matrix from Matrix Market pixelmap in memory
-		
+	   \note At the time being, \c pmlWidth is required to be equal to \c pmWidth.
 	   \see_lib_rndr
 	*/
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -1559,10 +1365,6 @@ rsb_err_t rsb_mtx_switch_to_coo(struct rsb_mtx_t * mtxAp, void ** VAp, rsb_coo_i
 
 	   \note \rsb_note_switch_in_place
 	   \warning \rsb_warn_not_th_tested_msg
-
-           Example:
-           \snippet examples/snippets.c snip__rsb_mtx_switch_to_coo
-
 	   \see_lib_conv
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -1581,12 +1383,9 @@ rsb_err_t rsb_mtx_get_prec(void *opdp, const struct rsb_mtx_t * mtxAp, rsb_precf
 	   \param opdp Preconditioner data pointer (output).
 	   \param \rsb_mtxt_inp_param_msg_a
 	   \param prec_flags Valid preconditioner request flags (currently, only #RSB_PRECF_ILU0 is supported; for it, \c *opdp will be overwritten with two \c rsb_mtx_t pointers, respectively a lower and an upper matrix.).
-	   \param ipdp  Preconditioner data pointer (input) (ignored at the moment).
+	   \param ipdp  Preconditioner data pointer (input).
 
 	   \return \rsberrcodemsg
-
-           Example:
-           \snippet examples/snippets.c snip__rsb_mtx_get_prec
 
 	   \note Matrix should be square, have at least two rows, and have at least one nonzero.
 	   \see_lib_get
@@ -1614,9 +1413,7 @@ rsb_err_t rsb_mtx_get_info(const struct rsb_mtx_t *mtxAp, enum rsb_mif_t miflags
 
 	   \return \rsberrcodemsg
 
-	   Example snip:
-	   \snippet examples/snippets.c snip__rsb_mtx_get_info
-
+	   \warning \rsb_warn_not_th_tested_msg
 	   \see_lib_info
 	*/
 	rsb_err_t errval = RSB_ERR_UNIMPLEMENTED_YET;
@@ -1638,9 +1435,6 @@ rsb_err_t rsb_mtx_get_info_str(const struct rsb_mtx_t *mtxAp, const rsb_char_t *
 	   \param buflen If greater than 0, \c minfop will be treated as a string of length \c buflen and filled with the desired value via the standard \c snprintf() function.
 
 	   \return \rsberrcodemsg
-
-	   Example snip:
-	   \snippet examples/snippets.c Get an info string for the matrix
 
 	   \see_lib_info
 	*/
@@ -1704,7 +1498,7 @@ rsb_time_t rsb_time(void)
 	   \return A value for the current time, in seconds.
 	   \see_lib_util
 	 */
-	return rsb__do_time();
+	return rsb_do_time();
 }
 
 #if RSB_WANT_COO_BEGIN 
@@ -1728,7 +1522,6 @@ struct rsb_mtx_t * rsb_mtx_alloc_from_coo_begin(rsb_nnz_idx_t nnzA, rsb_type_t t
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t * mtxAp = NULL;
 	RSB_INTERFACE_PREAMBLE
-	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	mtxAp = rsb__do_mtx_alloc_from_coo_begin(nnzA,typecode,nrA,ncA,flagsA,&errval);
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxAp,errval,errvalp);
 }
@@ -1739,7 +1532,6 @@ rsb_err_t rsb_mtx_alloc_from_coo_end(struct rsb_mtx_t ** mtxApp)
  	   \ingroup rsb_doc_matrix_assembly rsb_doc_rsb
 
 	   Assembles RSB arrays for a matrix in build state created with #rsb_mtx_alloc_from_coo_begin() and populated with #rsb_mtx_set_vals().
-	   \n
 	   After assembly, any operation on the matrix is allowed.
 	  
 	   \param \rsb_mtxt_inp_param_msg_i
@@ -1796,11 +1588,10 @@ rsb_err_t rsb_tune_spmm(struct rsb_mtx_t ** mtxOpp, rsb_real_t *sfp, rsb_int_t *
 	\param \rsb_c_tune_inp_param_msg
 	\param \rsb_ldc_inp_param_msg
 	\return \rsberrcodemsg
-
-	 */
-	 /**
+	*/
+	/**
 	   Examples:
-\code{.c}
+\code
 // obtain best thread count for mtxAp:
 errval = rsb_tune_spmm(NULL  ,&sf,&tn ,maxr,maxt,transA,&alpha,mtxAp,nrhs,order,Bp,ldB,&beta,Cp,ldC);
 
@@ -1825,13 +1616,12 @@ errval = rsb_tune_spmm(&mtxAp,&sf,&tn ,maxr,maxt,transA,&alpha,NULL ,nrhs,order,
 assert(mtxOp != NULL && mtxAp != NULL);
 errval = rsb_tune_spmm(&mtxOp,&sf,&tn ,maxr,maxt,transA,&alpha,mtxAp,nrhs,order,Bp,ldB,&beta,Cp,ldC);
 \endcode
-	 */
-	 /**
+	   */
+	/**
 	\warning 
 	\rsb_tune_warning_doc_msg
 	\todo
 	\rsb_tune_todo_doc_msg
-	\rsb_tune__doc_images
 	\see_lib_spmx
 	*/
 	rsb_err_t errval = RSB_ERR_BADARGS;
@@ -1870,7 +1660,6 @@ rsb_err_t rsb_tune_spsm(struct rsb_mtx_t ** mtxOpp, rsb_real_t *sfp, rsb_int_t *
 	\rsb_tune_warning_doc_msg
 	\todo
 	\rsb_tune_todo_doc_msg
-	\rsb_tune__doc_images
 	\see_lib_spsx
 	\see rsb_tune_spmm
 	*/

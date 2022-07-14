@@ -1,1 +1,1 @@
-int f_spsv_uxua(void){return 0;}
+static int f(){return 0;}

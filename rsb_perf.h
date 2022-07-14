@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -103,20 +103,18 @@ struct rsb_global_reference_performance_info_t
 rsb_err_t rsb__print_mop_reference_performance_info_header(void);	/* temporary */
 rsb_err_t rsb__print_mop_reference_performance_info(const struct rsb_mop_reference_performance_info_t *pi, char *s);	/* temporary */
 rsb_err_t rsb__dump_global_performance_info(const struct rsb_global_performance_info_t *gpip);	/* temporary */
+rsb_err_t rsb__dump_global_reference_performance_info(const struct rsb_global_reference_performance_info_t *gpip);	/* temporary */
 #if RSB_WANT_PERFORMANCE_FILE
-//rsb_err_t rsb__dump_global_reference_performance_info(const struct rsb_global_reference_performance_info_t *gpip);	/* temporary */
 rsb_err_t rsb__save_global_reference_performance_info(const struct rsb_global_reference_performance_info_t *gpip);
 #endif /* RSB_WANT_PERFORMANCE_FILE */
 rsb_err_t rsb__dump_performance_info(const struct rsb_mop_performance_info_t * pi, const char * pid);
 rsb_err_t rsb__dump_performance_info_line(const struct rsb_mop_performance_info_t * pi);/* new */
 rsb_err_t rsb__dump_current_global_reference_performance_info(void);
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 void rsb__pinfo_init(struct rsb_mtx_partitioning_info_t * pinfop,
 	rsb_blk_idx_t M_b, rsb_blk_idx_t K_b,
 	rsb_coo_idx_t *rpntr,rsb_coo_idx_t *cpntr,
 	rsb_coo_idx_t m, rsb_coo_idx_t k,
 	rsb_blk_idx_t br, rsb_blk_idx_t bc);
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 rsb_err_t rsb__dump_system_performance_summary(void);
 
 #define RSB_PERFORMANCE_BINARY_DUMP_FILE "rsb_performance_profile.bin"
@@ -127,7 +125,6 @@ size_t rsb_spmv_memory_accessed_bytes(const struct rsb_mtx_t * mtxAp);
 size_t rsb_spmv_memory_accessed_bytes_min(const struct rsb_mtx_t * mtxAp);
 size_t rsb_spmv_memory_accessed_bytes_max(const struct rsb_mtx_t * mtxAp);
 double rsb_spmv_memory_accessed_bytes_wr_ratio(const struct rsb_mtx_t * mtxAp);
-#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_nnz_idx_t rsb__fillin_estimation_nnz_count(
 	const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, 
 	const  rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_flags_t flags, rsb_int nprobes
@@ -139,7 +136,6 @@ rsb_err_t rsb__estimate_expected_fillin_for_blocking(
 	rsb_flags_t flags,
 	rsb_coo_idx_t mB, rsb_coo_idx_t kB,
 	double *efillinp);/* NEW */
-#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_err_t rsb__estimate_expected_raw_performance_for_blocking(
 	rsb_coo_idx_t m, rsb_coo_idx_t k,

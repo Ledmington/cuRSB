@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -24,7 +24,7 @@ If not, see <http://www.gnu.org/licenses/>.
  * @file
  * @author Michele Martone
  * @brief
- * Matrix generating functions.
+ * This source file contains matrix generating functions.
  * */
 
 #include "rsb_internals.h"
@@ -51,7 +51,6 @@ rsb_err_t rsb__generate_blocked_banded_coo(rsb_nnz_idx_t dim, rsb_nnz_idx_t spac
 	rsb_nnz_idx_t nnz = RSB_NNZ_OF_BANDED(dim,lbw,ubw);
 	rsb_coo_idx_t ri=0,ci=0,nzi=0;
 	//rsb_time_t dt;
-
 	/* overflow is possible here */
 	if(RSB_INVALID_NNZ_COUNT(spacing)){errval = RSB_ERR_BADARGS;goto err;}
 	if(RSB_INVALID_NNZ_COUNT(dim*spacing)){errval = RSB_ERR_BADARGS;goto err;}
@@ -104,11 +103,13 @@ ok:
 
 rsb_err_t rsb__generate_dense_full(rsb_nnz_idx_t dim_r, rsb_nnz_idx_t dim_c, rsb_nnz_idx_t spacing, rsb_coo_idx_t ** IA, rsb_coo_idx_t ** JA, void ** VA, rsb_nnz_idx_t *nnzp, rsb_type_t typecode)
 {
+	/* 
+	 * FIXME : unfinished, untested
+	 * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_nnz_idx_t nnz = dim_r*dim_c,/*n=0,*/lda=dim_c;
 	rsb_coo_idx_t ri=0,ci=0;
 	//rsb_time_t dt;
-
 	/* FIXME : overflow possible  */
 	if(!VA || !JA || !IA || !nnzp) {errval = RSB_ERR_BADARGS;goto err;}
 	if(RSB_SOME_ERROR(errval = rsb__util_coo_alloc( VA, IA, JA,nnz,typecode,RSB_BOOL_FALSE))){goto err;}
@@ -136,14 +137,16 @@ ok:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__generate_dense_lower_triangular_coo(rsb_nnz_idx_t dim, rsb_nnz_idx_t spacing, rsb_coo_idx_t ** IAp, rsb_coo_idx_t ** JAp, void ** VAp, rsb_nnz_idx_t *nnzp, rsb_type_t typecode)
+rsb_err_t rsb__generate_dense_lower_triangular_coo(rsb_nnz_idx_t dim, rsb_nnz_idx_t spacing, rsb_coo_idx_t ** IA, rsb_coo_idx_t ** JA, void ** VA, rsb_nnz_idx_t *nnzp, rsb_type_t typecode)
 {
+	/* 
+	 * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_nnz_idx_t nnz = (dim%2)?(((dim+1)/2)*dim):((dim/2)*(dim+1)),n=0;
 	rsb_coo_idx_t ri = 0, ci = 0;
 
 	/* overflow is possible here! */
-	if(!VAp || !JAp || !IAp || !nnzp)
+	if(!VA || !JA || !IA || !nnzp)
        	{
 		errval = RSB_ERR_BADARGS;
 		goto err;
@@ -151,7 +154,7 @@ rsb_err_t rsb__generate_dense_lower_triangular_coo(rsb_nnz_idx_t dim, rsb_nnz_id
 	if(nnz == 0)
 		goto skalloc; /* tolerated corner case */
 
-	if(RSB_SOME_ERROR(errval = rsb__util_coo_alloc( VAp, IAp, JAp,nnz,typecode,RSB_BOOL_FALSE)))
+	if(RSB_SOME_ERROR(errval = rsb__util_coo_alloc( VA, IA, JA,nnz,typecode,RSB_BOOL_FALSE)))
 	{
 		goto err;
 	}
@@ -159,42 +162,46 @@ skalloc:
 	for(ri=0;ri < dim;++ri)
 	for(ci=0;ci <= ri;++ci)
 	{
-		(*IAp)[n]=ri;
-		(*JAp)[n]=ci;
+		(*IA)[n]=ri;
+		(*JA)[n]=ci;
 		++n;
 	}
 	*nnzp=nnz;
-	if((errval = rsb__fill_with_ones(*VAp,typecode,nnz,1))!=RSB_ERR_NO_ERROR)
+	if((errval = rsb__fill_with_ones(*VA,typecode,nnz,1))!=RSB_ERR_NO_ERROR)
 		goto err;
 	if(spacing>1)
-		rsb__util_coo_arrays_mul(*IAp,*JAp,spacing,spacing,nnz);
+		rsb__util_coo_arrays_mul(*IA,*JA,spacing,spacing,nnz);
 
 	goto ok;
 err:
-	RSB_CONDITIONAL_FREE(*VAp);
-	RSB_CONDITIONAL_FREE(*IAp);
-	RSB_CONDITIONAL_FREE(*JAp);
+	RSB_CONDITIONAL_FREE(*VA);
+	RSB_CONDITIONAL_FREE(*IA);
+	RSB_CONDITIONAL_FREE(*JA);
 ok:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-#if RSB_WANT_DO_LOCK_TEST
 struct rsb_mtx_t * rsb__generate_dense_lower_triangular(const rsb_coo_idx_t dim, double * timep, rsb_type_t typecode)
 {
+	/*
+	 *  FIXME : unfinished 
+	 *  */
+
 	void * VA=NULL;
 	rsb_coo_idx_t * IA=NULL;
 	rsb_coo_idx_t * JA=NULL;
 	rsb_nnz_idx_t nnz = RSB_MARKER_NNZ_VALUE;
 	struct rsb_mtx_t * mtxAp=NULL;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	//rsb_flags_t flags = RSB_FLAG_OWN_PARTITIONING_ARRAYS | RSB_FLAG_WANT_BCSS_STORAGE;
 	rsb_flags_t flags = RSB_FLAG_DEFAULT_MATRIX_FLAGS;
 	rsb_time_t time;
-	const rsb_blk_idx_t br=1,bc=1;
+	const rsb_blk_idx_t br=1,bc=1;	/* FIXME */
 	rsb_blk_idx_t m=dim,k=dim;
 
 	errval = rsb__generate_dense_lower_triangular_coo(dim,1,&IA,&JA,&VA,&nnz,typecode);
 	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+		goto err;
 
 	time = - rsb_time();
 	mtxAp = rsb__do_mtx_alloc_from_coo_const(VA,IA,JA,nnz,typecode,m,k,br,bc,flags,&errval);
@@ -203,7 +210,7 @@ struct rsb_mtx_t * rsb__generate_dense_lower_triangular(const rsb_coo_idx_t dim,
 	{
 		RSB_ERROR(RSB_ERRM_ES);
 		rsb__do_perror(NULL,errval);
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+		goto err;
 	}
 	return mtxAp;
 err:
@@ -212,21 +219,22 @@ err:
 	RSB_CONDITIONAL_FREE(JA);
 	return NULL;
 }
-#endif /* RSB_WANT_DO_LOCK_TEST */
 
 struct rsb_mtx_t * rsb__generate_banded(const rsb_blk_idx_t br, const rsb_blk_idx_t bc, const rsb_coo_idx_t rows, const rsb_coo_idx_t cols, rsb_coo_idx_t bw, double * timep, rsb_type_t typecode)
 {
 	/*!
 	 * \ingroup gr_internals
 	 *
-	 * Generate and return a sparse banded matrix.
+	 * A function which generates and returns a sparse banded matrix.
          *
-         * Note that it is not performance optimized:
-         * this will result in longer benchmarking times.
+         * Note that it is not performance optimized, and this will
+         * result in longer benchmarking times.
          *
 	 * \return a matrix pointer, NULL in case of failure.
 	 */
+
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
+
 	void * VA=NULL;
 	rsb_coo_idx_t * IA=NULL;
 	rsb_coo_idx_t * JA=NULL;
@@ -359,10 +367,8 @@ void rsb__do_fill_with_diag(void *VA, rsb_coo_idx_t *IA, rsb_coo_idx_t *JA, rsb_
 {
 	rsb_nnz_idx_t nzi;
 	void *dVA=((char*)VA)+((size_t)RSB_SIZEOF(typecode))*nzoff;
-
 	if(VA)
 		rsb__fill_with_ones(dVA,typecode,nnz,1);
-
 	for(nzi=0;RSB_LIKELY(nzi<nnz);++nzi)
 	{
 		IA[nzoff+nzi]=nzi+ioff;
@@ -548,17 +554,19 @@ struct rsb_mtx_t * rsb__generate_blocked_banded(const rsb_blk_idx_t br, const rs
 	if(timep)*timep=time;
 
 	if(!mtxAp) {goto err;}
-	
-	goto ret;
+
+	RSB_CONDITIONAL_FREE(VA);
+	RSB_CONDITIONAL_FREE(IA);
+	RSB_CONDITIONAL_FREE(JA);
+	return mtxAp;
 err:
-	RSB_MTX_FREE(mtxAp);
-ret:
 	RSB_CONDITIONAL_FREE(VA);
 	RSB_CONDITIONAL_FREE(IA);
 	RSB_CONDITIONAL_FREE(JA);
 	RSB_CONDITIONAL_FREE(p_r);
 	RSB_CONDITIONAL_FREE(p_c);
-	return mtxAp;
+	RSB_MTX_FREE(mtxAp);
+	return NULL;
 }
 
 rsb_err_t rsb__generate_blocked_banded_mtx(rsb_nnz_idx_t dim, rsb_nnz_idx_t spacing, rsb_nnz_idx_t lbw, rsb_nnz_idx_t ubw, struct rsb_mtx_t ** mtxApp, rsb_type_t typecode)
@@ -569,10 +577,8 @@ rsb_err_t rsb__generate_blocked_banded_mtx(rsb_nnz_idx_t dim, rsb_nnz_idx_t spac
 	rsb_coo_idx_t rows = dim, cols = dim;
 	rsb_coo_idx_t * IA = NULL;
 	rsb_coo_idx_t * JA = NULL;
-
 	if(!mtxApp)
 		goto ret; 
-
 	errval = rsb__generate_blocked_banded_coo(dim, spacing, lbw, ubw, &IA, &JA, &VA, &nnz, typecode);
 	if(RSB_SOME_ERROR(errval))
 	{

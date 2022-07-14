@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2015 Michele Martone
 
 This file is part of librsb.
 
@@ -48,7 +48,8 @@ If not, see <http://www.gnu.org/licenses/>.
 struct rsb_mtx_t * rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_type_t typecode, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags, rsb_err_t *errvalp);
 void rsb__do_set_in_place_submatrices_offsets(struct rsb_mtx_t *RSB_RESTRICT submatrices, rsb_submatrix_idx_t cmc, rsb_char_t *RSB_RESTRICT  VA, rsb_coo_idx_t *RSB_RESTRICT  IA, rsb_coo_idx_t *RSB_RESTRICT JA, size_t el_size);
 rsb_err_t rsb__do_switch_recursive_matrix_to_fullword_storage(struct rsb_mtx_t * mtxAp);
-rsb_err_t rsb__project_rsb_to_coo(const struct rsb_mtx_t *mtxAp, struct rsb_coo_mtx_t *coop);
+rsb_err_t rsb__project_rsb_to_coo(struct rsb_mtx_t *mtxAp, struct rsb_coo_matrix_t *coop);
+rsb_err_t rsb__init_coo_struct_from_rsb(const struct rsb_mtx_t *mtxAp, struct rsb_coo_matrix_t *coop);
 rsb_err_t rsb__compute_bounded_box(struct rsb_mtx_t * mtxAp);
 #define RSB_STDOUT_MATRIX_SUMMARY_ARGS(M) RSB_PRINTF_MTX_SUMMARY_ARGS(M)
 #define RSB_STDOUT_MATRIX_SUMMARY(M)  RSB_STDOUT(RSB_STDOUT_MATRIX_SUMMARY_ARGS(M))
@@ -56,9 +57,9 @@ rsb_err_t rsb__compute_bounded_box(struct rsb_mtx_t * mtxAp);
 #define RSB_FPRINTF_MATRIX_SUMMARY(FP,M)  RSB_FPRINTF(FP,RSB_STDOUT_MATRIX_SUMMARY_ARGS(M))
 
 #define RSB_PRINTF_COO_MATRIX_SUMMARY_ARGS(CM)  \
-			"(%ld x %ld)[%p] @ (? , ?) (%ld nnz, %.2lg nnz/r) flags 0x??, typecode: %x:",		\
-				(long int)(CM)->nr, (long int)(CM)->nc, (const void*)(CM),								\
-			       	(long int)(CM)->nnz,									\
+			"(%d x %d)[%p] @ (? , ?) (%d nnz, %.2lg nnz/r) flags 0x??, typecode: %x:",		\
+				(CM)->nr, (CM)->nc, (const void*)(CM),								\
+			       	(CM)->nnz,									\
 			       	((double)(CM)->nnz)/(CM)->nr,							\
 				CM->typecode
 
@@ -72,7 +73,6 @@ rsb_err_t rsb__compute_bounded_box(struct rsb_mtx_t * mtxAp);
 #define RSB_INFO_MATRIX_SUMMARY(M)  RSB_NULL_COMMA_STATEMENT_FOR_ZEN_HAPPINESS  
 #define RSB_ERROR_MATRIX_SUMMARY(M) RSB_NULL_COMMA_STATEMENT_FOR_ZEN_HAPPINESS  
 #endif /* RSB_ALLOW_STDOUT */
-#define RSB_OLD_COO_CRITERIA (RSB_LIBRSB_VER < 10300)
 
 #endif /* RSB_COO2RCSR_H_INCLUDED */
 /* @endcond */

@@ -3,13 +3,13 @@
  * @file
  * @author Michele Martone
  * @brief
- * This source file contains MKL interfacing functions.
+ * This source file contains some MKL interfacing functions.
  * */
 
 
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -36,10 +36,6 @@ If not, see <http://www.gnu.org/licenses/>.
  */
 #include "rsb_mkl.h"
 #if RSB_WANT_MKL
-RSB_INTERNALS_COMMON_HEAD_DECLS
-
-
-#include "rsb_tune.h" /* rsb_tattr_t */
 
 
 
@@ -232,7 +228,7 @@ rsb_err_t rsb__mkl_coo_spsv(const void *VA, const MKL_INT m, const MKL_INT k, co
 	return RSB_ERR_NO_ERROR;
 }
 
-rsb_err_t rsb__do_mkl_csr_spmv(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT nnz, const MKL_INT * IP, const MKL_INT *JA, const void * x, void * y, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags){
+static rsb_err_t rsb__do_mkl_csr_spmv(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT nnz, const MKL_INT * IA, const MKL_INT *JA, const void * x, void * y, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags){
 	char transA_mkl = rsb_rsb_to_mkl_trans(transA);
 	char matdescra[]={RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL};
 	matdescra[0] = rsb_rsb_to_mkl_sym(flags); // general ?
@@ -242,22 +238,22 @@ rsb_err_t rsb__do_mkl_csr_spmv(const void *VA, const MKL_INT m, const MKL_INT k,
 
 #ifdef RSB_NUMERICAL_TYPE_FLOAT 
 	if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )
-	mkl_scsrmv(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&k),(float*)alphap,matdescra,(float*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(float*)x,(float*)betap,(float*)y);
+	mkl_scsrmv(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&k),(float*)alphap,matdescra,(float*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(float*)x,(float*)betap,(float*)y);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
-	mkl_dcsrmv(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&k),(double*)alphap,matdescra,(double*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(double*)x,(double*)betap,(double*)y);
+	mkl_dcsrmv(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&k),(double*)alphap,matdescra,(double*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(double*)x,(double*)betap,(double*)y);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
 	if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
-	mkl_ccsrmv(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&k),(MKL_Complex8*)alphap,matdescra,(MKL_Complex8*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(MKL_Complex8*)x,(MKL_Complex8*)betap,(MKL_Complex8*)y);
+	mkl_ccsrmv(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&k),(MKL_Complex8*)alphap,matdescra,(MKL_Complex8*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(MKL_Complex8*)x,(MKL_Complex8*)betap,(MKL_Complex8*)y);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
-	mkl_zcsrmv(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&k),(MKL_Complex16*)alphap,matdescra,(MKL_Complex16*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(MKL_Complex16*)x,(MKL_Complex16*)betap,(MKL_Complex16*)y);
+	mkl_zcsrmv(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&k),(MKL_Complex16*)alphap,matdescra,(MKL_Complex16*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(MKL_Complex16*)x,(MKL_Complex16*)betap,(MKL_Complex16*)y);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 	return RSB_ERR_UNSUPPORTED_TYPE	;
@@ -283,7 +279,7 @@ rsb_err_t rsb__do_mkl_csr_spmv(const void *VA, const MKL_INT m, const MKL_INT k,
 		}
 
 #define RSB_MKL_THREADS_TUNING_ODECLS					\
-		const rsb_time_t tinf = RSB_CACHED_TIMER_GRANULARITY;	\
+		rsb_time_t tinf = rsb__timer_granularity();		\
 		rsb_time_t best = RSB_CONST_IMPOSSIBLY_BIG_TIME;	\
 		rsb_thread_t ont = RSB_GET_MKL_BASE_THREADS;		\
 		rsb_thread_t nt, lnt = 1, unt = RSB_GET_MKL_MAX_THREADS;\
@@ -297,11 +293,11 @@ rsb_err_t rsb__do_mkl_csr_spmv(const void *VA, const MKL_INT m, const MKL_INT k,
 			rsb_time_t bt = RSB_CONST_IMPOSSIBLY_BIG_TIME, wt = RSB_TIME_ZERO; /* best / worst  time */	\
 			rsb_time_t ss = RSB_TIME_ZERO; /* sum of squares */				\
 			rsb_time_t mint = RSB_TIME_ZERO; /* minimal time */				\
-			rsb_int_t times = 0; \
-			const rsb_int_t mintimes = RSB_CONST_AT_OP_SAMPLES_MIN, maxtimes = RSB_CONST_AT_OP_SAMPLES_MAX;	\
+			rsb_int_t times = 0;									\
+			const mintimes = RSB_CONST_AT_OP_SAMPLES_MIN, maxtimes = RSB_CONST_AT_OP_SAMPLES_MAX;   \
 			rsb_time_t maxt = RSB_AT_MAX_TIME/* RSB_MKL_MAX_AT_TIME*/;
 
-rsb_err_t rsb__mkl_csr_spmv_bench(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT nnz, const MKL_INT * IP, const MKL_INT *JA, const void * x, void * y, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp)
+rsb_err_t rsb__mkl_csr_spmv_bench(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT nnz, const MKL_INT * IA, const MKL_INT *JA, const void * x, void * y, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_time_t dt, tpo;
@@ -318,7 +314,7 @@ rsb_err_t rsb__mkl_csr_spmv_bench(const void *VA, const MKL_INT m, const MKL_INT
 
 			do
 			{
-				errval = rsb__do_mkl_csr_spmv(VA, m, k, nnz, IP, JA, x, y, alphap, betap, transA, typecode, flags);
+				errval = rsb__do_mkl_csr_spmv(VA, m, k, nnz, IA, JA, x, y, alphap, betap, transA, typecode, flags);
 				RSB_SAMPLE_STAT(it,ct,dt,tt,bt,wt,ss,tinf,times);
 			}
 			while(RSB_REPEAT(ct-it,times,mint,mintimes,maxt,maxtimes));
@@ -334,6 +330,7 @@ rsb_err_t rsb__mkl_csr_spmv_bench(const void *VA, const MKL_INT m, const MKL_INT
 			if(dtn == nt) RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp+1);
 		}
 		mkl_set_num_threads(ont);
+done:
 		ttrp->ttt += rsb_time(); /* ttrp->ttt = tt; */
 		tpo = best; /* tpo = 1.0 / best; */
 		*otnp = otn;
@@ -341,7 +338,7 @@ rsb_err_t rsb__mkl_csr_spmv_bench(const void *VA, const MKL_INT m, const MKL_INT
 	else
 	{
 		dt = -rsb_time();
-		errval = rsb__do_mkl_csr_spmv(VA, m, k, nnz, IP, JA, x, y, alphap, betap, transA, typecode, flags);
+		errval = rsb__do_mkl_csr_spmv(VA, m, k, nnz, IA, JA, x, y, alphap, betap, transA, typecode, flags);
 		dt += rsb_time();
 		/* tpo = 1.0 / dt; */
 		tpo = dt;
@@ -351,15 +348,14 @@ rsb_err_t rsb__mkl_csr_spmv_bench(const void *VA, const MKL_INT m, const MKL_INT
 	return errval;
 }
 
-rsb_err_t rsb__do_mkl_csr_spmm(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT n, const MKL_INT nnz, const MKL_INT * IP, const MKL_INT *JA, const void * b, const MKL_INT ldb, void * c, const MKL_INT ldc, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags){
+static rsb_err_t rsb__do_mkl_csr_spmm(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT n, const MKL_INT nnz, const MKL_INT * IA, const MKL_INT *JA, const void * b, const MKL_INT ldb, void * c, const MKL_INT ldc, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags){
 	char transA_mkl = rsb_rsb_to_mkl_trans(transA);
 	char matdescra[]={RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL};
-	MKL_INT ldb_ = n, ldc_ = n; /* for zero based indexing */
-
 	matdescra[0] = rsb_rsb_to_mkl_sym(flags); // general ?
 	matdescra[1] = rsb_rsb_to_mkl_upl(flags); // up or lo ?
 	matdescra[2] = 'n'; // not unit diagonal
 	matdescra[3] = 'c'; // zero based indexing
+	MKL_INT ldb_ = n, ldc_ = n; /* for zero based indexing */
 
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE))
 		ldb_ = k, ldc_ = m, /* for one based indexing */
@@ -369,22 +365,22 @@ rsb_err_t rsb__do_mkl_csr_spmm(const void *VA, const MKL_INT m, const MKL_INT k,
 	/* n = nrhs */
 #ifdef RSB_NUMERICAL_TYPE_FLOAT 
 	if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )
-	mkl_scsrmm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&n),(MKL_INT*)(&k),(float*)alphap,matdescra,(float*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(float*)b,(MKL_INT*)(&ldb_),(float*)betap,(float*)c,(MKL_INT*)(&ldc_));
+	mkl_scsrmm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&n),(MKL_INT*)(&k),(float*)alphap,matdescra,(float*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(float*)b,(MKL_INT*)(&ldb_),(float*)betap,(float*)c,(MKL_INT*)(&ldc_));
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
-	mkl_dcsrmm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&n),(MKL_INT*)(&k),(double*)alphap,matdescra,(double*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(double*)b,(MKL_INT*)(&ldb_),(double*)betap,(double*)c,(MKL_INT*)(&ldc_));
+	mkl_dcsrmm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&n),(MKL_INT*)(&k),(double*)alphap,matdescra,(double*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(double*)b,(MKL_INT*)(&ldb_),(double*)betap,(double*)c,(MKL_INT*)(&ldc_));
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
 	if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
-	mkl_ccsrmm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&n),(MKL_INT*)(&k),(MKL_Complex8*)alphap,matdescra,(MKL_Complex8*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(MKL_Complex8*)b,(MKL_INT*)(&ldb_),(MKL_Complex8*)betap,(MKL_Complex8*)c,(MKL_INT*)(&ldc_));
+	mkl_ccsrmm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&n),(MKL_INT*)(&k),(MKL_Complex8*)alphap,matdescra,(MKL_Complex8*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(MKL_Complex8*)b,(MKL_INT*)(&ldb_),(MKL_Complex8*)betap,(MKL_Complex8*)c,(MKL_INT*)(&ldc_));
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
-	mkl_zcsrmm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&n),(MKL_INT*)(&k),(MKL_Complex16*)alphap,matdescra,(MKL_Complex16*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(MKL_Complex16*)b,(MKL_INT*)(&ldb_),(MKL_Complex16*)betap,(MKL_Complex16*)c,(MKL_INT*)(&ldc_));
+	mkl_zcsrmm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&n),(MKL_INT*)(&k),(MKL_Complex16*)alphap,matdescra,(MKL_Complex16*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(MKL_Complex16*)b,(MKL_INT*)(&ldb_),(MKL_Complex16*)betap,(MKL_Complex16*)c,(MKL_INT*)(&ldc_));
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 	return RSB_ERR_UNSUPPORTED_TYPE	;
@@ -392,7 +388,7 @@ rsb_err_t rsb__do_mkl_csr_spmm(const void *VA, const MKL_INT m, const MKL_INT k,
 	return RSB_ERR_NO_ERROR;
 }
 
-rsb_err_t rsb__mkl_csr_spmm_bench(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT n, const MKL_INT nnz, const MKL_INT * IP, const MKL_INT *JA, const void * b, const MKL_INT ldb, void * c, const MKL_INT ldc, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp)
+rsb_err_t rsb__mkl_csr_spmm_bench(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT n, const MKL_INT nnz, const MKL_INT * IA, const MKL_INT *JA, const void * b, const MKL_INT ldb, void * c, const MKL_INT ldc, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_time_t dt, tpo;
@@ -409,7 +405,7 @@ rsb_err_t rsb__mkl_csr_spmm_bench(const void *VA, const MKL_INT m, const MKL_INT
 
 			do
 			{
-				errval = rsb__do_mkl_csr_spmm(VA, m, k, n, nnz, IP, JA, b, ldb, c, ldc, alphap, betap, transA, typecode, flags);
+				errval = rsb__do_mkl_csr_spmm(VA, m, k, n, nnz, IA, JA, b, ldb, c, ldc, alphap, betap, transA, typecode, flags);
 				RSB_SAMPLE_STAT(it,ct,dt,tt,bt,wt,ss,tinf,times);
 			}
 			while(RSB_REPEAT(ct-it,times,mint,mintimes,maxt,maxtimes));
@@ -425,6 +421,7 @@ rsb_err_t rsb__mkl_csr_spmm_bench(const void *VA, const MKL_INT m, const MKL_INT
 			if(dtn == nt) RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp+1);
 		}
 		mkl_set_num_threads(ont);
+done:
 		ttrp->ttt += rsb_time(); /* ttrp->ttt = tt; */
 		tpo = best; /* tpo = 1.0 / best; */
 		*otnp = otn;
@@ -432,7 +429,7 @@ rsb_err_t rsb__mkl_csr_spmm_bench(const void *VA, const MKL_INT m, const MKL_INT
 	else
 	{
 		dt = -rsb_time();
-		errval = rsb__do_mkl_csr_spmm(VA, m, k, n, nnz, IP, JA, b, ldb, c, ldc, alphap, betap, transA, typecode, flags);
+		errval = rsb__do_mkl_csr_spmm(VA, m, k, n, nnz, IA, JA, b, ldb, c, ldc, alphap, betap, transA, typecode, flags);
 		dt += rsb_time();
 		/* tpo = 1.0 / dt; */
 		tpo = dt;
@@ -442,7 +439,7 @@ rsb_err_t rsb__mkl_csr_spmm_bench(const void *VA, const MKL_INT m, const MKL_INT
 	return errval;
 }
 
-rsb_err_t rsb__do_mkl_csr_spsv(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT nnz, const MKL_INT * IP, const MKL_INT *JA, const void * x, void * y, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags)
+rsb_err_t rsb__do_mkl_csr_spsv(const void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT nnz, const MKL_INT * IA, const MKL_INT *JA, const void * x, void * y, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags)
 {
 	char transA_mkl = rsb_rsb_to_mkl_trans(transA);
 	char matdescra[]={RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL};
@@ -453,29 +450,29 @@ rsb_err_t rsb__do_mkl_csr_spsv(const void *VA, const MKL_INT m, const MKL_INT k,
 
 #ifdef RSB_NUMERICAL_TYPE_FLOAT 
 	if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )
-	mkl_scsrsv(&transA_mkl,(MKL_INT*)(&m),(float*)alphap,matdescra,(float*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(float*)x,(float*)y);
+	mkl_scsrsv(&transA_mkl,(MKL_INT*)(&m),(float*)alphap,matdescra,(float*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(float*)x,(float*)y);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
-	mkl_dcsrsv(&transA_mkl,(MKL_INT*)(&m),(double*)alphap,matdescra,(double*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(double*)x,(double*)y);
+	mkl_dcsrsv(&transA_mkl,(MKL_INT*)(&m),(double*)alphap,matdescra,(double*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(double*)x,(double*)y);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
 	if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
-	mkl_ccsrsv(&transA_mkl,(MKL_INT*)(&m),(MKL_Complex8*)alphap,matdescra,(MKL_Complex8*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(MKL_Complex8*)x,(MKL_Complex8*)y);
+	mkl_ccsrsv(&transA_mkl,(MKL_INT*)(&m),(MKL_Complex8*)alphap,matdescra,(MKL_Complex8*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(MKL_Complex8*)x,(MKL_Complex8*)y);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
-	mkl_zcsrsv(&transA_mkl,(MKL_INT*)(&m),(MKL_Complex16*)alphap,matdescra,(MKL_Complex16*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(MKL_Complex16*)x,(MKL_Complex16*)y);
+	mkl_zcsrsv(&transA_mkl,(MKL_INT*)(&m),(MKL_Complex16*)alphap,matdescra,(MKL_Complex16*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(MKL_Complex16*)x,(MKL_Complex16*)y);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 	return RSB_ERR_UNSUPPORTED_TYPE	;
 	return RSB_ERR_NO_ERROR;
 }
 
-rsb_err_t rsb__do_mkl_csr_spsm(const void *VA, const MKL_INT m, const MKL_INT nrhs, const MKL_INT * IP, const MKL_INT *JA, const void * b, void * c, const void *alphap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, const MKL_INT ldb, const MKL_INT ldc)
+rsb_err_t rsb__do_mkl_csr_spsm(const void *VA, const MKL_INT m, const MKL_INT nrhs, const MKL_INT * IA, const MKL_INT *JA, const void * b, void * c, const void *alphap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, const MKL_INT ldb, const MKL_INT ldc)
 {
 	char transA_mkl = rsb_rsb_to_mkl_trans(transA);
 	char matdescra[]={RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL,RSB_NUL};
@@ -486,29 +483,29 @@ rsb_err_t rsb__do_mkl_csr_spsm(const void *VA, const MKL_INT m, const MKL_INT nr
 
 #ifdef RSB_NUMERICAL_TYPE_FLOAT 
 	if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )
-	mkl_scsrsm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&nrhs),(float*)alphap,matdescra,(float*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(float*)b,(MKL_INT*)&ldb,(float*)c,(MKL_INT*)&ldc);
+	mkl_scsrsm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&nrhs),(float*)alphap,matdescra,(float*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(float*)b,(MKL_INT*)&ldb,(float*)c,(MKL_INT*)&ldc);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
-	mkl_dcsrsm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&nrhs),(double*)alphap,matdescra,(double*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(double*)b,(MKL_INT*)&ldb,(double*)c,(MKL_INT*)&ldc);
+	mkl_dcsrsm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&nrhs),(double*)alphap,matdescra,(double*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(double*)b,(MKL_INT*)&ldb,(double*)c,(MKL_INT*)&ldc);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
 	if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
-	mkl_ccsrsm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&nrhs),(MKL_Complex8*)alphap,matdescra,(MKL_Complex8*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(MKL_Complex8*)b,(MKL_INT*)&ldb,(MKL_Complex8*)c,(MKL_INT*)&ldc);
+	mkl_ccsrsm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&nrhs),(MKL_Complex8*)alphap,matdescra,(MKL_Complex8*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(MKL_Complex8*)b,(MKL_INT*)&ldb,(MKL_Complex8*)c,(MKL_INT*)&ldc);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
-	mkl_zcsrsm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&nrhs),(MKL_Complex16*)alphap,matdescra,(MKL_Complex16*)VA,(MKL_INT*)JA,(MKL_INT*)IP,(MKL_INT*)(IP+1),(MKL_Complex16*)b,(MKL_INT*)&ldb,(MKL_Complex16*)c,(MKL_INT*)&ldc);
+	mkl_zcsrsm(&transA_mkl,(MKL_INT*)(&m),(MKL_INT*)(&nrhs),(MKL_Complex16*)alphap,matdescra,(MKL_Complex16*)VA,(MKL_INT*)JA,(MKL_INT*)IA,(MKL_INT*)(IA+1),(MKL_Complex16*)b,(MKL_INT*)&ldb,(MKL_Complex16*)c,(MKL_INT*)&ldc);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
 	return RSB_ERR_UNSUPPORTED_TYPE	;
 	return RSB_ERR_NO_ERROR;
 }
 
-rsb_err_t rsb__mkl_csr_spsv_bench(const void *VA, const MKL_INT m, const MKL_INT k/*, const MKL_INT n*/, const MKL_INT nnz, const MKL_INT * IP, const MKL_INT *JA, const void * b, /*const MKL_INT ldb,*/ void * c,/* const MKL_INT ldc,*/ const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp)
+rsb_err_t rsb__mkl_csr_spsv_bench(const void *VA, const MKL_INT m, const MKL_INT k/*, const MKL_INT n*/, const MKL_INT nnz, const MKL_INT * IA, const MKL_INT *JA, const void * b, /*const MKL_INT ldb,*/ void * c,/* const MKL_INT ldc,*/ const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_time_t dt, tpo;
@@ -525,7 +522,7 @@ rsb_err_t rsb__mkl_csr_spsv_bench(const void *VA, const MKL_INT m, const MKL_INT
 
 			do
 			{
-				errval = rsb__do_mkl_csr_spsv(VA, m, k, nnz, IP, JA, b, c, alphap, betap, transA, typecode, flags);
+				errval = rsb__do_mkl_csr_spsv(VA, m, k, nnz, IA, JA, b, c, alphap, betap, transA, typecode, flags);
 				RSB_SAMPLE_STAT(it,ct,dt,tt,bt,wt,ss,tinf,times);
 			}
 			while(RSB_REPEAT(ct-it,times,mint,mintimes,maxt,maxtimes));
@@ -541,6 +538,7 @@ rsb_err_t rsb__mkl_csr_spsv_bench(const void *VA, const MKL_INT m, const MKL_INT
 			if(dtn == nt) RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp+1);
 		}
 		mkl_set_num_threads(ont);
+done:
 		ttrp->ttt += rsb_time(); /* ttrp->ttt = tt; */
 		tpo = best; /* tpo = 1.0 / best; */
 		*otnp = otn;
@@ -548,7 +546,7 @@ rsb_err_t rsb__mkl_csr_spsv_bench(const void *VA, const MKL_INT m, const MKL_INT
 	else
 	{
 		dt = -rsb_time();
-		errval = rsb__do_mkl_csr_spsv(VA, m, k, nnz, IP, JA, b, c, alphap, betap, transA, typecode, flags);
+		errval = rsb__do_mkl_csr_spsv(VA, m, k, nnz, IA, JA, b, c, alphap, betap, transA, typecode, flags);
 		dt += rsb_time();
 		/* tpo = 1.0 / dt; */
 		tpo = dt;
@@ -558,7 +556,7 @@ rsb_err_t rsb__mkl_csr_spsv_bench(const void *VA, const MKL_INT m, const MKL_INT
 	return errval;
 }
 
-rsb_err_t rsb__mkl_csr_spsm_bench(const void *VA, const MKL_INT m, const MKL_INT nrhs, const MKL_INT * IP, const MKL_INT *JA, const void * b, void * c, const void *alphap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, const MKL_INT ldb, const MKL_INT ldc, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp)
+rsb_err_t rsb__mkl_csr_spsm_bench(const void *VA, const MKL_INT m, const MKL_INT nrhs, const MKL_INT * IA, const MKL_INT *JA, const void * b, void * c, const void *alphap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, const MKL_INT ldb, const MKL_INT ldc, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_time_t dt, tpo;
@@ -575,7 +573,7 @@ rsb_err_t rsb__mkl_csr_spsm_bench(const void *VA, const MKL_INT m, const MKL_INT
 
 			do
 			{
-				errval = rsb__do_mkl_csr_spsm(VA, m, nrhs, IP, JA, b, c, alphap, transA, typecode, flags, ldb, ldc);
+				errval = rsb__do_mkl_csr_spsm(VA, m, nrhs, IA, JA, b, c, alphap, transA, typecode, flags, ldb, ldc);
 				RSB_SAMPLE_STAT(it,ct,dt,tt,bt,wt,ss,tinf,times);
 			}
 			while(RSB_REPEAT(ct-it,times,mint,mintimes,maxt,maxtimes));
@@ -591,6 +589,7 @@ rsb_err_t rsb__mkl_csr_spsm_bench(const void *VA, const MKL_INT m, const MKL_INT
 			if(dtn == nt) RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp+1);
 		}
 		mkl_set_num_threads(ont);
+done:
 		ttrp->ttt += rsb_time(); /* ttrp->ttt = tt; */
 		tpo = best; /* tpo = 1.0 / best; */
 		*otnp = otn;
@@ -598,7 +597,7 @@ rsb_err_t rsb__mkl_csr_spsm_bench(const void *VA, const MKL_INT m, const MKL_INT
 	else
 	{
 		dt = -rsb_time();
-		errval = rsb__do_mkl_csr_spsm(VA, m, nrhs, IP, JA, b, c, alphap, transA, typecode, flags, ldb, ldc);
+		errval = rsb__do_mkl_csr_spsm(VA, m, nrhs, IA, JA, b, c, alphap, transA, typecode, flags, ldb, ldc);
 		dt += rsb_time();
 		/* tpo = 1.0 / dt; */
 		tpo = dt;
@@ -610,9 +609,9 @@ rsb_err_t rsb__mkl_csr_spsm_bench(const void *VA, const MKL_INT m, const MKL_INT
 
 rsb_err_t rsb__mkl_coo2csr(const MKL_INT m, const MKL_INT k, const MKL_INT nnz, const void *IVA, const MKL_INT * IIA, const MKL_INT *IJA, const void *OVA, const MKL_INT * OIA, const MKL_INT *OJA, rsb_type_t typecode, const MKL_INT mib)
 {
-	MKL_INT info = 0;
-	MKL_INT job[6];
-	job[0] = 2; // coo2csr (=1, the matrix in the coordinate format is converted to the CSR;=2, the matrix in the coordinate format is converted to the CSR format, and the column indices in CSR representation are sorted in the increasing order within each row.)
+	int info;
+	int job[6];
+	job[0] = 1; // coo2csr (=1, the matrix in the coordinate format is converted to the CSR;=2, the matrix in the coordinate format is converted to the CSR format, and the column indices in CSR representation are sorted in the increasing order within each row.)
 	job[1] = mib; // 0 based csr
 	job[2] = 0; // 0 based coo
 	job[3] = 0; // ignored
@@ -639,335 +638,9 @@ rsb_err_t rsb__mkl_coo2csr(const MKL_INT m, const MKL_INT k, const MKL_INT nnz, 
 	mkl_zcsrcoo(job,(MKL_INT*)(&m),(MKL_Complex16*)OVA,(MKL_INT*)OJA,(MKL_INT*)OIA,(MKL_INT*)(&nnz),(MKL_Complex16*)(IVA),(MKL_INT*)IIA,(MKL_INT*)IJA,&info);
 	else 
 #endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-		return RSB_ERR_UNSUPPORTED_TYPE	;
-	if(info==0)
-		return RSB_ERR_NO_ERROR;
-	else
-		return RSB_ERR_INTERNAL_ERROR;
+	return RSB_ERR_UNSUPPORTED_TYPE	;
+	return RSB_ERR_NO_ERROR;
 }
-
-rsb_int_t rsb__print_mkl_version(char *pn, rsb_bool_t los)
-
-{
-	size_t npc = 0;
-
-	if(pn)
-		*pn = RSB_NUL;
-	else
-		goto err;
-{
-#if RSB_WANT_MKL
-#ifdef mkl_get_version
-	MKLVersion mv;
-
-	mkl_get_version(&mv);
-	if(los)
-		sprintf(pn,"MKL:%d.%d-%d, %s, %s, %s, %s",mv.MajorVersion,mv.MinorVersion,mv.UpdateVersion,mv.ProductStatus,mv.Build,mv.Processor,mv.Platform);
-	else
-		// sprintf(pn,"-mkl-%d.%d-%d",mv.MajorVersion,mv.MinorVersion,mv.UpdateVersion,mv.ProductStatus);
-		sprintf(pn,"-mkl-%d.%d-%d-%s-%s",mv.MajorVersion,mv.MinorVersion,mv.UpdateVersion,mv.ProductStatus,mv.Build);
-#else /* mkl_get_version */
-	sprintf(pn,"MKL:version unknown.");
-#endif /* mkl_get_version */
-#else /* RSB_WANT_MKL */
-	sprintf(pn,"MKL:not linked.");
-#endif /* RSB_WANT_MKL */
-	npc = strlen(pn);
-}
-err:
-	return npc;
-}
-
-#if RSB_WANT_MKL_INSPECTOR
-
-#define RSB_MKL_INSPECTOR_TRANSA(TRANS)			\
-( (TRANS) == RSB_TRANSPOSITION_N ?  SPARSE_OPERATION_NON_TRANSPOSE : ( (TRANS) == RSB_TRANSPOSITION_T ?  SPARSE_OPERATION_TRANSPOSE : (SPARSE_OPERATION_CONJUGATE_TRANSPOSE /* FIXME: what about conjugation ? */ ) ) )
-
-#define RSB_MKL_INSPECTOR_STCHK(SV,ERRVAL)						\
-	{ if( (SV) != SPARSE_STATUS_SUCCESS ) { printf("Error invoking MKL routine !\n"); (ERRVAL) = RSB_ERR_INTERNAL_ERROR; } }
-
-#define RSB_MKL_INSPECTOR_DESCRA(DESCRA,FLAGS,HINTLVL,DONELBL)				\
-	rsb_time_t dt, tpo;							\
-	sparse_operation_t mkl_transA = RSB_MKL_INSPECTOR_TRANSA(transA);	\
-	struct matrix_descr descrA;						\
-	sparse_matrix_t       csrA;						\
-	rsb_time_t iot = RSB_TIME_ZERO;						\
-	sparse_status_t stv = SPARSE_STATUS_NOT_INITIALIZED;				\
-	\
-	if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )	\
-		stv = mkl_sparse_s_create_csr ( &csrA, SPARSE_INDEX_BASE_ZERO, m,  k,  IP, IP+1, JA, VA ); \
-	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )	\
-		stv = mkl_sparse_d_create_csr ( &csrA, SPARSE_INDEX_BASE_ZERO, m,  k,  IP, IP+1, JA, VA ); \
-	if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )	\
-		stv = mkl_sparse_c_create_csr ( &csrA, SPARSE_INDEX_BASE_ZERO, m,  k,  IP, IP+1, JA, VA ); \
-	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )	\
-		stv = mkl_sparse_z_create_csr ( &csrA, SPARSE_INDEX_BASE_ZERO, m,  k,  IP, IP+1, JA, VA ); \
-	if ( stv != SPARSE_STATUS_SUCCESS ) goto DONELBL;			\
-	DESCRA.type = SPARSE_MATRIX_TYPE_GENERAL;				\
-	if(RSB_DO_FLAG_HAS(FLAGS,RSB_FLAG_SYMMETRIC))				\
-		DESCRA.type = SPARSE_MATRIX_TYPE_SYMMETRIC,			\
-		DESCRA.mode = SPARSE_FILL_MODE_LOWER,				\
-		DESCRA.diag = SPARSE_DIAG_NON_UNIT;				\
-	if ( HINTLVL > 0 )							\
-	{									\
-		stv = mkl_sparse_set_memory_hint ( csrA, HINTLVL < 2 ? ( SPARSE_MEMORY_NONE ) : SPARSE_MEMORY_AGGRESSIVE );	\
-		RSB_MKL_INSPECTOR_STCHK(stv,errval)					\
-		iot =- rsb_time();						\
-		stv = mkl_sparse_optimize ( csrA );					\
-		iot += rsb_time();						\
-		RSB_MKL_INSPECTOR_STCHK(stv,errval)					\
-	}									\
-										\
-	/* RSB_MKL_INSPECTOR_DESCRA */
-
-
-rsb_err_t rsb__mkl_inspector_csr_spmv_bench(void *VA, const MKL_INT m, const MKL_INT k, const MKL_INT n, const MKL_INT nnz, MKL_INT * IP, MKL_INT *JA, const void * b, const MKL_INT ldb, void * c, const MKL_INT ldc, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp, rsb_int_t hintlvl)
-
-{
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	RSB_MKL_INSPECTOR_DESCRA(descrA,flags,hintlvl,done);
-
-	if(otnp)
-	{
-		RSB_MKL_THREADS_TUNING_ODECLS
-		RSB_MKL_SET_THREADS_RANGE(lnt,unt,otnp)
-
-		for(nt=lnt;nt<=unt;++nt)
-		{
-			RSB_MKL_THREADS_TUNING_IDECLS
-			if(nt) mkl_set_num_threads(nt);
-
-			do
-			{
-#ifdef RSB_NUMERICAL_TYPE_FLOAT 
-				if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )
-				{
-					float alpha = alphap ? *(float*)alphap : (float)(1.0), beta = betap ? *(float*)betap : (float)(1.0);
-					stv = mkl_sparse_s_mv ( mkl_transA, alpha, csrA, descrA, b, beta, c );
-				}
-				else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE 
-				if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
-				{
-					double alpha = alphap ? *(double*)alphap : (double)(1.0), beta = betap ? *(double*)betap : (double)(1.0);
-					stv = mkl_sparse_d_mv ( mkl_transA, alpha, csrA, descrA, b, beta, c );
-				}
-				else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
-				if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
-				{
-					MKL_Complex8 alpha = alphap ? *(MKL_Complex8*)alphap : (MKL_Complex8) {1.0,0.0} , beta = betap ? *(MKL_Complex8*)betap : (MKL_Complex8) {1.0,0.0} ;
-					stv = mkl_sparse_c_mv ( mkl_transA, alpha, csrA, descrA, b, beta, c );
-				}
-				else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
-				if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
-				{
-					MKL_Complex16 alpha = alphap ? *(MKL_Complex16*)alphap : (MKL_Complex16) {1.0,0.0} , beta = betap ? *(MKL_Complex16*)betap : (MKL_Complex16) {1.0,0.0} ;
-					stv = mkl_sparse_z_mv ( mkl_transA, alpha, csrA, descrA, b, beta, c );
-				}
-				else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-					return RSB_ERR_UNSUPPORTED_TYPE;
-				RSB_SAMPLE_STAT(it,ct,dt,tt,bt,wt,ss,tinf,times);
-			}
-			while(RSB_REPEAT(ct-it,times,mint,mintimes,maxt,maxtimes));
-
-			dt = bt;
-			if(dt < best )
-			{
-				otn = nt;
-				best = RSB_MIN_ABOVE_INF(best,dt,tinf);
-				RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp);
-			}
-			rsb__tattr_sets(ttrp,dtn,nt,dt,otn,times);/* FIXME: if no threads tuning, shall set dtpo = btpo, as well as ttrp.optt=0 */
-			if(dtn == nt) RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp+1);
-		}
-		mkl_set_num_threads(ont);
-done:
-		ttrp->ttt += rsb_time(); /* ttrp->ttt = tt; */
-		tpo = best; /* tpo = 1.0 / best; */
-		*otnp = otn;
-	}
-	else
-	{
-		dt = -rsb_time();
-#ifdef RSB_NUMERICAL_TYPE_FLOAT 
-		if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )
-		{
-			float alpha = alphap ? *(float*)alphap : (float)(1.0), beta = betap ? *(float*)betap : (float)(1.0);
-			stv = mkl_sparse_s_mv ( mkl_transA, alpha, csrA, descrA, b, beta, c );
-		}
-		else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE 
-		if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
-		{
-			double alpha = alphap ? *(double*)alphap : (double)(1.0), beta = betap ? *(double*)betap : (double)(1.0);
-			stv = mkl_sparse_d_mv ( mkl_transA, alpha, csrA, descrA, b, beta, c );
-		}
-		else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
-		if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
-		{
-			MKL_Complex8 alpha = alphap ? *(MKL_Complex8*)alphap : (MKL_Complex8) {1.0,0.0} , beta = betap ? *(MKL_Complex8*)betap : (MKL_Complex8) {1.0,0.0} ;
-			stv = mkl_sparse_c_mv ( mkl_transA, alpha, csrA, descrA, b, beta, c );
-		}
-		else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
-		if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
-		{
-			MKL_Complex16 alpha = alphap ? *(MKL_Complex16*)alphap : (MKL_Complex16) {1.0,0.0} , beta = betap ? *(MKL_Complex16*)betap : (MKL_Complex16) {1.0,0.0} ;
-			stv = mkl_sparse_z_mv ( mkl_transA, alpha, csrA, descrA, b, beta, c );
-		}
-		else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-			return RSB_ERR_UNSUPPORTED_TYPE;
-		dt += rsb_time();
-		/* tpo = 1.0 / dt; */
-		tpo = dt;
-	}
-	if(tpop)
-		*tpop = tpo;
-
-	RSB_MKL_INSPECTOR_STCHK(stv,errval);
-	// RSBENCH_STDOUT("# MKL Inspector SPMV time: %2.3le   optimization time: %2.3le!\n",tpo,iot);
-	stv = mkl_sparse_destroy ( csrA );
-	RSB_MKL_INSPECTOR_STCHK(stv,errval);
-	return errval;
-}
-
-rsb_err_t rsb__mkl_inspector_csr_spmm_bench(void *VA, const MKL_INT m, const MKL_INT k, const sparse_layout_t layout, const MKL_INT nrhs, const MKL_INT nnz, MKL_INT * IP, MKL_INT *JA, const void * b, const MKL_INT ldb, void * c, const MKL_INT ldc, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp, rsb_int_t hintlvl)
-
-{
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	RSB_MKL_INSPECTOR_DESCRA(descrA,flags,hintlvl,done);
-{
-	const MKL_INT ldx = ldb;
-	const MKL_INT ldy = ldc;
-
-	if(otnp)
-	{
-		RSB_MKL_THREADS_TUNING_ODECLS
-		RSB_MKL_SET_THREADS_RANGE(lnt,unt,otnp)
-
-		for(nt=lnt;nt<=unt;++nt)
-		{
-			RSB_MKL_THREADS_TUNING_IDECLS
-			if(nt) mkl_set_num_threads(nt);
-
-			do
-			{
-#ifdef RSB_NUMERICAL_TYPE_FLOAT 
-				if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )
-				{
-					float alpha = alphap ? *(float*)alphap : (float)(1.0), beta = betap ? *(float*)betap : (float)(1.0);
-					stv = mkl_sparse_s_mm ( mkl_transA, alpha, csrA, descrA, layout, b, nrhs, ldx /*m*/, beta, c, ldy /*m*/ );
-				}
-				else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE 
-				if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
-				{
-					double alpha = alphap ? *(double*)alphap : (double)(1.0), beta = betap ? *(double*)betap : (double)(1.0);
-					stv = mkl_sparse_d_mm ( mkl_transA, alpha, csrA, descrA, layout, b, nrhs, ldx /*m*/, beta, c, ldy /*m*/ );
-				}
-				else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
-				if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
-				{
-					MKL_Complex8 alpha = alphap ? *(MKL_Complex8*)alphap : (MKL_Complex8) {1.0,0.0} , beta = betap ? *(MKL_Complex8*)betap : (MKL_Complex8) {1.0,0.0} ;
-					stv = mkl_sparse_c_mm ( mkl_transA, alpha, csrA, descrA, layout, b, nrhs, ldx /*m*/, beta, c, ldy /*m*/ );
-				}
-				else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
-				if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
-				{
-					MKL_Complex16 alpha = alphap ? *(MKL_Complex16*)alphap : (MKL_Complex16) {1.0,0.0} , beta = betap ? *(MKL_Complex16*)betap : (MKL_Complex16) {1.0,0.0} ;
-					stv = mkl_sparse_z_mm ( mkl_transA, alpha, csrA, descrA, layout, b, nrhs, ldx /*m*/, beta, c, ldy /*m*/ );
-				}
-				else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-					return RSB_ERR_UNSUPPORTED_TYPE;
-				RSB_SAMPLE_STAT(it,ct,dt,tt,bt,wt,ss,tinf,times);
-			}
-			while(RSB_REPEAT(ct-it,times,mint,mintimes,maxt,maxtimes));
-
-			dt = bt;
-			if(dt < best )
-			{
-				otn = nt;
-				best = RSB_MIN_ABOVE_INF(best,dt,tinf);
-				RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp);
-			}
-			rsb__tattr_sets(ttrp,dtn,nt,dt,otn,times);/* FIXME: if no threads tuning, shall set dtpo = btpo, as well as ttrp.optt=0 */
-			if(dtn == nt) RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp+1);
-		}
-		mkl_set_num_threads(ont);
-done:
-		ttrp->ttt += rsb_time(); /* ttrp->ttt = tt; */
-		tpo = best; /* tpo = 1.0 / best; */
-		*otnp = otn;
-	}
-	else
-	{
-		dt = -rsb_time();
-#ifdef RSB_NUMERICAL_TYPE_FLOAT 
-		if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )
-		{
-			float alpha = alphap ? *(float*)alphap : (float)(1.0), beta = betap ? *(float*)betap : (float)(1.0);
-			stv = mkl_sparse_s_mm ( mkl_transA, alpha, csrA, descrA, layout, b, nrhs, ldx /*m*/, beta, c, ldy /*m*/ );
-		}
-		else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE 
-		if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
-		{
-			double alpha = alphap ? *(double*)alphap : (double)(1.0), beta = betap ? *(double*)betap : (double)(1.0);
-			stv = mkl_sparse_d_mm ( mkl_transA, alpha, csrA, descrA, layout, b, nrhs, ldx /*m*/, beta, c, ldy /*m*/ );
-		}
-		else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
-		if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
-		{
-			MKL_Complex8 alpha = alphap ? *(MKL_Complex8*)alphap : (MKL_Complex8) {1.0,0.0} , beta = betap ? *(MKL_Complex8*)betap : (MKL_Complex8) {1.0,0.0} ;
-			stv = mkl_sparse_c_mm ( mkl_transA, alpha, csrA, descrA, layout, b, nrhs, ldx /*m*/, beta, c, ldy /*m*/ );
-		}
-		else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-#ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
-		if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
-		{
-			MKL_Complex16 alpha = alphap ? *(MKL_Complex16*)alphap : (MKL_Complex16) {1.0,0.0} , beta = betap ? *(MKL_Complex16*)betap : (MKL_Complex16) {1.0,0.0} ;
-			stv = mkl_sparse_z_mm ( mkl_transA, alpha, csrA, descrA, layout, b, nrhs, ldx /*m*/, beta, c, ldy /*m*/ );
-		}
-		else 
-#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
-			return RSB_ERR_UNSUPPORTED_TYPE;
-		dt += rsb_time();
-		/* tpo = 1.0 / dt; */
-		tpo = dt;
-	}
-	if(tpop)
-		*tpop = tpo;
-
-	RSB_MKL_INSPECTOR_STCHK(stv,errval);
-	// RSBENCH_STDOUT("# MKL Inspector SPMV time: %2.3le   optimization time: %2.3le!\n",tpo,iot);
-	stv = mkl_sparse_destroy ( csrA );
-	RSB_MKL_INSPECTOR_STCHK(stv,errval);
-	return errval;
-}
-}
-
-#endif /* RSB_WANT_MKL_INSPECTOR */
 
 #endif /* RSB_WANT_MKL */
 /* @endcond */

@@ -31,13 +31,13 @@ dnl
 dnl
 foreach(`mtype',RSB_M4_TYPES,`dnl
 dnl
-
-ifdef(`ONLY_WANT_HEADERS',`',`dnl
-static rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_`'RSB_M4_TYPE_CODE(mtype)`'(
+dnl
+rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_`'RSB_M4_TYPE_CODE(mtype)`'(
 		mtype *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
 		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
 	       	size_t wsize, rsb_flags_t flags
 		)
+ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 dnl
 pushdef(`typecode',RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype))`'dnl
@@ -108,8 +108,8 @@ dnl
 		/* merge wnnz elements from A and B in W */
 		woff=0;
 		aoff=boff=0;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,typecode,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,typecode,NULL,flags));
 	/*	RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+bnnz,IB[bnnz],JB[bnnz]); */
 		while(woff<wnnz && aoff<annz && boff<bnnz)
 		{
@@ -119,7 +119,7 @@ dnl
 				RSB_COO_MOVE(VW,IW,JW,VB,IB,JB,woff,boff);
 		}
 /*		RSB_STDOUT("aoff=%d boff=%d woff=%d\n",aoff,boff,woff);*/
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,woff,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,woff,typecode,NULL,flags));
 		if(woff<wnnz)
 		{
 			if(aoff==annz)
@@ -128,25 +128,25 @@ dnl
 			if(boff==bnnz)
 				RSB_COO_MEMMOVE(VW,IW,JW,VA,IA,JA,woff,aoff,wnnz-woff,el_size),aoff+=(wnnz-woff);
 		}
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,wnnz,typecode,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,typecode,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,wnnz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,typecode,NULL,flags));
 /*		RSB_STDOUT("aoff:%d boff=%d wnnz=%d annz=%d\n",aoff,boff,wnnz,annz);*/
 		/* memmove A boff places forward */
 		bnnz-=boff;
 		annz-=aoff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,typecode,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,typecode,NULL,flags));
 /*		RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		RSB_COO_MEMMOVE(VA,IA,JA,VA,IA,JA,wnnz,aoff,annz,el_size);
 /*		RSB_STDOUT("PSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		VB+=boff;
 		IB+=boff;
 		JB+=boff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,typecode,NULL,flags));
 		RSB_COO_MEMMOVE(VA,IA,JA,VW,IW,JW,0,0,wnnz,el_size);
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,wnnz,typecode,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,wnnz,typecode,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,typecode,NULL,flags));
 		VA+=wnnz;
 		IA+=wnnz;
 		JA+=wnnz;
@@ -182,91 +182,9 @@ foreach(`mtype',RSB_M4_TYPES,`dnl
 ')dnl
 dnl
 dnl
-
-dnl
-rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_test(void)
-ifdef(`ONLY_WANT_HEADERS',`;',`dnl
-{
-	rsb_err_t errval = RSB_ERR_INTERNAL_ERROR;
-
-foreach(`mtype',RSB_M4_TYPES,`dnl
-{
-	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
-	const rsb_nnz_idx_t nnzW = 3;
-	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
-	rsb_coo_idx_t JA[] = {0,1,2,3,4,5};
-	mtype VA[] = {1,2,3,1,2,3};
-	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
-	const rsb_coo_idx_t JR[] = {0,1,2,3,4,5};
-	const mtype VR[] = {1,2,3,1,2,3};
-	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
-	const size_t wsize = sizeof(WA);
-	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
-
-	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
- 
-	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
-		errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-
-	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
-		errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-
-	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
-		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
-			errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-}
-
-{
-	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
-	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
-	const rsb_nnz_idx_t nnzW = 3;
-	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
-	rsb_coo_idx_t JA[] = {3,4,5,5,0,1};
-	mtype VA[] = {1,2,3,1,2,3};
-	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
-	const rsb_coo_idx_t JR[] = {3,4,5,5,0,1};
-	const mtype VR[] = {1,2,3,1,2,3};
-	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
-	const size_t wsize = sizeof(WA);
-	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
-
-	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
- 
-	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
-		errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-
-	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
-		errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-
-	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
-		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
-			errval = RSB_ERR_INTERNAL_ERROR;
-	if(RSB_SOME_ERROR(errval))
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-}
-')dnl
-err:
-	return errval;
-}
-')dnl
-dnl
-dnl
 ifdef(`ONLY_WANT_HEADERS',`
 #endif /* RSB_MERGE_H_INCLUDED */
 ')
 dnl
-
-
 /* @endcond */
 dnl

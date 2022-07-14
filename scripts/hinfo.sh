@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2008-2021 Michele Martone
+# Copyright (C) 2008-2015 Michele Martone
 # 
 # This file is part of librsb.
 # 
@@ -18,9 +18,15 @@
 # License along with librsb; see the file COPYING.
 # If not, see <http://www.gnu.org/licenses/>.
 
-set -e
-set -x
+echo
+echo	cat /proc/cpuinfo 
+	cat /proc/cpuinfo 
 
-cat /proc/cpuinfo
-./rsbench -I
-./rsbench -M
+echo
+echo	./rsbench -I
+	./rsbench -I
+
+echo
+echo	./rsbench -M
+	./rsbench -M
+echo
