@@ -5,7 +5,6 @@
 *.log
 *.o
 **/libtool
-**/*config*
 **/stamp-h1
 **/librsb.pc
 **/Makefile
