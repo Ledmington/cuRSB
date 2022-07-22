@@ -38,13 +38,15 @@ rsb_err_t rsb__util_coo_alloc_copy_and_stats(void **RSB_RESTRICT VAp, rsb_coo_id
 void * rsb__clone_area_with_extra(const void *src, size_t csize, size_t bsize, size_t esize);
 /* void * rsb__clone_area_parallel(const void *src, size_t size); */
 struct rsb_mtx_t *rsb__mtx_clone_simple(const struct rsb_mtx_t *mtxAp);
-struct rsb_mtx_t *rsb__clone_simple_extra(const struct rsb_mtx_t *mtxAp, rsb_submatrix_idx_t esmc);
 rsb_err_t rsb__mtx_clone(struct rsb_mtx_t ** mtxBpp, rsb_type_t typecode, rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t * mtxAp, rsb_flags_t flags);
-void * rsb__clone_inner(const struct rsb_mtx_t *mtxAp, struct rsb_mtx_t *new_matrix);
-rsb_err_t rsb__clone_coo(const struct rsb_mtx_t * mtxAp, rsb_trans_t transA, const void *alphap, rsb_type_t typecode, struct rsb_coo_matrix_t*dcoop, rsb_flags_t flags/*, rsb_extff_t eflags*/);
+/*void * rsb__clone_inner(const struct rsb_mtx_t *mtxAp, struct rsb_mtx_t *new_matrix); */
+rsb_err_t rsb__clone_coo(const struct rsb_mtx_t * mtxAp, rsb_trans_t transA, const void *alphap, rsb_type_t typecode, struct rsb_coo_mtx_t*dcoop, rsb_flags_t flags/*, rsb_extff_t eflags*/);
+#if !RSB_AT_DESTROYS_MTX
 rsb_err_t rsb__mtx_transplant_from_clone(struct rsb_mtx_t ** mtxDpp, struct rsb_mtx_t * mtxSp);
+#endif  /* RSB_AT_DESTROYS_MTX */
 size_t rsb__submatrices_max_ptr_diff(const struct rsb_mtx_t * mtxAp);
 rsb_err_t rsb__mtx_shift_leaf_ptrs(struct rsb_mtx_t *RSB_RESTRICT  mtxCp, const struct rsb_mtx_t *RSB_RESTRICT  mtxAp, long smc);
+void * rsb__clone_area_guided(void * RSB_RESTRICT dst, const void *RSB_RESTRICT src, size_t size, size_t nmemb, const struct rsb_mtx_t *RSB_RESTRICT mtxAp, const rsb_thread_t * RSB_RESTRICT cta, const rsb_thread_t nct, rsb_err_t * errvalp);
 
 #ifdef __cplusplus
 }

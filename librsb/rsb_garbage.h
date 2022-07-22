@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2022 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -30,20 +30,25 @@ If not, see <http://www.gnu.org/licenses/>.
 #ifndef RSB_GARBAGE_H_INCLUDED
 #define RSB_GARBAGE_H_INCLUDED
 
-#include "rsb_internals.h"	/* rsb_coo_matrix_t */
+#include "rsb_internals.h"	/* rsb_coo_mtx_t */
 #include "rsb_common.h"
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__test_bitmap_driver(rsb_coo_idx_t r, rsb_coo_idx_t c);
-rsb_err_t rsb__test_gen_matrix(rsb_type_t typecode, rsb_coo_idx_t ** IA, rsb_coo_idx_t ** JA, void ** VA, rsb_coo_idx_t rows, rsb_coo_idx_t cols, rsb_nnz_idx_t nnz, int allow_duplicates);
 int rsb__test_fill_matrix_nnz(rsb_type_t typecode, rsb_nnz_idx_t nnz, void *VA );
 rsb_err_t rsb__test_fill_matrix_coords(rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t rows, rsb_coo_idx_t cols, rsb_nnz_idx_t nnz, rsb_bool_t allow_duplicates);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 int rsb__test_dump_main(const int argc,rsb_char_t *const argv[]);
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__test_gen_and_print_matrix(rsb_type_t typecode, rsb_coo_idx_t ** IA, rsb_coo_idx_t ** JA, void ** VA, rsb_coo_idx_t rows, rsb_coo_idx_t cols, rsb_nnz_idx_t nnz);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 int rsb_test_main_block_partitioned_matrix_stats(int argc,rsb_char_t *argv[]);
-rsb_coo_idx_t rsb__rand_coo_index(rsb_coo_idx_t max_plus_one);
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_blk_idx_t rsb__rand_blk_index(rsb_blk_idx_t max_plus_one);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+rsb_coo_idx_t rsb__rand_coo_index(rsb_coo_idx_t max_plus_one);
 rsb_flags_t rsb__sample_program_options_get_flags(int c, const rsb_char_t * optarg);
-rsb_err_t rsb__oski_estimate_bcsr_fillin_from_csr(const rsb_nnz_idx_t * pntr, const rsb_coo_idx_t * indx, const rsb_coo_idx_t m, const rsb_coo_idx_t k, const rsb_nnz_idx_t nnz, rsb_fillin_t * efillinmap);
+int rsb__dump_postscript(const int argc, rsb_char_t * const argv[]);
 rsb_err_t rsb__oski_estimate_bcsr_fill_from_coo(/*  const*/ rsb_coo_idx_t * IA, /*const*/ rsb_coo_idx_t * JA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_fillin_t * efillinmap );
 rsb_err_t rsb__do_column_expand(rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t * kp, rsb_int factor);
 rsb_err_t rsb__do_print_some_vector_stats(const void * p, rsb_type_t typecode, rsb_nnz_idx_t m, rsb_nnz_idx_t inc);

@@ -46,6 +46,17 @@ dnl
 #pragma GCC visibility push(hidden)
 ')dnl
 
+dnl
+ifdef(`ONLY_WANT_HEADERS',`',`dnl
+#if RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS
+#define RSB_MTX_NOT_OK(MTXAP) ( ((MTXAP)->rpntr || (MTXAP)->cpntr) || RSB_MATRIX_UNSUPPORTED_TYPE((MTXAP)->typecode) )
+#else /* RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS */
+#define RSB_MTX_NOT_OK(MTXAP) RSB_MATRIX_UNSUPPORTED_TYPE((MTXAP)->typecode)
+#endif /* RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS */
+dnl
+')dnl
+dnl
+
 ifdef(`ONLY_WANT_HEADERS',`dnl
 #define	RSB_BCSR_GET_NEXT_BLOCK_POINTER(BP,mtxAp,ROWVAR,COLVAR,BLOCKROWSPAR,BLOCKCOLSPAR,BLOCKROWVAR,BLOCKCOLUMNVAR)	\
 	/*										\
@@ -78,7 +89,9 @@ ifdef(`ONLY_WANT_HEADERS',`dnl
 	(BP)=(mtxAp)->VA;											\
 	RSB_BCSR_GET_NEXT_BLOCK_POINTER(BP,mtxAp,ROWVAR,COLVAR,BLOCKROWSVAR,BLOCKCOLSVAR,BLOCKROWVAR,BLOCKCOLUMNVAR)
 
+#if RSB_WANT_DBC
 #define RSB_BCSR_GOT_LAST_BLOCK_POINTER(mtxAp)	( _lastk >= (mtxAp)->block_count )
+#endif
 ')dnl
 
 ifdef(`ONLY_WANT_HEADERS',`
@@ -114,7 +127,7 @@ RSB_M4_DIRECT_KERNEL_DISPATCH_BENCHMARK_FUNCTION(RSB_M4_MATRIX_TYPES,mop)
 dnl
 dnl
 ifdef(`ONLY_WANT_HEADERS',`',`
-/* Dispatch table for type and mop specific benchmarks (FIXME : NEW) */
+/* Dispatch table for type and mop specific benchmarks */
  rsb_err_t (* rsb_benchmark_dispatch_table [RSB_IMPLEMENTED_TYPES][RSB_IMPLEMENTED_MOPS]) 
    (RSB_M4_DIRECT_KERNEL_DISPATCH_FULLRANGEBENCHMARK_FUNCTION(,void,`function_args')`_pointer_table)'
 ` =  {' 

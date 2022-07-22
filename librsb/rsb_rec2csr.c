@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -27,85 +27,65 @@ If not, see <http://www.gnu.org/licenses/>.
  * */
 #include "rsb_common.h"
 
-rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_csr(struct rsb_mtx_t * mtxAp, struct rsb_coo_matrix_t * coop)
+rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_csr(struct rsb_mtx_t * mtxAp, struct rsb_coo_mtx_t * coop)
 {
 	/**
 		\ingroup gr_internals
-		TODO: move somewhere else
-		FIXME: UNTESTED,TEMPORARY, makes sense only for in place allocated
-		this conversion gives you sorted coordinates.
-		on exit, the pointer matrix is deallocated
-		FIXME: error behaviour is undefined
-	 */
+		Makes sense only for in place allocated.
+		On exit, pointed matrix is deallocated.
+ */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	//struct rsb_coo_matrix_t coo;
-	//struct rsb_mtx_t *fsm=NULL;
 
-	if(RSB_UNLIKELY(!mtxAp))
-	{
-		RSB_ERROR(RSB_ERRM_ES);
-		return RSB_ERR_BADARGS;
-	}
+	RSB_ASSERT(mtxAp!=NULL);
+
 	if(RSB_DO_TOOFEWNNZFORCSR(mtxAp->nnz,mtxAp->nr))
 	{
 		errval = RSB_ERR_BADARGS;
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
-#if 1
+
 	errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(mtxAp,coop);
 	if(RSB_SOME_ERROR(errval))
 	{
-		RSB_ERROR(RSB_ERRM_ES);
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
 	errval = rsb__do_switch_fullword_array_to_compressed(coop->IA,coop->nnz,coop->nr);
 	if(RSB_SOME_ERROR(errval))
 	{
-		RSB_ERROR(RSB_ERRM_ES);
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
-#else
-#endif
 err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_csc(struct rsb_mtx_t * mtxAp, struct rsb_coo_matrix_t * coop)
+rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_csc(struct rsb_mtx_t * mtxAp, struct rsb_coo_mtx_t * coop)
 {
 	/**
 		\ingroup gr_internals
-		TODO: move somewhere else
-		FIXME: UNTESTED,TEMPORARY, makes sense only for in place allocated
-		this conversion gives you sorted coordinates.
-		on exit, the pointer matrix is deallocated
-		FIXME: error behaviour is undefined
+		Makes sense only for in place allocated.
+		On exit, pointed matrix is deallocated.
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	struct rsb_coo_matrix_t coo;
-	//struct rsb_mtx_t *fsm=NULL;
+	struct rsb_coo_mtx_t coo;
 
-	if(RSB_UNLIKELY(!mtxAp))
-	{
-		RSB_ERROR(RSB_ERRM_ES);
-		return RSB_ERR_BADARGS;
-	}
+	RSB_ASSERT(mtxAp!=NULL);
+
 	if(RSB_DO_TOOFEWNNZFORCSR(mtxAp->nnz,mtxAp->nc))
 	{
 		errval = RSB_ERR_BADARGS;
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
 	RSB_INIT_CXX_FROM_MTX(&coo,mtxAp);
-	coo.nr=coo.nc=0;/* FIXME: why ? */
+	coo.nr=coo.nc=0; // to have rsb__allocate_coo_matrix_t allocate nnz and not more
 	if(rsb__allocate_coo_matrix_t(&coo)!=&coo)
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	rsb__util_coo_array_set(coo.IA,coo.nnz,0);
 	errval = rsb__do_get_csc(mtxAp,(rsb_byte_t**)(&coo.VA),&coo.JA,&coo.IA);
 	coo.nr=mtxAp->nr;
 	coo.nc=mtxAp->nc;
 	if(RSB_SOME_ERROR(errval))
 	{
-		RSB_ERROR(RSB_ERRM_ES);
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
 	coop->typecode=mtxAp->typecode;
 	rsb__do_mtx_free(mtxAp);

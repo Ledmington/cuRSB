@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -48,16 +48,14 @@ static rsb_nnz_idx_t isign(rsb_nnz_idx_t i,rsb_nnz_idx_t j)
 	return j>=0?ia:-ia;
 }
 
-int rsb_do_msort_up(rsb_nnz_idx_t n, const rsb_nnz_idx_t * RSB_RESTRICT k, rsb_nnz_idx_t * RSB_RESTRICT l)
+rsb_err_t rsb__do_msort_up(rsb_nnz_idx_t n, const rsb_nnz_idx_t * RSB_RESTRICT k, rsb_nnz_idx_t * RSB_RESTRICT l)
 {
 	/**
 	 	\ingroup gr_internals
 		Adapted C code from PSBLAS Fortran msort_up routine.
 		\param n
 		\param k an n   sized array, for input indices
-		\param l an n+2 sized array, for permutation links
-	
-		TODO : document
+		\param l an n+2 sized array, for output permutation links
 	*/
 	/* integer k(n),l(0:n+1) */
 	rsb_nnz_idx_t p,q,s,t;
@@ -184,20 +182,17 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-int rsb__do_msort_up2coo(rsb_nnz_idx_t n, const rsb_coo_idx_t * k, rsb_nnz_idx_t * l)
+rsb_err_t rsb__do_msort_up2coo(rsb_nnz_idx_t n, const rsb_coo_idx_t * k, rsb_nnz_idx_t * l)
 {
 	/**
 	 	\ingroup gr_internals
 		Adapted C code from PSBLAS Fortran msort_up routine.
 		Modified to handle lexicographical order.
-		The only difference with rsb_do_msort_up is the comparison on k.
+		The only difference with rsb__do_msort_up is the comparison on k.
 
 		\param n
 		\param k an 2*n   sized array, for input indices
-		\param l an n+2 sized array, for permutation links
-	
-		TODO : document
-		FIXME : UNTESTED, UNFINISHED
+		\param l an n+2 sized array, for output permutation links
 	*/
 	/* integer k(n),l(0:n+1) */
 	rsb_nnz_idx_t p,q,s,t;

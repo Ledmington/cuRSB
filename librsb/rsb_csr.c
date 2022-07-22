@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2019 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -30,54 +30,51 @@ If not, see <http://www.gnu.org/licenses/>.
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
-static rsb_err_t rsb_is_correctly_built_csr_matrix(const rsb_nnz_idx_t * PA, const rsb_coo_idx_t * JA, const rsb_coo_idx_t nrA, const rsb_coo_idx_t ncA, const rsb_nnz_idx_t nnz, const rsb_coo_idx_t ib /* index base */)
+static rsb_err_t rsb_is_correctly_built_csr_matrix(const rsb_nnz_idx_t * PA, const rsb_coo_idx_t * JA, const rsb_coo_idx_t nrA, const rsb_coo_idx_t ncA, const rsb_nnz_idx_t nnz, const rsb_coo_idx_t ib)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	rsb_nnz_idx_t ni;
 	rsb_coo_idx_t ri;
+	const rsb_coo_idx_t pb = ib;
+	const rsb_coo_idx_t jb = ib; /* ib = index base */
 
 	if(!PA ||!JA || RSB_INVALID_COO_INDEX(nrA)|| RSB_INVALID_COO_INDEX(ncA)|| RSB_INVALID_NNZ_INDEX(nnz))
 	{
 		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,"PA:%p JA:%p nrA:%d ncA:%d nnzA:%d\n",PA,JA,nrA,ncA,nnz);
+		RSB_PERR_GOTO(err,"PA:%p JA:%p nrA:%zd ncA:%zd nnzA:%zd\n",PA,JA,(rsb_printf_int_t)nrA,(rsb_printf_int_t)ncA,(rsb_printf_int_t)nnz);
 	}
 
-	if(PA[nrA]-ib!=nnz)
+	if(PA[nrA]!=nnz+pb)
 	{
 		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,"PA[nrA]=%d vs nnzA=%d (ib=%d)\n",PA[nrA],nnz,ib);
+		RSB_PERR_GOTO(err,"PA[nrA]=%zd vs nnzA=%zd (pb=%zd)\n",(rsb_printf_int_t)PA[nrA],(rsb_printf_int_t)nnz,(rsb_printf_int_t)pb);
 	}
 
 	for(ri=0;ri<nrA;++ri)
 	{
-#if 0
-		if(!rsb__util_is_coo_array_sorted_up(JA+IP[nr],IP[nr+1]-IP[nr]))
-		{
-			RSB_PERR_GOTO(err,"bindx seems unsorted!\n");
-		}
-#endif
+		rsb_nnz_idx_t ni;
+
 		if(PA[ri]>PA[ri+1])
 		{
 			errval = RSB_ERR_BADARGS;
-			RSB_PERR_GOTO(err,"PA[%d]>PA[%d]: %d>%d (row off its bounds)\n",ri,ri+1,PA[ri],PA[ri+1]);
+			RSB_PERR_GOTO(err,"PA[%zd]>PA[%zd]: %zd>%zd (row off its bounds)\n",(rsb_printf_int_t)ri,(rsb_printf_int_t)(ri+1),(rsb_printf_int_t)(PA[ri]),(rsb_printf_int_t)(PA[ri+1]));
 		}
 		if(PA[ri+1]-PA[ri] > ncA)
 		{
 			errval = RSB_ERR_BADARGS;
 			RSB_PERR_GOTO(err,RSB_ERRM_ES);
 		}
-		for(ni=PA[ri]-ib;ni<PA[ri+1]-ib;++ni)
+		for(ni=PA[ri]-pb;ni<PA[ri+1]-pb;++ni)
 		{
-			if(ni+1<PA[ri+1]-ib)
-			if(JA[ni]>=JA[ni+1])
+			if(ni+1<PA[ri+1]-pb)
+				if(JA[ni]>=JA[ni+1])
+				{
+					errval = RSB_ERR_BADARGS;
+					RSB_PERR_GOTO(err,"i=%zd JA[%zd]>=JA[%zd]: %zd>=%zd (adjacent duplicates)\n",(rsb_printf_int_t)ri,(rsb_printf_int_t)ni,(rsb_printf_int_t)(ni+1),(rsb_printf_int_t)JA[ni],(rsb_printf_int_t)JA[ni+1]);
+				}
+			if(JA[ni]-jb>=ncA)
 		       	{
 				errval = RSB_ERR_BADARGS;
-				RSB_PERR_GOTO(err,"i=%d JA[%d]>=JA[%d]: %d>=%d (adjacent duplicates)\n",ri,ni,ni+1,JA[ni],JA[ni+1]);
-			}
-			if(JA[ni]-ib>=ncA)
-		       	{
-				errval = RSB_ERR_BADARGS;
-				RSB_PERR_GOTO(err,"i=%d  JA[%d]>=ncA: %d >= %d (column exceeding matrix)\n",ri,ni,JA[ni],ncA);
+				RSB_PERR_GOTO(err,"i=%zd  JA[%zd]-%zd>=ncA: %zd >= %zd (column exceeding matrix)\n",(rsb_printf_int_t)ri,(rsb_printf_int_t)ni,(rsb_printf_int_t)jb,(rsb_printf_int_t)JA[ni],(rsb_printf_int_t)ncA);
 			}
 		}
 	}

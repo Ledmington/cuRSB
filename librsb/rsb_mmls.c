@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -27,32 +27,9 @@ If not, see <http://www.gnu.org/licenses/>.
  */
 #include "rsb_common.h"
 #include "rsb_internals.h"
-int rsb_mtx_ls_main(const int argc, char * argv[])
+int rsb_mtx_ls_main(const int argc, char * argv[], rsb_bool_t want_latex)
 {
-#if 0
-	rsb_option options[] = {
-	    {"matrix-ls",		no_argument, NULL,  0x006D6C73},/* should be synced to rsb_mtx_ls_main */
-	    {0,0,0,0}
-	};
-	int opt_index = 0;
-	const char * flags="";
-	int c;
-    	for (;;)
-	{
-		c = rsb_getopt_long(argc, argv, flags , options, &opt_index);
-		if (c == -1)break;
-
-		switch (c)
-		{
-			case 0x006D6C73:
-				++a0;
-			default:
-			break;
-	    	}
-	}
-#endif
-	rsb_bool_t want_latex = RSB_BOOL_TRUE;
-	int a,a0=1;
+	int a;
 
 	if(want_latex)
 		RSB_STDOUT(
@@ -64,7 +41,7 @@ int rsb_mtx_ls_main(const int argc, char * argv[])
 			"matrix & rows & columns & nnz & nnz/row \\\\\\hline\n"
 			  );
 
-	for(a=a0;a<argc;++a)
+	for(a=1;a<argc;++a)
 	if(argv[a][0]!='-')
 	{
 		const char * filename = argv[a];
@@ -111,15 +88,6 @@ int rsb_mtx_ls_main(const int argc, char * argv[])
 			"\\end{table}\n"
 			);
 
-
-	return 0;
+	return RSB_PROGRAM_SUCCESS;
 }
-
-/*
-int main(const int argc, char * const argv[])
-{
-	return rsb_mtx_ls_main(argc,argv);
-}
-*/
-
 /* @endcond */

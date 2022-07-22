@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -30,8 +30,6 @@ If not, see <http://www.gnu.org/licenses/>.
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
-#define RSB_WANT_DO_LOCK_TEST 0
-
 /*
  TODO: one shall reduce the external interface, e.g. to a single rsb__lock function.
 */
@@ -41,7 +39,7 @@ rsb_bool_t rsb__do_lock_release(struct rsb_rows_lock_struct_t *lock, rsb_thr_t t
 	/* *
 	 * 	\ingroup gr_internals
 	 * */
-	if(RSB__TRSV_OUT_)RSB_INFO("thread %d releases  %d %d\n",th_id,lock->coresrowf[th_id],lock->coresrowl[th_id]);
+	if(RSB__TRSV_OUT_)RSB_INFO("thread %zd releases  %zd %zd\n",(rsb_printf_int_t)th_id,(rsb_printf_int_t)lock->coresrowf[th_id],(rsb_printf_int_t)lock->coresrowl[th_id]);
 	lock->corescoll[th_id]=RSB_MARKER_COO_VALUE;
 	lock->corescolf[th_id]=RSB_MARKER_COO_VALUE;
 	lock->coresrowl[th_id]=RSB_MARKER_COO_VALUE;
@@ -49,6 +47,7 @@ rsb_bool_t rsb__do_lock_release(struct rsb_rows_lock_struct_t *lock, rsb_thr_t t
 	return RSB_BOOL_TRUE;
 }
 
+#if RSB_WANT_DO_LOCK_TEST
 static RSB_INLINE rsb_bool_t rsb_do_lock_check_if_matrix_done(const struct rsb_rows_lock_struct_t *lock, rsb_submatrix_idx_t subm)
 {
 	/**
@@ -59,6 +58,7 @@ static RSB_INLINE rsb_bool_t rsb_do_lock_check_if_matrix_done(const struct rsb_r
 	else
 		return RSB_BOOL_FALSE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
 static RSB_INLINE rsb_bool_t rsb_do_lock_check_interval(const struct rsb_rows_lock_struct_t *lock, rsb_thr_t th_id, rsb_coo_idx_t roff, rsb_coo_idx_t m, rsb_coo_idx_t coff, rsb_coo_idx_t k, rsb_trans_t transA)
 {
@@ -83,7 +83,7 @@ static RSB_INLINE rsb_bool_t rsb_do_lock_check_interval(const struct rsb_rows_lo
 			|| ((lock->corescolf[tn] <= roff) && (lock->corescoll[tn]+1 > roff))
 			))
 		{
-			if(RSB__TRSV_OUT_)RSB_INFO("%d %d blocks %d %d\n",lock->coresrowf[tn],lock->coresrowl[tn],roff,m);
+			if(RSB__TRSV_OUT_)RSB_INFO("%zd %zd blocks %zd %zd\n",(rsb_printf_int_t)lock->coresrowf[tn],(rsb_printf_int_t)lock->coresrowl[tn],(rsb_printf_int_t)roff,(rsb_printf_int_t)m);
 			goto l_false;
 		}
 	}
@@ -95,7 +95,7 @@ static RSB_INLINE rsb_bool_t rsb_do_lock_check_interval(const struct rsb_rows_lo
 			&& (((lock->coresrowf[tn] >= roff) && (lock->coresrowf[tn] < roff+m))
 			|| ((lock->coresrowf[tn] <= roff) && (lock->coresrowl[tn]+1 > roff))))
 		{
-			if(RSB__TRSV_OUT_)RSB_INFO("%d %d blocks %d %d\n",lock->coresrowf[tn],lock->coresrowl[tn],roff,m);
+			if(RSB__TRSV_OUT_)RSB_INFO("%zd %zd blocks %zd %zd\n",(rsb_printf_int_t)lock->coresrowf[tn],(rsb_printf_int_t)lock->coresrowl[tn],(rsb_printf_int_t)roff,(rsb_printf_int_t)m);
 				goto l_false;
 		}
 	
@@ -105,7 +105,7 @@ static RSB_INLINE rsb_bool_t rsb_do_lock_check_interval(const struct rsb_rows_lo
 			&& (((lock->corescolf[tn] >= coff) && (lock->corescolf[tn] < coff+k))
 			|| ((lock->corescolf[tn] <= coff) && (lock->corescoll[tn]+1 > coff))))
 		{
-			if(RSB__TRSV_OUT_)RSB_INFO("%d %d blocks %d %d\n",lock->coresrowf[tn],lock->coresrowl[tn],coff,k);
+			if(RSB__TRSV_OUT_)RSB_INFO("%zd %zd blocks %zd %zd\n",(rsb_printf_int_t)lock->coresrowf[tn],(rsb_printf_int_t)lock->coresrowl[tn],(rsb_printf_int_t)coff,(rsb_printf_int_t)k);
 			goto l_false;
 		}
 	}
@@ -158,7 +158,7 @@ rsb_bool_t rsb__do_lock_get(struct rsb_rows_lock_struct_t *lock, rsb_thr_t th_id
 
 	RSB_DO_LOCK_INTERVALS(lock,th_id,roff,m,coff,k);
 
-	if(RSB__TRSV_OUT_)RSB_INFO("thread %d locks  %d %d with matrix %d\n",th_id,lock->coresrowf[th_id],lock->coresrowl[th_id],subm);
+	if(RSB__TRSV_OUT_)RSB_INFO("thread %zd locks  %zd %zd with matrix %zd\n",(rsb_printf_int_t)th_id,(rsb_printf_int_t)lock->coresrowf[th_id],(rsb_printf_int_t)lock->coresrowl[th_id],(rsb_printf_int_t)subm);
 l_true:
 	/* 
 	 * WARNING : this does not mean that the matrix is 'done'.
@@ -176,13 +176,18 @@ rsb_err_t rsb__do_lock_init(struct rsb_rows_lock_struct_t *lock, rsb_int_t num_t
 {
 	/** 
 	 * 	\ingroup gr_internals
+	 *
+	 * 	Initializes lock data.
+	 * 	Up to RSB__MAX_BITMAP_SUBMS_ON_STACK it won't allocate the bitmap but use own.
+	 * 	So this excludes shallow copy.
+	 * 	If RSB__MAX_BITMAP_SUBMS_ON_STACK is zero, shallow copy OK and will always allocate the bitmap.
 	 * */
 	rsb_int tn;
 
-	if(!mtxAp || !lock)
-		return RSB_ERR_BADARGS;
-
+	RSB_ASSERT(mtxAp);
+	RSB_ASSERT(lock);
 	RSB_BZERO_P(lock);
+
 	lock->nt=num_threads;
 	for(tn=0;tn<RSB_CONST_MAX_SUPPORTED_CORES; ++tn)
 		lock->corescolf[tn]=RSB_MARKER_COO_VALUE, lock->corescoll[tn]=RSB_MARKER_COO_VALUE,
@@ -191,7 +196,14 @@ rsb_err_t rsb__do_lock_init(struct rsb_rows_lock_struct_t *lock, rsb_int_t num_t
 	lock->subms=subms;
 	lock->want_symlock = rsb__is_not_unsymmetric(mtxAp);
 	lock->want_fake_lock=(op_flags == RSB_OP_FLAG_FAKE_LOCK);
-	lock->bmap = rsb__allocate_bitvector(subms);
+
+#if RSB__MAX_BITMAP_SUBMS_ON_STACK > 0
+	if ( subms <= RSB__MAX_BITMAP_SUBMS_ON_STACK )
+		lock->bmap = (rsb_bitmap_data_t*) & (lock->bos);
+	else
+#endif
+		lock->bmap = rsb__allocate_bitvector(subms);
+
 	return (lock->bmap!=NULL)?RSB_ERR_NO_ERROR:RSB_ERR_ENOMEM;
 }
 
@@ -200,9 +212,14 @@ rsb_err_t rsb__do_lock_free(struct rsb_rows_lock_struct_t *lock)
 	/** 
 	 * 	\ingroup gr_internals
 	 * */
-	if(!lock)
-		return RSB_ERR_BADARGS;
-	RSB_CONDITIONAL_FREE(lock->bmap);
+	RSB_ASSERT(lock);
+	RSB_ASSERT(lock->subms > 0);
+
+#if RSB__MAX_BITMAP_SUBMS_ON_STACK > 0
+	if( lock->subms > RSB__MAX_BITMAP_SUBMS_ON_STACK )
+#endif
+		RSB_CONDITIONAL_FREE(lock->bmap);
+
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -216,6 +233,7 @@ size_t static rsb_do_log2(size_t n)
 	 * FIXME : document this
 	 */
 	size_t res = 0;
+
 	while(n /= 2)
 		++res;
 	return res;
@@ -223,13 +241,16 @@ size_t static rsb_do_log2(size_t n)
 #endif /* RSB_WANT_DO_LOCK_TEST */
 
 #define RSB_MULTINT_BY_TWO(X)   ((X)<<1)	/* FIXME: this is not portable */
+#if RSB_WANT_DO_LOCK_TEST
 #define RSB_UPPER_BOUNDING_LOG2(X) (rsb_do_log2(rsb__nearest_power_of_two(X)))
+#endif
 #define RSB_LOUD_BTILS_TESTING 0 /*  */
 #define RSB_LOUD_MVL_TESTING 0   /* multivector lock   */
 #define RSB_LOUD_MVR_TESTING 0   /* multivector reduce */
 #define RSB_INHIBIT_MULTIVECTOR 1   /* multivector reduce */
 #define RSB_INHIBIT_REDUCE 0   /* multivector reduce */
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_err_t rsb_do_btils_init(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t itl, rsb_coo_idx_t nlevels)
 {
 	/**
@@ -264,7 +285,9 @@ static rsb_err_t rsb_do_btils_init(struct rsb_bti_lock_struct * lock, rsb_coo_id
 err:
 	return errval;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_err_t rsb_do_btils_free(struct rsb_bti_lock_struct * lock)
 {
 	/** 
@@ -278,7 +301,9 @@ static rsb_err_t rsb_do_btils_free(struct rsb_bti_lock_struct * lock)
 	RSB_CONDITIONAL_FREE(lock->tmap);
 	return RSB_ERR_NO_ERROR;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_coo_idx_t rsb_do_rindex_to_lindex(rsb_coo_idx_t r0, rsb_coo_idx_t r1, rsb_coo_idx_t n, rsb_coo_idx_t nlevels)
 {
 	/** 
@@ -324,7 +349,9 @@ static rsb_coo_idx_t rsb_do_rindex_to_lindex(rsb_coo_idx_t r0, rsb_coo_idx_t r1,
 		RSB_INFO("@ bit %d + %d\n",l0,offset);
 	return offset+l0;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TES
 static rsb_bool_t rsb_do_btils_lock_update_tmap(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t i)
 {
 	rsb_coo_idx_t iu,il,ii;
@@ -377,7 +404,9 @@ l_done:
 		RSB_INFO("taint map:\n"),rsb__do_dump_bitmap(lock->tmap,1,lock->bsz),RSB_INFO("\n");
 	return RSB_BOOL_TRUE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 static RSB_INLINE rsb_bool_t rsb_do_btils_lock_probe_inner(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t i)
 {
 	/**
@@ -411,7 +440,9 @@ static RSB_INLINE rsb_bool_t rsb_do_btils_lock_probe_inner(struct rsb_bti_lock_s
 l_false:
 	return RSB_BOOL_FALSE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_bool_t rsb_do_btils_lock_probe(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t m0, rsb_coo_idx_t m1, rsb_coo_idx_t *ip)
 {
 	/**
@@ -428,7 +459,9 @@ static rsb_bool_t rsb_do_btils_lock_probe(struct rsb_bti_lock_struct * lock, rsb
 l_false:
 	return RSB_BOOL_FALSE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_bool_t rsb_do_btils_lock_get_sym(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t m0, rsb_coo_idx_t m1, rsb_coo_idx_t k0, rsb_coo_idx_t k1, rsb_trans_t transA, rsb_coo_idx_t *ip, rsb_coo_idx_t *jp)
 {
 	/** 
@@ -469,7 +502,9 @@ l_false:
 		RSB_INFO("(nlev=%d)(%d .. %d) -> (%d %d) busy \n",lock->nlevels,m0,m1,i,j);
 	return RSB_BOOL_FALSE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_bool_t rsb_do_btils_lock_get(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t m0, rsb_coo_idx_t m1, rsb_trans_t transA, rsb_coo_idx_t *ip, rsb_coo_idx_t *jp)
 {
 	/** 
@@ -501,7 +536,9 @@ l_false:
 		RSB_INFO("(nlev=%d)(%d .. %d) -> %d busy \n",lock->nlevels,m0,m1,i);
 	return RSB_BOOL_FALSE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_err_t rsb_do_get_interval_info_from_btils_lock(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t i, rsb_coo_idx_t *m0p, rsb_coo_idx_t * m1p)
 {
 	/** 
@@ -535,8 +572,10 @@ static rsb_err_t rsb_do_get_interval_info_from_btils_lock(struct rsb_bti_lock_st
 	*m1p=m1;
 	return RSB_ERR_NO_ERROR;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
-void RSB_INLINE rsb_do_btils_lock_release_inner(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t i)
+#if RSB_WANT_DO_LOCK_TEST
+static void RSB_INLINE rsb__do_btils_lock_release_inner(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t i)
 {
 	/** 
 	 * 	\ingroup gr_internals
@@ -553,6 +592,7 @@ void RSB_INLINE rsb_do_btils_lock_release_inner(struct rsb_bti_lock_struct * loc
 		rsb__do_dump_bitmap(lock->bmap,1,lock->bsz),RSB_INFO(" (%d)\n",lock->bsz);
 	}
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
 #if RSB_WANT_DO_LOCK_TEST
 static rsb_err_t rsb_do_btils_lock_release(struct rsb_bti_lock_struct * lock, rsb_coo_idx_t m0, rsb_coo_idx_t m1)
@@ -563,11 +603,13 @@ static rsb_err_t rsb_do_btils_lock_release(struct rsb_bti_lock_struct * lock, rs
 	 * 	FIXME: deprecated
 	 * */
 	rsb_coo_idx_t i;
+
 	if(!lock)
 		return RSB_ERR_BADARGS;
+
 	i = rsb_do_rindex_to_lindex(m0,m1,lock->itl,lock->nlevels);
 	RSB_ASSERT(i>=0);
-	rsb_do_btils_lock_release_inner(lock,i);
+	rsb__do_btils_lock_release_inner(lock,i);
 	return RSB_ERR_NO_ERROR;
 }
 #endif /* RSB_WANT_DO_LOCK_TEST */
@@ -575,6 +617,7 @@ static rsb_err_t rsb_do_btils_lock_release(struct rsb_bti_lock_struct * lock, rs
 #define RSB_MV_OFFSET(LOCK,INDEX,OFFSET) \
 	((((rsb_char_t *)((LOCK)->mv[INDEX]))) +(LOCK)->el_size*(OFFSET))
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_err_t rsb__do_mv_lock_release_single(struct rsb_mv_lock_t *lock, rsb_thr_t th_id, rsb_char_t *ov)
 {
 	/* *
@@ -608,12 +651,12 @@ static rsb_err_t rsb__do_mv_lock_release_single(struct rsb_mv_lock_t *lock, rsb_
 			if(lock->it[th_id]!=RSB_MARKER_COO_VALUE)
 			{
 				if(RSB_LOUD_MVL_TESTING) RSB_INFO("releasing inner\n");
-				rsb_do_btils_lock_release_inner(vlock,lock->it[th_id]);
+				rsb__do_btils_lock_release_inner(vlock,lock->it[th_id]);
 			}
 			if(lock->in[th_id]!=RSB_MARKER_COO_VALUE)
 			{
 				if(RSB_LOUD_MVL_TESTING) RSB_INFO("releasing inner\n");
-				rsb_do_btils_lock_release_inner(vlock,lock->in[th_id]);
+				rsb__do_btils_lock_release_inner(vlock,lock->in[th_id]);
 			}
 			lock->it[th_id]=RSB_MARKER_COO_VALUE;
 			lock->in[th_id]=RSB_MARKER_COO_VALUE;
@@ -628,7 +671,9 @@ failure:
 ok:
 	return RSB_ERR_NO_ERROR;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 rsb_err_t rsb__do_mv_lock_release(struct rsb_mv_lock_t *lock, rsb_thr_t th_id, rsb_char_t *ov)
 {
 	/* *
@@ -674,7 +719,9 @@ failure:
 ok:
 	return RSB_ERR_NO_ERROR;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_bool_t rsb_do_is_bitmap_blank(rsb_bitmap_data_t *bmap, rsb_coo_idx_t r, rsb_coo_idx_t c)
 {
 	/* *
@@ -690,7 +737,9 @@ static rsb_bool_t rsb_do_is_bitmap_blank(rsb_bitmap_data_t *bmap, rsb_coo_idx_t 
 	}
 	return RSB_BOOL_TRUE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 static rsb_bool_t rsb_do_is_bitvector_blank(rsb_bitmap_data_t *bmap, rsb_coo_idx_t c)
 {
 	/* *
@@ -698,8 +747,10 @@ static rsb_bool_t rsb_do_is_bitvector_blank(rsb_bitmap_data_t *bmap, rsb_coo_idx
 	 * */
 	return rsb_do_is_bitmap_blank(bmap,1,c);
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
-rsb_bool_t rsb_do_mv_lock_is_used(struct rsb_mv_lock_t *lock)
+#if RSB_WANT_DO_LOCK_TEST
+static rsb_bool_t rsb__do_mv_lock_is_used(struct rsb_mv_lock_t *lock)
 {
 	/* *
 	 * 	\ingroup gr_internals
@@ -713,8 +764,10 @@ rsb_bool_t rsb_do_mv_lock_is_used(struct rsb_mv_lock_t *lock)
 	}
 	return RSB_BOOL_FALSE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
-rsb_bool_t rsb_do_mv_lock_is_tainted(struct rsb_mv_lock_t *lock)
+#if RSB_WANT_DO_LOCK_TEST
+static rsb_bool_t rsb__do_mv_lock_is_tainted(struct rsb_mv_lock_t *lock)
 {
 	/* *
 	 * 	\ingroup gr_internals
@@ -728,7 +781,9 @@ rsb_bool_t rsb_do_mv_lock_is_tainted(struct rsb_mv_lock_t *lock)
 	}
 	return RSB_BOOL_FALSE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 rsb_err_t rsb__do_mv_lock_free(struct rsb_mv_lock_t *lock)
 {
 	/* *
@@ -738,7 +793,7 @@ rsb_err_t rsb__do_mv_lock_free(struct rsb_mv_lock_t *lock)
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 #if !RSB_INHIBIT_MULTIVECTOR
-	rsb_bool_t tainted = rsb_do_mv_lock_is_tainted(lock);
+	rsb_bool_t tainted = rsb__do_mv_lock_is_tainted(lock);
 #endif /* RSB_INHIBIT_MULTIVECTOR */
 	if(RSB_LOUD_MVL_TESTING)
 	{
@@ -753,7 +808,7 @@ rsb_err_t rsb__do_mv_lock_free(struct rsb_mv_lock_t *lock)
 #if RSB_INHIBIT_REDUCE
 	/* no reduce. this will produce wrong results, of course */
 #else /* RSB_INHIBIT_REDUCE */
-	if(rsb_do_mv_lock_is_used(lock))
+	if(rsb__do_mv_lock_is_used(lock))
 	{
 		errval = RSB_ERR_INTERNAL_ERROR;
 		RSB_PERR_GOTO(err,"no vector should not be in use before reducing!");
@@ -781,7 +836,6 @@ rsb_err_t rsb__do_mv_lock_free(struct rsb_mv_lock_t *lock)
 		rsb_thr_t th_id = omp_get_thread_num();
 		rsb_coo_idx_t oincy=lock->incov,rh,r0;
 		rsb_char_t *ov=NULL;
-		extern struct rsb_session_handle_t rsb_global_session_handle;
 
 		if(th_id>=lock->nv)
 			goto skip;
@@ -796,11 +850,11 @@ rsb_err_t rsb__do_mv_lock_free(struct rsb_mv_lock_t *lock)
 				if(lock->nv)
 					RSB_INFO("taint maps:\n");
 				for(nvi=0;nvi<lock->nv;++nvi)
-					rsb__do_dump_bitmap(lock->locks[nvi].tmap,1,lock->locks[nvi].bsz),RSB_INFO(" (%d)\n",rsb_do_mv_lock_is_tainted(lock));
+					rsb__do_dump_bitmap(lock->locks[nvi].tmap,1,lock->locks[nvi].bsz),RSB_INFO(" (%d)\n",rsb__do_mv_lock_is_tainted(lock));
 				if(lock->nv)
 					RSB_INFO("use maps:\n");
 				for(nvi=0;nvi<lock->nv;++nvi)
-					rsb__do_dump_bitmap(lock->locks[nvi].bmap,1,lock->locks[nvi].bsz),RSB_INFO(" (%d)\n",rsb_do_mv_lock_is_tainted(lock));
+					rsb__do_dump_bitmap(lock->locks[nvi].bmap,1,lock->locks[nvi].bsz),RSB_INFO(" (%d)\n",rsb__do_mv_lock_is_tainted(lock));
 			}
 
 			ov=lock->ov;
@@ -820,7 +874,7 @@ rsb_err_t rsb__do_mv_lock_free(struct rsb_mv_lock_t *lock)
 	                   	{ rsb__do_release_candidate_interval_for_reduce(lock,th_id,ov,r0,rh); }
 			}
 			#pragma omp critical (rsb_lock_crs)
-			{ tainted = rsb_do_mv_lock_is_tainted(lock); }
+			{ tainted = rsb__do_mv_lock_is_tainted(lock); }
 	}
 skip:
 		#pragma omp barrier
@@ -858,7 +912,9 @@ nosync:
 err:
 	RSB_DO_ERR_RETURN(errval)
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 rsb_err_t rsb__do_mv_lock_init(struct rsb_mv_lock_t *lock, rsb_int_t num_threads, rsb_submatrix_idx_t subms, const struct rsb_mtx_t * mtxAp, enum rsb_op_flags_t op_flags, rsb_trans_t transA, rsb_char_t * ov, rsb_coo_idx_t incov)
 {
 	/* *
@@ -930,7 +986,9 @@ err1:
 err0:
 	RSB_DO_ERR_RETURN(errval)
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_DO_LOCK_TEST
 rsb_bool_t rsb__do_mv_lock_get(struct rsb_mv_lock_t *lock ,rsb_thr_t th_id, rsb_coo_idx_t roff, rsb_coo_idx_t m, rsb_coo_idx_t coff, rsb_coo_idx_t k, rsb_submatrix_idx_t subm, rsb_trans_t transA, rsb_char_t **ov, rsb_coo_idx_t *incov)
 {
 	/* *
@@ -1016,7 +1074,9 @@ found:
 	RSB_BITVECTOR_SET(lock->olock.bmap,lock->olock.subms,subm);
 	return RSB_BOOL_TRUE;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
+#if RSB_WANT_SPMV_WITH_REDUCE
 rsb_err_t rsb__do_release_candidate_interval_for_reduce(struct rsb_mv_lock_t *lock, rsb_thr_t th_id, rsb_char_t *ov, rsb_coo_idx_t roff, rsb_coo_idx_t m)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -1030,7 +1090,9 @@ rsb_err_t rsb__do_release_candidate_interval_for_reduce(struct rsb_mv_lock_t *lo
 		RSB_INFO("releasing reduce interval %d .. %d from thread %d\n",m0,m1,th_id);
 	RSB_DO_ERR_RETURN(errval)
 }
+#endif /* RSB_WANT_SPMV_WITH_REDUCE */
 
+#if RSB_WANT_SPMV_WITH_REDUCE
 rsb_err_t rsb__do_pick_candidate_interval_for_reduce(struct rsb_mv_lock_t *lock, rsb_thr_t th_id, rsb_char_t ** ov, rsb_coo_idx_t * roff, rsb_coo_idx_t * m)
 {
 	/*
@@ -1110,8 +1172,10 @@ err:
 done:
 	return errval;
 }
+#endif /* RSB_WANT_SPMV_WITH_REDUCE */
 
-rsb_err_t rsb_do_perform_partial_reduce(struct rsb_mv_lock_t *lock, rsb_thr_t th_id, rsb_trans_t transA, rsb_coo_idx_t incv)
+#if RSB_WANT_DO_LOCK_TEST
+rsb_err_t rsb__do_perform_partial_reduce(struct rsb_mv_lock_t *lock, rsb_thr_t th_id, rsb_trans_t transA, rsb_coo_idx_t incv)
 {
 	/* FIXME: this is only an example routine */
 	rsb_char_t * ov=NULL;
@@ -1137,6 +1201,7 @@ rsb_err_t rsb_do_perform_partial_reduce(struct rsb_mv_lock_t *lock, rsb_thr_t th
 done:
 	return RSB_ERR_NO_ERROR;
 }
+#endif /* RSB_WANT_DO_LOCK_TEST */
 
 #if RSB_WANT_DO_LOCK_TEST
 rsb_err_t rsb__do_lock_test()
@@ -1150,6 +1215,8 @@ rsb_err_t rsb__do_lock_test()
        	rsb_coo_idx_t itl=8,nlevels = RSB_UPPER_BOUNDING_LOG2(itl);
 	rsb_int in,it,i;
        	rsb_trans_t transA = RSB_TRANSPOSITION_N;
+
+	RSB_INFO("LOCK TEST: BEGIN\n");
 
 	RSB_ASSERT(nlevels==3);
 	if((errval = rsb_do_btils_init(&lock,itl,nlevels))!=RSB_ERR_NO_ERROR)
@@ -1207,7 +1274,8 @@ rsb_err_t rsb__do_lock_test()
 	 * need symmetry and transposition support.
 	 * need routines for reducing the temporary vectors after 'failed' double loops
 	 * */
-	RSB_INFO("binary tree lock test ok\n");
+	RSB_INFO("BINARY LOCK TEST OK\n");
+	//RSB_INFO("binary tree lock test ok\n");
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
        	struct rsb_mv_lock_t lock;
@@ -1220,6 +1288,7 @@ rsb_err_t rsb__do_lock_test()
        	rsb_submatrix_idx_t subms=0;
 	rsb_coo_idx_t incv=1;
 	mtxAp = rsb__generate_dense_lower_triangular(2000,NULL,RSB_NUMERICAL_TYPE_DEFAULT);
+
 	if(!mtxAp)
 	{ RSB_PERR_GOTO(erri,RSB_ERRM_ES); }
        	subms=mtxAp->all_leaf_matrices_n;
@@ -1244,8 +1313,8 @@ RSB_ASSERT(!rsb__do_mv_lock_get(&lock,th_id+3,submatrix->roff,submatrix->nr,subm
 	RSB_ASSERT(!rsb__do_mv_lock_release(&lock,th_id,oy));	/* harmless duplicate */
 	RSB_ASSERT(!rsb__do_mv_lock_release(&lock,th_id+1,oX));	/* harmless duplicate */
 
-	rsb_do_perform_partial_reduce(&lock,th_id,transA,incv);
-	rsb_do_perform_partial_reduce(&lock,th_id+1,transA,incv);
+	rsb__do_perform_partial_reduce(&lock,th_id,transA,incv);
+	rsb__do_perform_partial_reduce(&lock,th_id+1,transA,incv);
 
 	/* 
 		The following idea was inspired by Frigo's 'reducers & hyperobjects' paper.
@@ -1256,11 +1325,14 @@ RSB_ASSERT(!rsb__do_mv_lock_get(&lock,th_id+3,submatrix->roff,submatrix->nr,subm
 	       	would "propose" the thread to perform a "partial reduce".
 
 	 * */
+#if RSB_INT_ERR_VERBOSITY==1
 	/* TODO: this way of handling things forces 'incx' to be 1, then */
 	RSB_INFO("FIXME: missing handling of after-reduce release.\n");
+#endif /* RSB_INT_ERR_VERBOSITY */
 	goto oki;
 erri:
-	RSB_INFO("binary tree based multi-lock test problems..\n");
+	//RSB_INFO("binary tree based multi-lock test problems..\n");
+	RSB_INFO("LOCK TEST: END (PROBLEMS)\n");
 oki:
 	RSB_MTX_FREE(mtxAp);
 	RSB_CONDITIONAL_FREE(y);
@@ -1268,7 +1340,8 @@ oki:
 }
 	goto ok;
 ok:
-	RSB_INFO("binary tree based multi-lock test ok\n");
+	//RSB_INFO("binary tree based multi-lock test ok\n");
+	RSB_INFO("BINARY LOCK TEST: END (SUCCESS)\n");
 	return RSB_ERR_NO_ERROR;
 err:
 	RSB_DO_ERR_RETURN(errval)

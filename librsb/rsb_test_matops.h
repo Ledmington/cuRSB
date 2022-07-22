@@ -10,7 +10,7 @@
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -39,13 +39,13 @@ If not, see <http://www.gnu.org/licenses/>.
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- But for block compressed sparse stripes format.
+ For block coordinates format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -70,6 +70,7 @@ If not, see <http://www.gnu.org/licenses/>.
  p.s.: right now, only row major matrix access is considered.
 
  */
+
 #ifndef RSB_TEST_MATOPS_H_INCLUDED
 #define RSB_TEST_MATOPS_H_INCLUDED
 
@@ -77,6 +78,9 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb-config.h"
 #include "rsb_common.h"
 #include "rsb_mkl.h"
+#if RSB_WANT_ARMPL
+#include <armpl.h>
+#endif /* RSB_WANT_MKL */
 
 #if RSB_WITH_LIKWID
 #include <likwid.h>
@@ -100,10 +104,6 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_INT_MILLION 1000000
 #define RSB_REAL_MILLION 1000000.0 
 enum rsb_dumpvec_enum { rsb_dumpvec_no= 0, rsb_dumpvec_res= 1, rsb_dumpvec_rhs= 2 };
-
-#if RSB_HAVE_LIBGEN_H
-#include <libgen.h>	/* for basename (20101226 FIXME : superseded by rsb__basename usage)*/
-#endif /* RSB_HAVE_LIBGEN_H */
 
 #define RSB_HAVE_METIS 0 /* FIXME: unfinished */
 #if RSB_HAVE_METIS
@@ -141,18 +141,35 @@ extern "C" {
 #endif /* RSB_WITH_LIKWID */
 
 
-#define RSB_WANT_PERFORMANCE_COUNTERS_IN_RSBENCH  defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS==1)
+#if defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS==1)
+#define RSB_WANT_PERFORMANCE_COUNTERS_IN_RSBENCH 1
+#else
+#define RSB_WANT_PERFORMANCE_COUNTERS_IN_RSBENCH 0
+#endif
 
 
 
 
 
+int rsb_test_help_and_exit(const rsb_char_t *argv0, const rsb_option_t *o, int code);
 
-int rsb_test_help_and_exit(const rsb_char_t *argv0, rsb_option *o, int code);
-/* one function for each of (spmv_uaua,spsv_uxua,mat_stats)*/
-int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const argv[])
+#ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
+	#define RSBENCH_MEM_ALLOC_INFO(LT) RSBENCH_STDOUT("( allocated_memory:%zd allocations_count:%zd allocations_cumulative:%zd)%s",rsb_global_session_handle.allocated_memory,rsb_global_session_handle.allocations_count,rsb_global_session_handle.allocations_cumulative,LT);
+#else
+	#define RSBENCH_MEM_ALLOC_INFO(LT)
+#endif
+
+#if RSB_WANT_ARMPL
+
+
+
+rsb_err_t rsb__armpl_csr_spmv_bench(const void *VA, const armpl_int_t m, const armpl_int_t k, const armpl_int_t nnz, const armpl_int_t * IP, const armpl_int_t *JA, const void * x, void * y, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp,rsb_bool_t want_at);
+#endif /* RSB_WANT_ARMPL */
+
+/* one function for each of (spmv_sxsa,spsv_sxsx,mat_stats)*/
+int rsb__main_block_partitioned_spmv_sxsa(const int argc, rsb_char_t * const argv[])
 ;
-int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const argv[])
+int rsb__main_block_partitioned_spsv_sxsx(const int argc, rsb_char_t * const argv[])
 ;
 int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const argv[])
 ;

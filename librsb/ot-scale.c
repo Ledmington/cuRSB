@@ -1,1 +1,1 @@
-static int f(){return 0;}
+int f_scale(void){return 0;}

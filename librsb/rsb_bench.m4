@@ -7,7 +7,7 @@ dnl
  @file
  @brief
 
- Performance info gathering code. (OBSOLETE)
+ Former performance info gathering code; now obsoleted and used as test.
  */
 dnl
 include(`rsb_misc.m4')dnl
@@ -54,7 +54,7 @@ dnl	---------------------------------
 dnl
 define(`RSB_M4_HYPERBOLIC_FITTING_FUNCTION_IDENTIFIER',`dnl
 dnl
-`rsb_fit_hyp'dnl
+`rsb__fit_hyp'dnl
 dnl
 ')dnl
 dnl
@@ -199,10 +199,12 @@ ifdef(`ONLY_WANT_HEADERS',`;
 #if 
 		cblas_dgemm(CblasColMajor,CblasTrans,CblasNoTrans,3,3,n,1.0,G,n,G1,n,0.0,GG,3);
 		errval =  clapack_dgetrf(CblasColMajor,3,3,GG,3,ipivot);
-		if(RSB_SOME_ERROR(errval)) goto err;
+		if(RSB_SOME_ERROR(errval))
+			RSB_PERR_GOTO(err,RSB_ERRM_ES);
 		cblas_dgemv(CblasColMajor,CblasTrans,n,3,1.0,G,n,dy,1,0.0,ddy,1);
 		errval =  clapack_dgetrs(CblasColMajor,CblasNoTrans,3,1,GG,3,ipivot,ddy,3);
-		if(RSB_SOME_ERROR(errval)) goto err;
+		if(RSB_SOME_ERROR(errval))
+			RSB_PERR_GOTO(err,RSB_ERRM_ES);
 #else /* (RSB_HAVE_CLAPACK && RSB_HAVE_CBLAS) */
 #endif /* (RSB_HAVE_CLAPACK && RSB_HAVE_CBLAS) */
 	
@@ -296,7 +298,8 @@ ifdef(`ONLY_WANT_HEADERS',`;
 	}
 
 	return RSB_ERR_NO_ERROR;
-	err:
+err:
+	RSB_ERROR(RSB_ERRM_ES);
 	RSB_DO_ERR_RETURN(errval)
 #endif /* RSB_HAVE_CLAPACK && RSB_HAVE_CBLAS */
 }
@@ -353,15 +356,9 @@ ifdef(`ONLY_WANT_HEADERS',`;
 {
 	/*!
 	 * \ingroup gr_bench
-	 * A complete benchmark program.
-	 * Will benchmark all supported matrix operations over all supported types
-	 * over all supported matrix partitionings.
-	 *
-	 * Moreover, it WILL perform analysis of performance data and results dumput.
+	 * Benchmark/test all supported matrix operations over all supported types.
          *
 	 * \return \rsb_errval_inp_param_msg
-         *
-	 * FIXME : UNFINISHED: should process and dump this info in a header file.
 	 */
 	struct rsb_global_reference_performance_info_t grpi;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -375,9 +372,10 @@ ifdef(`ONLY_WANT_HEADERS',`;
 	size_t kernels_n = RSB_ROWS_UNROLL_ARRAY_LENGTH*RSB_COLUMNS_UNROLL_ARRAY_LENGTH*RSB_IMPLEMENTED_MOPS*RSB_IMPLEMENTED_TYPES;
 	rsb_int ti=0;	/* type index */
 	int fbw,bwi;
+	const rsb_time_t mrbt = rsb__getenv_real_t("RSB_BENCHMARK_MIN_SECONDS", RSB_BENCHMARK_MIN_SECONDS);
 	RSB_BZERO_P(&grpi);
 
-	/* if((errval = rsb_lib_init(RSB_NULL_INIT_OPTIONS))){goto err;} we skip this to enable calling this from within our library (FIXME) */
+	/* if((errval = rsb_lib_init(RSB_NULL_INIT_OPTIONS))) RSB_PERR_GOTO(err,RSB_ERRM_ES); we skip this to enable calling this from within our library */
 
 	if(RSB_FITTING_SAMPLES<2)
 	{	
@@ -391,7 +389,7 @@ ifdef(`ONLY_WANT_HEADERS',`;
 	}
 	
 	tot_secs = -rsb_time();
-	pred_secs *= RSB_ROWS_UNROLL_ARRAY_LENGTH * RSB_COLUMNS_UNROLL_ARRAY_LENGTH * RSB_FITTING_SAMPLES * RSB_IMPLEMENTED_META_MOPS *  RSB_IMPLEMENTED_TYPES * RSB_BENCHMARK_MIN_SECONDS;
+	pred_secs *= RSB_ROWS_UNROLL_ARRAY_LENGTH * RSB_COLUMNS_UNROLL_ARRAY_LENGTH * RSB_FITTING_SAMPLES * RSB_IMPLEMENTED_META_MOPS *  RSB_IMPLEMENTED_TYPES * mrbt;
 	RSB_STDERR("#reference benchmarking of %zd kernels (no transposed, no symmetric, and so on) should take at least %lg seconds..\n",kernels_n,pred_secs);
 
 foreach(`mtype',RSB_M4_MATRIX_TYPES,`dnl
@@ -417,7 +415,7 @@ foreach(`mtype',RSB_M4_MATRIX_TYPES,`dnl
 				if(!mtxAp)
 				{
 					RSB_STDERR(RSB_ERRM_IE);
-					{errval = RSB_ERR_GENERIC_ERROR; goto err;}
+					{errval = RSB_ERR_GENERIC_ERROR; RSB_PERR_GOTO(err,RSB_ERRM_ES); }
 				}
 dnl				struct rsb_options_t * o = mtxAp->options;
 
@@ -444,13 +442,13 @@ ifelse(RSB_M4_IS_ACC_WRITING_KERNEL_MOP(mop),`1',`dnl
 					
 ifelse(RSB_M4_IS_ACC_WRITING_KERNEL_MOP(mop),`1',`dnl
 					row_sums = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!row_sums) {errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
-					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
+					if(!row_sums) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
+					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
 ')dnl
 ifelse(mop,`scale',`dnl
 					mtype * scale_factors = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!scale_factors) {errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
-					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
+					if(!scale_factors) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
+					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
 ')dnl
 ifelse(RSB_M4_IS_ACC_WRITING_KERNEL_MOP(mop),`1',`dnl
 ')dnl
@@ -460,14 +458,14 @@ ifelse(RSB_M4_IS_SPXX_TWO_VECTORS_OPERATING_KERNEL_MOP(mop),1,`dnl
 					rsb_coo_idx_t cstride = rows+br;
 ifelse(RSB_M4_IS_STRIDED_KERNEL_MOP(mop),1,`dnl
 					rsb_coo_idx_t incx=1,incy=1;
-',`dnl
-					rsb_coo_idx_t incx=1,incy=1;
-')dnl
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
+',`dnl
+dnl					rsb_coo_idx_t incx=1,incy=1;
+')dnl
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
 ')dnl
 ifelse(mop,`negation',`dnl
 					int please_fix_RSB_M4_ARGS_TO_ACTUAL_ARGS=-1;/* here to fix negation */
@@ -476,7 +474,7 @@ ifelse(mop,`negation',`dnl
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our mtype library implementation for operation mop */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = dnl
@@ -504,11 +502,12 @@ RSB_M4_DIRECT_KERNEL_DISPATCH_TIMING_FUNCTION_ACTUAL_ARGS(mop,mtype));')
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop;}
 					++moi;
 
 					erri_`'RSB_M4_CHOPSPACES(mtype)`'`_'`'mop:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 ifelse(RSB_M4_IS_ACC_WRITING_KERNEL_MOP(mop),`1',`dnl
@@ -554,7 +553,6 @@ ifelse(mop,`scale',`dnl
 #if RSB_WANT_PERFORMANCE_FILE
 	rsb__save_global_reference_performance_info(&grpi);
 #endif /* RSB_WANT_PERFORMANCE_FILE */
-	return RSB_ERR_NO_ERROR;	/* FIXME : temporary */
 
 	ti=0;	/* type index */
 	for(ti=0;ti<RSB_IMPLEMENTED_TYPES	;++ti)
@@ -589,15 +587,25 @@ ifelse(mop,`scale',`dnl
 						&(grpi.gpi[ti].pipmo[moi].gamma[ri][ci]), (double)bc
 						/* FIXME : is this right ?*/
 					);
-				if(RSB_SOME_ERROR(errval))goto err;
+				if(RSB_SOME_ERROR(errval))
+				{
+					if(errval==RSB_ERR_UNSUPPORTED_OPERATION)
+						; /* not a problem: this model is obsolete */
+						/* RSB_ERROR(RSB_ERRM_UNSUPPORTED_OPERATION); */
+					else
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
+				}
+
 			}
 		}
 	}
 
-	if( rsb_lib_exit(RSB_NULL_EXIT_OPTIONS) )
-		return RSB_ERR_INTERNAL_ERROR;
-
-	return RSB_ERR_NO_ERROR;
+	errval = rsb_lib_exit(RSB_NULL_EXIT_OPTIONS);
+	if( RSB_SOME_ERROR(errval) )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+	}
 err:
 	RSB_DO_ERR_RETURN(errval)
 }

@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -33,9 +33,8 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb_internals.h"
 
 rsb_err_t rsb__util_is_valid_coo_array(const rsb_coo_idx_t * p, rsb_nnz_idx_t n);
-rsb_err_t rsb__util_are_valid_coo_arrays(const rsb_coo_idx_t * p, const rsb_coo_idx_t * q, rsb_nnz_idx_t n);
-rsb_err_t rsb__util_is_sorted_coo_as_row_major(const void *VA, const rsb_coo_idx_t *IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags );
-rsb_err_t rsb__util_is_sorted_coo(const void *VA, const rsb_coo_idx_t *MIndx, const rsb_coo_idx_t * mIndx, rsb_nnz_idx_t nnz, rsb_type_t typecode, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags );
-rsb_err_t rsb__util_is_valid_coo_struct(const struct rsb_coo_matrix_t*coop);
+/* rsb_err_t rsb__util_are_valid_coo_arrays(const rsb_coo_idx_t * p, const rsb_coo_idx_t * q, rsb_nnz_idx_t n); */
+rsb_err_t rsb__util_is_sorted_coo_as_row_major(const rsb_coo_idx_t *IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags );
+rsb_err_t rsb__util_is_valid_coo_struct(const struct rsb_coo_mtx_t*coop);
 #endif /* RSB_COO_CHECK_H_INCLUDED */
 /* @endcond */

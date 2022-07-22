@@ -74,6 +74,8 @@
         INTEGER,PARAMETER :: blas_rsb_spmv_t_autotuning_on=6664
         INTEGER,PARAMETER :: blas_rsb_spmv_t_autotuning_off=6665
         INTEGER,PARAMETER :: blas_rsb_autotune_next_operation=6666
+        INTEGER,PARAMETER :: blas_rsb_rep_rec=9993
+        INTEGER,PARAMETER :: blas_rsb_rep_hwi=9994
         INTEGER,PARAMETER :: blas_rsb_rep_rsb=9995
         INTEGER,PARAMETER :: blas_rsb_rep_csr=9996
         INTEGER,PARAMETER :: blas_rsb_rep_coo=9997

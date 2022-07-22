@@ -1,6 +1,6 @@
 ! /*
 ! 
-! Copyright (C) 2008-2020 Michele Martone
+! Copyright (C) 2008-2022 Michele Martone
 ! 
 ! This file is part of librsb.
 ! 
@@ -21,7 +21,7 @@
 ! */
 ! /*
 ! 
-! Copyright (C) 2008-2020 Michele Martone
+! Copyright (C) 2008-2022 Michele Martone
 ! 
 ! This file is part of librsb.
 ! 
@@ -62,21 +62,18 @@
       REAL*4 :: alpha=3
       REAL*4 :: beta=1
 ! A =
-! 1 2
 ! 1 0
+! 0 6
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      REAL*4 :: VA(3)=&
-          &(/1, 2, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*4 :: VA(2)=(/1, 6/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/12, 6/)! reference cy after 
+      REAL*4 :: cy(2)=(/6, 21/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -139,18 +136,21 @@
       REAL*4 :: alpha=3
       REAL*4 :: beta=1
 ! A =
-! 1 4
-! 0 0
+! 1 0
+! 1 1
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 1/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*4 :: VA(2)=(/1, 4/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 1, 2/)
+      REAL*4 :: VA(3)=&
+          &(/1, 1, 1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/6, 15/)! reference cy after 
+      REAL*4 :: cy(2)=(/9, 6/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -213,21 +213,21 @@
       REAL*4 :: alpha=3
       REAL*4 :: beta=1
 ! A =
-! 1 1
 ! 1 0
+! 1 5
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
           &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
       REAL*4 :: VA(3)=&
-          &(/1, 1, 1/)
+          &(/1, 1, 5/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/9, 6/)! reference cy after 
+      REAL*4 :: cy(2)=(/9, 18/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -290,21 +290,21 @@
       REAL*4 :: alpha=3
       REAL*4 :: beta=0
 ! A =
-! 1 1
-! 1 3
+! 1 0
+! 2 3
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      REAL*4 :: VA(4)=&
-          &(/1, 1, 1, 3/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 1, 2/)
+      REAL*4 :: VA(3)=&
+          &(/1, 2, 3/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/6, 12/)! reference cy after 
+      REAL*4 :: cy(2)=(/3, 15/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -367,21 +367,21 @@
       REAL*4 :: alpha=3
       REAL*4 :: beta=0
 ! A =
-! 1 0
-! 4 3
+! 1 6
+! 3 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 2, 2/)
-      INTEGER :: JA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
           &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
       REAL*4 :: VA(3)=&
-          &(/1, 4, 3/)
+          &(/1, 6, 3/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/15, 9/)! reference cy after 
+      REAL*4 :: cy(2)=(/12, 18/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -444,21 +444,21 @@
       REAL*4 :: alpha=3
       REAL*4 :: beta=0
 ! A =
-! 1 2
-! 0 2
+! 1 6
+! 1 4
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 2/)
-      REAL*4 :: VA(3)=&
-          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      REAL*4 :: VA(4)=&
+          &(/1, 6, 1, 4/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/3, 12/)! reference cy after 
+      REAL*4 :: cy(2)=(/6, 30/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -521,18 +521,21 @@
       REAL*4 :: alpha=1
       REAL*4 :: beta=1
 ! A =
+! 1 1
 ! 1 0
-! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=1
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(1)=(/1/)
-      INTEGER :: JA(1)=(/1/)
-      REAL*4 :: VA(1)=(/1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
+      REAL*4 :: VA(3)=&
+          &(/1, 1, 1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/4, 3/)! reference cy after 
+      REAL*4 :: cy(2)=(/5, 4/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -595,21 +598,18 @@
       REAL*4 :: alpha=1
       REAL*4 :: beta=1
 ! A =
-! 1 1
-! 0 3
+! 1 0
+! 0 2
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 2/)
-      REAL*4 :: VA(3)=&
-          &(/1, 1, 3/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*4 :: VA(2)=(/1, 2/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/4, 7/)! reference cy after 
+      REAL*4 :: cy(2)=(/4, 5/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -676,11 +676,11 @@
 ! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 1/)
-      INTEGER :: JA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
       REAL*4 :: VA(2)=(/1, 1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
       REAL*4 :: cy(2)=(/4, 4/)! reference cy after 
@@ -746,21 +746,18 @@
       REAL*4 :: alpha=1
       REAL*4 :: beta=0
 ! A =
-! 1 2
-! 2 0
+! 1 0
+! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      REAL*4 :: VA(3)=&
-          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=1
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(1)=(/1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(1)=(/1/)
+      REAL*4 :: VA(1)=(/1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/3, 2/)! reference cy after 
+      REAL*4 :: cy(2)=(/1, 0/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -824,20 +821,20 @@
       REAL*4 :: beta=0
 ! A =
 ! 1 2
-! 0 1
+! 3 1
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 2/)
-      REAL*4 :: VA(3)=&
-          &(/1, 2, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      REAL*4 :: VA(4)=&
+          &(/1, 2, 3, 1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/1, 3/)! reference cy after 
+      REAL*4 :: cy(2)=(/4, 3/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -900,21 +897,18 @@
       REAL*4 :: alpha=1
       REAL*4 :: beta=0
 ! A =
-! 1 1
-! 2 3
+! 1 0
+! 1 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      REAL*4 :: VA(4)=&
-          &(/1, 1, 2, 3/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 1/)
+      REAL*4 :: VA(2)=(/1, 1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/3, 4/)! reference cy after 
+      REAL*4 :: cy(2)=(/2, 0/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -981,11 +975,11 @@
 ! 0 1
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
       REAL*4 :: VA(2)=(/1, 1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
       REAL*4 :: cy(2)=(/2, 2/)! reference cy after 
@@ -1051,21 +1045,18 @@
       REAL*4 :: alpha=-1
       REAL*4 :: beta=1
 ! A =
-! 1 1
 ! 1 0
+! 0 2
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      REAL*4 :: VA(3)=&
-          &(/1, 1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*4 :: VA(2)=(/1, 2/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/1, 2/)! reference cy after 
+      REAL*4 :: cy(2)=(/2, 1/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -1128,21 +1119,18 @@
       REAL*4 :: alpha=-1
       REAL*4 :: beta=1
 ! A =
-! 1 2
-! 1 1
+! 1 0
+! 0 3
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      REAL*4 :: VA(4)=&
-          &(/1, 2, 1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*4 :: VA(2)=(/1, 3/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/1, 0/)! reference cy after 
+      REAL*4 :: cy(2)=(/2, 0/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -1209,12 +1197,12 @@
 ! 1 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
           &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
           &(/1, 2, 1/)
       REAL*4 :: VA(3)=&
           &(/1, 2, 1/)
@@ -1283,17 +1271,20 @@
       REAL*4 :: beta=0
 ! A =
 ! 1 0
-! 0 5
+! 2 4
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*4 :: VA(2)=(/1, 5/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 1, 2/)
+      REAL*4 :: VA(3)=&
+          &(/1, 2, 4/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/-1, -5/)! reference cy after 
+      REAL*4 :: cy(2)=(/-3, -4/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -1356,16 +1347,19 @@
       REAL*4 :: alpha=-1
       REAL*4 :: beta=0
 ! A =
-! 1 0
-! 0 4
+! 1 2
+! 0 2
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*4 :: VA(2)=(/1, 4/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 2/)
+      REAL*4 :: VA(3)=&
+          &(/1, 2, 2/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
       REAL*4 :: cy(2)=(/-1, -4/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
@@ -1434,11 +1428,11 @@
 ! 0 1
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
       REAL*4 :: VA(2)=(/1, 1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
       REAL*4 :: cy(2)=(/0, 0/)! reference cy after 
@@ -1504,18 +1498,21 @@
       REAL*4 :: alpha=-3
       REAL*4 :: beta=1
 ! A =
+! 1 3
 ! 1 0
-! 0 1
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*4 :: VA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
+      REAL*4 :: VA(3)=&
+          &(/1, 3, 1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/0, 0/)! reference cy after 
+      REAL*4 :: cy(2)=(/-3, -6/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -1579,17 +1576,17 @@
       REAL*4 :: beta=1
 ! A =
 ! 1 0
-! 1 0
+! 3 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 1/)
-      REAL*4 :: VA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 1/)
+      REAL*4 :: VA(2)=(/1, 3/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/-3, 3/)! reference cy after 
+      REAL*4 :: cy(2)=(/-9, 3/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -1652,21 +1649,21 @@
       REAL*4 :: alpha=-3
       REAL*4 :: beta=0
 ! A =
-! 1 0
-! 1 1
+! 1 2
+! 3 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 2, 2/)
-      INTEGER :: JA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
           &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
       REAL*4 :: VA(3)=&
-          &(/1, 1, 1/)
+          &(/1, 2, 3/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/-3, -6/)! reference cy after 
+      REAL*4 :: cy(2)=(/-9, -9/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -1730,17 +1727,20 @@
       REAL*4 :: beta=0
 ! A =
 ! 1 0
-! 1 0
+! 3 1
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 1/)
-      REAL*4 :: VA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 1, 2/)
+      REAL*4 :: VA(3)=&
+          &(/1, 3, 1/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/-6, 0/)! reference cy after 
+      REAL*4 :: cy(2)=(/-12, -3/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -1803,18 +1803,21 @@
       REAL*4 :: alpha=-3
       REAL*4 :: beta=0
 ! A =
-! 1 0
-! 0 1
+! 1 2
+! 3 3
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*4 :: VA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      REAL*4 :: VA(4)=&
+          &(/1, 2, 3, 3/)
       REAL*4 :: x(2)=(/1, 1/)! reference x 
-      REAL*4 :: cy(2)=(/-3, -3/)! reference cy after 
+      REAL*4 :: cy(2)=(/-12, -15/)! reference cy after 
       REAL*4 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -1877,18 +1880,18 @@
       REAL*8 :: alpha=3
       REAL*8 :: beta=1
 ! A =
-! 1 0
-! 3 0
+! 1 2
+! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 1/)
-      REAL*8 :: VA(2)=(/1, 3/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*8 :: VA(2)=(/1, 2/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/6, 12/)! reference cy after 
+      REAL*8 :: cy(2)=(/12, 3/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -1951,18 +1954,21 @@
       REAL*8 :: alpha=3
       REAL*8 :: beta=1
 ! A =
-! 1 0
+! 1 4
 ! 1 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 1/)
-      REAL*8 :: VA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
+      REAL*8 :: VA(3)=&
+          &(/1, 4, 1/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/9, 3/)! reference cy after 
+      REAL*8 :: cy(2)=(/9, 15/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2026,20 +2032,20 @@
       REAL*8 :: beta=1
 ! A =
 ! 1 2
-! 1 0
+! 2 3
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      REAL*8 :: VA(3)=&
-          &(/1, 2, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      REAL*8 :: VA(4)=&
+          &(/1, 2, 2, 3/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/9, 9/)! reference cy after 
+      REAL*8 :: cy(2)=(/12, 18/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2103,20 +2109,20 @@
       REAL*8 :: beta=0
 ! A =
 ! 1 3
-! 0 3
+! 1 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
           &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
       REAL*8 :: VA(3)=&
-          &(/1, 3, 3/)
+          &(/1, 3, 1/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/12, 9/)! reference cy after 
+      REAL*8 :: cy(2)=(/12, 3/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2179,21 +2185,21 @@
       REAL*8 :: alpha=3
       REAL*8 :: beta=0
 ! A =
-! 1 0
-! 4 6
+! 1 1
+! 3 1
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 2, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 1, 2/)
-      REAL*8 :: VA(3)=&
-          &(/1, 4, 6/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      REAL*8 :: VA(4)=&
+          &(/1, 1, 3, 1/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/15, 18/)! reference cy after 
+      REAL*8 :: cy(2)=(/12, 6/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2256,21 +2262,18 @@
       REAL*8 :: alpha=3
       REAL*8 :: beta=0
 ! A =
-! 1 3
-! 2 1
+! 1 2
+! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      REAL*8 :: VA(4)=&
-          &(/1, 3, 2, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*8 :: VA(2)=(/1, 2/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/9, 12/)! reference cy after 
+      REAL*8 :: cy(2)=(/3, 6/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2333,18 +2336,18 @@
       REAL*8 :: alpha=1
       REAL*8 :: beta=1
 ! A =
-! 1 0
-! 1 0
+! 1 2
+! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 1/)
-      REAL*8 :: VA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*8 :: VA(2)=(/1, 2/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/4, 4/)! reference cy after 
+      REAL*8 :: cy(2)=(/6, 3/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2407,21 +2410,18 @@
       REAL*8 :: alpha=1
       REAL*8 :: beta=1
 ! A =
-! 1 1
 ! 1 0
+! 2 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      REAL*8 :: VA(3)=&
-          &(/1, 1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 1/)
+      REAL*8 :: VA(2)=(/1, 2/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/5, 4/)! reference cy after 
+      REAL*8 :: cy(2)=(/6, 3/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2484,21 +2484,21 @@
       REAL*8 :: alpha=1
       REAL*8 :: beta=1
 ! A =
-! 1 4
-! 3 1
+! 1 0
+! 2 2
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      REAL*8 :: VA(4)=&
-          &(/1, 4, 3, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 1, 2/)
+      REAL*8 :: VA(3)=&
+          &(/1, 2, 2/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/7, 8/)! reference cy after 
+      REAL*8 :: cy(2)=(/6, 5/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2561,18 +2561,21 @@
       REAL*8 :: alpha=1
       REAL*8 :: beta=0
 ! A =
-! 1 0
-! 0 0
+! 1 2
+! 0 3
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=1
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(1)=(/1/)
-      INTEGER :: JA(1)=(/1/)
-      REAL*8 :: VA(1)=(/1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 2/)
+      REAL*8 :: VA(3)=&
+          &(/1, 2, 3/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/1, 0/)! reference cy after 
+      REAL*8 :: cy(2)=(/3, 3/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2635,18 +2638,18 @@
       REAL*8 :: alpha=1
       REAL*8 :: beta=0
 ! A =
-! 1 2
+! 1 1
 ! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 1/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*8 :: VA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*8 :: VA(2)=(/1, 1/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/1, 2/)! reference cy after 
+      REAL*8 :: cy(2)=(/1, 1/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2709,18 +2712,21 @@
       REAL*8 :: alpha=1
       REAL*8 :: beta=0
 ! A =
-! 1 1
-! 0 0
+! 1 2
+! 4 4
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 1/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*8 :: VA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      REAL*8 :: VA(4)=&
+          &(/1, 2, 4, 4/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/1, 1/)! reference cy after 
+      REAL*8 :: cy(2)=(/5, 6/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2784,15 +2790,18 @@
       REAL*8 :: beta=1
 ! A =
 ! 1 0
-! 0 4
+! 1 3
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*8 :: VA(2)=(/1, 4/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 1, 2/)
+      REAL*8 :: VA(3)=&
+          &(/1, 1, 3/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
       REAL*8 :: cy(2)=(/2, -1/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
@@ -2857,21 +2866,21 @@
       REAL*8 :: alpha=-1
       REAL*8 :: beta=1
 ! A =
-! 1 1
-! 2 1
+! 1 2
+! 4 3
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       REAL*8 :: VA(4)=&
-          &(/1, 1, 2, 1/)
+          &(/1, 2, 4, 3/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/0, 1/)! reference cy after 
+      REAL*8 :: cy(2)=(/-2, -2/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -2934,21 +2943,18 @@
       REAL*8 :: alpha=-1
       REAL*8 :: beta=1
 ! A =
-! 1 0
-! 2 1
+! 1 5
+! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 2, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 1, 2/)
-      REAL*8 :: VA(3)=&
-          &(/1, 2, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*8 :: VA(2)=(/1, 5/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/0, 2/)! reference cy after 
+      REAL*8 :: cy(2)=(/2, -2/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3011,21 +3017,18 @@
       REAL*8 :: alpha=-1
       REAL*8 :: beta=0
 ! A =
-! 1 1
 ! 1 0
+! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      REAL*8 :: VA(3)=&
-          &(/1, 1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=1
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(1)=(/1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(1)=(/1/)
+      REAL*8 :: VA(1)=(/1/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/-2, -1/)! reference cy after 
+      REAL*8 :: cy(2)=(/-1, 0/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3088,18 +3091,18 @@
       REAL*8 :: alpha=-1
       REAL*8 :: beta=0
 ! A =
-! 1 1
-! 0 0
+! 1 0
+! 3 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 1/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*8 :: VA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 1/)
+      REAL*8 :: VA(2)=(/1, 3/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/-1, -1/)! reference cy after 
+      REAL*8 :: cy(2)=(/-4, 0/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3163,20 +3166,17 @@
       REAL*8 :: beta=0
 ! A =
 ! 1 0
-! 5 3
+! 0 2
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 2, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 1, 2/)
-      REAL*8 :: VA(3)=&
-          &(/1, 5, 3/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      REAL*8 :: VA(2)=(/1, 2/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/-6, -3/)! reference cy after 
+      REAL*8 :: cy(2)=(/-1, -2/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3239,18 +3239,18 @@
       REAL*8 :: alpha=-3
       REAL*8 :: beta=1
 ! A =
-! 1 2
-! 0 0
+! 1 0
+! 3 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 1/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*8 :: VA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 1/)
+      REAL*8 :: VA(2)=(/1, 3/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/-6, 3/)! reference cy after 
+      REAL*8 :: cy(2)=(/0, -6/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3313,21 +3313,21 @@
       REAL*8 :: alpha=-3
       REAL*8 :: beta=1
 ! A =
-! 1 1
-! 2 1
+! 1 2
+! 3 1
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       REAL*8 :: VA(4)=&
-          &(/1, 1, 2, 1/)
+          &(/1, 2, 3, 1/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/-6, -3/)! reference cy after 
+      REAL*8 :: cy(2)=(/-9, -6/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3391,17 +3391,17 @@
       REAL*8 :: beta=1
 ! A =
 ! 1 0
-! 0 1
+! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
-      REAL*8 :: VA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=1
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(1)=(/1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(1)=(/1/)
+      REAL*8 :: VA(1)=(/1/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/0, 0/)! reference cy after 
+      REAL*8 :: cy(2)=(/0, 3/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3464,21 +3464,21 @@
       REAL*8 :: alpha=-3
       REAL*8 :: beta=0
 ! A =
-! 1 4
-! 6 1
+! 1 0
+! 2 1
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      REAL*8 :: VA(4)=&
-          &(/1, 4, 6, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 1, 2/)
+      REAL*8 :: VA(3)=&
+          &(/1, 2, 1/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/-15, -21/)! reference cy after 
+      REAL*8 :: cy(2)=(/-3, -9/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3541,21 +3541,18 @@
       REAL*8 :: alpha=-3
       REAL*8 :: beta=0
 ! A =
-! 1 1
-! 0 3
+! 1 0
+! 4 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 2/)
-      REAL*8 :: VA(3)=&
-          &(/1, 1, 3/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 1/)
+      REAL*8 :: VA(2)=(/1, 4/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/-3, -12/)! reference cy after 
+      REAL*8 :: cy(2)=(/-15, 0/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3618,21 +3615,18 @@
       REAL*8 :: alpha=-3
       REAL*8 :: beta=0
 ! A =
-! 1 2
-! 1 1
+! 1 0
+! 0 0
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      REAL*8 :: VA(4)=&
-          &(/1, 2, 1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=1
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(1)=(/1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(1)=(/1/)
+      REAL*8 :: VA(1)=(/1/)
       REAL*8 :: x(2)=(/1, 1/)! reference x 
-      REAL*8 :: cy(2)=(/-6, -9/)! reference cy after 
+      REAL*8 :: cy(2)=(/-3, 0/)! reference cy after 
       REAL*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3695,18 +3689,21 @@
       COMPLEX*8 :: alpha=3
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 3+0i
-! 0+0i 0+0i
+! 1+2i 1+1i
+! 0+1i 0+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 1/)
-      INTEGER :: JA(2)=(/1, 2/)
-      COMPLEX*8 :: VA(2)=(/(1.e0,2.e0), (3,0)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
+      COMPLEX*8 :: VA(3)=&
+          &(/(1.e0,2.e0), (1.e0,1.e0), (0,1)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(15.e0,6.e0), (3,0)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(9.e0,9.e0), (3,3)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3769,21 +3766,21 @@
       COMPLEX*8 :: alpha=3
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 3+2i
-! 0+2i 0+2i
+! 1+2i 0+1i
+! 2+1i 2+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (3.e0,2.e0), (0.e0,2.e0), (0,2)/)
+          &(/(1.e0,2.e0), (0.e0,1.e0), (2.e0,1.e0), (2,0)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(6.e0,12.e0), (12,12)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(12.e0,9.e0), (9,3)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3846,21 +3843,21 @@
       COMPLEX*8 :: alpha=3
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 0+0i
-! 1+0i 0+4i
+! 1+2i 1+1i
+! 1+1i 1+4i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 2, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 1, 2/)
-      COMPLEX*8 :: VA(3)=&
-          &(/(1.e0,2.e0), (1.e0,0.e0), (0,4)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*8 :: VA(4)=&
+          &(/(1.e0,2.e0), (1.e0,1.e0), (1.e0,1.e0), (1,4)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(9.e0,-6.e0), (3,-12)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(9.e0,-9.e0), (9,-15)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -3923,21 +3920,18 @@
       COMPLEX*8 :: alpha=3
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 1+1i
-! 3+1i 0+0i
+! 1+2i 0+0i
+! 0+0i 1+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      COMPLEX*8 :: VA(3)=&
-          &(/(1.e0,2.e0), (1.e0,1.e0), (3,1)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      COMPLEX*8 :: VA(2)=(/(1.e0,2.e0), (1,0)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(6.e0,9.e0), (9,3)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(3.e0,6.e0), (3,0)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4000,21 +3994,21 @@
       COMPLEX*8 :: alpha=3
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 0+3i
-! 3+3i 2+2i
+! 1+2i 5+2i
+! 0+2i 4+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,3.e0), (3.e0,3.e0), (2,2)/)
+          &(/(1.e0,2.e0), (5.e0,2.e0), (0.e0,2.e0), (4,2)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(12.e0,15.e0), (6,15)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(3.e0,12.e0), (27,12)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4077,21 +4071,21 @@
       COMPLEX*8 :: alpha=3
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 2+2i
-! 0+2i 0+0i
+! 1+2i 0+1i
+! 3+1i 0+4i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      COMPLEX*8 :: VA(3)=&
-          &(/(1.e0,2.e0), (2.e0,2.e0), (0,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*8 :: VA(4)=&
+          &(/(1.e0,2.e0), (0.e0,1.e0), (3.e0,1.e0), (0,4)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(3.e0,-12.e0), (6,-6)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(12.e0,-9.e0), (0,-15)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4154,21 +4148,21 @@
       COMPLEX*8 :: alpha=1
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 0+6i
-! 1+6i 2+2i
+! 1+2i 2+3i
+! 3+3i 0+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,6.e0), (1.e0,6.e0), (2,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
+      COMPLEX*8 :: VA(3)=&
+          &(/(1.e0,2.e0), (2.e0,3.e0), (3,3)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(4.e0,8.e0), (6,8)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(6.e0,5.e0), (6,3)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4231,21 +4225,21 @@
       COMPLEX*8 :: alpha=1
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 0+5i
-! 0+5i 0+2i
+! 1+2i 4+2i
+! 0+2i 1+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,5.e0), (0.e0,5.e0), (0,2)/)
+          &(/(1.e0,2.e0), (4.e0,2.e0), (0.e0,2.e0), (1,2)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(4.e0,7.e0), (3,7)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(4.e0,4.e0), (8,4)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4308,21 +4302,21 @@
       COMPLEX*8 :: alpha=1
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 1+1i
-! 0+1i 0+6i
+! 1+2i 0+6i
+! 6+6i 0+4i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (1.e0,1.e0), (0.e0,1.e0), (0,6)/)
+          &(/(1.e0,2.e0), (0.e0,6.e0), (6.e0,6.e0), (0,4)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(4.e0,-3.e0), (4,-7)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(10.e0,-8.e0), (3,-10)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4385,21 +4379,21 @@
       COMPLEX*8 :: alpha=1
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 0+3i
-! 3+3i 0+0i
+! 1+2i 0+0i
+! 2+0i 1+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
           &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
       COMPLEX*8 :: VA(3)=&
-          &(/(1.e0,2.e0), (0.e0,3.e0), (3,3)/)
+          &(/(1.e0,2.e0), (2.e0,0.e0), (1,2)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(1.e0,5.e0), (3,3)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(1.e0,2.e0), (3,2)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4462,21 +4456,21 @@
       COMPLEX*8 :: alpha=1
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 0+5i
-! 0+5i 0+2i
+! 1+2i 1+3i
+! 3+3i 0+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,5.e0), (0.e0,5.e0), (0,2)/)
+          &(/(1.e0,2.e0), (1.e0,3.e0), (3.e0,3.e0), (0,2)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(1.e0,7.e0), (0,7)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(4.e0,5.e0), (1,5)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4539,21 +4533,21 @@
       COMPLEX*8 :: alpha=1
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 1+1i
-! 1+1i 0+2i
+! 1+2i 3+0i
+! 4+0i 3+4i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (1.e0,1.e0), (1.e0,1.e0), (0,2)/)
+          &(/(1.e0,2.e0), (3.e0,0.e0), (4.e0,0.e0), (3,4)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(2.e0,-3.e0), (1,-3)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(5.e0,-2.e0), (6,-4)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4616,21 +4610,21 @@
       COMPLEX*8 :: alpha=-1
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 0+1i
-! 2+1i 1+4i
+! 1+2i 0+2i
+! 1+2i 1+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,1.e0), (2.e0,1.e0), (1,4)/)
+          &(/(1.e0,2.e0), (0.e0,2.e0), (1.e0,2.e0), (1,6)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(2.e0,-3.e0), (0,-5)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(2.e0,-4.e0), (1,-8)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4693,21 +4687,21 @@
       COMPLEX*8 :: alpha=-1
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 1+2i
-! 0+2i 0+2i
+! 1+2i 1+0i
+! 0+0i 0+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (1.e0,2.e0), (0.e0,2.e0), (0,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 2/)
+      COMPLEX*8 :: VA(3)=&
+          &(/(1.e0,2.e0), (1.e0,0.e0), (0,6)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(2.e0,-4.e0), (2,-4)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(2.e0,-2.e0), (2,-6)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4770,21 +4764,21 @@
       COMPLEX*8 :: alpha=-1
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 2+6i
-! 1+6i 0+12i
+! 1+2i 5+8i
+! 2+8i 0+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (2.e0,6.e0), (1.e0,6.e0), (0,12)/)
+          &(/(1.e0,2.e0), (5.e0,8.e0), (2.e0,8.e0), (0,6)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(1.e0,8.e0), (1,18)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(0.e0,10.e0), (-2,14)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4847,21 +4841,21 @@
       COMPLEX*8 :: alpha=-1
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 0+3i
-! 0+3i 0+0i
+! 1+2i 0+0i
+! 3+0i 4+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
           &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
       COMPLEX*8 :: VA(3)=&
-          &(/(1.e0,2.e0), (0.e0,3.e0), (0,3)/)
+          &(/(1.e0,2.e0), (3.e0,0.e0), (4,2)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(-1.e0,-5.e0), (0,-3)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(-1.e0,-2.e0), (-7,-2)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -4924,21 +4918,21 @@
       COMPLEX*8 :: alpha=-1
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 0+1i
-! 2+1i 0+0i
+! 1+2i 5+0i
+! 0+0i 4+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
           &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 2/)
       COMPLEX*8 :: VA(3)=&
-          &(/(1.e0,2.e0), (0.e0,1.e0), (2,1)/)
+          &(/(1.e0,2.e0), (5.e0,0.e0), (4,6)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(-3.e0,-3.e0), (0,-1)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(-1.e0,-2.e0), (-9,-6)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5001,21 +4995,21 @@
       COMPLEX*8 :: alpha=-1
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 2+3i
-! 0+3i 0+2i
+! 1+2i 1+0i
+! 0+0i 2+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (2.e0,3.e0), (0.e0,3.e0), (0,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 2/)
+      COMPLEX*8 :: VA(3)=&
+          &(/(1.e0,2.e0), (1.e0,0.e0), (2,0)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(-1.e0,5.e0), (-2,5)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(-1.e0,2.e0), (-3,0)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5078,18 +5072,21 @@
       COMPLEX*8 :: alpha=-3
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 0+0i
-! 0+0i 0+0i
+! 1+2i 3+4i
+! 1+4i 1+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=1
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(1)=(/1/)
-      INTEGER :: JA(1)=(/1/)
-      COMPLEX*8 :: VA(1)=(/(1,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*8 :: VA(4)=&
+          &(/(1.e0,2.e0), (3.e0,4.e0), (1.e0,4.e0), (1,0)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(0.e0,-6.e0), (3,0)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(-9.e0,-18.e0), (-3,-12)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5152,21 +5149,21 @@
       COMPLEX*8 :: alpha=-3
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 0+0i
-! 2+0i 0+2i
+! 1+2i 0+5i
+! 0+5i 1+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 2, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 1, 2/)
-      COMPLEX*8 :: VA(3)=&
-          &(/(1.e0,2.e0), (2.e0,0.e0), (0,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*8 :: VA(4)=&
+          &(/(1.e0,2.e0), (0.e0,5.e0), (0.e0,5.e0), (1,2)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(-6.e0,-6.e0), (3,-6)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(0.e0,-21.e0), (0,-21)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5229,21 +5226,21 @@
       COMPLEX*8 :: alpha=-3
       COMPLEX*8 :: beta=1
 ! A =
-! 1+2i 2+3i
-! 1+3i 0+0i
+! 1+2i 0+2i
+! 0+2i 0+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      COMPLEX*8 :: VA(3)=&
-          &(/(1.e0,2.e0), (2.e0,3.e0), (1,3)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*8 :: VA(4)=&
+          &(/(1.e0,2.e0), (0.e0,2.e0), (0.e0,2.e0), (0,6)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(-3.e0,15.e0), (-3,9)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(0.e0,12.e0), (3,24)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5307,20 +5304,20 @@
       COMPLEX*8 :: beta=0
 ! A =
 ! 1+2i 0+1i
-! 5+1i 0+6i
+! 1+1i 1+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,1.e0), (5.e0,1.e0), (0,6)/)
+          &(/(1.e0,2.e0), (0.e0,1.e0), (1.e0,1.e0), (1,2)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(-3.e0,-9.e0), (-15,-21)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(-3.e0,-9.e0), (-6,-9)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5384,20 +5381,17 @@
       COMPLEX*8 :: beta=0
 ! A =
 ! 1+2i 1+0i
-! 2+0i 3+0i
+! 0+0i 0+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      COMPLEX*8 :: VA(4)=&
-          &(/(1.e0,2.e0), (1.e0,0.e0), (2.e0,0.e0), (3,0)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 1/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      COMPLEX*8 :: VA(2)=(/(1.e0,2.e0), (1,0)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(-9.e0,-6.e0), (-12,0)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(-3.e0,-6.e0), (-3,0)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5460,21 +5454,21 @@
       COMPLEX*8 :: alpha=-3
       COMPLEX*8 :: beta=0
 ! A =
-! 1+2i 0+1i
-! 2+1i 0+0i
+! 1+2i 0+0i
+! 1+0i 1+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
           &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
       COMPLEX*8 :: VA(3)=&
-          &(/(1.e0,2.e0), (0.e0,1.e0), (2,1)/)
+          &(/(1.e0,2.e0), (1.e0,0.e0), (1,0)/)
       COMPLEX*8 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*8 :: cy(2)=(/(-9.e0,9.e0), (0,3)/)! reference cy after 
+      COMPLEX*8 :: cy(2)=(/(-6.e0,6.e0), (-3,0)/)! reference cy after 
       COMPLEX*8 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5537,21 +5531,21 @@
       COMPLEX*16 :: alpha=3
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 1+6i
-! 2+6i 1+0i
+! 1+2i 2+1i
+! 0+1i 1+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (1.e0,6.e0), (2.e0,6.e0), (1,0)/)
+          &(/(1.e0,2.e0), (2.e0,1.e0), (0.e0,1.e0), (1,0)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(9.e0,24.e0), (12,18)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(12.e0,9.e0), (6,3)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5614,21 +5608,21 @@
       COMPLEX*16 :: alpha=3
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 0+1i
-! 4+1i 0+10i
+! 1+2i 0+2i
+! 0+2i 1+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,1.e0), (4.e0,1.e0), (0,10)/)
+          &(/(1.e0,2.e0), (0.e0,2.e0), (0.e0,2.e0), (1,6)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(18.e0,9.e0), (3,33)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(6.e0,12.e0), (6,24)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5691,21 +5685,21 @@
       COMPLEX*16 :: alpha=3
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 3+1i
-! 2+1i 2+8i
+! 1+2i 4+0i
+! 0+0i 1+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (3.e0,1.e0), (2.e0,1.e0), (2,8)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 2/)
+      COMPLEX*16 :: VA(3)=&
+          &(/(1.e0,2.e0), (4.e0,0.e0), (1,0)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(12.e0,-9.e0), (18,-27)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(6.e0,-6.e0), (18,0)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5768,18 +5762,21 @@
       COMPLEX*16 :: alpha=3
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 0+0i
-! 0+0i 0+2i
+! 1+2i 2+2i
+! 0+2i 1+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
-      COMPLEX*16 :: VA(2)=(/(1.e0,2.e0), (0,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*16 :: VA(4)=&
+          &(/(1.e0,2.e0), (2.e0,2.e0), (0.e0,2.e0), (1,0)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(3.e0,6.e0), (0,6)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(9.e0,12.e0), (3,6)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5842,21 +5839,21 @@
       COMPLEX*16 :: alpha=3
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 4+3i
-! 0+3i 0+8i
+! 1+2i 1+6i
+! 0+6i 2+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (4.e0,3.e0), (0.e0,3.e0), (0,8)/)
+          &(/(1.e0,2.e0), (1.e0,6.e0), (0.e0,6.e0), (2,2)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(3.e0,15.e0), (12,33)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(3.e0,24.e0), (9,24)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5919,21 +5916,21 @@
       COMPLEX*16 :: alpha=3
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 6+0i
-! 0+0i 0+6i
+! 1+2i 0+3i
+! 0+3i 3+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 2/)
-      COMPLEX*16 :: VA(3)=&
-          &(/(1.e0,2.e0), (6.e0,0.e0), (0,6)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*16 :: VA(4)=&
+          &(/(1.e0,2.e0), (0.e0,3.e0), (0.e0,3.e0), (3,2)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(3.e0,-6.e0), (18,-18)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(3.e0,-15.e0), (9,-15)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -5996,21 +5993,21 @@
       COMPLEX*16 :: alpha=1
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 0+3i
-! 2+3i 2+0i
+! 1+2i 0+2i
+! 1+2i 0+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,3.e0), (2.e0,3.e0), (2,0)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
+      COMPLEX*16 :: VA(3)=&
+          &(/(1.e0,2.e0), (0.e0,2.e0), (1,2)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(4.e0,5.e0), (7,3)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(4.e0,4.e0), (4,2)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6073,21 +6070,21 @@
       COMPLEX*16 :: alpha=1
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 0+1i
-! 0+1i 2+6i
+! 1+2i 0+2i
+! 0+2i 0+4i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,1.e0), (0.e0,1.e0), (2,6)/)
+          &(/(1.e0,2.e0), (0.e0,2.e0), (0.e0,2.e0), (0,4)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(4.e0,3.e0), (5,7)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(4.e0,4.e0), (3,6)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6150,21 +6147,21 @@
       COMPLEX*16 :: alpha=1
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 0+0i
-! 1+0i 0+4i
+! 1+2i 0+3i
+! 1+3i 2+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 2, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 1, 2/)
-      COMPLEX*16 :: VA(3)=&
-          &(/(1.e0,2.e0), (1.e0,0.e0), (0,4)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*16 :: VA(4)=&
+          &(/(1.e0,2.e0), (0.e0,3.e0), (1.e0,3.e0), (2,0)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(5.e0,-2.e0), (3,-4)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(5.e0,-5.e0), (5,-3)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6227,18 +6224,21 @@
       COMPLEX*16 :: alpha=1
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 0+0i
-! 0+0i 0+4i
+! 1+2i 1+2i
+! 0+2i 0+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
-      COMPLEX*16 :: VA(2)=(/(1.e0,2.e0), (0,4)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
+      COMPLEX*16 :: VA(3)=&
+          &(/(1.e0,2.e0), (1.e0,2.e0), (0,2)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(1.e0,2.e0), (0,4)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(2.e0,4.e0), (0,2)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6301,21 +6301,21 @@
       COMPLEX*16 :: alpha=1
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 0+2i
-! 1+2i 4+4i
+! 1+2i 1+4i
+! 0+4i 2+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,2.e0), (1.e0,2.e0), (4,4)/)
+          &(/(1.e0,2.e0), (1.e0,4.e0), (0.e0,4.e0), (2,2)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(2.e0,4.e0), (4,6)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(1.e0,6.e0), (3,6)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6378,21 +6378,21 @@
       COMPLEX*16 :: alpha=1
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 1+1i
-! 1+1i 0+0i
+! 1+2i 1+2i
+! 0+2i 3+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      COMPLEX*16 :: VA(3)=&
-          &(/(1.e0,2.e0), (1.e0,1.e0), (1,1)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*16 :: VA(4)=&
+          &(/(1.e0,2.e0), (1.e0,2.e0), (0.e0,2.e0), (3,0)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(2.e0,-3.e0), (1,-1)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(1.e0,-4.e0), (4,-2)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6455,18 +6455,21 @@
       COMPLEX*16 :: alpha=-1
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 0+0i
-! 0+0i 0+2i
+! 1+2i 1+2i
+! 0+2i 0+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 2/)
-      INTEGER :: JA(2)=(/1, 2/)
-      COMPLEX*16 :: VA(2)=(/(1.e0,2.e0), (0,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
+      COMPLEX*16 :: VA(3)=&
+          &(/(1.e0,2.e0), (1.e0,2.e0), (0,2)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(2.e0,-2.e0), (3,-2)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(1.e0,-4.e0), (3,-2)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6529,21 +6532,21 @@
       COMPLEX*16 :: alpha=-1
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 1+1i
-! 1+1i 0+6i
+! 1+2i 2+3i
+! 2+3i 0+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (1.e0,1.e0), (1.e0,1.e0), (0,6)/)
+          &(/(1.e0,2.e0), (2.e0,3.e0), (2.e0,3.e0), (0,6)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(1.e0,-3.e0), (2,-7)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(0.e0,-5.e0), (1,-9)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6606,21 +6609,18 @@
       COMPLEX*16 :: alpha=-1
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 0+3i
-! 0+3i 0+0i
+! 1+2i 0+0i
+! 0+0i 0+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      COMPLEX*16 :: VA(3)=&
-          &(/(1.e0,2.e0), (0.e0,3.e0), (0,3)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      COMPLEX*16 :: VA(2)=(/(1.e0,2.e0), (0,2)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(2.e0,5.e0), (3,3)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(2.e0,2.e0), (3,2)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6683,21 +6683,21 @@
       COMPLEX*16 :: alpha=-1
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 2+0i
-! 1+0i 0+2i
+! 1+2i 4+1i
+! 0+1i 5+4i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (2.e0,0.e0), (1.e0,0.e0), (0,2)/)
+          &(/(1.e0,2.e0), (4.e0,1.e0), (0.e0,1.e0), (5,4)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(-3.e0,-2.e0), (-1,-2)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(-5.e0,-3.e0), (-5,-5)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6760,21 +6760,21 @@
       COMPLEX*16 :: alpha=-1
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 3+0i
-! 3+0i 1+2i
+! 1+2i 1+1i
+! 1+1i 0+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (3.e0,0.e0), (3.e0,0.e0), (1,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 2, 1/)
+      COMPLEX*16 :: VA(3)=&
+          &(/(1.e0,2.e0), (1.e0,1.e0), (1,1)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(-4.e0,-2.e0), (-4,-2)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(-2.e0,-3.e0), (-1,-1)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6837,18 +6837,21 @@
       COMPLEX*16 :: alpha=-1
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 0+0i
-! 0+0i 0+0i
+! 1+2i 0+1i
+! 0+1i 0+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=1
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(1)=(/1/)
-      INTEGER :: JA(1)=(/1/)
-      COMPLEX*16 :: VA(1)=(/(1,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*16 :: VA(4)=&
+          &(/(1.e0,2.e0), (0.e0,1.e0), (0.e0,1.e0), (0,2)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(-1.e0,2.e0), (0,0)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(-1.e0,3.e0), (0,3)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6911,21 +6914,18 @@
       COMPLEX*16 :: alpha=-3
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 4+4i
-! 4+4i 1+2i
+! 1+2i 0+0i
+! 0+0i 0+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (4.e0,4.e0), (4.e0,4.e0), (1,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 2/)
+      COMPLEX*16 :: VA(2)=(/(1.e0,2.e0), (0,6)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(-12.e0,-18.e0), (-12,-18)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(0.e0,-6.e0), (3,-18)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -6988,18 +6988,18 @@
       COMPLEX*16 :: alpha=-3
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 4+0i
-! 0+0i 0+0i
+! 1+2i 0+0i
+! 1+0i 0+0i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=2
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(2)=(/1, 1/)
-      INTEGER :: JA(2)=(/1, 2/)
-      COMPLEX*16 :: VA(2)=(/(1.e0,2.e0), (4,0)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(2)=(/1, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(2)=(/1, 1/)
+      COMPLEX*16 :: VA(2)=(/(1.e0,2.e0), (1,0)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(0.e0,-6.e0), (-9,0)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(-3.e0,-6.e0), (3,0)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -7062,21 +7062,21 @@
       COMPLEX*16 :: alpha=-3
       COMPLEX*16 :: beta=1
 ! A =
-! 1+2i 0+4i
-! 3+4i 1+0i
+! 1+2i 1+1i
+! 1+1i 0+2i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (0.e0,4.e0), (3.e0,4.e0), (1,0)/)
+          &(/(1.e0,2.e0), (1.e0,1.e0), (1.e0,1.e0), (0,2)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(-9.e0,18.e0), (0,12)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(-3.e0,9.e0), (0,9)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -7139,21 +7139,21 @@
       COMPLEX*16 :: alpha=-3
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 2+1i
-! 3+1i 1+0i
+! 1+2i 0+3i
+! 0+3i 0+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
           &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
           &(/1, 2, 1, 2/)
       COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (2.e0,1.e0), (3.e0,1.e0), (1,0)/)
+          &(/(1.e0,2.e0), (0.e0,3.e0), (0.e0,3.e0), (0,6)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(-9.e0,-9.e0), (-12,-3)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(-3.e0,-15.e0), (0,-27)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -7216,21 +7216,21 @@
       COMPLEX*16 :: alpha=-3
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 1+0i
-! 1+0i 0+0i
+! 1+2i 3+3i
+! 5+3i 0+6i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=3
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(3)=&
-          &(/1, 1, 2/)
-      INTEGER :: JA(3)=&
-          &(/1, 2, 1/)
-      COMPLEX*16 :: VA(3)=&
-          &(/(1.e0,2.e0), (1.e0,0.e0), (1,0)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=4
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(4)=&
+          &(/1, 1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(4)=&
+          &(/1, 2, 1, 2/)
+      COMPLEX*16 :: VA(4)=&
+          &(/(1.e0,2.e0), (3.e0,3.e0), (5.e0,3.e0), (0,6)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(-6.e0,-6.e0), (-3,0)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(-18.e0,-15.e0), (-9,-27)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0
@@ -7293,21 +7293,21 @@
       COMPLEX*16 :: alpha=-3
       COMPLEX*16 :: beta=0
 ! A =
-! 1+2i 1+4i
-! 1+4i 4+2i
+! 1+2i 0+0i
+! 1+0i 0+10i
 
       ! declaration of VA,IA,JA 
-      INTEGER :: nnz=4
-      INTEGER :: nr=2
-      INTEGER :: nc=2
-      INTEGER :: IA(4)=&
-          &(/1, 1, 2, 2/)
-      INTEGER :: JA(4)=&
-          &(/1, 2, 1, 2/)
-      COMPLEX*16 :: VA(4)=&
-          &(/(1.e0,2.e0), (1.e0,4.e0), (1.e0,4.e0), (4,2)/)
+      INTEGER(KIND=RSB_IDX_KIND) :: nnz=3
+      INTEGER(KIND=RSB_IDX_KIND) :: nr=2
+      INTEGER(KIND=RSB_IDX_KIND) :: nc=2
+      INTEGER(KIND=RSB_IDX_KIND) :: IA(3)=&
+          &(/1, 2, 2/)
+      INTEGER(KIND=RSB_IDX_KIND) :: JA(3)=&
+          &(/1, 1, 2/)
+      COMPLEX*16 :: VA(3)=&
+          &(/(1.e0,2.e0), (1.e0,0.e0), (0,10)/)
       COMPLEX*16 :: x(2)=(/1, 1/)! reference x 
-      COMPLEX*16 :: cy(2)=(/(-6.e0,18.e0), (-15,18)/)! reference cy after 
+      COMPLEX*16 :: cy(2)=(/(-6.e0,6.e0), (0,30)/)! reference cy after 
       COMPLEX*16 :: y(2)=(/3, 3/)! y will be overwritten
 
       errval=0

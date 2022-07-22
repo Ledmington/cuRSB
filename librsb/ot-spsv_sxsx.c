@@ -1,1 +1,1 @@
-static int f(){return 0;}
+int f_spsv_sxsx(void){return 0;}

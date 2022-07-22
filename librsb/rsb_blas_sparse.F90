@@ -1,5 +1,5 @@
 ! 
-! Copyright (C) 2008-2015 Michele Martone
+! Copyright (C) 2008-2021 Michele Martone
 ! 
 ! This file is part of librsb.
 ! 
@@ -20,7 +20,7 @@
 
 !
 !> @file
-!! @brief This file implements the Fortran Sparse BLAS interface to \librsb.
+!! @brief Implementation of the Fortran Sparse BLAS interface to \librsb (see \ref rsb_doc_sparse_blas).
 !!
 !!
 
@@ -221,11 +221,23 @@ PUBLIC
         INTEGER,PARAMETER :: blas_rsb_spmv_t_autotuning_on=6664
         INTEGER,PARAMETER :: blas_rsb_spmv_t_autotuning_off=6665
         INTEGER,PARAMETER :: blas_rsb_autotune_next_operation=6666
+        INTEGER,PARAMETER :: blas_rsb_rep_rec=9993
+        INTEGER,PARAMETER :: blas_rsb_rep_hwi=9994
         INTEGER,PARAMETER :: blas_rsb_rep_rsb=9995
         INTEGER,PARAMETER :: blas_rsb_rep_csr=9996
         INTEGER,PARAMETER :: blas_rsb_rep_coo=9997
         INTEGER,PARAMETER :: blas_rsb_duplicates_ovw=9998
         INTEGER,PARAMETER :: blas_rsb_duplicates_sum=9999
+
+#ifdef RSB_WANT_LONG_IDX_TYPE
+        INTEGER,PARAMETER :: RSB_BLAS_IDX_KIND=8
+        INTEGER,PARAMETER :: RSB_BLAS_IST_KIND=8 ! for istat
+#define C_RSB_INT_KND_ C_INT64_T
+#else
+        INTEGER,PARAMETER :: RSB_BLAS_IDX_KIND=4
+        INTEGER,PARAMETER :: RSB_BLAS_IST_KIND=4 ! for istat
+#define C_RSB_INT_KND_ C_INT
+#endif
 
         INTERFACE
           TYPE(C_PTR) FUNCTION &
@@ -246,7 +258,7 @@ CONTAINS
          SUBROUTINE usds(A,istat)
            IMPLICIT NONE
            INTEGER,INTENT(IN)::A
-           INTEGER::istat
+           INTEGER(KIND=RSB_BLAS_IST_KIND)::istat
 
            istat=blas_sparse_const_success
 #if defined(RSB_HAVE_RSB_KERNELS)
@@ -266,7 +278,7 @@ CONTAINS
          SUBROUTINE uscr_end(A,istat)
 
            IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
            INTEGER,INTENT(IN)::A
 
            istat=blas_sparse_const_success
@@ -288,7 +300,7 @@ CONTAINS
          SUBROUTINE usgp(A,pname,istat)
 
            IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
            INTEGER,INTENT(IN)::A
            INTEGER,INTENT(IN)::pname
 
@@ -311,7 +323,7 @@ CONTAINS
          SUBROUTINE ussp(A,pname,istat)
 
            IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
            INTEGER,INTENT(IN)::A
            INTEGER,INTENT(IN)::pname
 
@@ -338,9 +350,9 @@ CONTAINS
         SUBROUTINE suscr_begin&
          &(m,n,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: m 
-          INTEGER :: n 
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: m 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: n 
           INTEGER,INTENT(OUT) :: A
 
 
@@ -361,9 +373,9 @@ CONTAINS
         SUBROUTINE duscr_begin&
          &(m,n,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: m 
-          INTEGER :: n 
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: m 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: n 
           INTEGER,INTENT(OUT) :: A
 
 
@@ -384,9 +396,9 @@ CONTAINS
         SUBROUTINE cuscr_begin&
          &(m,n,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: m 
-          INTEGER :: n 
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: m 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: n 
           INTEGER,INTENT(OUT) :: A
 
 
@@ -407,9 +419,9 @@ CONTAINS
         SUBROUTINE zuscr_begin&
          &(m,n,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: m 
-          INTEGER :: n 
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: m 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: n 
           INTEGER,INTENT(OUT) :: A
 
 
@@ -432,11 +444,11 @@ CONTAINS
         SUBROUTINE suscr_block_begin&
          &(Mb,Nb,k,l,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: Mb 
-          INTEGER :: Nb 
-          INTEGER :: k 
-          INTEGER :: l 
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Mb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Nb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: k 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: l 
           INTEGER,INTENT(OUT) :: A
 
 
@@ -457,11 +469,11 @@ CONTAINS
         SUBROUTINE duscr_block_begin&
          &(Mb,Nb,k,l,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: Mb 
-          INTEGER :: Nb 
-          INTEGER :: k 
-          INTEGER :: l 
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Mb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Nb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: k 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: l 
           INTEGER,INTENT(OUT) :: A
 
 
@@ -482,11 +494,11 @@ CONTAINS
         SUBROUTINE cuscr_block_begin&
          &(Mb,Nb,k,l,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: Mb 
-          INTEGER :: Nb 
-          INTEGER :: k 
-          INTEGER :: l 
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Mb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Nb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: k 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: l 
           INTEGER,INTENT(OUT) :: A
 
 
@@ -507,11 +519,11 @@ CONTAINS
         SUBROUTINE zuscr_block_begin&
          &(Mb,Nb,k,l,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: Mb 
-          INTEGER :: Nb 
-          INTEGER :: k 
-          INTEGER :: l 
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Mb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Nb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: k 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: l 
           INTEGER,INTENT(OUT) :: A
 
 
@@ -534,11 +546,11 @@ CONTAINS
         SUBROUTINE suscr_variable_block_begin&
          &(Mb,Nb,K,L,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: Mb 
-          INTEGER :: Nb 
-          INTEGER :: K (:)
-          INTEGER :: L (:)
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Mb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Nb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: K (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: L (:)
           INTEGER,INTENT(OUT) :: A
 
 
@@ -559,11 +571,11 @@ CONTAINS
         SUBROUTINE duscr_variable_block_begin&
          &(Mb,Nb,K,L,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: Mb 
-          INTEGER :: Nb 
-          INTEGER :: K (:)
-          INTEGER :: L (:)
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Mb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Nb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: K (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: L (:)
           INTEGER,INTENT(OUT) :: A
 
 
@@ -584,11 +596,11 @@ CONTAINS
         SUBROUTINE cuscr_variable_block_begin&
          &(Mb,Nb,K,L,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: Mb 
-          INTEGER :: Nb 
-          INTEGER :: K (:)
-          INTEGER :: L (:)
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Mb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Nb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: K (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: L (:)
           INTEGER,INTENT(OUT) :: A
 
 
@@ -609,11 +621,11 @@ CONTAINS
         SUBROUTINE zuscr_variable_block_begin&
          &(Mb,Nb,K,L,A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
-          INTEGER :: Mb 
-          INTEGER :: Nb 
-          INTEGER :: K (:)
-          INTEGER :: L (:)
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Mb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: Nb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: K (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: L (:)
           INTEGER,INTENT(OUT) :: A
 
 
@@ -635,7 +647,7 @@ CONTAINS
         SUBROUTINE suscr_end&
          &(A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
 
 
@@ -655,7 +667,7 @@ CONTAINS
         SUBROUTINE duscr_end&
          &(A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
 
 
@@ -675,7 +687,7 @@ CONTAINS
         SUBROUTINE cuscr_end&
          &(A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
 
 
@@ -695,7 +707,7 @@ CONTAINS
         SUBROUTINE zuscr_end&
          &(A,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
 
 
@@ -717,11 +729,11 @@ CONTAINS
         SUBROUTINE suscr_insert_entry&
          &(A,val,i,j,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
           REAL(KIND(1.e0)) :: val 
-          INTEGER :: i 
-          INTEGER :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
 
 
           istat = blas_sparse_const_success
@@ -740,11 +752,11 @@ CONTAINS
         SUBROUTINE duscr_insert_entry&
          &(A,val,i,j,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
           REAL(KIND(1.d0)) :: val 
-          INTEGER :: i 
-          INTEGER :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
 
 
           istat = blas_sparse_const_success
@@ -763,11 +775,11 @@ CONTAINS
         SUBROUTINE cuscr_insert_entry&
          &(A,val,i,j,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
           COMPLEX(KIND(1.e0)) :: val 
-          INTEGER :: i 
-          INTEGER :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
 
 
           istat = blas_sparse_const_success
@@ -786,11 +798,11 @@ CONTAINS
         SUBROUTINE zuscr_insert_entry&
          &(A,val,i,j,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
           COMPLEX(KIND(1.d0)) :: val 
-          INTEGER :: i 
-          INTEGER :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
 
 
           istat = blas_sparse_const_success
@@ -811,12 +823,12 @@ CONTAINS
         SUBROUTINE suscr_insert_entries&
          &(A,nnz,val,indx,jndx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           REAL(KIND(1.e0)) :: val (:)
-          INTEGER :: indx (:)
-          INTEGER :: jndx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: jndx (:)
 
 
           istat = blas_sparse_const_success
@@ -835,12 +847,12 @@ CONTAINS
         SUBROUTINE duscr_insert_entries&
          &(A,nnz,val,indx,jndx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           REAL(KIND(1.d0)) :: val (:)
-          INTEGER :: indx (:)
-          INTEGER :: jndx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: jndx (:)
 
 
           istat = blas_sparse_const_success
@@ -859,12 +871,12 @@ CONTAINS
         SUBROUTINE cuscr_insert_entries&
          &(A,nnz,val,indx,jndx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           COMPLEX(KIND(1.e0)) :: val (:)
-          INTEGER :: indx (:)
-          INTEGER :: jndx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: jndx (:)
 
 
           istat = blas_sparse_const_success
@@ -883,12 +895,12 @@ CONTAINS
         SUBROUTINE zuscr_insert_entries&
          &(A,nnz,val,indx,jndx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           COMPLEX(KIND(1.d0)) :: val (:)
-          INTEGER :: indx (:)
-          INTEGER :: jndx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: jndx (:)
 
 
           istat = blas_sparse_const_success
@@ -909,12 +921,12 @@ CONTAINS
         SUBROUTINE suscr_insert_col&
          &(A,j,nnz,val,indx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: j 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           REAL(KIND(1.e0)) :: val (:)
-          INTEGER :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
 
 
           istat = blas_sparse_const_success
@@ -933,12 +945,12 @@ CONTAINS
         SUBROUTINE duscr_insert_col&
          &(A,j,nnz,val,indx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: j 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           REAL(KIND(1.d0)) :: val (:)
-          INTEGER :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
 
 
           istat = blas_sparse_const_success
@@ -957,12 +969,12 @@ CONTAINS
         SUBROUTINE cuscr_insert_col&
          &(A,j,nnz,val,indx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: j 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           COMPLEX(KIND(1.e0)) :: val (:)
-          INTEGER :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
 
 
           istat = blas_sparse_const_success
@@ -981,12 +993,12 @@ CONTAINS
         SUBROUTINE zuscr_insert_col&
          &(A,j,nnz,val,indx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: j 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           COMPLEX(KIND(1.d0)) :: val (:)
-          INTEGER :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
 
 
           istat = blas_sparse_const_success
@@ -1007,12 +1019,12 @@ CONTAINS
         SUBROUTINE suscr_insert_row&
          &(A,i,nnz,val,indx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: i 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           REAL(KIND(1.e0)) :: val (:)
-          INTEGER :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
 
 
           istat = blas_sparse_const_success
@@ -1031,12 +1043,12 @@ CONTAINS
         SUBROUTINE duscr_insert_row&
          &(A,i,nnz,val,indx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: i 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           REAL(KIND(1.d0)) :: val (:)
-          INTEGER :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
 
 
           istat = blas_sparse_const_success
@@ -1055,12 +1067,12 @@ CONTAINS
         SUBROUTINE cuscr_insert_row&
          &(A,i,nnz,val,indx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: i 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           COMPLEX(KIND(1.e0)) :: val (:)
-          INTEGER :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
 
 
           istat = blas_sparse_const_success
@@ -1079,12 +1091,12 @@ CONTAINS
         SUBROUTINE zuscr_insert_row&
          &(A,i,nnz,val,indx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: i 
-          INTEGER :: nnz 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nnz 
           COMPLEX(KIND(1.d0)) :: val (:)
-          INTEGER :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
 
 
           istat = blas_sparse_const_success
@@ -1105,15 +1117,15 @@ CONTAINS
         SUBROUTINE suscr_insert_clique&
          &(A,k,l,val,row_stride,col_stride,indx,jndx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: k 
-          INTEGER :: l 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: k 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: l 
           REAL(KIND(1.e0)) :: val (:)
-          INTEGER :: row_stride 
-          INTEGER :: col_stride 
-          INTEGER :: indx (:)
-          INTEGER :: jndx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: row_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: col_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: jndx (:)
 
 
           istat = blas_sparse_const_success
@@ -1132,15 +1144,15 @@ CONTAINS
         SUBROUTINE duscr_insert_clique&
          &(A,k,l,val,row_stride,col_stride,indx,jndx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: k 
-          INTEGER :: l 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: k 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: l 
           REAL(KIND(1.d0)) :: val (:)
-          INTEGER :: row_stride 
-          INTEGER :: col_stride 
-          INTEGER :: indx (:)
-          INTEGER :: jndx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: row_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: col_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: jndx (:)
 
 
           istat = blas_sparse_const_success
@@ -1159,15 +1171,15 @@ CONTAINS
         SUBROUTINE cuscr_insert_clique&
          &(A,k,l,val,row_stride,col_stride,indx,jndx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: k 
-          INTEGER :: l 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: k 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: l 
           COMPLEX(KIND(1.e0)) :: val (:)
-          INTEGER :: row_stride 
-          INTEGER :: col_stride 
-          INTEGER :: indx (:)
-          INTEGER :: jndx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: row_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: col_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: jndx (:)
 
 
           istat = blas_sparse_const_success
@@ -1186,15 +1198,15 @@ CONTAINS
         SUBROUTINE zuscr_insert_clique&
          &(A,k,l,val,row_stride,col_stride,indx,jndx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
-          INTEGER :: k 
-          INTEGER :: l 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: k 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: l 
           COMPLEX(KIND(1.d0)) :: val (:)
-          INTEGER :: row_stride 
-          INTEGER :: col_stride 
-          INTEGER :: indx (:)
-          INTEGER :: jndx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: row_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: col_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: indx (:)
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: jndx (:)
 
 
           istat = blas_sparse_const_success
@@ -1215,13 +1227,13 @@ CONTAINS
         SUBROUTINE suscr_insert_block&
          &(A,val,row_stride,col_stride,i,j,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
           REAL(KIND(1.e0)) :: val (:)
-          INTEGER :: row_stride 
-          INTEGER :: col_stride 
-          INTEGER :: i 
-          INTEGER :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: row_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: col_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
 
 
           istat = blas_sparse_const_success
@@ -1240,13 +1252,13 @@ CONTAINS
         SUBROUTINE duscr_insert_block&
          &(A,val,row_stride,col_stride,i,j,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
           REAL(KIND(1.d0)) :: val (:)
-          INTEGER :: row_stride 
-          INTEGER :: col_stride 
-          INTEGER :: i 
-          INTEGER :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: row_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: col_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
 
 
           istat = blas_sparse_const_success
@@ -1265,13 +1277,13 @@ CONTAINS
         SUBROUTINE cuscr_insert_block&
          &(A,val,row_stride,col_stride,i,j,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
           COMPLEX(KIND(1.e0)) :: val (:)
-          INTEGER :: row_stride 
-          INTEGER :: col_stride 
-          INTEGER :: i 
-          INTEGER :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: row_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: col_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
 
 
           istat = blas_sparse_const_success
@@ -1290,13 +1302,13 @@ CONTAINS
         SUBROUTINE zuscr_insert_block&
          &(A,val,row_stride,col_stride,i,j,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: A 
           COMPLEX(KIND(1.d0)) :: val (:)
-          INTEGER :: row_stride 
-          INTEGER :: col_stride 
-          INTEGER :: i 
-          INTEGER :: j 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: row_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: col_stride 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: i 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: j 
 
 
           istat = blas_sparse_const_success
@@ -1317,14 +1329,14 @@ CONTAINS
         SUBROUTINE susmv&
          &(transA,alpha,A,x,incx,y,incy,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: transA 
           REAL(KIND(1.e0)) :: alpha 
           INTEGER :: A 
           REAL(KIND(1.e0)) :: x (:)
-          INTEGER :: incx 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incx 
           REAL(KIND(1.e0)) :: y (:)
-          INTEGER :: incy 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incy 
 
 
           istat = blas_sparse_const_success
@@ -1343,14 +1355,14 @@ CONTAINS
         SUBROUTINE dusmv&
          &(transA,alpha,A,x,incx,y,incy,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: transA 
           REAL(KIND(1.d0)) :: alpha 
           INTEGER :: A 
           REAL(KIND(1.d0)) :: x (:)
-          INTEGER :: incx 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incx 
           REAL(KIND(1.d0)) :: y (:)
-          INTEGER :: incy 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incy 
 
 
           istat = blas_sparse_const_success
@@ -1369,14 +1381,14 @@ CONTAINS
         SUBROUTINE cusmv&
          &(transA,alpha,A,x,incx,y,incy,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: transA 
           COMPLEX(KIND(1.e0)) :: alpha 
           INTEGER :: A 
           COMPLEX(KIND(1.e0)) :: x (:)
-          INTEGER :: incx 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incx 
           COMPLEX(KIND(1.e0)) :: y (:)
-          INTEGER :: incy 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incy 
 
 
           istat = blas_sparse_const_success
@@ -1395,14 +1407,14 @@ CONTAINS
         SUBROUTINE zusmv&
          &(transA,alpha,A,x,incx,y,incy,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: transA 
           COMPLEX(KIND(1.d0)) :: alpha 
           INTEGER :: A 
           COMPLEX(KIND(1.d0)) :: x (:)
-          INTEGER :: incx 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incx 
           COMPLEX(KIND(1.d0)) :: y (:)
-          INTEGER :: incy 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incy 
 
 
           istat = blas_sparse_const_success
@@ -1423,12 +1435,12 @@ CONTAINS
         SUBROUTINE sussv&
          &(transT,alpha,T,x,incx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: transT 
           REAL(KIND(1.e0)) :: alpha 
           INTEGER :: T 
           REAL(KIND(1.e0)) :: x (:)
-          INTEGER :: incx 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incx 
 
 
           istat = blas_sparse_const_success
@@ -1447,12 +1459,12 @@ CONTAINS
         SUBROUTINE dussv&
          &(transT,alpha,T,x,incx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: transT 
           REAL(KIND(1.d0)) :: alpha 
           INTEGER :: T 
           REAL(KIND(1.d0)) :: x (:)
-          INTEGER :: incx 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incx 
 
 
           istat = blas_sparse_const_success
@@ -1471,12 +1483,12 @@ CONTAINS
         SUBROUTINE cussv&
          &(transT,alpha,T,x,incx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: transT 
           COMPLEX(KIND(1.e0)) :: alpha 
           INTEGER :: T 
           COMPLEX(KIND(1.e0)) :: x (:)
-          INTEGER :: incx 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incx 
 
 
           istat = blas_sparse_const_success
@@ -1495,12 +1507,12 @@ CONTAINS
         SUBROUTINE zussv&
          &(transT,alpha,T,x,incx,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: transT 
           COMPLEX(KIND(1.d0)) :: alpha 
           INTEGER :: T 
           COMPLEX(KIND(1.d0)) :: x (:)
-          INTEGER :: incx 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: incx 
 
 
           istat = blas_sparse_const_success
@@ -1521,16 +1533,16 @@ CONTAINS
         SUBROUTINE susmm&
          &(order,transA,nrhs,alpha,A,b,ldb,c,ldc,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: order 
           INTEGER :: transA 
-          INTEGER :: nrhs 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nrhs 
           REAL(KIND(1.e0)) :: alpha 
           INTEGER :: A 
           REAL(KIND(1.e0)) :: b (:,:)
-          INTEGER :: ldb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldb 
           REAL(KIND(1.e0)) :: c (:,:)
-          INTEGER :: ldc 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldc 
 
 
           istat = blas_sparse_const_success
@@ -1549,16 +1561,16 @@ CONTAINS
         SUBROUTINE dusmm&
          &(order,transA,nrhs,alpha,A,b,ldb,c,ldc,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: order 
           INTEGER :: transA 
-          INTEGER :: nrhs 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nrhs 
           REAL(KIND(1.d0)) :: alpha 
           INTEGER :: A 
           REAL(KIND(1.d0)) :: b (:,:)
-          INTEGER :: ldb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldb 
           REAL(KIND(1.d0)) :: c (:,:)
-          INTEGER :: ldc 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldc 
 
 
           istat = blas_sparse_const_success
@@ -1577,16 +1589,16 @@ CONTAINS
         SUBROUTINE cusmm&
          &(order,transA,nrhs,alpha,A,b,ldb,c,ldc,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: order 
           INTEGER :: transA 
-          INTEGER :: nrhs 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nrhs 
           COMPLEX(KIND(1.e0)) :: alpha 
           INTEGER :: A 
           COMPLEX(KIND(1.e0)) :: b (:,:)
-          INTEGER :: ldb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldb 
           COMPLEX(KIND(1.e0)) :: c (:,:)
-          INTEGER :: ldc 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldc 
 
 
           istat = blas_sparse_const_success
@@ -1605,16 +1617,16 @@ CONTAINS
         SUBROUTINE zusmm&
          &(order,transA,nrhs,alpha,A,b,ldb,c,ldc,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: order 
           INTEGER :: transA 
-          INTEGER :: nrhs 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nrhs 
           COMPLEX(KIND(1.d0)) :: alpha 
           INTEGER :: A 
           COMPLEX(KIND(1.d0)) :: b (:,:)
-          INTEGER :: ldb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldb 
           COMPLEX(KIND(1.d0)) :: c (:,:)
-          INTEGER :: ldc 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldc 
 
 
           istat = blas_sparse_const_success
@@ -1635,14 +1647,14 @@ CONTAINS
         SUBROUTINE sussm&
          &(order,transT,nrhs,alpha,T,b,ldb,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: order 
           INTEGER :: transT 
-          INTEGER :: nrhs 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nrhs 
           REAL(KIND(1.e0)) :: alpha 
           INTEGER :: T 
           REAL(KIND(1.e0)) :: b (:,:)
-          INTEGER :: ldb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldb 
 
 
           istat = blas_sparse_const_success
@@ -1661,14 +1673,14 @@ CONTAINS
         SUBROUTINE dussm&
          &(order,transT,nrhs,alpha,T,b,ldb,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: order 
           INTEGER :: transT 
-          INTEGER :: nrhs 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nrhs 
           REAL(KIND(1.d0)) :: alpha 
           INTEGER :: T 
           REAL(KIND(1.d0)) :: b (:,:)
-          INTEGER :: ldb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldb 
 
 
           istat = blas_sparse_const_success
@@ -1687,14 +1699,14 @@ CONTAINS
         SUBROUTINE cussm&
          &(order,transT,nrhs,alpha,T,b,ldb,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: order 
           INTEGER :: transT 
-          INTEGER :: nrhs 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nrhs 
           COMPLEX(KIND(1.e0)) :: alpha 
           INTEGER :: T 
           COMPLEX(KIND(1.e0)) :: b (:,:)
-          INTEGER :: ldb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldb 
 
 
           istat = blas_sparse_const_success
@@ -1713,14 +1725,14 @@ CONTAINS
         SUBROUTINE zussm&
          &(order,transT,nrhs,alpha,T,b,ldb,istat)
           IMPLICIT NONE
-          INTEGER, INTENT(OUT) ::istat
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::istat
           INTEGER :: order 
           INTEGER :: transT 
-          INTEGER :: nrhs 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: nrhs 
           COMPLEX(KIND(1.d0)) :: alpha 
           INTEGER :: T 
           COMPLEX(KIND(1.d0)) :: b (:,:)
-          INTEGER :: ldb 
+          INTEGER(KIND=RSB_BLAS_IDX_KIND) :: ldb 
 
 
           istat = blas_sparse_const_success

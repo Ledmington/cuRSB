@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2020 Michele Martone
 
 This file is part of librsb.
 
@@ -39,7 +39,8 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb_mmio.h"
 #include "rsb_mio.h"
 
-int rsb__mm_is_valid(MM_typecode matcode)
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+static int rsb__mm_is_valid(MM_typecode matcode)
 {
     if (!rsb_mm_is_matrix(matcode)) return 0;
     if (rsb_mm_is_dense(matcode) && rsb_mm_is_pattern(matcode)) return 0;
@@ -48,6 +49,7 @@ int rsb__mm_is_valid(MM_typecode matcode)
                 rsb_mm_is_skew(matcode))) return 0;
     return 1;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 //int rsb__mm_read_banner(FILE *f, MM_typecode *matcode)
 int rsb__mm_read_banner(FILE *f, FILE * ngzfd, MM_typecode *matcode)
@@ -65,18 +67,22 @@ int rsb__mm_read_banner(FILE *f, FILE * ngzfd, MM_typecode *matcode)
 
     if(ngzfd)
     {
-    if (fgets(line,MM_MAX_LINE_LENGTH,ngzfd) == NULL) 
+    if (((char*)rsb__fgets(line,MM_MAX_LINE_LENGTH,ngzfd)) == NULL) /* stupid cast for PGI hairiness */
         return MM_PREMATURE_EOF;
     }
     else
     {
-    		if (((char*)rsb_fgets(line,MM_MAX_LINE_LENGTH,f)) == NULL) /* stupid cast for PGI hairiness */
+    		if (((char*)fgets(line,MM_MAX_LINE_LENGTH,f)) == NULL) /* stupid cast for PGI hairiness */
         return MM_PREMATURE_EOF;
     }
 
     if (sscanf(line, "%s %s %s %s %s", banner, mtxs, crd, data_type, 
         storage_scheme) != 5)
+    {
+	if ( line[0]==0x1f && line[1]==(char)0x8b )
+        	return MM_LIKELY_GZIPPED_FILE;
         return MM_PREMATURE_EOF;
+    }
 
     for (p=mtxs; *p!='\0'; *p=tolower(*p),p++);  /* convert to lower case */
     for (p=crd; *p!='\0'; *p=tolower(*p),p++);  
@@ -143,6 +149,7 @@ int rsb__mm_read_banner(FILE *f, FILE * ngzfd, MM_typecode *matcode)
     return 0;
 }
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__mm_write_mtx_crd_size(FILE *f, int M, int N, int nz)
 {
     if (fprintf(f, "%d %d %d\n", M, N, nz) != 3)
@@ -150,12 +157,14 @@ int rsb__mm_write_mtx_crd_size(FILE *f, int M, int N, int nz)
     else 
         return 0;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 //int rsb__mm_read_mtx_crd_size(FILE *f, int *M, int *N, int *nz )
-int rsb__mm_read_mtx_crd_size(FILE *f, FILE * ngzfd, int *M, int *N, int *nz)
+int rsb__mm_read_mtx_crd_size(FILE *f, FILE * ngzfd, rsb_coo_idx_t *M, rsb_coo_idx_t *N, rsb_coo_idx_t *nz)
 {
     char line[MM_MAX_LINE_LENGTH];
     int num_items_read;
+    long int lM,lN,lnz;
 
     /* set return null parameter values, in case we exit with errors */
     *M = *N = *nz = 0;
@@ -165,27 +174,40 @@ int rsb__mm_read_mtx_crd_size(FILE *f, FILE * ngzfd, int *M, int *N, int *nz)
     {
 	    if(ngzfd)
 	    {
-	        if (fgets(line,MM_MAX_LINE_LENGTH,ngzfd) == NULL) 
+    		if (((char*)rsb__fgets(line,MM_MAX_LINE_LENGTH,ngzfd)) == NULL) /* stupid cast for PGI hairiness */
 	            return MM_PREMATURE_EOF;
 	    }
 	    else
 	    {
-    		if (((char*)rsb_fgets(line,MM_MAX_LINE_LENGTH,f)) == NULL) /* stupid cast for PGI hairiness */
+    		if (((char*)fgets(line,MM_MAX_LINE_LENGTH,f)) == NULL) /* stupid cast for PGI hairiness */
 	            return MM_PREMATURE_EOF;
 	    }
     }while (line[0] == '%');
 
     /* line[] is either blank or has M,N, nz */
-    if (sscanf(line, "%d %d %d", M, N, nz) == 3)
+    if (sscanf(line, "%ld %ld %ld", &lM, &lN, &lnz) == 3)
+    {
+        *M=lM;
+        *N=lN;
+        *nz=lnz;
         return 0;
+    }
         
     else
     do
     { 
+#ifdef RSB_WANT_LONG_IDX_TYPE 
 	    if(ngzfd)
-        num_items_read = fscanf(ngzfd,"%d %d %d",M,N,nz); 
+        num_items_read = rsb__fscanf(ngzfd,"%ld %ld %ld",&lM,&lN,&lnz,NULL);
 	    else
-        num_items_read = rsb_fscanf(f,"%d %d %d",M,N,nz,NULL); 
+        num_items_read = fscanf(f,"%ld %ld %ld",&lM,&lN,&lnz);
+	*M=lM,*N=lN,*nz=lnz;
+#else /* RSB_WANT_LONG_IDX_TYPE */
+	    if(ngzfd)
+        num_items_read = rsb__fscanf(ngzfd,"%d %d %d",M,N,nz,NULL);
+	    else
+        num_items_read = fscanf(f,"%d %d %d",M,N,nz); 
+#endif /* RSB_WANT_LONG_IDX_TYPE */
         if (num_items_read == EOF) return MM_PREMATURE_EOF;
     }
     while (num_items_read != 3);
@@ -195,11 +217,15 @@ int rsb__mm_read_mtx_crd_size(FILE *f, FILE * ngzfd, int *M, int *N, int *nz)
 
 
 //int rsb__mm_read_mtx_array_size(FILE *f, int *M, int *N)
-int rsb__mm_read_mtx_array_size(FILE *f, FILE *ngzfd, int *M, int *N)
+int rsb__mm_read_mtx_array_size(FILE *f, FILE *ngzfd, rsb_coo_idx_t*M, rsb_coo_idx_t*N)
 {
     char line[MM_MAX_LINE_LENGTH];
     int num_items_read;
     /* set return null parameter values, in case we exit with errors */
+#ifdef RSB_WANT_LONG_IDX_TYPE
+    long int lM,lN;
+#endif /* RSB_WANT_LONG_IDX_TYPE */
+
     *M = *N = 0;
 	
     /* now continue scanning until you reach the end-of-comments */
@@ -207,18 +233,31 @@ int rsb__mm_read_mtx_array_size(FILE *f, FILE *ngzfd, int *M, int *N)
     {
     do 
     {
-        if (fgets(line,MM_MAX_LINE_LENGTH,ngzfd) == NULL) 
+        if ((char*)rsb__fgets(line,MM_MAX_LINE_LENGTH,ngzfd) == NULL) 
             return MM_PREMATURE_EOF;
     }while (line[0] == '%');
 
     /* line[] is either blank or has M,N, nz */
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+    if (sscanf(line, "%ld %ld", &lM, &lN) == 2)
+    {
+	*M=lM;
+	*N=lN;
+        return 0;
+    }
+#else /* RSB_WANT_LONG_IDX_TYPE */
     if (sscanf(line, "%d %d", M, N) == 2)
         return 0;
+#endif /* RSB_WANT_LONG_IDX_TYPE */
         
     else /* we have a blank line */
     do
     { 
-        num_items_read = fscanf(ngzfd, "%d %d", M, N); 
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+        num_items_read = rsb__fscanf(ngzfd, "%ld %ld", M, N, NULL, NULL);
+#else /* RSB_WANT_LONG_IDX_TYPE */
+        num_items_read = rsb__fscanf(ngzfd, "%d %d", M, N, NULL, NULL);
+#endif /* RSB_WANT_LONG_IDX_TYPE */
         if (num_items_read == EOF) return MM_PREMATURE_EOF;
     }
     while (num_items_read != 2);
@@ -228,18 +267,34 @@ int rsb__mm_read_mtx_array_size(FILE *f, FILE *ngzfd, int *M, int *N)
     {
     do 
     {
-        if ((char*)rsb_fgets(line,MM_MAX_LINE_LENGTH,f) == NULL) 
+        if (fgets(line,MM_MAX_LINE_LENGTH,f) == NULL) 
             return MM_PREMATURE_EOF;
     }while (line[0] == '%');
 
     /* line[] is either blank or has M,N, nz */
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+    if (sscanf(line, "%ld %ld", &lM, &lN) == 2)
+    {
+        *M=lM;
+        *N=lN;
+        return 0;
+    }
+#else /* RSB_WANT_LONG_IDX_TYPE */
     if (sscanf(line, "%d %d", M, N) == 2)
         return 0;
+#endif /* RSB_WANT_LONG_IDX_TYPE */
         
     else /* we have a blank line */
     do
     { 
-        num_items_read = rsb_fscanf(f, "%d %d", M, N, NULL, NULL); 
+        /* blank lines in header are tolerated */
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+        num_items_read = fscanf(f, "%ld %ld", &lM, &lN);
+        *M=lM;
+        *N=lN;
+#else /* RSB_WANT_LONG_IDX_TYPE */
+        num_items_read = fscanf(f, "%d %d", M, N);
+#endif /* RSB_WANT_LONG_IDX_TYPE */
         if (num_items_read == EOF) return MM_PREMATURE_EOF;
     }
     while (num_items_read != 2);
@@ -248,6 +303,7 @@ int rsb__mm_read_mtx_array_size(FILE *f, FILE *ngzfd, int *M, int *N)
     return 0;
 }
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__mm_write_mtx_array_size(FILE *f, int M, int N)
 {
     if (fprintf(f, "%d %d\n", M, N) != 2)
@@ -255,6 +311,7 @@ int rsb__mm_write_mtx_array_size(FILE *f, int M, int N)
     else 
         return 0;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 
 
@@ -264,31 +321,54 @@ int rsb__mm_write_mtx_array_size(FILE *f, int M, int N)
 /* use when IA[], JA[], and VA[]JA, and VA[] are already allocated */
 /******************************************************************/
 
-int rsb_mm_read_mtx_crd_data(FILE *f, int M, int N, int nz, rsb_coo_idx_t IA[], rsb_coo_idx_t JA[],
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+int rsb__mm_read_mtx_crd_data(FILE *f, int M, int N, int nz, rsb_coo_idx_t IA[], rsb_coo_idx_t JA[],
         double VA[], MM_typecode matcode)
 {
     int i;
+
     if (rsb_mm_is_complex(matcode))
     {
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+        for (i=0; i<nz; i++)
+            if (fscanf(f, "%ld %ld %lg %lg", &IA[i], &JA[i], &VA[2*i], &VA[2*i+1])
+                != 4) return MM_PREMATURE_EOF;
+#else /* RSB_WANT_LONG_IDX_TYPE */
         for (i=0; i<nz; i++)
             if (fscanf(f, "%d %d %lg %lg", &IA[i], &JA[i], &VA[2*i], &VA[2*i+1])
                 != 4) return MM_PREMATURE_EOF;
+#endif /* RSB_WANT_LONG_IDX_TYPE */
     }
     else if (rsb_mm_is_real(matcode))
     {
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+        for (i=0; i<nz; i++)
+        {
+            if (fscanf(f, "%ld %ld %lg\n", &IA[i], &JA[i], &VA[i])
+                != 3) return MM_PREMATURE_EOF;
+
+        }
+#else /* RSB_WANT_LONG_IDX_TYPE */
         for (i=0; i<nz; i++)
         {
             if (fscanf(f, "%d %d %lg\n", &IA[i], &JA[i], &VA[i])
                 != 3) return MM_PREMATURE_EOF;
 
         }
+#endif /* RSB_WANT_LONG_IDX_TYPE */
     }
 
     else if (rsb_mm_is_pattern(matcode))
     {
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+        for (i=0; i<nz; i++)
+            if (fscanf(f, "%ld %ld", &IA[i], &JA[i])
+                != 2) return MM_PREMATURE_EOF;
+#else /* RSB_WANT_LONG_IDX_TYPE */
         for (i=0; i<nz; i++)
             if (fscanf(f, "%d %d", &IA[i], &JA[i])
                 != 2) return MM_PREMATURE_EOF;
+#endif /* RSB_WANT_LONG_IDX_TYPE */
     }
     else
         return MM_UNSUPPORTED_TYPE;
@@ -296,8 +376,10 @@ int rsb_mm_read_mtx_crd_data(FILE *f, int M, int N, int nz, rsb_coo_idx_t IA[], 
     return 0;
         
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
-int rsb__mm_read_mtx_crd_entry(FILE *f, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA,
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+static int rsb__mm_read_mtx_crd_entry(FILE *f, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA,
         double *real, double *imag, MM_typecode matcode)
 {
     int iI,iJ;
@@ -328,17 +410,19 @@ int rsb__mm_read_mtx_crd_entry(FILE *f, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA,
     return 0;
         
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 
 /************************************************************************
-    rsb_mm_read_mtx_crd()  fills M, N, nz, array of values, and return
+    rsb__mm_read_mtx_crd()  fills M, N, nz, array of values, and return
                         type code, e.g. 'MCRS'
 
                         if matrix is complex, values[] is of size 2*nz,
                             (nz pairs of real/imaginary values)
 ************************************************************************/
 
-int rsb_mm_read_mtx_crd(char *fname, int *M, int *N, int *nz, rsb_coo_idx_t **IA, rsb_coo_idx_t **JA, 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+static int rsb__mm_read_mtx_crd(char *fname, int *M, int *N, int *nz, rsb_coo_idx_t **IA, rsb_coo_idx_t **JA, 
         double **VA, MM_typecode *matcode)
 {
     int ret_code;
@@ -368,21 +452,21 @@ int rsb_mm_read_mtx_crd(char *fname, int *M, int *N, int *nz, rsb_coo_idx_t **IA
     if (rsb_mm_is_complex(*matcode))
     {
         *VA = (double *) malloc(*nz * 2 * sizeof(double));
-        ret_code = rsb_mm_read_mtx_crd_data(f, *M, *N, *nz, *IA, *JA, *VA, 
+        ret_code = rsb__mm_read_mtx_crd_data(f, *M, *N, *nz, *IA, *JA, *VA, 
                 *matcode);
         if (ret_code != 0) return ret_code;
     }
     else if (rsb_mm_is_real(*matcode))
     {
         *VA = (double *) malloc(*nz * sizeof(double));
-        ret_code = rsb_mm_read_mtx_crd_data(f, *M, *N, *nz, *IA, *JA, *VA, 
+        ret_code = rsb__mm_read_mtx_crd_data(f, *M, *N, *nz, *IA, *JA, *VA, 
                 *matcode);
         if (ret_code != 0) return ret_code;
     }
 
     else if (rsb_mm_is_pattern(*matcode))
     {
-        ret_code = rsb_mm_read_mtx_crd_data(f, *M, *N, *nz, *IA, *JA, *VA, 
+        ret_code = rsb__mm_read_mtx_crd_data(f, *M, *N, *nz, *IA, *JA, *VA, 
                 *matcode);
         if (ret_code != 0) return ret_code;
     }
@@ -390,7 +474,9 @@ int rsb_mm_read_mtx_crd(char *fname, int *M, int *N, int *nz, rsb_coo_idx_t **IA
     if (f != stdin) fclose(f);
     return 0;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__mm_write_banner(FILE *f, MM_typecode matcode)
 {
     char *str = rsb__mm_typecode_to_str(matcode);
@@ -403,8 +489,10 @@ int rsb__mm_write_banner(FILE *f, MM_typecode matcode)
     else
         return 0;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
-int rsb_mm_write_mtx_crd(char fname[], int M, int N, int nz, int IA[], int JA[],
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+int rsb__mm_write_mtx_crd(char fname[], int M, int N, int nz, int IA[], int JA[],
         double VA[], MM_typecode matcode)
 {
     FILE *f;
@@ -446,14 +534,15 @@ int rsb_mm_write_mtx_crd(char fname[], int M, int N, int nz, int IA[], int JA[],
 
     return 0;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
   
 
 /**
-*  Create a new copy of a string s.  rsb_mm_strdup() is a common routine, but
-*  not part of ANSI C, so it is included here.  Used by rsb__mm_typecode_to_str().
-*
+*  Create a new copy of a string s.  strdup() is a POSIX routine, 
+*  not part of ANSI C, so it is included here.
+*  Used by rsb__mm_typecode_to_str().
 */
-char *rsb_mm_strdup(const char *s)
+static char *rsb__mm_strdup(const char *s)
 {
 	size_t len = strlen(s);
 	char *s2 = (char *) malloc((len+1)*sizeof(char));
@@ -464,13 +553,10 @@ char  *rsb__mm_typecode_to_str(MM_typecode matcode)
 {
     char buffer[MM_MAX_LINE_LENGTH];
     char *types[4];
-    int error =0;
 
     /* check for MTX type */
     if (rsb_mm_is_matrix(matcode)) 
         types[0] = MM_MTX_STR;
-    else
-        error=1;
 
     /* check for CRD or ARR matrix */
     if (rsb_mm_is_sparse(matcode))
@@ -513,7 +599,7 @@ char  *rsb__mm_typecode_to_str(MM_typecode matcode)
         return NULL;
 
     sprintf(buffer,"%s %s %s %s", types[0], types[1], types[2], types[3]);
-    return rsb_mm_strdup(buffer);
+    return rsb__mm_strdup(buffer);
 
 }
 /* @endcond */

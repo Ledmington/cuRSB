@@ -19,7 +19,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">librsb
-   &#160;<span id="projectnumber">1.2.0.11</span>
+   &#160;<span id="projectnumber">1.3.0.1</span>
    </div>
   </td>
  </tr>
@@ -45,34 +45,35 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Macros and constants, which are type specific. <br />
+<p>Macros and constants, which are type specific and used by <a class="el" href="rsb_8h.html" title="This file declares the user interface functions and data structures for the librsb library (see The l...">rsb.h</a>. <br />
 Here reside declarations related to supported matrix numerical types, and other declarations according to the build time options. <br />
 If you wish to use this library with different matrix numerical types, you shall regenerate the library source code accordingly; see the README file how to do this. <br />
-Only a small part of these declarations is needed to the user (see <a class="el" href="rsb__types_8h.html#matrix_type_symbols_section">matrix_type_symbols_section</a>). <br />
-Therefore, only the declarations which are commented are actually meant to be used in functions; please regard the remaining ones as internal.  
+Only a those declarations which are documented are meant to be part of the API. <br />
+The rest is meant as internals. <br />
+See also <a class="el" href="rsb__types_8h.html#matrix_type_symbols_section">matrix_type_symbols_section</a>.  
 <a href="#details">More...</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:af66941d5b1f1595c29f9c7e131d22242"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#af66941d5b1f1595c29f9c7e131d22242">RSB_LIBRSB_VER_STRING</a>&#160;&#160;&#160;&quot;1.2.0&quot;</td></tr>
+<tr class="memitem:af66941d5b1f1595c29f9c7e131d22242"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#af66941d5b1f1595c29f9c7e131d22242">RSB_LIBRSB_VER_STRING</a>&#160;&#160;&#160;&quot;1.3.0&quot;</td></tr>
 <tr class="memdesc:af66941d5b1f1595c29f9c7e131d22242"><td class="mdescLeft">&#160;</td><td class="mdescRight">Library version string.  <a href="#af66941d5b1f1595c29f9c7e131d22242">More...</a><br /></td></tr>
 <tr class="separator:af66941d5b1f1595c29f9c7e131d22242"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8bc9584f994ecb2639ee548156562aae"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a8bc9584f994ecb2639ee548156562aae">RSB_HEADER_VERSION_STRING</a>&#160;&#160;&#160;&quot;librsb version 1.2.0.11 - 202112161631&quot;</td></tr>
+<tr class="memitem:a8bc9584f994ecb2639ee548156562aae"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a8bc9584f994ecb2639ee548156562aae">RSB_HEADER_VERSION_STRING</a>&#160;&#160;&#160;&quot;librsb version 1.3.0.0 - 202202241108&quot;</td></tr>
 <tr class="memdesc:a8bc9584f994ecb2639ee548156562aae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Library header version string.  <a href="#a8bc9584f994ecb2639ee548156562aae">More...</a><br /></td></tr>
 <tr class="separator:a8bc9584f994ecb2639ee548156562aae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7fd4e640e7aa86fdce8f3d25ac230b5c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a7fd4e640e7aa86fdce8f3d25ac230b5c">RSB_LIBRSB_VER_MAJOR</a>&#160;&#160;&#160;1</td></tr>
 <tr class="memdesc:a7fd4e640e7aa86fdce8f3d25ac230b5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Major version.  <a href="#a7fd4e640e7aa86fdce8f3d25ac230b5c">More...</a><br /></td></tr>
 <tr class="separator:a7fd4e640e7aa86fdce8f3d25ac230b5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af8d3f63778c3120b14c3126259872cfe"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#af8d3f63778c3120b14c3126259872cfe">RSB_LIBRSB_VER_MINOR</a>&#160;&#160;&#160;2</td></tr>
+<tr class="memitem:af8d3f63778c3120b14c3126259872cfe"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#af8d3f63778c3120b14c3126259872cfe">RSB_LIBRSB_VER_MINOR</a>&#160;&#160;&#160;3</td></tr>
 <tr class="memdesc:af8d3f63778c3120b14c3126259872cfe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minor version.  <a href="#af8d3f63778c3120b14c3126259872cfe">More...</a><br /></td></tr>
 <tr class="separator:af8d3f63778c3120b14c3126259872cfe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab3384c84112fe759dc57c5dd206a0cde"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#ab3384c84112fe759dc57c5dd206a0cde">RSB_LIBRSB_VER_PATCH</a>&#160;&#160;&#160;0</td></tr>
 <tr class="memdesc:ab3384c84112fe759dc57c5dd206a0cde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Patch version.  <a href="#ab3384c84112fe759dc57c5dd206a0cde">More...</a><br /></td></tr>
 <tr class="separator:ab3384c84112fe759dc57c5dd206a0cde"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a08fbe9d2c97a5b73bdad3dbe1402c83b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a08fbe9d2c97a5b73bdad3dbe1402c83b">RSB_LIBRSB_VER</a>&#160;&#160;&#160;10201</td></tr>
+<tr class="memitem:a08fbe9d2c97a5b73bdad3dbe1402c83b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a08fbe9d2c97a5b73bdad3dbe1402c83b">RSB_LIBRSB_VER</a>&#160;&#160;&#160;10300</td></tr>
 <tr class="memdesc:a08fbe9d2c97a5b73bdad3dbe1402c83b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version number.  <a href="#a08fbe9d2c97a5b73bdad3dbe1402c83b">More...</a><br /></td></tr>
 <tr class="separator:a08fbe9d2c97a5b73bdad3dbe1402c83b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae26b1dec914b2cf2f233c07d2f4815d1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#ae26b1dec914b2cf2f233c07d2f4815d1">RSB_LIBRSB_VER_DATE</a>&#160;&#160;&#160;202112161631</td></tr>
+<tr class="memitem:ae26b1dec914b2cf2f233c07d2f4815d1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#ae26b1dec914b2cf2f233c07d2f4815d1">RSB_LIBRSB_VER_DATE</a>&#160;&#160;&#160;202202241108</td></tr>
 <tr class="memdesc:ae26b1dec914b2cf2f233c07d2f4815d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version release date.  <a href="#ae26b1dec914b2cf2f233c07d2f4815d1">More...</a><br /></td></tr>
 <tr class="separator:ae26b1dec914b2cf2f233c07d2f4815d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a50018495517829b14797a568788e1526"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a50018495517829b14797a568788e1526">RSB_HAVE_TYPE_DOUBLE</a>&#160;&#160;&#160;1</td></tr>
@@ -108,9 +109,14 @@ Macros</h2></td></tr>
 <tr class="memitem:a2fb899b07173e590c8a13ae2b32ca383"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a2fb899b07173e590c8a13ae2b32ca383">RSB_DEFAULT_TRANSPOSITION</a>&#160;&#160;&#160;<a class="el" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a></td></tr>
 <tr class="memdesc:a2fb899b07173e590c8a13ae2b32ca383"><td class="mdescLeft">&#160;</td><td class="mdescRight">The default transposition flag (no transposition).  <a href="#a2fb899b07173e590c8a13ae2b32ca383">More...</a><br /></td></tr>
 <tr class="separator:a2fb899b07173e590c8a13ae2b32ca383"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9fcc01fb97c5b5482be8ab4cd7c2ee33"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a9fcc01fb97c5b5482be8ab4cd7c2ee33">RSB_ROWS_TRANSPOSITIONS_ARRAY</a>&#160;&#160;&#160;{<a class="el" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a>, <a class="el" href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a>, <a class="el" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a>, RSB_INVALID_TRANS }</td></tr>
+<tr class="memitem:ae25329637f9f0608d950b0cf4308e5ab"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#ae25329637f9f0608d950b0cf4308e5ab">RSB_HAVE_ANY_COMPLEX_TYPE</a>&#160;&#160;&#160;1</td></tr>
+<tr class="memdesc:ae25329637f9f0608d950b0cf4308e5ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Defined to 1 if any complex type has been configured in. Currently: (float complex,double complex).  <a href="#ae25329637f9f0608d950b0cf4308e5ab">More...</a><br /></td></tr>
+<tr class="separator:ae25329637f9f0608d950b0cf4308e5ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fcc01fb97c5b5482be8ab4cd7c2ee33"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a9fcc01fb97c5b5482be8ab4cd7c2ee33">RSB_ROWS_TRANSPOSITIONS_ARRAY</a>&#160;&#160;&#160;{<a class="el" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a>, <a class="el" href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a>, <a class="el" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a>,  <a class="el" href="rsb__types_8h.html#acb80acf43f0058bef1fda70e15aae10e">RSB_TRANSPOSITION_INVALID</a>}</td></tr>
 <tr class="memdesc:a9fcc01fb97c5b5482be8ab4cd7c2ee33"><td class="mdescLeft">&#160;</td><td class="mdescRight">An array with transposition constants.  <a href="#a9fcc01fb97c5b5482be8ab4cd7c2ee33">More...</a><br /></td></tr>
 <tr class="separator:a9fcc01fb97c5b5482be8ab4cd7c2ee33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af76d6cc65134e8e24a538b6bc3ca818f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#af76d6cc65134e8e24a538b6bc3ca818f">RSB_TRANSPOSITIONS_ARRAY_LENGTH</a>&#160;&#160;&#160;3 /* valid transpositions in <a class="el" href="rsb__types_8h.html#a9fcc01fb97c5b5482be8ab4cd7c2ee33">RSB_ROWS_TRANSPOSITIONS_ARRAY</a> */</td></tr>
+<tr class="separator:af76d6cc65134e8e24a538b6bc3ca818f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4abf98873753295350143ca544b79db3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a4abf98873753295350143ca544b79db3">RSB_TYPE_INDEX_DOUBLE</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:a4abf98873753295350143ca544b79db3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d5222339367566d624a1e678d116d0d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a8d5222339367566d624a1e678d116d0d">RSB_TYPE_INDEX_FLOAT</a>&#160;&#160;&#160;1</td></tr>
@@ -119,8 +125,8 @@ Macros</h2></td></tr>
 <tr class="separator:a8445bf2e852a4b20d178ae4b475f4552"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a13d13b3c7f84e7fc8ca1df3878a07d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a1a13d13b3c7f84e7fc8ca1df3878a07d">RSB_TYPE_INDEX_DOUBLE_COMPLEX</a>&#160;&#160;&#160;3</td></tr>
 <tr class="separator:a1a13d13b3c7f84e7fc8ca1df3878a07d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Values for valid matrix transposition flags.</div></td></tr>
-<tr><td colspan="2"><div class="groupText"><p><a class="anchor" id="matrix_transposition_flags_section"></a>The Hermitian flag will act as simple transposed, for non complex types. </p>
+<tr><td colspan="2"><div class="groupHeader">Values for matrix transposition flags (rsb_trans_t).</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p><a class="anchor" id="matrix_transposition_flags_section"></a>Note that for non complex types, the Hermitian flag will act as simple transposed. </p>
 </div></td></tr>
 <tr class="memitem:a9673f34330af77b1c0fd4a585e0c62cc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a>&#160;&#160;&#160;0x4E</td></tr>
 <tr class="memdesc:a9673f34330af77b1c0fd4a585e0c62cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">N: Non transposed flag, valid for <a class="el" href="rsb_8h.html#a46095ea7e61e1d1ec0ad055cf0291901">rsb_trans_t</a> typed variables.  <a href="#a9673f34330af77b1c0fd4a585e0c62cc">More...</a><br /></td></tr>
@@ -131,32 +137,41 @@ Macros</h2></td></tr>
 <tr class="memitem:abd3aaf223656dece97dee2107e485217"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a>&#160;&#160;&#160;0x43</td></tr>
 <tr class="memdesc:abd3aaf223656dece97dee2107e485217"><td class="mdescLeft">&#160;</td><td class="mdescRight">C: Conjugated transpose flag, valid for <a class="el" href="rsb_8h.html#a46095ea7e61e1d1ec0ad055cf0291901">rsb_trans_t</a> typed variables.  <a href="#abd3aaf223656dece97dee2107e485217">More...</a><br /></td></tr>
 <tr class="separator:abd3aaf223656dece97dee2107e485217"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr><td colspan="2"><div class="groupHeader">Valid symbol values for matrix numerical type specification -- type codes -- (type \see #rsb_type_t).</div></td></tr>
+<tr class="memitem:acb80acf43f0058bef1fda70e15aae10e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#acb80acf43f0058bef1fda70e15aae10e">RSB_TRANSPOSITION_INVALID</a>&#160;&#160;&#160;0x3F</td></tr>
+<tr class="memdesc:acb80acf43f0058bef1fda70e15aae10e"><td class="mdescLeft">&#160;</td><td class="mdescRight">?: Transposition type flag value guaranteed to be invalid. Useful for tests. Valid as char.  <a href="#acb80acf43f0058bef1fda70e15aae10e">More...</a><br /></td></tr>
+<tr class="separator:acb80acf43f0058bef1fda70e15aae10e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Supported matrix numerical types.</div></td></tr>
+<tr><td colspan="2"><div class="groupText"><p><a class="anchor" id="matrix_supported_numerical_types_section"></a></p>
+</div></td></tr>
+<tr class="memitem:ac09093cc8bb15023eb379ea6da1fdc15"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#ac09093cc8bb15023eb379ea6da1fdc15">RSB_MATRIX_TYPES_LIST_CXX</a>&#160;&#160;&#160;double,float,std::complex&lt;float&gt;,std::complex&lt;double&gt;</td></tr>
+<tr class="memdesc:ac09093cc8bb15023eb379ea6da1fdc15"><td class="mdescLeft">&#160;</td><td class="mdescRight">list of C++ types configured in this <code>librsb</code> build, usable in <code>&lt;<a class="el" href="rsb_8hpp.html" title="Classes RsbLib and RsbMatrix provide native C++ access to librsb. ">rsb.hpp</a>&gt;</code> (since RSB_LIBRSB_VER&gt;=10300)  <a href="#ac09093cc8bb15023eb379ea6da1fdc15">More...</a><br /></td></tr>
+<tr class="separator:ac09093cc8bb15023eb379ea6da1fdc15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Valid symbol values for matrix numerical type specification (type codes).</div></td></tr>
 <tr><td colspan="2"><div class="groupText"><p><a class="anchor" id="matrix_type_symbols_section"></a></p>
 </div></td></tr>
 <tr class="memitem:a532c3e9733221d59bac99cb1f795d266"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a532c3e9733221d59bac99cb1f795d266">RSB_NUMERICAL_TYPE_SAME_TYPE</a>&#160;&#160;&#160;1</td></tr>
 <tr class="memdesc:a532c3e9733221d59bac99cb1f795d266"><td class="mdescLeft">&#160;</td><td class="mdescRight">a bogus type flag for specifying no type conversion  <a href="#a532c3e9733221d59bac99cb1f795d266">More...</a><br /></td></tr>
 <tr class="separator:a532c3e9733221d59bac99cb1f795d266"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7849bc51eadedaa51a1b27569be89d86"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a7849bc51eadedaa51a1b27569be89d86">RSB_NUMERICAL_TYPE_DOUBLE</a>&#160;&#160;&#160;'D'</td></tr>
-<tr class="memdesc:a7849bc51eadedaa51a1b27569be89d86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Character code for type double.  <a href="#a7849bc51eadedaa51a1b27569be89d86">More...</a><br /></td></tr>
+<tr class="memdesc:a7849bc51eadedaa51a1b27569be89d86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Character code for type double. See <a class="el" href="rsb_8h.html#ac0f6a03345c8874f6e50f0ed033d984b">rsb_type_t</a> .  <a href="#a7849bc51eadedaa51a1b27569be89d86">More...</a><br /></td></tr>
 <tr class="separator:a7849bc51eadedaa51a1b27569be89d86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a532c3e9733221d59bac99cb1f795d266"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a532c3e9733221d59bac99cb1f795d266">RSB_NUMERICAL_TYPE_SAME_TYPE</a>&#160;&#160;&#160;1</td></tr>
 <tr class="memdesc:a532c3e9733221d59bac99cb1f795d266"><td class="mdescLeft">&#160;</td><td class="mdescRight">a bogus type flag for specifying no type conversion  <a href="#a532c3e9733221d59bac99cb1f795d266">More...</a><br /></td></tr>
 <tr class="separator:a532c3e9733221d59bac99cb1f795d266"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7628cd01c7e84e4ada529b3412d118b3"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a7628cd01c7e84e4ada529b3412d118b3">RSB_NUMERICAL_TYPE_FLOAT</a>&#160;&#160;&#160;'S'</td></tr>
-<tr class="memdesc:a7628cd01c7e84e4ada529b3412d118b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Character code for type float.  <a href="#a7628cd01c7e84e4ada529b3412d118b3">More...</a><br /></td></tr>
+<tr class="memdesc:a7628cd01c7e84e4ada529b3412d118b3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Character code for type float. See <a class="el" href="rsb_8h.html#ac0f6a03345c8874f6e50f0ed033d984b">rsb_type_t</a> .  <a href="#a7628cd01c7e84e4ada529b3412d118b3">More...</a><br /></td></tr>
 <tr class="separator:a7628cd01c7e84e4ada529b3412d118b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a532c3e9733221d59bac99cb1f795d266"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a532c3e9733221d59bac99cb1f795d266">RSB_NUMERICAL_TYPE_SAME_TYPE</a>&#160;&#160;&#160;1</td></tr>
 <tr class="memdesc:a532c3e9733221d59bac99cb1f795d266"><td class="mdescLeft">&#160;</td><td class="mdescRight">a bogus type flag for specifying no type conversion  <a href="#a532c3e9733221d59bac99cb1f795d266">More...</a><br /></td></tr>
 <tr class="separator:a532c3e9733221d59bac99cb1f795d266"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac46f79bff4499a5e8b6075150ecabf69"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#ac46f79bff4499a5e8b6075150ecabf69">RSB_NUMERICAL_TYPE_FLOAT_COMPLEX</a>&#160;&#160;&#160;'C'</td></tr>
-<tr class="memdesc:ac46f79bff4499a5e8b6075150ecabf69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Character code for type float complex.  <a href="#ac46f79bff4499a5e8b6075150ecabf69">More...</a><br /></td></tr>
+<tr class="memdesc:ac46f79bff4499a5e8b6075150ecabf69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Character code for type float complex. See <a class="el" href="rsb_8h.html#ac0f6a03345c8874f6e50f0ed033d984b">rsb_type_t</a> .  <a href="#ac46f79bff4499a5e8b6075150ecabf69">More...</a><br /></td></tr>
 <tr class="separator:ac46f79bff4499a5e8b6075150ecabf69"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a532c3e9733221d59bac99cb1f795d266"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a532c3e9733221d59bac99cb1f795d266">RSB_NUMERICAL_TYPE_SAME_TYPE</a>&#160;&#160;&#160;1</td></tr>
 <tr class="memdesc:a532c3e9733221d59bac99cb1f795d266"><td class="mdescLeft">&#160;</td><td class="mdescRight">a bogus type flag for specifying no type conversion  <a href="#a532c3e9733221d59bac99cb1f795d266">More...</a><br /></td></tr>
 <tr class="separator:a532c3e9733221d59bac99cb1f795d266"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51ca2ff55d0c852f659f5c76ecd536cd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a51ca2ff55d0c852f659f5c76ecd536cd">RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX</a>&#160;&#160;&#160;'Z'</td></tr>
-<tr class="memdesc:a51ca2ff55d0c852f659f5c76ecd536cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Character code for type double complex.  <a href="#a51ca2ff55d0c852f659f5c76ecd536cd">More...</a><br /></td></tr>
+<tr class="memdesc:a51ca2ff55d0c852f659f5c76ecd536cd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Character code for type double complex. See <a class="el" href="rsb_8h.html#ac0f6a03345c8874f6e50f0ed033d984b">rsb_type_t</a> .  <a href="#a51ca2ff55d0c852f659f5c76ecd536cd">More...</a><br /></td></tr>
 <tr class="separator:a51ca2ff55d0c852f659f5c76ecd536cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17195a2481a24153b99f2be1f0577ff1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="rsb__types_8h.html#a17195a2481a24153b99f2be1f0577ff1">RSB_NUMERICAL_TYPE_FORTRAN_SAME_TYPE</a>&#160;&#160;&#160;1</td></tr>
 <tr class="memdesc:a17195a2481a24153b99f2be1f0577ff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">a bogus type flag for specifying no type conversion  <a href="#a17195a2481a24153b99f2be1f0577ff1">More...</a><br /></td></tr>
@@ -197,11 +212,12 @@ Macros</h2></td></tr>
 <tr class="separator:aef1f5467f82116857e5003daa0f75ccd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Macros and constants, which are type specific. <br />
+<div class="textblock"><p>Macros and constants, which are type specific and used by <a class="el" href="rsb_8h.html" title="This file declares the user interface functions and data structures for the librsb library (see The l...">rsb.h</a>. <br />
 Here reside declarations related to supported matrix numerical types, and other declarations according to the build time options. <br />
 If you wish to use this library with different matrix numerical types, you shall regenerate the library source code accordingly; see the README file how to do this. <br />
-Only a small part of these declarations is needed to the user (see <a class="el" href="rsb__types_8h.html#matrix_type_symbols_section">matrix_type_symbols_section</a>). <br />
-Therefore, only the declarations which are commented are actually meant to be used in functions; please regard the remaining ones as internal. </p>
+Only a those declarations which are documented are meant to be part of the API. <br />
+The rest is meant as internals. <br />
+See also <a class="el" href="rsb__types_8h.html#matrix_type_symbols_section">matrix_type_symbols_section</a>. </p>
 </div><h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a6ea10439ed32405f43a9f5e6c9b64787"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6ea10439ed32405f43a9f5e6c9b64787">&#9670;&nbsp;</a></span>RSB_CHAR_AS_TRANSPOSITION</h2>
@@ -218,9 +234,9 @@ Therefore, only the declarations which are commented are actually meant to be us
         </tr>
       </table>
 </div><div class="memdoc">
-<b>Value:</b><div class="fragment"><div class="line">(                                                                                                               \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;N&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;n&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;T&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;t&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;C&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;c&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a>) :             \</div><div class="line">                <span class="charliteral">&#39;?&#39;</span>                                                                                             \</div><div class="line">)</div><div class="ttc" id="rsb__types_8h_html_a37f8cea71946de2f832bdb9d438d5edf"><div class="ttname"><a href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a></div><div class="ttdeci">#define RSB_TRANSPOSITION_T</div><div class="ttdoc">T: Transposed flag value, valid for rsb_trans_t valued variables. </div><div class="ttdef"><b>Definition:</b> rsb_types.h:146</div></div>
-<div class="ttc" id="rsb__types_8h_html_abd3aaf223656dece97dee2107e485217"><div class="ttname"><a href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a></div><div class="ttdeci">#define RSB_TRANSPOSITION_C</div><div class="ttdoc">C: Conjugated transpose flag, valid for rsb_trans_t typed variables. </div><div class="ttdef"><b>Definition:</b> rsb_types.h:147</div></div>
-<div class="ttc" id="rsb__types_8h_html_a9673f34330af77b1c0fd4a585e0c62cc"><div class="ttname"><a href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a></div><div class="ttdeci">#define RSB_TRANSPOSITION_N</div><div class="ttdoc">N: Non transposed flag, valid for rsb_trans_t typed variables. </div><div class="ttdef"><b>Definition:</b> rsb_types.h:145</div></div>
+<b>Value:</b><div class="fragment"><div class="line">(                                                                                                               \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;N&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;n&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;T&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;t&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;C&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a>) :             \</div><div class="line">                (TRANSC) == (<span class="charliteral">&#39;c&#39;</span>) ? (<a class="code" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a>) :             \</div><div class="line">                <span class="charliteral">&#39;?&#39;</span>     \</div><div class="line">)</div><div class="ttc" id="rsb__types_8h_html_a37f8cea71946de2f832bdb9d438d5edf"><div class="ttname"><a href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a></div><div class="ttdeci">#define RSB_TRANSPOSITION_T</div><div class="ttdoc">T: Transposed flag value, valid for rsb_trans_t valued variables. </div><div class="ttdef"><b>Definition:</b> rsb_types.h:139</div></div>
+<div class="ttc" id="rsb__types_8h_html_abd3aaf223656dece97dee2107e485217"><div class="ttname"><a href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a></div><div class="ttdeci">#define RSB_TRANSPOSITION_C</div><div class="ttdoc">C: Conjugated transpose flag, valid for rsb_trans_t typed variables. </div><div class="ttdef"><b>Definition:</b> rsb_types.h:140</div></div>
+<div class="ttc" id="rsb__types_8h_html_a9673f34330af77b1c0fd4a585e0c62cc"><div class="ttname"><a href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a></div><div class="ttdeci">#define RSB_TRANSPOSITION_N</div><div class="ttdoc">N: Non transposed flag, valid for rsb_trans_t typed variables. </div><div class="ttdef"><b>Definition:</b> rsb_types.h:138</div></div>
 </div><!-- fragment -->
 <p>Get the right transposition flag out of either n, c, t chars. </p>
 
@@ -354,6 +370,22 @@ Therefore, only the declarations which are commented are actually meant to be us
 
 </div>
 </div>
+<a id="ae25329637f9f0608d950b0cf4308e5ab"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae25329637f9f0608d950b0cf4308e5ab">&#9670;&nbsp;</a></span>RSB_HAVE_ANY_COMPLEX_TYPE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RSB_HAVE_ANY_COMPLEX_TYPE&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Defined to 1 if any complex type has been configured in. Currently: (float complex,double complex). </p>
+
+</div>
+</div>
 <a id="a50018495517829b14797a568788e1526"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a50018495517829b14797a568788e1526">&#9670;&nbsp;</a></span>RSB_HAVE_TYPE_DOUBLE</h2>
 
@@ -425,7 +457,7 @@ Therefore, only the declarations which are commented are actually meant to be us
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define RSB_HEADER_VERSION_STRING&#160;&#160;&#160;&quot;librsb version 1.2.0.11 - 202112161631&quot;</td>
+          <td class="memname">#define RSB_HEADER_VERSION_STRING&#160;&#160;&#160;&quot;librsb version 1.3.0.0 - 202202241108&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -441,7 +473,7 @@ Therefore, only the declarations which are commented are actually meant to be us
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define RSB_LIBRSB_VER&#160;&#160;&#160;10201</td>
+          <td class="memname">#define RSB_LIBRSB_VER&#160;&#160;&#160;10300</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -457,7 +489,7 @@ Therefore, only the declarations which are commented are actually meant to be us
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define RSB_LIBRSB_VER_DATE&#160;&#160;&#160;202112161631</td>
+          <td class="memname">#define RSB_LIBRSB_VER_DATE&#160;&#160;&#160;202202241108</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -489,7 +521,7 @@ Therefore, only the declarations which are commented are actually meant to be us
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define RSB_LIBRSB_VER_MINOR&#160;&#160;&#160;2</td>
+          <td class="memname">#define RSB_LIBRSB_VER_MINOR&#160;&#160;&#160;3</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -521,12 +553,28 @@ Therefore, only the declarations which are commented are actually meant to be us
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define RSB_LIBRSB_VER_STRING&#160;&#160;&#160;&quot;1.2.0&quot;</td>
+          <td class="memname">#define RSB_LIBRSB_VER_STRING&#160;&#160;&#160;&quot;1.3.0&quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
 <p>Library version string. </p>
+
+</div>
+</div>
+<a id="ac09093cc8bb15023eb379ea6da1fdc15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac09093cc8bb15023eb379ea6da1fdc15">&#9670;&nbsp;</a></span>RSB_MATRIX_TYPES_LIST_CXX</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RSB_MATRIX_TYPES_LIST_CXX&#160;&#160;&#160;double,float,std::complex&lt;float&gt;,std::complex&lt;double&gt;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>list of C++ types configured in this <code>librsb</code> build, usable in <code>&lt;<a class="el" href="rsb_8hpp.html" title="Classes RsbLib and RsbMatrix provide native C++ access to librsb. ">rsb.hpp</a>&gt;</code> (since RSB_LIBRSB_VER&gt;=10300) </p>
 
 </div>
 </div>
@@ -574,7 +622,7 @@ Therefore, only the declarations which are commented are actually meant to be us
       </table>
 </div><div class="memdoc">
 
-<p>Character code for type double. </p>
+<p>Character code for type double. See <a class="el" href="rsb_8h.html#ac0f6a03345c8874f6e50f0ed033d984b">rsb_type_t</a> . </p>
 
 </div>
 </div>
@@ -590,7 +638,7 @@ Therefore, only the declarations which are commented are actually meant to be us
       </table>
 </div><div class="memdoc">
 
-<p>Character code for type double complex. </p>
+<p>Character code for type double complex. See <a class="el" href="rsb_8h.html#ac0f6a03345c8874f6e50f0ed033d984b">rsb_type_t</a> . </p>
 
 </div>
 </div>
@@ -622,7 +670,7 @@ Therefore, only the declarations which are commented are actually meant to be us
       </table>
 </div><div class="memdoc">
 
-<p>Character code for type float. </p>
+<p>Character code for type float. See <a class="el" href="rsb_8h.html#ac0f6a03345c8874f6e50f0ed033d984b">rsb_type_t</a> . </p>
 
 </div>
 </div>
@@ -638,7 +686,7 @@ Therefore, only the declarations which are commented are actually meant to be us
       </table>
 </div><div class="memdoc">
 
-<p>Character code for type float complex. </p>
+<p>Character code for type float complex. See <a class="el" href="rsb_8h.html#ac0f6a03345c8874f6e50f0ed033d984b">rsb_type_t</a> . </p>
 
 </div>
 </div>
@@ -825,7 +873,7 @@ Therefore, only the declarations which are commented are actually meant to be us
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define RSB_ROWS_TRANSPOSITIONS_ARRAY&#160;&#160;&#160;{<a class="el" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a>, <a class="el" href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a>, <a class="el" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a>, RSB_INVALID_TRANS }</td>
+          <td class="memname">#define RSB_ROWS_TRANSPOSITIONS_ARRAY&#160;&#160;&#160;{<a class="el" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">RSB_TRANSPOSITION_N</a>, <a class="el" href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">RSB_TRANSPOSITION_T</a>, <a class="el" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">RSB_TRANSPOSITION_C</a>,  <a class="el" href="rsb__types_8h.html#acb80acf43f0058bef1fda70e15aae10e">RSB_TRANSPOSITION_INVALID</a>}</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -847,6 +895,22 @@ Therefore, only the declarations which are commented are actually meant to be us
 </div><div class="memdoc">
 
 <p>C: Conjugated transpose flag, valid for <a class="el" href="rsb_8h.html#a46095ea7e61e1d1ec0ad055cf0291901">rsb_trans_t</a> typed variables. </p>
+
+</div>
+</div>
+<a id="acb80acf43f0058bef1fda70e15aae10e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb80acf43f0058bef1fda70e15aae10e">&#9670;&nbsp;</a></span>RSB_TRANSPOSITION_INVALID</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RSB_TRANSPOSITION_INVALID&#160;&#160;&#160;0x3F</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>?: Transposition type flag value guaranteed to be invalid. Useful for tests. Valid as char. </p>
 
 </div>
 </div>
@@ -879,6 +943,20 @@ Therefore, only the declarations which are commented are actually meant to be us
 </div><div class="memdoc">
 
 <p>T: Transposed flag value, valid for <a class="el" href="rsb_8h.html#a46095ea7e61e1d1ec0ad055cf0291901">rsb_trans_t</a> valued variables. </p>
+
+</div>
+</div>
+<a id="af76d6cc65134e8e24a538b6bc3ca818f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af76d6cc65134e8e24a538b6bc3ca818f">&#9670;&nbsp;</a></span>RSB_TRANSPOSITIONS_ARRAY_LENGTH</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define RSB_TRANSPOSITIONS_ARRAY_LENGTH&#160;&#160;&#160;3 /* valid transpositions in <a class="el" href="rsb__types_8h.html#a9fcc01fb97c5b5482be8ab4cd7c2ee33">RSB_ROWS_TRANSPOSITIONS_ARRAY</a> */</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

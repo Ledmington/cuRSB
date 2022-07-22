@@ -34,6 +34,7 @@ dnl
 dnl
 dnl
 #include "rsb_types.h"
+#include "rsb_common.h"
 include(`do_unroll.m4')dnl
 dnl
 
@@ -236,6 +237,9 @@ ifdef(`ONLY_WANT_HEADERS',`dnl
 #endif  /* RSB_UNROLL_H_INCLUDED */
 ')
 
+ifdef(`ONLY_WANT_HEADERS',`',`dnl
+RSB_EMPTY_FILE_FILLER
+')dnl
 
 ifdef(`ONLY_WANT_HEADERS',`
 `#define RSB_FITTING_SAMPLES		'dnl

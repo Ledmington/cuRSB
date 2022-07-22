@@ -1,1 +1,1 @@
-static int f(){return 0;}
+int f_spmv_sxsa(void){return 0;}

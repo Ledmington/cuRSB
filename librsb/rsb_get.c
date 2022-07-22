@@ -94,6 +94,7 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
+/* Important: does not handle COO. */
 rsb_err_t rsb__do_get_row_dense(const struct rsb_mtx_t *mtxAp , void * row , rsb_blk_idx_t rowindex)
 {
 	/*!
@@ -106,11 +107,14 @@ rsb_err_t rsb__do_get_row_dense(const struct rsb_mtx_t *mtxAp , void * row , rsb
 	 * \return RSB_ERR_NO_ERROR on correct operation, an error code (see \ref errors_section) otherwise.
 	 *
 	 * \note This function is slow.
+	 * \note This function is obsolete -- it's only used by ot.c !
 	 * */
+#if RSB_OBSOLETE_QUARANTINE_UNUSED
 	register rsb_byte_t	*bp = NULL;
 	register rsb_nnz_idx_t baserow,basecolumn;
 	register rsb_blk_idx_t rows,columns;
 	register rsb_blk_idx_t blockrow,blockcolumn;
+#endif
 	size_t el_size = mtxAp->el_size;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
@@ -143,6 +147,7 @@ rsb_err_t rsb__do_get_row_dense(const struct rsb_mtx_t *mtxAp , void * row , rsb
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
 
+#if RSB_OBSOLETE_QUARANTINE_UNUSED
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_COO_INDEX(rowindex));	
 #if RSB_EXPERIMENTAL_USE_PURE_BCSS
 	if(rsb__is_bcsr_matrix(mtxAp))
@@ -167,14 +172,13 @@ rsb_err_t rsb__do_get_row_dense(const struct rsb_mtx_t *mtxAp , void * row , rsb
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
 	else
+#if RSB_WANT_BCSC_LEAVES  
 	if(rsb__is_bcsc_matrix(mtxAp))
 	{
 		rsb_blk_idx_t br, bc;
 		rsb_nnz_idx_t bri, bci, bi;
 
-		if((errval = rsb__get_blocking_size(mtxAp, &br, &bc))!=RSB_ERR_NO_ERROR)
-			RSB_PERR_GOTO(err,RSB_ERRM_ES)
-
+		rsb__get_blocking_size(mtxAp, &br, &bc);
 		bri= rowindex/br ;	/* the block row of interest */
 
 
@@ -197,6 +201,7 @@ rsb_err_t rsb__do_get_row_dense(const struct rsb_mtx_t *mtxAp , void * row , rsb
 		}
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	}
+#endif /* RSB_WANT_BCSC_LEAVES */
 #endif /* RSB_EXPERIMENTAL_USE_PURE_BCSS */
 
 	{
@@ -214,12 +219,13 @@ rsb_err_t rsb__do_get_row_dense(const struct rsb_mtx_t *mtxAp , void * row , rsb
 		RSB_GET_NEXT_BLOCK_POINTER(bp,mtxAp,baserow,basecolumn,rows,columns,blockrow,blockcolumn);
 	}
 	}
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 	errval = RSB_ERR_NO_ERROR;
 err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb_do_get_rows_nnz(const struct rsb_mtx_t *mtxAp, rsb_blk_idx_t fr, rsb_blk_idx_t lr, rsb_nnz_idx_t  *rnz)
+rsb_err_t rsb__do_get_rows_nnz(const struct rsb_mtx_t *mtxAp, rsb_blk_idx_t fr, rsb_blk_idx_t lr, rsb_nnz_idx_t  *rnz)
 {
         /*!
 	 * \ingroup gr_internals
@@ -248,7 +254,7 @@ rsb_err_t rsb_do_get_rows_nnz(const struct rsb_mtx_t *mtxAp, rsb_blk_idx_t fr, r
 		{
 			const rsb_coo_idx_t fri = RSB_SUBMATRIX_ROWS_INTERSECTION_FIRST(submatrix,fr);
 			const rsb_coo_idx_t lri = RSB_SUBMATRIX_ROWS_INTERSECTION_LAST(submatrix,lr);
-			errval = rsb_do_get_rows_nnz(submatrix,fri,lri,rnz);
+			errval = rsb__do_get_rows_nnz(submatrix,fri,lri,rnz);
 			if(RSB_SOME_ERROR(errval))
 				RSB_PERR_GOTO(err,RSB_ERRM_ES)
 		}
@@ -260,6 +266,7 @@ rsb_err_t rsb_do_get_rows_nnz(const struct rsb_mtx_t *mtxAp, rsb_blk_idx_t fr, r
 		 * */
 		const rsb_coo_idx_t fri = RSB_SUBMATRIX_ROWS_INTERSECTION_FIRST(mtxAp,fr)-mtxAp->roff;
 		const rsb_coo_idx_t lri = RSB_SUBMATRIX_ROWS_INTERSECTION_LAST(mtxAp,lr) -mtxAp->roff;
+
 		if(rsb__is_coo_matrix(mtxAp))
 		{	
 			rsb_nnz_idx_t nnz1, nnz0, nnz = mtxAp->nnz;
@@ -294,22 +301,24 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb_do_get_columns_sparse(const struct rsb_mtx_t *mtxAp , void * RSB_RESTRICT VA , rsb_blk_idx_t fc, rsb_blk_idx_t lc, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT CP, rsb_coo_idx_t ioff, rsb_coo_idx_t joff)
+rsb_err_t rsb__do_get_columns_sparse(const struct rsb_mtx_t *mtxAp , void * RSB_RESTRICT VA , rsb_blk_idx_t fc, rsb_blk_idx_t lc, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT CP, rsb_coo_idx_t ioff, rsb_coo_idx_t joff)
 {
         /*!
 	 * \ingroup gr_internals
 	 *
 	 * JA can be NULL.
+	 * fc, lc in global matrix space.
          * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_COO_INDEX(fc));
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_COO_INDEX(lc));
 	RSB_DEBUG_ASSERT(mtxAp);
-	RSB_DEBUG_ASSERT(lc< mtxAp->roff+mtxAp->nr);
-	RSB_DEBUG_ASSERT(fc>=mtxAp->roff);
 
 	if(rsb__is_recursive_matrix(mtxAp->flags))
 	{
+#if RSB_OBSOLETE_QUARANTINE_UNUSED
+		RSB_DEBUG_ASSERT(lc< mtxAp->roff+mtxAp->nr);
+		RSB_DEBUG_ASSERT(fc>=mtxAp->roff);
 		rsb_submatrix_idx_t i,j;
 		const struct rsb_mtx_t * submatrix;
 
@@ -318,10 +327,12 @@ rsb_err_t rsb_do_get_columns_sparse(const struct rsb_mtx_t *mtxAp , void * RSB_R
 		{
 			const rsb_coo_idx_t fci = RSB_SUBMATRIX_COLS_INTERSECTION_FIRST(submatrix,fc);
 			const rsb_coo_idx_t lci = RSB_SUBMATRIX_COLS_INTERSECTION_LAST(submatrix,lc);
-			errval = rsb_do_get_columns_sparse(submatrix,VA,fci,lci,IA,JA,CP,ioff,joff);
+			errval = rsb__do_get_columns_sparse(submatrix,VA,fci,lci,IA,JA,CP,ioff,joff);
 			if(RSB_SOME_ERROR(errval))
 				RSB_PERR_GOTO(err,RSB_ERRM_ES)
 		}
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+		errval = RSB_ERR_BADARGS; RSB_PERR_GOTO(err,RSB_ERRM_ES);
 	}
 	else
 	{
@@ -602,6 +613,7 @@ err:
         RSB_DO_ERR_RETURN(errval)
 }
 
+#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__do_get_rows_dense(const struct rsb_mtx_t *mtxAp , void * row , rsb_blk_idx_t fr, rsb_blk_idx_t lr, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t  *rnz, rsb_flags_t flags )
 {
         /*!
@@ -682,7 +694,7 @@ rsb_err_t rsb__do_get_rows_dense(const struct rsb_mtx_t *mtxAp , void * row , rs
 	 * FIXME : THIS IS NOT ANYMORE ROWS_DENSE !
 	 * */
 	ct = - rsb_time();
-	rsb_util_compact_nonzeros(row,IA,JA,nnz,mtxAp->typecode,&gap,&discarded,RSB_FLAG_NOFLAGS);
+	rsb__util_compact_nonzeros(row,IA,JA,nnz,mtxAp->typecode,&gap,&discarded,RSB_FLAG_NOFLAGS);
 	ct += rsb_time();
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_NNZ_INDEX(discarded));
 	RSB_BZERO(((rsb_byte_t*)row)+(mtxAp->el_size*(nnz-discarded)),mtxAp->el_size*discarded);//NEW
@@ -710,6 +722,37 @@ rsb_err_t rsb__do_get_rows_dense(const struct rsb_mtx_t *mtxAp , void * row , rs
 err:
 	RSB_DO_ERR_RETURN(errval)
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+
+#if RSB_OBSOLETE_QUARANTINE_UNUSED
+static void rsb__do_extract_nnz_from_block(void * blockpointer, void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t br, rsb_coo_idx_t bc, rsb_coo_idx_t baserow, rsb_coo_idx_t basecolumn, rsb_type_t typecode, size_t el_size, rsb_nnz_idx_t *nnzp )
+{
+	/**
+		FIXME
+	*/
+	rsb_coo_idx_t r,c;
+	rsb_nnz_idx_t nz = 0;
+
+	for(r=0;r<br;++r)
+	for(c=0;c<bc;++c)
+	{
+		rsb_byte_t*src=((rsb_byte_t*)blockpointer)+(el_size*(r*bc+c));
+		/*
+		 * SERVE UNA NUOVA MACRO CHE INDIVIDUI PER CIASCUN TIPO SE AREA DI MEMORIA E' NNZ
+		 * */
+		if( RSB_IS_ELEMENT_NONZERO(src,typecode) )
+		{
+			rsb_byte_t * dst = ((rsb_byte_t*)(VA)) + el_size * (nz);
+			RSB_NUMERICAL_TYPE_SET_ELEMENT(dst,src,typecode) /* FIXME : this is SLOW */
+			(IA)[nz] = baserow   +r;
+			(JA)[nz] = basecolumn+c;
+			++nz;
+		//	if(nz>mtxAp->nnz)goto fatal_err;/* PLACE HERE ERROR CHECKING CODE */
+		}
+	}
+	*nnzp += nz;
+}
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_err_t rsb__do_get_coo_noalloc(const struct rsb_mtx_t *mtxAp, rsb_byte_t * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t * nnzp, rsb_flags_t flags)
 {
@@ -750,12 +793,7 @@ rsb_err_t rsb__do_get_coo_noalloc(const struct rsb_mtx_t *mtxAp, rsb_byte_t * VA
 
 	el_size = mtxAp->el_size;
 
-	if(( mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES_COO) ||
-	   ( mtxAp->flags & RSB_FLAG_USE_HALFWORD_INDICES_CSR)
-	 || 1 // FIXME !
-	  )
 	{
-		/* FIXME! THIS IS TEMPORARYAND AND BREAKS THE ROUTINE IF NON RECURSIVE ROOT WON'T HAVE THESE FLAGS */
 		rsb_nnz_idx_t dnnz = 0;
 		RSB_DO_ERROR_CUMULATE(errval,rsb__do_get_rows_sparse(RSB_TRANSPOSITION_N,NULL,mtxAp,VA,IA,JA,0,mtxAp->nr-1,&dnnz,RSB_FLAG_NOFLAGS));
 		if(nnzp)
@@ -765,6 +803,8 @@ rsb_err_t rsb__do_get_coo_noalloc(const struct rsb_mtx_t *mtxAp, rsb_byte_t * VA
 			rsb__util_coo_array_to_fortran_indices_parallel(JA,dnnz);
 		goto ret;
 	}
+
+#if 0
 	// FIXME: THE FOLLOWING IS OLD AND BROKEN
 	if(rsb__is_recursive_matrix(mtxAp->flags))
 	{
@@ -796,6 +836,7 @@ rsb_err_t rsb__do_get_coo_noalloc(const struct rsb_mtx_t *mtxAp, rsb_byte_t * VA
 erri:
 		goto ret;
 	}
+#endif
 
 	RSB_DEBUG_ASSERT(mtxAp->bpntr);
 	RSB_DEBUG_ASSERT(mtxAp->indptr);
@@ -806,7 +847,7 @@ erri:
 	RSB_BZERO(JA,sizeof(rsb_coo_idx_t) * mtxAp->nnz);
 
 
-#if RSB_EXPERIMENTAL_USE_PURE_BCSS
+#if !RSB_EXPERIMENTAL_USE_PURE_BCSS
 	if(rsb__is_bcss_matrix(mtxAp))
 	{
 		rsb_nnz_idx_t bi, nz = 0, bri, bci;
@@ -883,58 +924,6 @@ ret:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-static rsb_err_t rsb__do_infinity_norm_inner( const struct rsb_mtx_t *mtxAp , rsb_byte_t * row_sums, rsb_bool_t do_testing, rsb_trans_t transA)
-{
-	/*
-		FIXME : document
-	*/
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-
-	if( mtxAp && rsb__is_recursive_matrix(mtxAp->flags))
-	{
-		rsb_submatrix_idx_t i,j;
-		const struct rsb_mtx_t * submatrix;
-
-		if(RSB_SOME_ERROR(errval))
-		{RSB_PERR_GOTO(err,RSB_ERRM_ES)}
-
-		RSB_SUBMATRIX_FOREACH(mtxAp,submatrix,i,j)
-		if(submatrix)
-		{
-			/*
-			rsb_coo_idx_t off = 0;
-			if(RSB_DOES_NOT_TRANSPOSE(transA))
-				off = submatrix->roff-mtxAp->roff;
-			else
-				off = submatrix->coff-mtxAp->coff;
-			*/
-			errval = rsb__do_infinity_norm_inner(submatrix,row_sums/*+el_size*(off)*/,do_testing,transA);
-			if(RSB_SOME_ERROR(errval))
-			{RSB_PERR_GOTO(err,RSB_ERRM_ES)}
-		}
-	}
-	else
-	{
-#ifndef RSB_HAVE_OPTYPE_INFTY_NORM
-	return RSB_ERR_UNSUPPORTED_OPERATION;
-#else /* RSB_HAVE_OPTYPE_INFTY_NORM */
-		if(do_testing!=0 || (mtxAp->flags & RSB_FLAG_SHOULD_DEBUG))
-		{
-			// uhm.. FIXME : do we really need this ?
-			if(RSB_SOME_ERROR(errval = rsb__infty_norm_testing(mtxAp,transA,row_sums)))
-			{RSB_PERR_GOTO(err,RSB_ERRM_ES)}
-		}
-		else
-		{
-			if(RSB_SOME_ERROR(errval = rsb__do_infty_norm(mtxAp,transA,row_sums)))
-			{RSB_PERR_GOTO(err,RSB_ERRM_ES)}
-		}
-#endif /* RSB_HAVE_OPTYPE_INFTY_NORM */
-	}
-err:
-	RSB_DO_ERR_RETURN(errval)
-}
-
 rsb_err_t rsb__do_rows_sums_inner(const struct rsb_mtx_t *mtxAp , rsb_byte_t * row_sums, rsb_bool_t do_testing, rsb_trans_t transA)
 {
 	/*
@@ -990,15 +979,64 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
+static rsb_err_t rsb__do_infinity_norm_inner( const struct rsb_mtx_t *mtxAp, rsb_byte_t * row_asums, rsb_bool_t do_testing, rsb_trans_t transA)
+{
+	/*
+	 * On each row/column i, accumulate row/column absolutes sum in row_asums[i].
+	 * */
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
+
+	if( mtxAp && rsb__is_recursive_matrix(mtxAp->flags))
+	{
+		rsb_submatrix_idx_t i,j;
+		const struct rsb_mtx_t * submatrix;
+
+		if(RSB_SOME_ERROR(errval))
+		{
+			RSB_PERR_GOTO(err,RSB_ERRM_ES)
+		}
+
+		RSB_SUBMATRIX_FOREACH(mtxAp,submatrix,i,j)
+		if(submatrix)
+		{
+			errval = rsb__do_infinity_norm_inner(submatrix,row_asums,do_testing,transA);
+			if(RSB_SOME_ERROR(errval))
+			{
+				RSB_PERR_GOTO(err,RSB_ERRM_ES)
+			}
+		}
+	}
+	else
+	{
+#ifndef RSB_HAVE_OPTYPE_INFTY_NORM
+		return RSB_ERR_UNSUPPORTED_OPERATION;
+#else /* RSB_HAVE_OPTYPE_INFTY_NORM */
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
+		if(do_testing!=0 || (mtxAp->flags & RSB_FLAG_SHOULD_DEBUG))
+		{
+			// uhm.. FIXME : do we really need this ?
+			if(RSB_SOME_ERROR(errval = rsb__infty_norm_testing(mtxAp,transA,row_asums)))
+			{RSB_PERR_GOTO(err,RSB_ERRM_ES)}
+		}
+		else
+#endif /* RSB_WANT_KERNELS_DEBUG */
+		{
+			if(RSB_SOME_ERROR(errval = rsb__do_infty_norm(mtxAp,transA,row_asums)))
+			{RSB_PERR_GOTO(err,RSB_ERRM_ES)}
+		}
+#endif /* RSB_HAVE_OPTYPE_INFTY_NORM */
+	}
+err:
+	RSB_DO_ERR_RETURN(errval)
+}
+
 rsb_err_t rsb__do_absolute_rows_sums( const struct rsb_mtx_t * mtxAp, void * d)
 {
-	/* FIXME: UNFINISHED */
 	return rsb__do_infinity_norm_inner(mtxAp,d,RSB_BOOL_FALSE,RSB_TRANSPOSITION_N);
 }
 
 rsb_err_t rsb__do_absolute_columns_sums( const struct rsb_mtx_t * mtxAp, void * d)
 {
-	/* FIXME: UNFINISHED */
 	return rsb__do_infinity_norm_inner(mtxAp,d,RSB_BOOL_FALSE,RSB_TRANSPOSITION_T);
 }
 
@@ -1013,56 +1051,45 @@ rsb_err_t rsb__do_infinity_norm(const struct rsb_mtx_t *mtxAp, void * infinity_n
 	 * also known as the maximum absolute row sum norm : ||A|| = max_i sum_j^n |a_ij|
 	 *
 	 * \return RSB_ERR_NO_ERROR on correct operation, an error code (see \ref errors_section) otherwise.
-	 * TODO : should check for consistence of matrix struct arrays/indices.
 	 * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 #ifndef RSB_HAVE_OPTYPE_INFTY_NORM
 	return RSB_ERR_UNSUPPORTED_OPERATION;
 #else /* RSB_HAVE_OPTYPE_INFTY_NORM */
-	//rsb_blk_idx_t max_block_rows = 0;
 	void * row_sums = NULL,*mrp = NULL;
 	rsb_blk_idx_t maximal_row = 0;
-	rsb_coo_idx_t tm = 0;
-	//rsb_blk_idx_t i;
+	const rsb_coo_idx_t tm = mtxAp ? RSB_MTX_TRANSPOSED_ROWS(mtxAp,transA) : 0;
 
-	if(!mtxAp)
-		{errval = RSB_ERR_BADARGS;RSB_PERR_GOTO(err,RSB_ERRM_ES)}
+        RSB_DEBUG_ASSERT(mtxAp);
+
 	if(!infinity_norm)
-		{errval = RSB_ERR_BADARGS;RSB_PERR_GOTO(err,RSB_ERRM_ES)}
-       	tm = RSB_MTX_TRANSPOSED_ROWS(mtxAp,transA);
-//	if(RSB_DOES_TRANSPOSE(transA))
-//		return RSB_ERR_UNIMPLEMENTED_YET;
-
-#if 0
-	if( matrix && rsb__is_recursive_matrix(mtxAp->flags))
 	{
-		rsb__do_perror(NULL,RSB_ERR_UNIMPLEMENTED_YET);
-		errval = RSB_ERR_UNIMPLEMENTED_YET;
-		goto ret;
+		errval = RSB_ERR_BADARGS;
+		RSB_PERR_GOTO(ret,RSB_ERRM_ES);
 	}
-#endif
-	/*
-	 * first, we allocate an array long like the maximal height block
-	 * */
+
 	row_sums = rsb__calloc(mtxAp->el_size*(tm+RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE));
 	if(!row_sums)
-		{RSB_PERR_GOTO(err,RSB_ERRM_ES)}
+	{
+		errval = RSB_ERR_ENOMEM;
+		RSB_PERR_GOTO(ret,RSB_ERRM_ES)
+	}
 
 	errval = rsb__do_infinity_norm_inner(mtxAp,row_sums,do_testing,transA);
 	if(RSB_SOME_ERROR(errval))
-		{RSB_PERR_GOTO(err,RSB_ERRM_ES)}
+	{
+		RSB_PERR_GOTO(ret,RSB_ERRM_ES)
+	}
 
 	/*
-	 * we determine the maximal row sum
-	 * FIXME : slow!
-	 * TODO : should use BLAS own icamax or similar..
+	 * TODO : should use BLAS own icamax or similar to determine the maximal row sum
 	 * */
 	RSB_VECTOR_FIND_MAXIMAL_ELEMENT(maximal_row,row_sums,tm,mtxAp->typecode);
 
 	if(maximal_row<0)
 	{
-		/* fixme : should set error code */
-		RSB_PERR_GOTO(erri,RSB_ERRM_ES)
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(ret,RSB_ERRM_ES)
 	}
 
 	/* 
@@ -1073,20 +1100,8 @@ rsb_err_t rsb__do_infinity_norm(const struct rsb_mtx_t *mtxAp, void * infinity_n
 		rsb__util_increase_by_one(mrp,0,mtxAp->typecode);
 
 	RSB_NUMERICAL_TYPE_SET_ELEMENT_REAL(infinity_norm,mrp,mtxAp->typecode)
-
-	RSB_CONDITIONAL_FREE(row_sums);
-
-	goto ret;
-erri:
-	RSB_CONDITIONAL_FREE(row_sums);
-	RSB_ERROR(RSB_ERRM_ES);
-	return RSB_ERR_INTERNAL_ERROR;
-//errg:
-//	return RSB_ERR_GENERIC_ERROR;
-err:
-	RSB_CONDITIONAL_FREE(row_sums);
-	errval = RSB_ERR_ENOMEM;
 ret:
+	RSB_CONDITIONAL_FREE(row_sums);
 	RSB_DO_ERR_RETURN(errval)
 #endif /* RSB_HAVE_OPTYPE_INFTY_NORM */
 }
@@ -1117,10 +1132,7 @@ rsb_nnz_idx_t rsb__do_get_matrix_nnz(const struct rsb_mtx_t *mtxAp)
 	 *
 	 * \return NULL on error, othwerwise the nonzeros
 	 * */
-	if(!mtxAp)
-		return 0;
-	else
-		return (mtxAp->nnz) ;/* nonzeros */
+	return (mtxAp->nnz) ;/* nonzeros */
 }
 
 rsb_long_t rsb__submatrices(const struct rsb_mtx_t * mtxAp)
@@ -1133,11 +1145,6 @@ rsb_long_t rsb__submatrices(const struct rsb_mtx_t * mtxAp)
 	rsb_submatrix_idx_t i,j;
 	const struct rsb_mtx_t * submatrix;
 
-	if(!mtxAp)
-	{
-		return -1;
-	}
-
 	RSB_SUBMATRIX_FOREACH(mtxAp,submatrix,i,j)
 	{
 		if(submatrix)
@@ -1148,7 +1155,7 @@ rsb_long_t rsb__submatrices(const struct rsb_mtx_t * mtxAp)
 	return sm+1;
 }
 
-rsb_err_t rsb__get_blocking_size(const struct rsb_mtx_t * mtxAp, rsb_blk_idx_t *brp, rsb_blk_idx_t *bcp)
+void rsb__get_blocking_size(const struct rsb_mtx_t * mtxAp, rsb_blk_idx_t *brp, rsb_blk_idx_t *bcp)
 {
 	/*!
 	 *
@@ -1157,19 +1164,8 @@ rsb_err_t rsb__get_blocking_size(const struct rsb_mtx_t * mtxAp, rsb_blk_idx_t *
 	 * \return RSB_ERR_NO_ERROR on correct operation, an error code (see \ref errors_section) otherwise.
 	 * \attention : before it used rsb_coo_idx_t !
 	 * */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-
-	if(!mtxAp)
-	{
-		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_ES)
-	}
-	
-	if( RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_NON_ROOT_MATRIX) && !(rsb__have_fixed_blocks_matrix_flags(mtxAp->flags) /*|| rsb__is_bcss_matrix(mtxAp)*/ ))
-	{
-		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_ES)
-	}
+	RSB_ASSERT(mtxAp);
+	RSB_ASSERT(!( RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_NON_ROOT_MATRIX) && !(rsb__have_fixed_blocks_matrix_flags(mtxAp->flags) /*|| rsb__is_bcss_matrix(mtxAp)*/ )));
 	
 #if (RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS)
 	if( (mtxAp->rpntr==NULL) && ( mtxAp->cpntr==NULL) )
@@ -1193,10 +1189,10 @@ rsb_err_t rsb__get_blocking_size(const struct rsb_mtx_t * mtxAp, rsb_blk_idx_t *
 	}
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_COO_INDEX(*brp));
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_COO_INDEX(*bcp));
-err:
-	return errval;
+	return;
 }
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__get_blocking_size_as_row_major(const struct rsb_mtx_t * mtxAp, rsb_blk_idx_t *bMp, rsb_blk_idx_t *bmp)
 {
 	/*!
@@ -1211,14 +1207,17 @@ rsb_err_t rsb__get_blocking_size_as_row_major(const struct rsb_mtx_t * mtxAp, rs
 		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 	}
 	
+	errval = RSB_ERR_NO_ERROR;
 	if( mtxAp->flags & RSB_FLAG_WANT_COLUMN_MAJOR_ORDER )
-		errval = rsb__get_blocking_size(mtxAp, bmp, bMp);
+		rsb__get_blocking_size(mtxAp, bmp, bMp);
 	else
-		errval = rsb__get_blocking_size(mtxAp, bMp, bmp);
+		rsb__get_blocking_size(mtxAp, bMp, bmp);
 err:
 	return errval;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 size_t rsb__do_get_max_blocksize(const struct rsb_mtx_t * mtxAp)
 {
 	/*!
@@ -1256,45 +1255,19 @@ size_t rsb__do_get_max_blocksize(const struct rsb_mtx_t * mtxAp)
 	sz *= maxMd;
 	return sz;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__get_physical_blocking_size(const struct rsb_mtx_t * mtxAp, rsb_blk_idx_t *brp, rsb_blk_idx_t *bcp)
 {
-	/**
-		FIXME
-	*/
+	const rsb_err_t errval = RSB_ERR_NO_ERROR;
 	if( mtxAp->flags & RSB_FLAG_WANT_COLUMN_MAJOR_ORDER )
-		return rsb__get_blocking_size(mtxAp, bcp, brp);
+		rsb__get_blocking_size(mtxAp, bcp, brp);
 	else
-		return rsb__get_blocking_size(mtxAp, brp, bcp);
+		rsb__get_blocking_size(mtxAp, brp, bcp);
+	return errval;
 }
-
-void rsb__do_extract_nnz_from_block(void * blockpointer, void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t br, rsb_coo_idx_t bc, rsb_coo_idx_t baserow, rsb_coo_idx_t basecolumn, rsb_type_t typecode, size_t el_size, rsb_nnz_idx_t *nnzp )
-{
-	/**
-		FIXME
-	*/
-	rsb_coo_idx_t r,c;
-	rsb_nnz_idx_t nz = 0;
-
-	for(r=0;r<br;++r)
-	for(c=0;c<bc;++c)
-	{
-		rsb_byte_t*src=((rsb_byte_t*)blockpointer)+(el_size*(r*bc+c));
-		/*
-		 * SERVE UNA NUOVA MACRO CHE INDIVIDUI PER CIASCUN TIPO SE AREA DI MEMORIA E' NNZ
-		 * */
-		if( RSB_IS_ELEMENT_NONZERO(src,typecode) )
-		{
-			rsb_byte_t * dst = ((rsb_byte_t*)(VA)) + el_size * (nz);
-			RSB_NUMERICAL_TYPE_SET_ELEMENT(dst,src,typecode) /* FIXME : this is SLOW */
-			(IA)[nz] = baserow   +r;
-			(JA)[nz] = basecolumn+c;
-			++nz;
-		//	if(nz>mtxAp->nnz)goto fatal_err;/* PLACE HERE ERROR CHECKING CODE */
-		}
-	}
-	*nnzp += nz;
-}
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_submatrix_idx_t rsb__get_recursive_matrix_depth(const struct rsb_mtx_t *mtxAp)
 {
@@ -1328,8 +1301,6 @@ rsb_flags_t rsb__get_hermitian_flag(const struct rsb_mtx_t *mtxAp)
 	/*!
 	 * \ingroup gr_internals
 	 */
-	if(!mtxAp)
-		return RSB_FLAG_NOFLAGS;
 	return (mtxAp->flags & RSB_FLAG_HERMITIAN);
 }
 
@@ -1338,8 +1309,6 @@ rsb_flags_t rsb__get_symmetry_flag(const struct rsb_mtx_t *mtxAp)
 	/*!
 	 * \ingroup gr_internals
 	 */
-	if(!mtxAp)
-		return RSB_FLAG_NOFLAGS;
 	return (mtxAp->flags & RSB_FLAG_SYMMETRIC);
 }
 
@@ -1362,35 +1331,38 @@ rsb_flags_t rsb__get_symmetry_type_flag(const struct rsb_mtx_t *mtxAp)
 {
 	/*!
 	 * \ingroup gr_internals
+	 * Used to dispatch to a truly symmetric kernel or not.
+	 * So that e.g.
+         * symmetric-diagonal matrices shall be OK for rsb_spsv/rsb_spsm.
 	 */
-	if(!mtxAp)
-		return RSB_FLAG_NOFLAGS;
+	rsb_flags_t flags;
 
-	return (rsb__get_hermitian_flag(mtxAp) | rsb__get_symmetry_flag(mtxAp));
+	RSB_DEBUG_ASSERT(mtxAp);
+
+	flags = (rsb__get_hermitian_flag(mtxAp) | rsb__get_symmetry_flag(mtxAp));
+
+	if(RSB_DO_FLAG_HAS(mtxAp->flags,RSB_FLAG_DIAGONAL))
+		RSB_DO_FLAG_DEL(flags,RSB_FLAG_ANY_SYMMETRY);
+
+	return flags;
 }
 
 RSB_INLINE rsb_coo_idx_t rsb__do_get_rows_of(const struct rsb_mtx_t *mtxAp, rsb_trans_t transA)
 {
 	/*!
 	 * \ingroup gr_internals
-	 * FIXME : if using this for right hand side blanking, consider excess elements!
 	 */
 	RSB_DEBUG_ASSERT(mtxAp);
-	if(RSB_DOES_NOT_TRANSPOSE(transA))
-		return mtxAp->nr;
-	return mtxAp->nc;
+	return RSB_MTX_TRANSPOSED_ROWS(mtxAp,transA);
 }
 
 RSB_INLINE rsb_coo_idx_t rsb__do_get_columns_of(const struct rsb_mtx_t *mtxAp, rsb_trans_t transA)
 {
 	/*!
 	 * \ingroup gr_internals
-	 * FIXME : if using this for right hand side blanking, consider excess elements!
 	 */
 	RSB_DEBUG_ASSERT(mtxAp);
-	if(RSB_DOES_NOT_TRANSPOSE(transA))
-		return mtxAp->nc;
-	return mtxAp->nr;
+	return RSB_MTX_TRANSPOSED_COLS(mtxAp,transA);
 }
 
 static rsb_err_t rsb__do_get_elements_for_all_columns_inner(const struct rsb_mtx_t *mtxAp, rsb_nnz_idx_t * CP)
@@ -1445,11 +1417,13 @@ static rsb_err_t rsb__do_get_elements_for_all_columns_inner(const struct rsb_mtx
 			}
 		}
 		else
+#if RSB_WANT_BCSC_LEAVES  
 		if(rsb__is_bcsc_matrix(mtxAp))
 		{
 			rsb__util_nnz_array_add_array(CP+mtxAp->coff,mtxAp->bpntr,mtxAp->nc);
 		}
 		else
+#endif /* RSB_WANT_BCSC_LEAVES */
 		if(rsb__is_bcsr_matrix(mtxAp))
 		{
 			rsb_nnz_idx_t n;
@@ -1683,9 +1657,11 @@ rsb_err_t rsb__do_get_csc(const struct rsb_mtx_t *mtxAp, rsb_byte_t ** VA, rsb_n
 	{
 		/* extract elements ... */
 		struct rsb_mtx_t *submatrix = all_leaf_matrices[n].mtxlp;
-		rsb_do_get_columns_sparse(submatrix,*VA,0,mtxAp->nc-1,*IA,NULL,CP,0,0);
-//		rsb_do_get_columns_sparse(submatrix,*VA,0,mtxAp->nc-1,*IA,NULL,CP,submatrix->roff,submatrix->coff);
+		errval |= rsb__do_get_columns_sparse(submatrix,*VA,0,mtxAp->nc-1,*IA,NULL,CP,0,0);
+//		rsb__do_get_columns_sparse(submatrix,*VA,0,mtxAp->nc-1,*IA,NULL,CP,submatrix->roff,submatrix->coff);
 	}
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 
 	for(n=mtxAp->nc;RSB_LIKELY(n>0);--n) CP[n] = CP[n-1];
 	CP[0] = 0;
@@ -1703,6 +1679,7 @@ err:
 	return RSB_ERR_NO_ERROR;
 }
 
+#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__do_get_block_sparse_pattern(const struct rsb_mtx_t * mtxAp, rsb_coo_idx_t fr, rsb_coo_idx_t lr, rsb_coo_idx_t fc, rsb_coo_idx_t lc, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, const rsb_coo_idx_t * IREN, const rsb_coo_idx_t * JREN, rsb_nnz_idx_t *rnz, rsb_flags_t flags )
 {
 	/*! 
@@ -1710,6 +1687,7 @@ rsb_err_t rsb__do_get_block_sparse_pattern(const struct rsb_mtx_t * mtxAp, rsb_c
 	 * */
 	return rsb__do_get_block_sparse(mtxAp,NULL,IA,JA,fr,lr,fc,lc,IREN,JREN,rnz,flags);
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 static rsb_err_t rsb__do_get_block_sparse_leaf(const struct rsb_mtx_t * mtxAp, void* OVA, rsb_coo_idx_t fr, rsb_coo_idx_t lr, rsb_coo_idx_t fc, rsb_coo_idx_t lc, rsb_coo_idx_t * OIA, rsb_coo_idx_t * OJA, const rsb_coo_idx_t * IREN, const rsb_coo_idx_t * JREN, rsb_nnz_idx_t *rnz, rsb_coo_idx_t ioff, rsb_coo_idx_t joff, rsb_flags_t flags)
 {

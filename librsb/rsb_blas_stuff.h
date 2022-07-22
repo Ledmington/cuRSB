@@ -25,7 +25,7 @@ If not, see <http://www.gnu.org/licenses/>.
  * @author Michele Martone
  * @brief
  *
- * BLAS like stuff
+ * BLAS-like stuff
  * */
 #ifndef RSB_BLAS_STUFF_H_INCLUDED
 #define RSB_BLAS_STUFF_H_INCLUDED

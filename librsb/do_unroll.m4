@@ -1169,10 +1169,12 @@ dnl
 define(`RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_PRINTF_ARG',`dnl
 pushdef(`mtype',$1)`'dnl
 pushdef(`arg',$2)`'dnl
+ifelse(mtype,`long double complex',`creall(arg),cimagl(arg)',`dnl
 ifelse(mtype,`double complex',`creal(arg),cimag(arg)',`dnl
 ifelse(mtype,`float complex',`crealf(arg),cimagf(arg)',`dnl
 ifelse(mtype,`complex',`creal(arg),cimag(arg),creal(arg),cimag(arg)',`dnl
 arg`'dnl
+')dnl
 ')dnl
 ')dnl
 ')dnl
@@ -1331,12 +1333,13 @@ dnl	FIXME
 dnl
 define(`RSB_M4_MATRIX_TRANSPOSITION_CHARCODE',`dnl
 pushdef(`transposition',$1)`'dnl
-dnl ifelse(transposition,RSB_M4_TRANS_T,`0x01 /*!< \brief Transposed flag value, valid for \ref rsb_trans_t valued variables. */')`'dnl
-dnl ifelse(transposition,RSB_M4_TRANS_N,`0x00 /*!< \brief Non transposed flag, valid for \ref rsb_trans_t typed variables. */')`'dnl
-dnl ifelse(transposition,RSB_M4_TRANS_C,`0x02 /*!< \brief Conjugated transpose flag, valid for \ref rsb_trans_t typed variables. */')`'dnl
+dnl ifelse(transposition,RSB_M4_TRANS_T,`0x01 /*!< Transposed flag value, valid for \ref rsb_trans_t valued variables. */')`'dnl
+dnl ifelse(transposition,RSB_M4_TRANS_N,`0x00 /*!< Non transposed flag, valid for \ref rsb_trans_t typed variables. */')`'dnl
+dnl ifelse(transposition,RSB_M4_TRANS_C,`0x02 /*!< Conjugated transpose flag, valid for \ref rsb_trans_t typed variables. */')`'dnl
 ifelse(transposition,RSB_M4_TRANS_T,`0x54 /*!< \brief T: Transposed flag value, valid for \ref rsb_trans_t valued variables. */')`'dnl
 ifelse(transposition,RSB_M4_TRANS_N,`0x4E /*!< \brief N: Non transposed flag, valid for \ref rsb_trans_t typed variables. */')`'dnl
 ifelse(transposition,RSB_M4_TRANS_C,`0x43 /*!< \brief C: Conjugated transpose flag, valid for \ref rsb_trans_t typed variables. */')`'dnl
+ifelse(transposition,RSB_M4_TRANS_INVALID,`0x3F /*!< \brief ?: Transposition type flag value guaranteed to be invalid. Useful for tests. Valid as char. */')`'dnl
 popdef(`transposition')`'dnl
 ')dnl
 dnl
@@ -1348,8 +1351,8 @@ dnl	FIXME
 dnl
 define(`RSB_M4_MATRIX_DIAGONAL_CHARCODE',`dnl
 pushdef(`k_diagonal',$1)`'dnl
-ifelse(k_diagonal,`e',`0x01 /*  */')`'dnl
-ifelse(k_diagonal,`i',`0x02 /*  */')`'dnl FIXME : new
+ifelse(k_diagonal,`e',`0x01 /* Explicit diagonal (default, implicit) */')`'dnl
+ifelse(k_diagonal,`i',`0x02 /* Implicit diagonal */')`'dnl FIXME : new
 popdef(`k_diagonal')`'dnl
 ')dnl
 dnl

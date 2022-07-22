@@ -235,7 +235,7 @@ foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 ')dnl
 
 
-void rsb_ip_reord(rsb_nnz_idx_t n, void * VAp, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t * P, rsb_type_t typecode)dnl
+void rsb__ip_reord(rsb_nnz_idx_t n, void * VAp, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t * P, rsb_type_t typecode)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/**
@@ -293,7 +293,7 @@ foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 }
 ')dnl
 
-void rsb_util_do_scatter_rows(void * RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, const void * RSB_RESTRICT iVA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT PA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode)dnl
+void rsb__util_do_scatter_rows(void * RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, const void * RSB_RESTRICT iVA, const rsb_coo_idx_t * RSB_RESTRICT IA, const rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT PA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/**
@@ -324,8 +324,247 @@ foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 }
 ')dnl
 
+rsb_err_t rsb__chk_permute(void)dnl
+ifdef(`ONLY_WANT_HEADERS',`;',`dnl
+{
+	rsb_err_t errval = RSB_ERR_INTERNAL_ERROR;
+	
+foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
+{
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type);
+	type VA[] = {1,1,1};
+	rsb_coo_idx_t IA[] = {0,1,2};
+	rsb_coo_idx_t JA[] = {0,1,2};
+	rsb_coo_idx_t  K[] = {0,1,2};
+	const rsb_nnz_idx_t nnz = 3;
+
+	errval = rsb__do_permute_values_in_place_with_coo_index(VA, IA, JA, K, nnz, typecode);
+
+	if( IA[0]!=0 || IA[1]!=1 || IA[2]!=2 )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+}
+')dnl
+
+foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
+{
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type);
+	type VA[] = {1,1,1};
+	rsb_coo_idx_t IA[] = {2,1,0};
+	rsb_coo_idx_t JA[] = {2,1,0};
+	rsb_coo_idx_t  K[] = {2,1,0};
+	const rsb_nnz_idx_t nnz = 3;
+
+	errval = rsb__do_permute_values_in_place_with_coo_index(VA, IA, JA, K, nnz, typecode);
+
+	if( IA[0]!=0 || IA[1]!=1 || IA[2]!=2 )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+}
+')dnl
+
+
+foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
+{
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type);
+	type VA[] = {1,1,1};
+	rsb_coo_idx_t IA[] = {0,1,2};
+	rsb_coo_idx_t JA[] = {0,1,2};
+	rsb_nnz_idx_t  K[] = {0,1,2};
+	const rsb_nnz_idx_t nnz = 3;
+
+	errval = rsb__do_permute_values_in_place_with_nnz_index(VA, IA, JA, K, nnz, typecode);
+
+	if( IA[0]!=0 || IA[1]!=1 || IA[2]!=2 )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+}
+')dnl
+
+foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
+{
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type);
+	type VA[] = {1,1,1};
+	rsb_coo_idx_t IA[] = {2,1,0};
+	rsb_coo_idx_t JA[] = {2,1,0};
+	rsb_nnz_idx_t  K[] = {2,1,0};
+	const rsb_nnz_idx_t nnz = 3;
+
+	errval = rsb__do_permute_values_in_place_with_nnz_index(VA, IA, JA, K, nnz, typecode);
+
+	if( IA[0]!=0 || IA[1]!=1 || IA[2]!=2 )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+}
+')dnl
+
+
+foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
+{
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type);
+	const type VA[] = {2,1,0};
+	const rsb_coo_idx_t IA[] = {2,1,0};
+	const rsb_coo_idx_t JA[] = {2,1,0};
+	const rsb_coo_idx_t  K[] = {2,1,0};
+	type rVA[] = {1,1,1};
+	rsb_coo_idx_t rIA[] = {0,0,0};
+	rsb_coo_idx_t rJA[] = {0,0,0};
+	const rsb_nnz_idx_t nnz = 3;
+
+	errval = rsb__do_permute_values_with_coo_index(rVA,VA, rIA,IA, rJA,JA, K, nnz, typecode);
+
+	if( rIA[0]!=0 || rIA[1]!=1 || rIA[2]!=2 )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+}
+')dnl
+
+
+foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
+{
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type);
+	const type VA[] = {2,1,0};
+	const rsb_coo_idx_t IA[] = {2,1,0};
+	const rsb_coo_idx_t JA[] = {2,1,0};
+	const rsb_coo_idx_t  K[] = {2,1,0};
+	type rVA[] = {1,1,1};
+	rsb_coo_idx_t rIA[] = {0,0,0};
+	rsb_coo_idx_t rJA[] = {0,0,0};
+	const rsb_nnz_idx_t nnz = 3;
+
+	errval = rsb__do_permute_values_with_coo_index(rVA,VA, rIA,IA, rJA,JA, K, nnz, typecode);
+
+	if( rIA[0]!=0 || rIA[1]!=1 || rIA[2]!=2 )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+}
+')dnl
+
+
+foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
+{
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type);
+	const type VA[] = {2,1,0};
+	const rsb_coo_idx_t IA[] = {2,1,0};
+	const rsb_coo_idx_t JA[] = {2,1,0};
+	const rsb_nnz_idx_t  K[] = {2,1,0};
+	type rVA[] = {1,1,1};
+	rsb_coo_idx_t rIA[] = {0,0,0};
+	rsb_coo_idx_t rJA[] = {0,0,0};
+	const rsb_nnz_idx_t nnz = 3;
+
+	errval = rsb__do_permute_values_with_nnz_index(rVA,VA, rIA,IA, rJA,JA, K, nnz, typecode);
+
+	if( rIA[0]!=0 || rIA[1]!=1 || rIA[2]!=2 )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+}
+')dnl
+
+
+foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
+{
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type);
+	type VA[] = {2,1,0};
+	rsb_coo_idx_t IA[] = {2,1,0};
+	rsb_coo_idx_t JA[] = {2,1,0};
+	rsb_nnz_idx_t  P[] = {3,2,1,0,0};
+	const rsb_nnz_idx_t nnz = 3;
+
+	rsb__ip_reord(nnz, VA, IA, JA, P, typecode);
+
+	if( IA[0]!=0 || IA[1]!=1 || IA[2]!=2 )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+}
+')dnl
+
+
+foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
+{
+	rsb_coo_idx_t IA[] = {2,1,0};
+	rsb_nnz_idx_t  K[] = {2,1,0};
+	const rsb_nnz_idx_t nnz = 3;
+
+	errval = rsb__do_permute_rows_with_coo_index(IA, K, nnz);
+
+	if( IA[0]!=0 || IA[1]!=1 || IA[2]!=2 )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+
+	if(RSB_SOME_ERROR(errval))
+	{
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	}
+}
+')dnl
+
+
+err:
+	return errval;
+}
+')dnl
+
 #if 0
-void rsb_util_do_scatter_rows(void * RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, void * RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT PA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode)dnl
+void rsb__util_do_scatter_rows(void * RSB_RESTRICT oVA, rsb_coo_idx_t * RSB_RESTRICT oIA, rsb_coo_idx_t * RSB_RESTRICT oJA, void * RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t * RSB_RESTRICT PA, const rsb_nnz_idx_t nnz, const rsb_type_t typecode)dnl
 ifdef(`ONLY_WANT_HEADERS',`;',`dnl
 {
 	/**

@@ -54,8 +54,10 @@ struct rsb_pci_t
 #endif /* RSB_HAVE_PAPI */
 };
 
+#if defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS>1)
 rsb_err_t rsb_perf_counters_init(void);
 rsb_err_t rsb_perf_counters_finalize(void);
+#endif /* defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS>1) */
 rsb_err_t rsb_perf_counters_dump(const rsb_char_t *premsg, const rsb_char_t *postmsg, rsb_int_t tdiv, struct rsb_pci_t *pcip);
 
 rsb_err_t rsb_hc_main(void);	/* preliminary */

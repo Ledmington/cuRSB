@@ -10,7 +10,7 @@
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -39,13 +39,13 @@ If not, see <http://www.gnu.org/licenses/>.
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- But for block compressed sparse stripes format.
+ For block coordinates format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -70,16 +70,16 @@ If not, see <http://www.gnu.org/licenses/>.
  p.s.: right now, only row major matrix access is considered.
 
  */
+
 #include "rsb_test_matops.h"
 
 /* FIXME: necessary, until we use so many #ifdefs in this program */
 #include "rsb-config.h"
 #include "rsb_common.h"
 #include "rsb_mkl.h"
-
-#if RSB_HAVE_LIBGEN_H
-#include <libgen.h>	/* for basename (20101226 FIXME : superseded by rsb__basename usage)*/
-#endif /* RSB_HAVE_LIBGEN_H */
+#if RSB_WANT_ARMPL
+#include <armpl.h>
+#endif /* RSB_WANT_MKL */
 
 #define RSB_HAVE_METIS 0 /* FIXME: unfinished */
 #if RSB_HAVE_METIS
@@ -105,7 +105,7 @@ extern "C" {
 #define RSB_UTIL_COO_OCCUPATION(R,C,NNZ,TYPE) (RSB_UTIL_COO_IDX_OCCUPATION(R,C,NNZ)+(NNZ)*(RSB_SIZEOF(TYPE)))
 #define RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH() RSB_FPRINTF_MATRIX_ESSENTIALS(stdout,mtxAp,filename,cc) 
 #define RSB_DIV(Q,D) ( ( (Q)+(D)-1 ) / (D) )
-extern struct rsb_session_handle_t rsb_global_session_handle;
+RSB_INTERNALS_COMMON_HEAD_DECLS
 #define RSB_NEGATED_EXAGGERATED_TUNER_TIMES -999999.0
 #define RSB_MKL_APPROPRIATE_AT_TIME_SPEC(TS) ( (TS) != RSB_NEGATED_EXAGGERATED_TUNER_TIMES )
 #define RSB__APPROPRIATE_AT_TIME_SPEC(TS) ( (TS) != RSB_NEGATED_EXAGGERATED_TUNER_TIMES )
@@ -132,8 +132,13 @@ RSB_INTERNALS_RSBENCH_HEAD_DECLS
 #include <regex.h>
 #endif /* RSB_HAVE_REGEX_H */
 #define RSBENCH_STDERR RSB_STDERR
+#define fim_strchr strchr
 
-#define RSB_WANT_PERFORMANCE_COUNTERS_IN_RSBENCH  defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS==1)
+#if defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS==1)
+#define RSB_WANT_PERFORMANCE_COUNTERS_IN_RSBENCH 1
+#else
+#define RSB_WANT_PERFORMANCE_COUNTERS_IN_RSBENCH 0
+#endif
 
 static int rsb__echo_cargs(const int argc, rsb_char_t * const argv[])
 {
@@ -156,7 +161,8 @@ static	rsb_bool_t rsb_regexp_match(const rsb_char_t*s, const rsb_char_t*r)
 		const int nmatch = 1;
 		regmatch_t pmatch[nmatch];
 		rsb_bool_t match = RSB_BOOL_FALSE;
-		int ignorecase = 0;
+		const int ignorecase = 0;
+		const int ignorenewlines = 0;
 
 		if(!r || !strlen(r))
 			goto ret;
@@ -176,6 +182,11 @@ ret:
 		return match;
 	}
 #endif /* RSB_HAVE_REGEX_H */
+#
+       static int rsb__cmpstringp(const void *p1, const void *p2)
+       {
+		return strcmp(* (char * const *) p1, * (char * const *) p2);
+       }
 
 static void rsb__echo_timeandlabel(const char*l, const char*r, rsb_time_t *stp)
 {
@@ -189,38 +200,41 @@ static void rsb__echo_timeandlabel(const char*l, const char*r, rsb_time_t *stp)
 		*stp = ct;
 }
 
-static void rsb__impcdstr(char * dst, const char * h, const char *t, const char * pp, const char * ap)
+static void rsb__impcdstr(char * dst, const char * h, const char * pp, const char * ap, rsb_bool_t with_mkl, const char * tcrprs, const char * fnrprs, const char *t)
 {
 	/* There is some overlap with rsb__cat_compver and rsb__sprint_matrix_implementation_code that shall be resolved. */
 	rsb_char_t buf[RSB_CONST_MATRIX_IMPLEMENTATION_CODE_STRING_MAX_LENGTH];/* Flawfinder: ignore */
 
 	rsb__cat_compver(buf);
+#if RSB_WANT_MKL
+	if(with_mkl)
+		rsb__print_mkl_version(buf+strlen(buf), RSB_BOOL_FALSE);
+#endif /* RSB_WANT_MKL */
 	strcat(buf,"");
-	rsb__sprintf(dst,"%s%s_%s_%.0lf_%s%s%s",pp?pp:"",h,rsb__getenv_nnr("HOSTNAME"),rsb_time(),buf,ap?ap:"",t);
+	rsb__sprintf(dst,"%s%s_%s_%.0lf_%s%s" "%s%s%s" "%s%s" "%s",pp?pp:"",h,rsb__getenv_nnr("HOSTNAME"),rsb_time(),buf,ap?ap:"",
+		(tcrprs?"-":""), (tcrprs?tcrprs:""), (tcrprs?"th":""),
+		(fnrprs&&*fnrprs?"-":""), (fnrprs?fnrprs:""), t );
 }
 
-#define RSB_TM_GETENV_STDOUT(VAR)						\
-	if( rsb__getenv(VAR) )							\
-		RSB_STDOUT("# env: export " VAR "=%s\n",rsb__getenv(VAR));	\
-	else									\
-		RSB_STDOUT("# env: " VAR " is not set\n");
-
-int rsb_test_help_and_exit(const rsb_char_t *argv0, rsb_option *o, int code){
+int rsb_test_help_and_exit(const rsb_char_t *argv0, const rsb_option_t *o, int code){
 	    size_t i=0;
 
             printf("%s %s",argv0," where OPTIONS are taken from :\n");
             for(i=0;o[i].val;++i)
             {
-                if(o[i].val<RSB_MAX_VALUE_FOR_TYPE(rsb_char_t) && isprint(o[i].val)  )/* please do not swap conditions : some isprint() implementations segfault on this */
+#if RSB_HAVE_GETOPT_H
+#endif /* RSB_HAVE_GETOPT_H */
+		const rsb_option_t ro = o[i];
+                if(ro.val<RSB_MAX_VALUE_FOR_TYPE(rsb_char_t) && isprint(ro.val)  )/* please do not swap conditions : some isprint() implementations segfault on this */
 		{
-                	printf("\t-%c",(rsb_char_t)(o[i].val));
+                	printf("\t-%c",(rsb_char_t)(ro.val));
 		}
 		else
 			printf("\t");
                 printf("\t\t");
-		if(o[i].name)
-	                printf("--%s",o[i].name);
-                switch(o[i].has_arg)
+		if(ro.name)
+	                printf("--%s",ro.name);
+                switch(ro.has_arg)
 		{
 	                case no_argument:
 	                break;
@@ -241,165 +255,388 @@ int rsb_test_help_and_exit(const rsb_char_t *argv0, rsb_option *o, int code){
             return code;
 }
 
-/* one function for each of (spmv_uaua,spsv_uxua,mat_stats)*/
-int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const argv[])
+
+#ifdef RSB_HAVE_UNISTD_H
+	extern char **environ;
+#endif /* RSB_HAVE_UNISTD_H */
+#ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
+	#define RSBENCH_MEM_ALLOC_INFO(LT) RSBENCH_STDOUT("( allocated_memory:%zd allocations_count:%zd allocations_cumulative:%zd)%s",rsb_global_session_handle.allocated_memory,rsb_global_session_handle.allocations_count,rsb_global_session_handle.allocations_cumulative,LT);
+#else
+	#define RSBENCH_MEM_ALLOC_INFO(LT)
+#endif
+
+#if RSB_WANT_ARMPL
+
+int rsb_rsb_to_armpl_trans(rsb_trans_t transA)
 {
+	/**
+	 * \ingroup gr_internals
+	 */
+	switch(transA)
+	{
+		case(RSB_TRANSPOSITION_N):
+		return ARMPL_SPARSE_OPERATION_NOTRANS;
+		break;
+		case(RSB_TRANSPOSITION_T):
+		return ARMPL_SPARSE_OPERATION_TRANS;
+		break;
+		case(RSB_TRANSPOSITION_C):
+		return ARMPL_SPARSE_OPERATION_CONJTRANS;
+		break;
+		default:
+		return ARMPL_SPARSE_OPERATION_NOTRANS;
+	}
+}
+
+static rsb_err_t rsb__do_armpl_csr_spmv(armpl_spmat_t armpl_mat, const void * x, void * y, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags){
+	armpl_status_t info = ARMPL_STATUS_INPUT_PARAMETER_ERROR;
+
+#ifdef RSB_NUMERICAL_TYPE_FLOAT 
+	if( typecode == RSB_NUMERICAL_TYPE_FLOAT  )
+		info = armpl_spmv_exec_s(rsb_rsb_to_armpl_trans(transA),*(float*)alphap,armpl_mat,(float*)x,*(float*)betap,(float*)y);
+	else 
+#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
+#ifdef RSB_NUMERICAL_TYPE_DOUBLE 
+	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
+		info = armpl_spmv_exec_d(rsb_rsb_to_armpl_trans(transA),*(double*)alphap,armpl_mat,(double*)x,*(double*)betap,(double*)y);
+	else 
+#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
+#ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
+	if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  )
+		info = armpl_spmv_exec_c(rsb_rsb_to_armpl_trans(transA),*(armpl_singlecomplex_t*)alphap,armpl_mat,(armpl_singlecomplex_t*)x,*(armpl_singlecomplex_t*)betap,(armpl_singlecomplex_t*)y);
+	else 
+#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
+#ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
+	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  )
+		info = armpl_spmv_exec_z(rsb_rsb_to_armpl_trans(transA),*(armpl_doublecomplex_t*)alphap,armpl_mat,(armpl_doublecomplex_t*)x,*(armpl_doublecomplex_t*)betap,(armpl_doublecomplex_t*)y);
+	else 
+#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
+	if ( info == ARMPL_STATUS_SUCCESS )
+		return RSB_ERR_NO_ERROR;
+	return RSB_ERR_INTERNAL_ERROR;
+}
+
+rsb_err_t rsb__armpl_csr_spmv_bench(const void *VA, const armpl_int_t m, const armpl_int_t k, const armpl_int_t nnz, const armpl_int_t * IP, const armpl_int_t *JA, const void * x, void * y, const void *alphap, const void * betap, rsb_trans_t transA, rsb_type_t typecode, rsb_flags_t flags, rsb_thread_t *otnp, rsb_time_t *tpop, struct rsb_tattr_t* ttrp, struct rsb_ts_t*tstp,rsb_bool_t want_at)
+{
+#define RSB_ARMPL_THREADS_TUNING_ODECLS					\
+		const rsb_time_t tinf = RSB_CACHED_TIMER_GRANULARITY;	\
+		rsb_time_t best = RSB_CONST_IMPOSSIBLY_BIG_TIME;	\
+		rsb_thread_t ont = 1;		\
+		rsb_thread_t nt, lnt = 1, unt = 1; \
+		rsb_thread_t otn = ont;					\
+		rsb_thread_t dtn = 1;
+
+#define RSB_ARMPL_THREADS_TUNING_IDECLS									\
+		rsb_time_t it = rsb_time(), ct = RSB_TIME_ZERO;	/* initial/current time */	\
+		rsb_time_t dt = it, tt = RSB_TIME_ZERO; /* elapsed (delta) / total  time */	\
+		rsb_time_t bt = RSB_CONST_IMPOSSIBLY_BIG_TIME, wt = RSB_TIME_ZERO; /* best / worst  time */	\
+		rsb_time_t ss = RSB_TIME_ZERO; /* sum of squares */				\
+		rsb_time_t mint = RSB_TIME_ZERO; /* minimal time */				\
+		rsb_int_t times = 0; \
+		const mintimes = RSB_CONST_AT_OP_SAMPLES_MIN, maxtimes = RSB_CONST_AT_OP_SAMPLES_MAX;	\
+		rsb_time_t maxt = RSB_AT_MAX_TIME/* RSB_MKL_MAX_AT_TIME*/;
+
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	rsb_time_t dt, tpo;
+	rsb_time_t aplat_t;
+	armpl_spmat_t armpl_mat;
+	const int creation_flags = 0;
+	armpl_status_t info = ~ ARMPL_STATUS_SUCCESS;
+
+#ifdef RSB_NUMERICAL_TYPE_FLOAT 
+	if( typecode == RSB_NUMERICAL_TYPE_FLOAT  ) // Note: only SDCZ
+		info = armpl_spmat_create_csr_s(&armpl_mat, m, k, IP, JA, VA, creation_flags);
+#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
+#ifdef RSB_NUMERICAL_TYPE_DOUBLE 
+	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  ) // Note: only SDCZ
+		info = armpl_spmat_create_csr_d(&armpl_mat, m, k, IP, JA, VA, creation_flags);
+#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
+#ifdef RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
+	if( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  ) // Note: only SDCZ
+		info = armpl_spmat_create_csr_c(&armpl_mat, m, k, IP, JA, VA, creation_flags);
+#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
+#ifdef RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX 
+	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  ) // Note: only SDCZ
+		info = armpl_spmat_create_csr_z(&armpl_mat, m, k, IP, JA, VA, creation_flags);
+#endif /* RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype) */
+	if (info!=ARMPL_STATUS_SUCCESS) RSB_ERROR("ERROR: armpl_spmat_create_csr_d returned %d\n", info);
+
+	info = armpl_spmat_hint(armpl_mat, ARMPL_SPARSE_HINT_STRUCTURE, ARMPL_SPARSE_STRUCTURE_UNSTRUCTURED);
+	if (info!=ARMPL_STATUS_SUCCESS) RSB_ERROR("ERROR: armpl_spmat_hint returned %d\n", info);
+
+	if( RSB_DO_FLAG_HAS(flags,RSB_FLAG_HERMITIAN) )
+	{
+		info = armpl_spmat_hint(armpl_mat, ARMPL_SPARSE_HINT_STRUCTURE, ARMPL_SPARSE_STRUCTURE_HERMITIAN);
+		if (info!=ARMPL_STATUS_SUCCESS) RSB_ERROR("ERROR: armpl_spmat_hint returned %d\n", info);
+	}
+	else
+	if( RSB_DO_FLAG_HAS(flags,RSB_FLAG_SYMMETRIC) )
+	{
+		info = armpl_spmat_hint(armpl_mat, ARMPL_SPARSE_HINT_STRUCTURE, ARMPL_SPARSE_STRUCTURE_SYMMETRIC);
+		if (info!=ARMPL_STATUS_SUCCESS) RSB_ERROR("ERROR: armpl_spmat_hint returned %d\n", info);
+	}
+
+	// See also:
+	// ARMPL_SPARSE_STRUCTURE_DENSE
+	// ARMPL_SPARSE_STRUCTURE_TRIANGULAR
+	// ARMPL_SPARSE_STRUCTURE_HPCG
+
+	if( want_at == RSB_BOOL_TRUE )
+	{
+		aplat_t = -rsb_time();
+
+		info = armpl_spmat_hint(armpl_mat, ARMPL_SPARSE_HINT_SPMV_OPERATION, ARMPL_SPARSE_OPERATION_NOTRANS);
+		if (info!=ARMPL_STATUS_SUCCESS) RSB_ERROR("ERROR: armpl_spmat_hint returned %d\n", info);
+
+		info = armpl_spmat_hint(armpl_mat, ARMPL_SPARSE_HINT_SPMV_INVOCATIONS, ARMPL_SPARSE_INVOCATIONS_MANY);
+		if (info!=ARMPL_STATUS_SUCCESS) RSB_ERROR("ERROR: armpl_spmat_hint returned %d\n", info);
+
+		info = armpl_spmv_optimize(armpl_mat);
+		if (info!=ARMPL_STATUS_SUCCESS) RSB_ERROR("ERROR: armpl_spmv_optimize returned %d\n", info);
+
+		aplat_t += rsb_time();
+	}
+
+	if(otnp)
+	{
+		RSB_ARMPL_THREADS_TUNING_ODECLS	
+
+		for(nt=lnt;nt<=unt;++nt)
+		{
+			/* TODO: change number of threads here (now is current OMP thread count) */
+			RSB_ARMPL_THREADS_TUNING_IDECLS
+			do
+			{
+				errval = rsb__do_armpl_csr_spmv(armpl_mat, x, y, alphap, betap, transA, typecode, flags);
+				RSB_SAMPLE_STAT(it,ct,dt,tt,bt,wt,ss,tinf,times);
+			}
+			while(RSB_REPEAT(ct-it,times,mint,mintimes,maxt,maxtimes));
+
+			dt = bt;
+			if( dt < best )
+			{
+				otn = nt;
+				best = RSB_MIN_ABOVE_INF(best,dt,tinf);
+				RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp);
+			}
+			rsb__tattr_sets(ttrp,dtn,nt,dt,otn,times);/* FIXME: if no threads tuning, shall set dtpo = btpo, as well as ttrp.optt=0 */
+			if(dtn == nt) RSB_STAT_TAKE(it,otn,ct,dt,tt,bt,wt,ss,times,tstp+1);
+		}
+		ttrp->ttt += rsb_time(); /* ttrp->ttt = tt; */
+		tpo = best; /* tpo = 1.0 / best; */
+		*otnp = otn;
+	}
+	else
+	{
+		dt = -rsb_time();
+		errval = rsb__do_armpl_csr_spmv(armpl_mat, x, y, alphap, betap, transA, typecode, flags);
+		dt += rsb_time();
+		/* tpo = 1.0 / dt; */
+		tpo = dt;
+	}
+	if(tpop)
+		*tpop = tpo;
+	return errval;
+
+#undef RSB_ARMPL_THREADS_TUNING_ODECLS
+#undef RSB_MKL_THREADS_TUNING_IDECLS
+
+} /* rsb__armpl_csr_spmv_bench */
+
+#endif /* RSB_WANT_ARMPL */
+
+/* one function for each of (spmv_sxsa,spsv_sxsx,mat_stats)*/
+int rsb__main_block_partitioned_spmv_sxsa(const int argc, rsb_char_t * const argv[])
+{
+#if RSB_HAVE_GETOPT_H
 	/*!
 	 * \ingroup gr_bench
 	 * This function implements a complete program for using our variable block
 	 * rows sparse matrix storage as it was a fixed block size format.
 	 * It is useful for benchmark against fixed block sparse matrix codes.
-	 * 
-	 * This function will benchmark the "spmv_uaua" matrix operation.
+	 *
+	 * This function will benchmark the "spmv_sxsa" matrix operation.
 	 * */
 
 	/*
 	 * This example main program reads in a Matrix Market file in block format and multiplies it against a unit vector.
 	 **/
-	rsb_option options[] = {
-	    {"all-flags",	0 , NULL, 0x51},/* Q */  
-	    {"allow-any-transposition-combination",	0 , NULL, 0x61617463 },/* aatc */  
-	    {"alpha",	required_argument, NULL , 0x414C},/* AL */
-	    {"alternate-sort",	no_argument, NULL , 0x4153},/* AS */
-	    {"auto-blocking",	0 , NULL, 0x41},/* A */
-	    {"be-verbose",		0, NULL, 0x76},	/* v */
-	    {"beta",	required_argument, NULL ,  0x4246},/* BE */
-	    {"block-columnsize",	required_argument, NULL, 0x63},/* c */  
-	    {"block-rowsize",   required_argument, NULL, 0x72 },/* r */
-	    {"cache-blocking",	required_argument, NULL , 0x4342},/* CB */
-/*	    {"cache-flush",	no_argument, NULL, 0x4343},*/ /*   */
-	    {"column-expand",	required_argument, NULL, 0x6B},/* k */  
-	    {"compare-competitors",	no_argument, NULL, 0x6363},/* cc */  
-	    {"convert",	0, NULL, 0x4B},/* K */  
-/*	    {"convert",	required_argument, NULL, 0x4B},*//* K   */
-	    {"dense",	required_argument, NULL, 0x64 },   /* d */
-	    {"diagonal-dominance-check",	no_argument , NULL, 0x4444},/* DD */  /* new */
-	    {"dump-n-lhs-elements",	required_argument , NULL, 0x444444},/* DDD */  /* new */
-	    {"echo-arguments",	no_argument , NULL, 0x6563686f},/* echo */  /* new */
-	    {"flush-cache-in-iterations",	no_argument, NULL, 0x4343},/*  */  
-	    {"impatient",	no_argument, NULL, 0x696d7061},/* impa[tient] */  
-	    {"no-flush-cache-in-iterations",	no_argument, NULL, 0x434E},/*  */  
-	    {"flush-cache-around-loop",	no_argument, NULL, 0x434343},/*  */  
-	    {"want-ancillary-execs",	no_argument, NULL, 0x767646},/*  */  
-	    {"no-want-ancillary-execs",	no_argument, NULL, 0x42767646},/*  */  
-	    {"no-flush-cache-around-loop", no_argument	, NULL, 0x43434E},/*  */  
-	    {"want-no-recursive",	no_argument, NULL, 0x776e720a},/*  */  
-	    {"guess-blocking",	no_argument , NULL, 0x47},/* G */
-	    {"help",	no_argument , NULL, 0x68},	/* h */
-	    {"ilu0",	no_argument , NULL, 0x494B55},/* ILU */  /* new */
-	    {"incx",	required_argument, NULL, 0xb1bb0 },/* */  
-	    {"incy",	required_argument, NULL, 0xb1bb1 },/* */  
-	    {"in-place-assembly-experimental",	no_argument , NULL, 0x6970},/* i */  
-	    {"in-place-csr",	0 , NULL, 0x69},/* i */  
-	    {"in-place-permutation",	no_argument, NULL, 0x50},   /* P */
-#if RSB_WITH_LIKWID
-	    {"likwid",	no_argument, NULL, 0x6c696b77},   /* likw */
-#endif /* RSB_WITH_LIKWID */
-	    {"lower",	required_argument, NULL, 0x6c},   /* l */
-	    {"lower-dense",	required_argument, NULL, 0x6c64},   /* ld */
-	    {"generate-lowerband",	required_argument, NULL, 0x6c6c},   /* ll */
-	    {"gen-lband",	required_argument, NULL, 0x6c6c},   /* ll */
-	    {"generate-spacing",	required_argument, NULL, 0xbabb2 },   /* */
-	    {"matrix-dump",	0 , NULL, 0x44044},/* D */  
-	    {"matrix-dump-graph",	required_argument , NULL, 0x44047},/* DG */  
-	    {"matrix-dump-internals",	0 , NULL, 0x49049},/* I */  
-	    {"merge-experimental",	required_argument , NULL, 0x6d656578},/* meex */  
-	    {"split-experimental",	required_argument , NULL, 0x73706578},/* spex */  
-	    {"ms-experimental",	required_argument , NULL, 0x6d736578},/* msex */  
-	    {"matrix-filename",	required_argument, NULL, 0x66},/* f */  
-	    {"matrix-storage",	required_argument, NULL, 0x46},/* F */  
-	    {"matrix-time",	0 , NULL, 0x4D},/* M */  /* new */
-	    {"mem-hierarchy-info",	required_argument , NULL, 0x4D4D},/* MM */  /* new */
-	    {"max-runtime",	required_argument , NULL, 0x6d617275},/* maru */
-	    {"no-op",		0 , NULL, 0x4E},	/* N */
-	    {"notranspose",	no_argument, NULL, 0x5051},   /* do not transpose the operation */
-	    {"nrhs",	required_argument, NULL, 0x6e726873},   /* */
-	    {"nrhs-by-rows",	no_argument, NULL, 0x726f7773},   /* */
-	    {"by-rows",	no_argument, NULL, 0x726f7773},   /* */
-	    {"nrhs-by-columns",	no_argument, NULL, 0x636f6c73},   /* */
-	    {"by-columns",	no_argument, NULL, 0x636f6c73},   /* */
-	    {"nrhs-by-cols",	no_argument, NULL, 0x636f6c73},   /* undocumented alias */
-	    {"by-cols",	no_argument, NULL, 0x636f6c73},   /* undocumented alias */
-	    {"one-nonunit-incx-incy-nrhs-per-type",	no_argument, NULL, 0x6e697270},   /* */
-	    RSB_BENCH_PROG_OPTS
-	    {"oski-benchmark",	0 , NULL, 0x42},/* B: only long option *//* comparative benchmarking agains OSKI */
-	    {"mkl-benchmark",	0 , NULL, 0x4C},/* L: only long option *//* comparative benchmarking agains MKL */
-	    {"out-lhs",		0 , NULL, 0x6F6C6873},/* o */	/* should accept an output file name, optionally */
-	    {"out-rhs",		0 , NULL, 0x6F6F},/* o */	/* should accept an output file name, optionally */
-	    {"override-matrix-name",	required_argument , NULL, 0x6F6D6E},/* omn */	
-	    {"pattern-mark",	0 , NULL, 0x70},/* p */
-	    {"pre-transpose",	no_argument, NULL, 0x5454},   /* transpose the matrix before assembly  */
-	    {"read-as-binary",		required_argument, NULL, 0x62},/* b */
-	    {"repeat-constructor",	required_argument , NULL, 0x4A4A},
-	    {"reuse-io-arrays",	no_argument , NULL, 0x726961}, /* ria */
-	    {"no-reuse-io-arrays",	no_argument , NULL, 0x6e726961 }, /* nria */
-	    {"reverse-alternate-rows",	no_argument , NULL, 0x4A4A4A},
-	    {"generate-upperband",	required_argument, NULL, 0x7575},   /* uu */
-	    {"gen-uband",	required_argument, NULL, 0x7575},   /* uu */
-	    {"generate-diagonal",	required_argument, NULL, 0x6464 },   /* dd */
-	    {"gen-diag",	required_argument, NULL, 0x6464 },   /* dd */
-	    {"zig-zag",	no_argument , NULL, 0x4A4A4A},
-	    {"subdivision-multiplier",	required_argument, NULL , 0x534D},/* SM */
-#if RSB_WANT_BOUNDED_BOXES
-	    {"bounded-box",	required_argument, NULL , 0x4242},/* BB */
-#endif /* RSB_WANT_BOUNDED_BOXES */
-	    {"sort",		0 , NULL, 0x73},	/* s */
-	    {"no-leaf-multivec",	no_argument, NULL , 0x6e6c6d6d},/* nlmm */
-	    {"with-leaf-multivec",	no_argument, NULL , 0x636c6d6d},/* wlmm */
-	    {"sort-after-load",	no_argument, NULL, 0x7373},/* ss */  
-	    {"skip-loading-symmetric-matrices",	 no_argument, NULL, 0x736c736d},/* slsm */  
-	    {"skip-loading-unsymmetric-matrices",no_argument, NULL, 0x736c756d},/* slum */  
-	    {"skip-loading-hermitian-matrices",no_argument, NULL, 0x736c686d},/* slhm */  
-	    {"skip-loading-not-unsymmetric-matrices",no_argument, NULL, 0x736c6e75},/* slnu */  
-	    {"skip-loading-if-more-nnz-matrices",required_argument, NULL, 0x736c6d6},/* slmn */  
-	    {"skip-loading-if-less-nnz-matrices",required_argument, NULL, 0x736c6e6e},/* slnn */  
-	    {"skip-loading-if-more-filesize-kb-matrices",required_argument, NULL, 0x736c6d73},/* slms */  
-#ifdef RSB_HAVE_REGEX_H 
-	    {"skip-loading-if-matching-regex",required_argument, NULL, 0x736c6d72},/* slmr */  
-#endif /* RSB_HAVE_REGEX_H */
-	    {"skip-loading-if-matching-substr",required_argument, NULL, 0x736c7373},/* slss */  
-	    {"times",		required_argument, NULL, 0x74},/* t */  
-	    {"transpose-as",	required_argument, NULL, 0x5040},   /* do transpose the operation */
-	    {"transpose",	no_argument, NULL, 0x5050},   /* do transpose the operation */
-	    {"also-transpose",	no_argument, NULL, 0x4150},  /* N,T: do transpose the operation after no transposition */
-	    {"all-transposes",	no_argument, NULL, 0x616c6c74},  /* N,T,C */
-	    {"type",		required_argument, NULL, 0x54},/* T */  
-	    {"types",		required_argument, NULL, 0x54},/* T */  
-	    {"update",		0 , NULL, 0x55},	/* U */
-	    {"as-unsymmetric",		0 , NULL, 0x5555},	/* UU: TODO: to insert such a test in as default, in order to quantify the benefit of symmetry */
-	    {"as-symmetric",		0 , NULL, 0x5353},	/* SS */
-	    {"only-lower-triangle",		0 , NULL, 0x4F4C54},	/* OLT */
-   	    {"only-upper-triangle",		0 , NULL, 0x4F4554},	/* OUT */
-	    {"verbose",	no_argument , NULL, 0x56},/* V */
-	    {"want-io-only",	no_argument , NULL, 0x4949},/* --want-io-only */
-	    {"want-nonzeroes-distplot",	no_argument, NULL, 0x776E68},/* wnh */  
-	    {"want-accuracy-test",	no_argument, NULL, 0x776174},/* wat */  
-	    {"want-getdiag-bench",	no_argument , NULL, 0x774446},/* wde */  /* FIXME: obsolete ? */
-	    {"want-getrow-bench",	no_argument , NULL, 0x777246},/* wre */  /* FIXME: obsolete ? */
-#ifdef RSB_WANT_PERFORMANCE_COUNTERS
-	    {"want-perf-counters",	no_argument , NULL, 0x707763},/* wpc */
-#endif
-	    {"want-print-per-subm-stats",	no_argument , NULL, 0x77707373},/* wpss */
-	    {"want-only-accuracy-test",	no_argument, NULL, 0x776F6174},/* woat */  
-	    {"want-autotune",	required_argument, NULL, 0x7772740a},/* wrt */  
-	    {"want-no-autotune",	no_argument, NULL, 0x776e7274},/* wnrt */  
-#if RSB_HAVE_METIS
-	    {"want-metis-reordering",	no_argument, NULL, 0x776d6272 },/* wmbr */  
-#endif
-	    {"want-mkl-autotune",	required_argument, NULL, 0x776d6174},/* wmat */  
-	    {"want-mkl-one-based-indexing",	no_argument, NULL, 0x776d6f62 },/* wmob */  
-	    {"want-unordered-coo-test",	no_argument, NULL, 0x775563},/* */  
-	    {"with-flags",	required_argument, NULL, 0x71},/* q */  
-	    {"write-as-binary",	required_argument, NULL, 0x77 }, /* w */
-	    {"write-as-csr",	required_argument, NULL,  0x63777273 }, /* wcsr */
-	    {"write-performance-record",	required_argument, NULL, 0x77707266 }, /* write performance record file  */
-	    {"performance-record-name-append",	required_argument, NULL, 0x77707261 }, /* ...append  */
-	    {"performance-record-name-prepend",	required_argument, NULL, 0x77707270 }, /* ...prepend  */
-	    {"write-no-performance-record",	no_argument, NULL, 0x776e7072 }, /* write no performance record */
-	    {"discard-read-zeros",	no_argument, NULL,  0x64697a65 }, /* dize */
-	    {"z-sorted-coo",	no_argument, NULL , 0x7A},/* z */
-	    {0,0,0,0}	};
 
+	const struct rsb_option_struct rsb_options[] = {
+	    {{"all-flags",	no_argument, NULL, 0x51}},/* Q */
+	    {{"all-formats",	no_argument, NULL, 0x616c666f}},/* alfo */
+	    {{"all-blas-opts",	no_argument, NULL, 0x616c626f}},/* albo */
+	    {{"all-blas-types",	no_argument, NULL, 0x616c6274}},/* albt */
+	    {{"allow-any-transposition-combination",	no_argument, NULL, 0x61617463 }},/* aatc */
+	    {{"alpha",	required_argument, NULL , 0x414C}},/* AL */
+	    {{"alternate-sort",	required_argument, NULL , 0x4153}},/* AS */
+	    {{"auto-blocking",	no_argument, NULL, 0x41}},/* A */
+	    {{"be-verbose",		no_argument, NULL, 0x76}},	/* v */
+	    {{"bench",	no_argument , NULL, 0x626e6368}},	/* bnch */
+	    {{"beta",	required_argument, NULL ,  0x4246}},/* BE */
+	    {{"block-columnsize",	required_argument, NULL, 0x63}},/* c */
+	    {{"block-rowsize",   required_argument, NULL, 0x72 }},/* r */
+	    {{"cache-blocking",	required_argument, NULL , 0x4342}},/* CB */
+/*	    {{"cache-flush",	no_argument, NULL, 0x4343}},*/ /*   */
+	    {{"chdir",	required_argument, NULL, 0x6364}},/* cd */
+	    {{"column-expand",	required_argument, NULL, 0x6B}},/* k */
+	    {{"compare-competitors",	no_argument, NULL, 0x6363}},/* cc */
+	    {{"no-compare-competitors",	no_argument, NULL, 0x776e6d6c }},/* wnml */  /* want no mkl */
+	    {{"convert",	no_argument, NULL, 0x4B}},/* K */
+/*	    {{"convert",	required_argument, NULL, 0x4B}},*//* K   */
+	    {{"dense",	required_argument, NULL, 0x64 }},   /* d */
+	    {{"diagonal-dominance-check",	no_argument , NULL, 0x4444}},/* DD */  /* new */
+	    {{"dump-n-lhs-elements",	required_argument , NULL, 0x444444}},/* DDD */  /* new */
+	    {{"echo-arguments",	no_argument , NULL, 0x6563686f}},/* echo */  /* new */
+	    {{"flush-cache-in-iterations",	no_argument, NULL, 0x4343}},/*  */
+	    {{"impatient",	no_argument, NULL, 0x696d7061}},/* impa[tient] */
+	    {{"no-flush-cache-in-iterations",	no_argument, NULL, 0x434E}},/*  */
+	    {{"flush-cache-around-loop",	no_argument, NULL, 0x434343}},/*  */
+	    {{"want-ancillary-execs",	no_argument, NULL, 0x767646}},/*  */
+	    {{"no-want-ancillary-execs",	no_argument, NULL, 0x42767646}},/*  */
+	    {{"no-flush-cache-around-loop", no_argument	, NULL, 0x43434E}},/*  */
+	    {{"want-no-recursive",	no_argument, NULL, 0x776e720a}},/*  */
+	    {{"want-memory-benchmark",	no_argument, NULL, 0x776d62}},/* wmb */
+	    {{"want-no-memory-benchmark",	no_argument, NULL, 0x776e6d62}},/* wnmb */
+	    {{"nmb",	no_argument, NULL, 0x776e6d62}},/* wnmb */
+	    {{"guess-blocking",	no_argument , NULL, 0x47}},/* G */
+	    {{"help",	no_argument , NULL, 0x68}},	/* h */
+	    {{"ilu0",	no_argument , NULL, 0x494B55}},/* ILU */  /* new */
+	    {{"inc",	required_argument, NULL, 0x696e632a }},/* inc* */
+	    {{"incx",	required_argument, NULL, 0xb1bb0 }},/* */
+	    {{"incy",	required_argument, NULL, 0xb1bb1 }},/* */
+	    {{"in-place-assembly-experimental",	no_argument , NULL, 0x6970}},/* i */
+	    {{"in-place-csr",	no_argument, NULL, 0x69}},/* i */
+	    {{"in-place-permutation",	no_argument, NULL, 0x50}},   /* P */
+#if RSB_WITH_LIKWID
+	    {{"likwid",	no_argument, NULL, 0x6c696b77}},   /* likw */
+#endif /* RSB_WITH_LIKWID */
+	    {{"lower",	required_argument, NULL, 0x6c}},   /* l */
+	    {{"lower-dense",	required_argument, NULL, 0x6c64}},   /* ld */
+	    {{"generate-lowerband",	required_argument, NULL, 0x6c6c}},   /* ll */
+	    {{"gen-lband",	required_argument, NULL, 0x6c6c}},   /* ll */
+	    {{"generate-spacing",	required_argument, NULL, 0xbabb2 }},   /* */
+	    {{"matrix-dump",	no_argument, NULL, 0x44044}},/* D */
+	    {{"matrix-dump-graph",	required_argument , NULL, 0x44047}},/* DG */
+	    {{"matrix-dump-internals",	no_argument, NULL, 0x49049}},/* I 0x0 I */
+	    {{"merge-experimental",	required_argument , NULL, 0x6d656578}},/* meex */
+	    {{"split-experimental",	required_argument , NULL, 0x73706578}},/* spex */
+	    {{"ms-experimental",	required_argument , NULL, 0x6d736578}},/* msex */
+	    {{"matrix-filename",	required_argument, NULL, 0x66}},/* f */
+	    {{"matrix-sample-pcnt",	required_argument, NULL, 0x6d747873}},/* mtxs */
+	    {{"matrix-storage",	required_argument, NULL, 0x46}},/* F */
+	    {{"matrix-time",	no_argument, NULL, 0x4D}},/* M */  /* new */
+	    {{"mem-hierarchy-info",	required_argument , NULL, 0x4D4D}},/* MM */  /* new */
+	    {{"max-runtime",	required_argument , NULL, 0x6d617275}},/* maru */
+	    {{"no-op",		no_argument, NULL, 0x4E}},	/* N */
+	    {{"notranspose",	no_argument, NULL, 0x5051}},   /* do not transpose the operation */
+	    {{"no-transpose",	no_argument, NULL, 0x5051}},   /* do not transpose the operation */
+	    {{"nrhs",	required_argument, NULL, 0x6e726873}},   /* */
+	    {{"nrhs-by-rows",	no_argument, NULL, 0x726f7773}},   /* */
+	    {{"by-rows",	no_argument, NULL, 0x726f7773}},   /* */
+	    {{"nrhs-by-columns", no_argument, NULL, 0x636f6c73}},   /* */
+	    {{"by-columns",      no_argument, NULL, 0x636f6c73}},   /* */
+	    {{"nrhs-by-cols",    no_argument, NULL, 0x636f6c73}},   /* undocumented alias */
+	    {{"by-cols", no_argument, NULL, 0x636f6c73}},   /* undocumented alias */
+	    {{"one-nonunit-incx-incy-nrhs-per-type",	no_argument, NULL, 0x6e697270}},   /* */
+	    {RSB_BENCH_PROG_OPTS},
+	    {{"oski-benchmark",	no_argument, NULL, 0x42}},/* B: only long option *//* comparative benchmarking agains OSKI */
+	    {{"out-lhs",		no_argument, NULL, 0x6F6C6873}},/* o */	/* should accept an output file name, optionally */
+	    {{"out-rhs",		no_argument, NULL, 0x6F6F}},/* o */	/* should accept an output file name, optionally */
+	    {{"override-matrix-name",	required_argument , NULL, 0x6F6D6E}},/* omn */	
+	    {{"pattern-mark",	no_argument, NULL, 0x70}},/* p */
+	    {{"pre-transpose",	no_argument, NULL, 0x5454}},   /* transpose the matrix before assembly  */
+	    {{"read-as-binary",		required_argument, NULL, 0x62}},/* b */
+	    {{"repeat-constructor",	required_argument , NULL, 0x4A4A}},
+	    {{"reuse-io-arrays",	no_argument , NULL, 0x726961}}, /* ria */
+	    {{"no-reuse-io-arrays",	no_argument , NULL, 0x6e726961 }}, /* nria */
+	    {{"reverse-alternate-rows",	no_argument , NULL, 0x4A4A4A}},
+	    {{"generate-upperband",	required_argument, NULL, 0x7575}},   /* uu */
+	    {{"gen-uband",	required_argument, NULL, 0x7575}},   /* uu */
+	    {{"generate-diagonal",	required_argument, NULL, 0x6464 }},   /* dd */
+	    {{"gen-diag",	required_argument, NULL, 0x6464 }},   /* dd */
+	    {{"implicit-diagonal",	no_argument, NULL, 0x6964}},   /* id */
+	    {{"also-implicit-diagonal",	no_argument , NULL, 0x776264}},/* wbd */
+	    {{"also-symmetries",	no_argument , NULL, 0x61736875}},/* ashu */
+	    {{"also-short-idx",	no_argument , NULL, 0x616c6c69}},/* alli */
+	    {{"also-coo-csr",	no_argument , NULL, 0x616363}},/* acc */
+	    {{"also-recursive",	no_argument , NULL, 0x61726563}},/* arec */
+	    {{"zig-zag",	no_argument , NULL, 0x4A4A4A}},
+	    {{"subdivision-multiplier",	required_argument, NULL , 0x534D}},/* SM */
+#if RSB_WANT_BOUNDED_BOXES
+	    {{"bounded-box",	required_argument, NULL , 0x4242}},/* BB */
+#endif /* RSB_WANT_BOUNDED_BOXES */
+	    {{"sort",		no_argument, NULL, 0x73}},	/* s */
+	    {{"no-leaf-multivec",	no_argument, NULL , 0x6e6c6d6d}},/* nlmm */
+	    {{"with-leaf-multivec",	no_argument, NULL , 0x636c6d6d}},/* wlmm */
+	    {{"setenv",	required_argument, NULL, 0x7365}},/* se */
+	    {{"unsetenv", required_argument, NULL, 0x757365}},/* use */
+	    {{"sort-after-load",	no_argument, NULL, 0x7373}},/* ss */
+	    {{"sort-filenames-list",	no_argument, NULL, 0x73666e6c}},/* sfnl */
+	    {{"no-sort-filenames-list",	no_argument, NULL, 0x6e73666e}},/* nsfn */
+	    {{"skip-loading-symmetric-matrices",	 no_argument, NULL, 0x736c736d}},/* slsm */
+	    {{"skip-loading-unsymmetric-matrices",no_argument, NULL, 0x736c756d}},/* slum */
+	    {{"skip-loading-hermitian-matrices",no_argument, NULL, 0x736c686d}},/* slhm */
+	    {{"skip-loading-not-unsymmetric-matrices",no_argument, NULL, 0x736c6e75}},/* slnu */
+	    {{"skip-loading-if-more-nnz-matrices",required_argument, NULL, 0x736c6d6}},/* slmn */
+	    {{"skip-loading-if-less-nnz-matrices",required_argument, NULL, 0x736c6e6e}},/* slnn */
+	    {{"skip-loading-if-more-filesize-kb-matrices",required_argument, NULL, 0x736c6d73}},/* slms */
+#ifdef RSB_HAVE_REGEX_H
+	    {{"skip-loading-if-matching-regex",required_argument, NULL, 0x736c6d72}},/* slmr */
+#endif /* RSB_HAVE_REGEX_H */
+	    {{"skip-loading-if-matching-substr",required_argument, NULL, 0x736c7373}},/* slss */
+	    {{"times",		required_argument, NULL, 0x74}},/* t */
+	    {{"transpose-as",	required_argument, NULL, 0x5040}},   /* do transpose the operation */
+	    {{"transpose",	no_argument, NULL, 0x5050}},   /* do transpose the operation */
+	    {{"also-transpose",	no_argument, NULL, 0x4150}},  /* N,T: do transpose the operation after no transposition */
+	    {{"all-transposes",	no_argument, NULL, 0x616c6c74}},  /* N,T,C */
+	    {{"type",		required_argument, NULL, 0x54}},/* T */
+	    {{"types",		required_argument, NULL, 0x54}},/* T */
+	    {{"update",		no_argument, NULL, 0x55}},	/* U */
+	    {{"as-unsymmetric",		no_argument, NULL, 0x5555}},	/* UU: TODO: to insert such a test in as default, in order to quantify the benefit of symmetry */
+	    {{"as-symmetric",		no_argument, NULL, 0x5353}},	/* SS */
+	    {{"expand-symmetry",		no_argument, NULL, 0x4553}},	/* ES */
+	    {{"as-hermitian",		no_argument, NULL, 0x4853}},	/* HS */
+	    {{"only-lower-triangle",		no_argument, NULL, 0x4F4C54}},	/* OLT */
+   	    {{"only-upper-triangle",		no_argument, NULL, 0x4F4554}},	/* OUT */
+	    {{"verbose",	no_argument , NULL, 0x56}},/* V */
+	    {{"less-verbose",	no_argument , NULL, 0x6c56}},/* lV */
+	    {{"want-io-only",	no_argument , NULL, 0x4949}},/* --want-io-only */
+	    {{"want-nonzeroes-distplot",	no_argument, NULL, 0x776E68}},/* wnh */
+	    {{"want-accuracy-test",	no_argument, NULL, 0x776174}},/* wat */
+	    {{"want-getdiag-bench",	no_argument , NULL, 0x774446}},/* wde */  /* FIXME: obsolete ? */
+	    {{"want-getrow-bench",	no_argument , NULL, 0x777246}},/* wre */  /* FIXME: obsolete ? */
+#ifdef RSB_WANT_PERFORMANCE_COUNTERS
+	    {{"want-perf-counters",	no_argument , NULL, 0x707763}},/* wpc */
+#endif
+	    {{"want-print-per-subm-stats",	no_argument , NULL, 0x77707373}},/* wpss */
+	    {{"want-only-accuracy-test",	no_argument, NULL, 0x776F6174}},/* woat */
+	    {{"want-autotune",	optional_argument, NULL, 0x7772740a}},/* wrt */
+	    {{"want-no-autotune",	no_argument, NULL, 0x776e7274}},/* wnrt */
+	    {{"want-no-ones-fill",	no_argument, NULL, 0x776e6f66}},/* wnof */
+#if RSB_HAVE_METIS
+	    {{"want-metis-reordering",	no_argument, NULL, 0x776d6272 }},/* wmbr */
+#endif
+	    {{"want-mkl-autotune",	optional_argument, NULL, 0x776d6174}},/* wmat */
+	    {{"want-mkl-one-based-indexing",	no_argument, NULL, 0x776d6f62 }},/* wmob */
+	    {{"mkl-inspector-super-light",	no_argument , NULL, 0x6d6b6c73}},/* mkls */
+	    {{"mkl-inspector-light",	no_argument , NULL, 0x6d6b6c6c}},/* mkll */
+	    {{"mkl-inspector",	no_argument , NULL, 0x6d6b6c69}},/* mkli */
+	    {{"mkl-no-inspector",	no_argument , NULL, 0x6d6b6c6f}},/* mklo */
+	    {{"want-unordered-coo-test",	no_argument, NULL, 0x775563}},/* */
+	    {{"with-flags",	required_argument, NULL, 0x71}},/* q */
+	    {{"write-as-binary",	required_argument, NULL, 0x77 }}, /* w */
+	    {{"write-as-csr",	required_argument, NULL,  0x63777273 }}, /* wcsr */
+	    {{"write-performance-record",	optional_argument, NULL, 0x77707266 }}, /* write performance record file  */
+	    {{"performance-record-name-append",	required_argument, NULL, 0x77707261 }}, /* ...append  */
+	    {{"performance-record-name-prepend",	required_argument, NULL, 0x77707270 }}, /* ...prepend  */
+	    {{"write-no-performance-record",	no_argument, NULL, 0x776e7072 }}, /* write no performance record */
+	    {{"discard-read-zeros",	no_argument, NULL,  0x64697a65 }}, /* dize */
+	    {{"z-sorted-coo",	no_argument, NULL , 0x7A}},/* z */
+	    {{0,no_argument,0,0}}	};
+
+	const int rsb_options_count = sizeof(rsb_options)/sizeof(rsb_option_t);
+	rsb_option_t options[rsb_options_count];
 	rsb_nnz_idx_t nnz = 0;/* was 0 */
 	int c;
 	int opt_index = 0;
@@ -416,37 +653,42 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	rsb_int ntypecodes = 0,typecodesi;
 	const rsb_int maxtypes = 2*RSB_IMPLEMENTED_TYPES;
 	rsb_type_t typecodes[maxtypes+1] ;
+	char * typess = NULL; /* types specification string */
 
 	rsb_blk_idx_t br = 1;
 	rsb_blk_idx_t bc = 1;
 	char * bcs = NULL, *brs = NULL, *cns = NULL, *mhs = NULL;
+	const char *tcrprs = NULL; // thread count rpr string
+	rsb_char_t fnrprs[RSB_MAX_FILENAME_LENGTH]; //  file  name  rpr string
 	rsb_blk_idx_t * brv = NULL;
 	rsb_blk_idx_t * bcv = NULL;
 	int brl = 0;
 	int bcl = 0;
 	rsb_thread_t ca_[1] = {1};
 	rsb_thread_t * ca = ca_;
-	rsb_thread_t cn = 1, ci = 0, cc = ca[ci];
+	rsb_thread_t cn = 1, cc = ca[0];
 
-	int times = 100;	/* the default number of times to perform spmv_uaua */
+	int times = 100;	/* the default number of times to perform spmv_sxsa */
 	rsb_coo_idx_t nrA = 0, ncA = 0, ndA = 0;
 	int filenamen = 0, filenamei = 0;
+	int want_filenamelist_sort = 1;
 #define RSB_RSBENCH_STATIC_FILENAMEA 1
 #if RSB_RSBENCH_STATIC_FILENAMEA
-#define RSB_RSBENCH_MAX_MTXFILES 256
-	const rsb_char_t *filenamea[RSB_RSBENCH_MAX_MTXFILES];
+	rsb_char_t *filenamea[RSB_RSBENCH_MAX_MTXFILES];
 #else
-	const rsb_char_t **filenamea = NULL;
+	rsb_char_t **filenamea = NULL;
 #endif
 	const rsb_char_t *filename = NULL;
 	const rsb_char_t *filename_old = NULL;
 	const rsb_char_t *usfnbuf = NULL;
-	rsb_char_t*fprfn = NULL, *cprfn = NULL, *apprfn = NULL, *ppprfn = NULL; /* final/checkpoint      performance file name , append/prepend */
+	rsb_char_t *fprfn = NULL, *cprfn = NULL, *apprfn = NULL, *ppprfn = NULL; /* final/checkpoint      performance file name , append/prepend */
 	rsb_char_t fprfnb[RSB_MAX_FILENAME_LENGTH], cprfnb[RSB_MAX_FILENAME_LENGTH];/* final/checkpoint      performance file name buffers */
-	rsb_char_t fnbuf[RSB_MAX_FILENAME_LENGTH];
-	rsb_char_t*fnbufp[1]={&(fnbuf[0])};
-	rsb_char_t * dump_graph_file=NULL;
+	rsb_char_t mtrfpf[RSB_MAX_FILENAME_LENGTH];/* matrix tuning rendering file prefix */
+	rsb_char_t fnbuf[RSB_MAX_FILENAME_LENGTH] = {RSB_NUL, /* ... */ }; /* matrix file name buffer */
+	rsb_char_t *fnbufp[1]={&(fnbuf[0])};
+	rsb_char_t *dump_graph_file=NULL;
 	rsb_flags_t flags_o = RSB_FLAG_NOFLAGS|RSB_FLAG_OWN_PARTITIONING_ARRAYS;
+	rsb_flags_t flags_s = RSB_FLAG_NOFLAGS; /* sorting flags */
 /*	RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_DISCARD_ZEROS)	;	*/ /* FIXME : EXPERIMENTAL (watch nnz count on a multi blocking run ...) */
 	rsb_flags_t flagsa[128] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	rsb_flags_t r_flags = RSB_FLAG_NOFLAGS; /* recycling flags */
@@ -481,6 +723,7 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	rsb_bool_t should_recycle_matrix = RSB_BOOL_FALSE; /* reuse the matrix across measurements */
 	rsb_bool_t should_recycle_io = RSB_BOOL_TRUE;/* reuse the input arrays */
 	rsb_bool_t g_allow_any_tr_comb = RSB_BOOL_FALSE; /* allow any transposition combination */
+	rsb_bool_t g_fill_va_with_ones = RSB_BOOL_TRUE;
 	
 	rsb_trans_t transAo = RSB_DEFAULT_TRANSPOSITION;
 	rsb_trans_t transA = RSB_DEFAULT_TRANSPOSITION;
@@ -490,9 +733,14 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	rsb_nnz_idx_t want_generated_spacing = 0;
 	rsb_bool_t want_only_star_scan = RSB_BOOL_FALSE;
 	rsb_blk_idx_t nrhs = 1, nrhsn = 1, nrhsi = 1, nrhsl = 1;
+	rsb_blk_idx_t asfii = 0, asfin = 1;
+	rsb_blk_idx_t asiii = 0, asiin = 1;
+	rsb_blk_idx_t accii = 0, accin = 1;
+	rsb_blk_idx_t areci = 0, arecn = 1;
+	rsb_int_t diagin = 1, diagii = 0;
 	const char*nrhss = NULL;
 	rsb_blk_idx_t *nrhsa = NULL;
-	const size_t outnri = 0, rhsnri = 0; /* Could be ndA for order == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER and nrhs otherwise; this way is auto. */;
+	const size_t outnri = 0, rhsnri = 0; /* Could be ndA for order == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER and nrhs otherwise; this way is auto. */
 	rsb_nnz_idx_t n_dumpres = 0;
 	rsb_nnz_idx_t n_dumprhs = 0;
 	rsb_bool_t ignore_failed_fio = RSB_BOOL_TRUE; /* FIXME 20140912 experimental */
@@ -507,11 +755,13 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	rsb_time_t totatt = RSB_TIME_ZERO; /* total ancillary tests time */ /* FIXME: is this complete ? */
 	rsb_time_t totct = RSB_TIME_ZERO; /* total conversions time */ /* FIXME: is this complete ? */
 	rsb_time_t tottt = RSB_TIME_ZERO; /* total tuning time */
-	rsb_time_t totht = RSB_TIME_ZERO; /* total checks time */ /* FIXME: is this complete ? */
+	rsb_time_t totht = RSB_TIME_ZERO, ht = RSB_TIME_ZERO; /* total checks time */ /* FIXME: is this complete ? */
 	rsb_time_t maxtprt = RSB_TIME_ZERO; /* max total program run time */
 	const rsb_time_t totprt = - rsb_time(); /* total program run time */
 	rsb_bool_t want_as_unsymmetric = RSB_BOOL_FALSE;
 	rsb_bool_t want_as_symmetric = RSB_BOOL_FALSE;
+	rsb_bool_t want_expand_symmetry = RSB_BOOL_FALSE;
+	rsb_bool_t want_as_hermitian = RSB_BOOL_FALSE;
 	rsb_bool_t want_only_lowtri = RSB_BOOL_FALSE;
 	rsb_bool_t want_only_upptri = RSB_BOOL_FALSE;
 	rsb_bool_t want_sort_after_load = RSB_BOOL_FALSE;
@@ -534,25 +784,39 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	rsb_bool_t want_mkl_bench_csr = RSB_BOOL_TRUE;
 	rsb_bool_t want_mkl_bench_gem = RSB_BOOL_TRUE;
 	rsb_bool_t want_mkl_bench_coo = RSB_BOOL_FALSE;
+#if RSB_WANT_MKL_INSPECTOR
+	rsb_bool_t want_mkl_inspector = RSB_BOOL_TRUE;
+	rsb_int_t mkl_ie_hintlvl = 2;
+#endif /* RSB_WANT_MKL_INSPECTOR */
 #endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+	rsb_bool_t want_armpl_bench = RSB_BOOL_FALSE;
+#endif /* RSB_WANT_ARMPL */
 	rsb_time_t totmt = RSB_TIME_ZERO; /* total mkl/competitors (tuning) time */
 	rsb_bool_t want_perf_dump = RSB_BOOL_FALSE;
 	void*rspr = NULL; /* rsb sampled performance record structure pointer */
 
+	rsb_aligned_t errnorm[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 	rsb_aligned_t alpha[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 	rsb_aligned_t beta[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-	rsb_aligned_t errnorm[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-	rsb_aligned_t * alphap = &(alpha[0]);
-	rsb_aligned_t * betap = &(beta[0]);
+	void * alphap = &(alpha[0]);
+	void * betap = &(beta[0]);
+	rsb_blk_idx_t * alphaip = NULL; // here, int
+	rsb_blk_idx_t * betaip = NULL; // here, int
+	rsb_int alphan = 1, betan = 1;
 	rsb_int alphai = 1, betai = 1;
+	const char * betass = NULL; /* beta specification string */
+	const char * alphass = NULL; /* alpha specification string */
 	rsb_coo_idx_t incX = 1, incY = 1;
 	rsb_blk_idx_t incXn = 1, incXi = 1;
 	rsb_blk_idx_t incYn = 1, incYi = 1;
 	rsb_blk_idx_t *incXa = NULL, *incYa = NULL;
-	rsb_coo_idx_t ldX = 0, ldY = 0;
-	rsb_bool_t want_incX = RSB_BOOL_FALSE,want_incY = RSB_BOOL_FALSE;
-	rsb_bool_t want_verbose = RSB_BOOL_FALSE;
+	const char * dis = "1,2"; /* default inc string */
+	const char * incYss = NULL; /* incY specification string */
+	const char * incXss = NULL; /* incX specification string */
+	rsb_int_t want_verbose = 0;
 	rsb_int_t want_verbose_tuning = 0;
+	rsb_bool_t want_mbw = RSB_BOOL_FALSE;
 	rsb_bool_t want_transpose = RSB_BOOL_FALSE;
 	#if 1
 	const int max_io = 10;
@@ -568,11 +832,10 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	#else /* 1 */
 	struct rsb_initopts *iop = RSB_NULL_INIT_OPTIONS;
 	#endif /* 1 */
-	rsb_bool_t should_use_alternate_sort = RSB_BOOL_FALSE;
+	rsb_int_t should_use_alternate_sort = 0;
 	rsb_bool_t reverse_odd_rows = RSB_BOOL_FALSE;
 	rsb_bool_t zsort_for_coo = RSB_BOOL_FALSE;
 	rsb_bool_t want_unordered_coo_bench = RSB_BOOL_FALSE;
-	rsb_time_t unordered_coo_op_tot_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, unordered_coo_op_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, unordered_coo_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
 #ifdef RSB_WANT_OSKI_BENCHMARKING 
 	/* FIXME : unfinished */
 	rsb_time_t oski_t = RSB_TIME_ZERO,oski_m_t = RSB_TIME_ZERO,oski_a_t = RSB_TIME_ZERO,oski_t_t = RSB_TIME_ZERO;
@@ -591,10 +854,10 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	setenv("OSKI_LUA_PATH",OSKI_LUA_PATH,0/* if 0, will not override. if 1, it would. */);
 	#endif /* RSB_HAVE_SETENV */
 #endif /* RSB_WANT_OSKI_BENCHMARKING */
-	rsb_time_t tinf = rsb__timer_granularity();
+	const rsb_time_t tinf = rsb__timer_granularity(); /* After rsb_lib_init one may use RSB_CACHED_TIMER_GRANULARITY; */
 	rsb_aligned_t pone[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 	rsb_bool_t want_likwid = RSB_BOOL_FALSE;
-	rsb_flags_t order = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+	rsb_flags_t order = RSB_FLAG_WANT_COLUMN_MAJOR_ORDER;
 	rsb_time_t want_autotuner = RSB_NEGATED_EXAGGERATED_TUNER_TIMES, want_mkl_autotuner = RSB_NEGATED_EXAGGERATED_TUNER_TIMES;
 	rsb_bool_t want_io_only = RSB_BOOL_FALSE;
 	rsb_int wat = 1;	/* want autotuning threads choice */
@@ -609,7 +872,16 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	rsb_bool_t want_wmbr = RSB_BOOL_FALSE;
 #endif
 	rsb_bool_t want_recursive = RSB_BOOL_TRUE;
+	struct rsb_mbw_et_t mbet, *mbetp = NULL;
+	rsb_real_t mtx_sample_rate = 100.0;
 
+	{
+		int roi;
+		for(roi=0;roi<rsb_options_count;++roi)
+			options[roi] = rsb_options[roi].ro;
+	}
+
+	RSB_DEBUG_ASSERT( fnbuf[0]==RSB_NUL );
 	io.keys = io_keys;
 	io.values = io_values;
 	io.n_pairs = 0;
@@ -619,51 +891,41 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 		RSB_PERR_GOTO(err,"Error while initializing the library.");
 	}
 
+	optind = 0; /* FIXME: NEW 20160708 */
     	for (;;)
 	{
-		c = rsb_getopt_long(argc,argv,RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS"b:w:BGht:f:r:c:vpn:MNS:Bk:KU" /* Flawfinder: ignore */
+		c = rsb__getopt_long(argc,argv,RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS"b:w:BGht:f:r:c:vpn:MNS:Bk:KU" /* Flawfinder: ignore */
 		/* s is in anyway, with RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS */
 		"o:O:"
 		, options, &opt_index);
 		if (c == -1)break;
 
 		RSB_DO_FLAG_ADD(flags_o,rsb__sample_program_options_get_flags(c,optarg));
+		RSB_DO_FLAG_ADD(flags_s,flags_o & RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING);
 
 		switch (c)
 		{
 			case 0x62:	/* b */
 			b_r_filename = optarg;
 			break;
-			case  0xb1bb0:
-#if 0
-				incX = rsb__util_atoi(optarg);
-				if(incX<1){errval = RSB_ERR_BADARGS;goto err;}
-				if(incX>1)RSBENCH_STDOUT("# setting incX=%d\n",incX);
-				want_incX = RSB_BOOL_TRUE;
-#else
-			if(RSB_SOME_ERROR(rsb__util_get_bx_array(optarg,&incXn,&incXa)))
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
-#endif
+			case  0xb1bb0: // incX
+			incXss=optarg;
+			break;
+			case  0xb1bb1: // incY
+			incYss=optarg;
+			break;
+			case  0x696e632a: // inc*
+			incXss=optarg;
+			incYss=optarg;
 			break;
 			case  0x6970:
 				RSBENCH_STDOUT("# WARNING: in place assembly is an UNFINISHED, EXPERIMENTAL feature\n");
 				want_in_place_assembly = RSB_BOOL_TRUE;
 			break;
-			case  0xb1bb1:
-#if 0
-				incY = rsb__util_atoi(optarg);
-				if(incY<1){errval = RSB_ERR_BADARGS;goto err;}
-				if(incY>1)RSBENCH_STDOUT("# setting incY=%d\n",incY);
-				want_incY = RSB_BOOL_TRUE;
-#else
-			if(RSB_SOME_ERROR(rsb__util_get_bx_array(optarg,&incYn,&incYa)))
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
-#endif
-			break;
 			case 0x6c:
 			case 0x6c64: /* lower-dense */
 			{
-				should_generate_dense = - rsb__util_atoi(optarg); // FIXME ! PROBLEMS
+				should_generate_dense = - rsb__util_atoi_km10(optarg); // FIXME ! PROBLEMS
 			}
 			break;
 			case 0x6c696b77:
@@ -674,41 +936,43 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			break;
 			case 0x6c6c:
 			{
-				should_generate_lband = rsb__util_atoi(optarg); // FIXME ! PROBLEMS
+				should_generate_lband = rsb__util_atoi_km10(optarg); // FIXME ! PROBLEMS
 				if(should_generate_uband==-1)should_generate_uband=0;
 			}
 			break;
 			case 0x7575:
 			{
-				should_generate_uband = rsb__util_atoi(optarg); // FIXME ! PROBLEMS
+				should_generate_uband = rsb__util_atoi_km10(optarg); // FIXME ! PROBLEMS
 				if(should_generate_lband==-1)should_generate_lband=0;
-			}
-			break;
-			case 0x6464: /* gen-diag */
-			{
-				should_generate_uband = 0;
-				should_generate_lband = 0;
-				should_generate_dense = rsb__util_atoi(optarg); // FIXME ! PROBLEMS
 			}
 			break;
 			case 0xbabb2:
 			{
-				want_generated_spacing = rsb__util_atoi(optarg);
+				want_generated_spacing = rsb__util_atoi_km10(optarg);
 			}
 			break;
 			case 0x6e697270:
 			want_only_star_scan = RSB_BOOL_TRUE;
 			break;
+			case 0x6964:
+				RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_UNIT_DIAG_IMPLICIT);
+			break;
+			case 0x6464: /* gen-diag */
+				should_generate_uband = 0;
+				should_generate_lband = 0;
 			case 0x64: /* dense */
 			{
-				/* should_generate_dense = rsb__util_atoi(optarg); */  // FIXME ! PROBLEMS
-				int sargs = sscanf(optarg,"%dx%d",&should_generate_dense,&should_generate_dense_nc);
+				const char*p= optarg, *xp="x";
+				should_generate_dense = rsb__util_atoi_km10(optarg);
+				while(*p && *p != *xp)
+					++p;
+				if(*p == *xp)
+					should_generate_dense_nc = rsb__util_atoi_km10(p+1);
 				if( should_generate_dense_nc == 0)
 					should_generate_dense_nc = should_generate_dense;
-				/* RSBENCH_STDOUT("# Requested generation of a %d by %d matrix\n",should_generate_dense,should_generate_dense_nc); */
 			}
 			break;
-			/* FIXME : please note that specifying two or more times -r or -c will cause memory leaks */
+			/* note that specifying multiple times -r (or -c) will overwrite old setting */
 			case 0x72:/* r */
 			brs=optarg;
 			break;
@@ -731,41 +995,99 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			goto err;
 #endif /* RSB_WANT_MKL */
 			break;
+			case 0x6d6b6c73: /* mkls */
+#if RSB_WANT_MKL_INSPECTOR
+			mkl_ie_hintlvl = 0;
+#endif /* RSB_WANT_MKL_INSPECTOR */
+			goto wi;
+			break;
+			case 0x6d6b6c6c: /* mkll */
+#if RSB_WANT_MKL_INSPECTOR
+			mkl_ie_hintlvl = 1;
+#endif /* RSB_WANT_MKL_INSPECTOR */
+			goto wi;
+			break;
+			case 0x6d6b6c69: /* mkli */
+wi:
+#if RSB_WANT_MKL_INSPECTOR
+			want_mkl_inspector = RSB_BOOL_TRUE;
+#else /* RSB_WANT_MKL_INSPECTOR */
+			RSB_ERROR("Sorry, no MKL Inspector Interface in --- aborting!\n");
+			goto err;
+#endif /* RSB_WANT_MKL_INSPECTOR */
+			break;
+#if RSB_WANT_MKL_INSPECTOR
+			case 0x6d6b6c6f: /* mklo */
+				want_mkl_inspector = RSB_BOOL_FALSE;
+			break;
+#endif /* RSB_WANT_MKL_INSPECTOR */
 			case 0x61617463:
 			g_allow_any_tr_comb = RSB_BOOL_TRUE;
 			break;
 			case 0x51: /* Q (do not ask me why) */
 			g_all_flags = 1;
 			break;
+			case 0x616c6274: /* albt */
+				RSBENCH_STDOUT("# EXPERIMENTAL --all-blas-types option implies types: " RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS "\n");
+				typess="B"; // RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS
+			break;
+			case 0x616c626f: /* albo */
+			RSBENCH_STDOUT("# EXPERIMENTAL --all-blas-opts option implies: --types : --inc : --alpha : --beta : :\n");
+			RSBENCH_STDOUT("# EXPERIMENTAL --types :\n"); // 0x54
+			typess=":";
+			RSBENCH_STDOUT("# EXPERIMENTAL --inc :\n"); // 0x696e632a
+			incXss=":";
+			incYss=":";
+			RSBENCH_STDOUT("# EXPERIMENTAL --alpha :\n"); // 0x414C
+			alphass=":";
+			RSBENCH_STDOUT("# EXPERIMENTAL --beta :\n"); // 0x4246
+			betass=":";
+			break;
+			case 0x616c666f: /* alfo */
+			/* FIXME: need formal bond with these options */
+			RSBENCH_STDOUT("# EXPERIMENTAL --all-formats option implies: --also-implicit-diagonal --also-symmetries --also-short-idx --also-coo-csr --also-recursive:\n");
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-implicit-diagonal\n"); // 0x6964: /* id */
+			diagin=2;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-symmetries\n"); // 0x61736875: /* ashu */
+			asfin=3;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-short-idx\n"); // 0x616c6c69: /* alli */
+			asiin=2;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-coo-csr\n"); // 0x616363: /* acc */
+			accin=2;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-recursive\n"); // 0x61726563: /* arec */
+			arecn=2;
+			break;
 			break;
 			case 0x44044: /* D */
 			dumpout = 1;
 			break;
 			case 0x5040: /*  */
-			transAo = rsb__do_transposition_from_char(*optarg);	/* */
+				transAo = rsb__do_transposition_from_char(*optarg);	/* */
+				tn = 1;
+				RSBENCH_STDOUT("# Requested user-specified transposition: %c\n",(char)transAo );
 			break;
 			case 0x4150:
-			tn = 2;
+				RSBENCH_STDOUT("# Requested no transposition and transposition.\n");
+				tn = 2;
 			break;
 			case 0x616c6c74:
-			tn = 3;
+				RSBENCH_STDOUT("# Requested all transposes: no transposition, transposition and conjugate transposition.\n");
+				tn = 3;
 			break;
 			case 0x5050: /*  */
-			transAo = rsb__do_transpose_transposition(transAo);
+				tn = 1;
+				RSBENCH_STDOUT("# Requested transposition.\n");
+				transAo = rsb__do_transpose_transposition(transAo);
 			break;
 			case 0x5051: /*  */
-			transAo = RSB_TRANSPOSITION_N;
+				RSBENCH_STDOUT("# Requested no transposition.\n");
+				tn = 1;
+				transAo = RSB_TRANSPOSITION_N;
 			break;
 			case 0x6e726873: /*  */
-#if 0
-			nrhs = rsb__util_atoi(optarg);
-			/* if(nrhs>1){ RSB_ERROR("Sorry, nrhs > 1 still unsupported!\n"); goto err; } */
-#else
 			nrhss = optarg;
-			if(RSB_SOME_ERROR(rsb__util_get_bx_array(nrhss,&nrhsn,&nrhsa)))
+			if(RSB_SOME_ERROR(rsb__util_get_bx_array(nrhss,&nrhsn,&nrhsa)) || nrhsn<1)
 				{RSB_ERROR(RSB_ERRM_ES);goto err;}
-#endif
-
 			break;
 			case 0x726f7773: /* --nrhs-by-rows --by-rows */
 				order = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
@@ -783,23 +1105,23 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			dumpout_internals = 1;
 			break;
 			case 0x6d656578: /* meex */
-			merge_experimental = rsb__util_atoi(optarg);
-			RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				merge_experimental = rsb__util_atoi(optarg);
+				RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
 			break;
 			case 0x73706578: /* spex */
-			split_experimental = rsb__util_atoi(optarg);
-			RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				split_experimental = rsb__util_atoi(optarg);
+				RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
 			break;
 			case 0x6d736578: /* msex */
-			merge_experimental = split_experimental = rsb__util_atoi(optarg);
-			RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
-			RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				merge_experimental = split_experimental = rsb__util_atoi(optarg);
+				RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
 			break;
 			case 0x4444 : /* DD */
 			do_perform_ddc = RSB_BOOL_TRUE;
 			break;
 			case 0x444444 : /* DDD */
-			n_dumprhs = n_dumpres = rsb__util_atoi(optarg);
+			n_dumprhs = n_dumpres = rsb__util_atoi_km10(optarg);
 			break;
 			case 0x6563686f: /* echo */
 			{
@@ -819,6 +1141,14 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			case 0x4343: /* */
 			want_inner_flush = RSB_BOOL_TRUE;
 			break;
+			case 0x6364: /* */
+			{
+				if( chdir(optarg) ) // unistd.h
+					RSB_WARN("change dir to %s failed!\n", optarg);
+				else
+					RSBENCH_STDOUT("# chdir to %s succeeded\n", optarg);
+			}
+			break;
 			case 0x434E: /* */
 			want_inner_flush = RSB_BOOL_FALSE;
 			break;
@@ -830,6 +1160,12 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			break;
 			case 0x776e720a: /*  */
 			want_recursive = RSB_BOOL_FALSE;
+			break;
+			case 0x776e6d62: /* wnmb */
+			want_mbw = RSB_BOOL_FALSE;
+			break;
+			case 0x776d62: /* wmb */
+			want_mbw = RSB_BOOL_TRUE;
 			break;
 			case 0x4D: /* M */
 			g_estimate_matrix_construction_time=1;
@@ -854,7 +1190,7 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			usfnbuf = optarg;
 			break;
 			case 0x4A4A:
-			repeat_construction = rsb__util_atoi(optarg);
+			repeat_construction = rsb__util_atoi_km10(optarg);
 			if(repeat_construction<1)
 			{
 				RSB_ERROR("Constructor repetition times should be a positive number!\n");goto err;
@@ -864,7 +1200,7 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			should_use_cb_method = rsb__util_atoi(optarg);
 			break;
 			case 0x4153: /* AS */
-			should_use_alternate_sort = RSB_BOOL_TRUE;
+			should_use_alternate_sort = rsb__util_atoi(optarg);
 			break;
 			case 0x534D: /* SM */
 			subdivision_multiplier = rsb__util_atof(optarg);
@@ -908,8 +1244,31 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 				RSB_DEPRECATED("use of the sort flag");
 				flags_o = flags_o;
 			break;
+#ifdef RSB_HAVE_SETENV
+			case 0x7365: /* se */
+			rsb__setenv(optarg);
+			break;
+			case 0x757365: /* use */
+			if(optarg)
+			{
+				RSBENCH_STDOUT("# Calling unsetenv() with argument %s\n",optarg);
+				unsetenv(optarg);
+			}
+			break;
+#else /* RSB_HAVE_SETENV */
+			case 0x7365: /* se */
+			case 0x757365: /* use */
+			RSBENCH_STDERR("setenv/unsetenv not found on your machine ! Skipping --setenv/--unsetenv !");
+			break;
+#endif /* RSB_HAVE_SETENV */
 			case 0x7373: /* ss */
 			want_sort_after_load = RSB_BOOL_TRUE;
+			break;
+			case 0x73666e6c: /* sfnl */
+			want_filenamelist_sort = 1;
+			break;
+			case 0x6e73666e: /* nsfn */
+			want_filenamelist_sort = 0;
 			break;
 			case 0x736c736d: /* slsm */
 			want_slsm = RSB_BOOL_TRUE;
@@ -947,63 +1306,90 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			guess_blocking_test = 1;
 			break;
 			case 0x54: /* T */
-			{
-				const char*toa = optarg;
-				ntypecodes=0; /* this neutralizes former -T ... option */
-				/* if( *optarg == 0x3A || *optarg == 0x2A ) */ /* : or * aka colon or asterisk */
-				if( ( ! isalpha(*optarg) ) || ( strstr(optarg,"all") != NULL ) )
-					toa = RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS ;
-				for(;*toa;++toa)
-				if(isalpha(*toa))
-				{
-					if(ntypecodes<maxtypes)
-						typecodes[ntypecodes++]=typecode=toupper(*toa);
-					else
-					{
-						RSB_ERROR("Up to %d types supported! P.s.: Use a punctuation symbol to ask for all supported types.\n",maxtypes);
-						goto err;
-					}
-				}
-				typecodes[ntypecodes] = RSB_NUL;
-			}
+			typess=optarg;
 			break;
 			case 0x56: /* V */
-			want_verbose = RSB_BOOL_TRUE;
+			want_verbose++;
 			want_verbose_tuning ++;
+			break;
+			case 0x6c56: /* lV */
+			if(want_verbose_tuning >  0)
+				want_verbose_tuning --;
+			if(want_verbose_tuning == 0)
+				want_verbose--;
 			break;
 			case 0x4949: /* II */
 			want_io_only = RSB_BOOL_TRUE;
 			break;
+			case 0x46: /* F */
+			/* F handled by rsb__sample_program_options_get_flags() */
+			break;
 			case 0x66: /* f */
 			filename = optarg;
 #if RSB_RSBENCH_STATIC_FILENAMEA
-#define RSB_RSBENCH_ADDF(FILENAME)	if(filenamen<RSB_RSBENCH_MAX_MTXFILES)filenamea[filenamen++] = (FILENAME); else {errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("Please increase RSB_RSBENCH_MAX_MTXFILES (%d) and recompile !!\n",RSB_RSBENCH_MAX_MTXFILES);goto err;}
+/* #define RSB_RSBENCH_ADDF(FILENAME)	if(filenamen<RSB_RSBENCH_MAX_MTXFILES)filenamea[filenamen++] = (FILENAME); else {errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("Please increase RSB_RSBENCH_MAX_MTXFILES (%d) and recompile !!\n",RSB_RSBENCH_MAX_MTXFILES);goto err;} */
+#define RSB_RSBENCH_ADDF(FILENAME, FAF)	if ( RSB_ERR_NO_ERROR != ( errval = rsb__adddir(&filenamea[0], &filenamen, (FILENAME), FAF) ) ){if(errval == RSB_ERR_LIMITS ){RSB_ERROR("Please increase RSB_RSBENCH_MAX_MTXFILES (%d) and recompile !!\n",RSB_RSBENCH_MAX_MTXFILES);}errval = RSB_ERR_INTERNAL_ERROR;goto err;}
 #else
  /* FIXME: for some reason, this seems to break e.g.  ./rsbench -oa -Ob --nrhs 1,2 -f pd.mtx -f A.mtx.
     Of course this is wrong also w.r.t. rsb_calloc/rsb_lib_init, but that is not a problem.
     Using calloc / realloc does not solve the problem.  */
-#define RSB_RSBENCH_ADDF(FILENAME)		if(filenamen==0) \
+#define RSB_RSBENCH_ADDF(FILENAME,RSB_FAF_DEFAULTS)		if(filenamen==0) \
 				filenamea = rsb__calloc(sizeof(filenamea)*(filenamen+1)); \
 			else \
 				filenamea = rsb__do_realloc(filenamea, sizeof(filenamea)*(filenamen+1), sizeof(filenamea)); \
 			filenamea[filenamen++] = (FILENAME);
 #endif
-			RSB_RSBENCH_ADDF(filename) /* FIXME */
+			RSB_RSBENCH_ADDF(filename,RSB_FAF_DEFAULTS) /* FIXME */
+			break;
+			case 0x6d747873: /* mtxs **/
+				mtx_sample_rate = rsb__util_atof(optarg);
+				RSBENCH_STDOUT("# Using only %lg %% of the matrix nonzeroes\n",mtx_sample_rate);
+				if( mtx_sample_rate > 100 || mtx_sample_rate < 1 )
+					RSB_PERR_GOTO(err,"--matrix-sample-pcnt: want arg between 1 and 100!");
 			break;
 			case 0x414C: /* AL */
-			alphai = rsb__util_atoi(optarg);
+				alphass=optarg;
 			break;
 			case 0x4246: /* BE */
-			betai = rsb__util_atoi(optarg);
+				betass=optarg;
+			break;
+			case 0x626e6368: /* bnch */
+			RSBENCH_STDOUT("# --bench option implies -qH -R --write-performance-record --want-mkl-autotune --mkl-benchmark --types : --split-experimental %d --merge-experimental %d --also-transpose --sort-filenames-list --want-memory-benchmark\n",RSB_CONST_DEF_MS_AT_AUTO_STEPS,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+			want_filenamelist_sort = 1; /* 0x73666e6c: sfnl */
+			want_perf_dump = RSB_BOOL_TRUE; // 0x77707266
+			want_mkl_autotuner = 1.0;
+			want_mkl_autotuner = RSB_MAX(1.0,want_mkl_autotuner); // 0x776d6174
+			RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_QUAD_PARTITIONING); // -R
+#if RSB_USE_MKL
+			if(rsb__getenv_int_t("RSB_WANT_USE_MKL",1)==0)
+#endif /* RSB_USE_MKL */
+				RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_USE_HALFWORD_INDICES); // 0x71 = -qH
+			merge_experimental = split_experimental = RSB_CONST_DEF_MS_AT_AUTO_STEPS; /* msex */
+			want_mbw = RSB_BOOL_TRUE; /* 0x776d62: wmb */
+#if RSB_WANT_MKL
+			want_mkl_bench = RSB_BOOL_TRUE; // 0x4C
+#endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+			want_armpl_bench = RSB_BOOL_TRUE; // 0x4C
+#endif /* RSB_WANT_ARMPL */
+			tn = 2; /* 0x4150 */
+			typess=":"; /* 0x54 */
+			optarg = NULL; goto lab_0x7772740a; // 0x7772740a
 			break;
 			case 0x4B: /* K */
 			want_convert = RSB_BOOL_TRUE; /* FIXME: ignoring argument */
 			break;
 			case 0x55: /* U */
-			want_update = RSB_BOOL_TRUE; /* FIXME: ignoring argument */
+			want_update = RSB_BOOL_TRUE;
+			break;
+			case 0x4853: /* HS */
+			want_as_hermitian = RSB_BOOL_TRUE;
 			break;
 			case 0x5353: /* SS */
 			want_as_symmetric = RSB_BOOL_TRUE;
+			break;
+			case 0x4553: /* ES */
+			want_expand_symmetry = RSB_BOOL_TRUE;
 			break;
 			case 0x5555: /* UU */
 			want_as_unsymmetric = RSB_BOOL_TRUE;
@@ -1019,6 +1405,23 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 #if RSB_WANT_MKL
 			want_mkl_bench = RSB_BOOL_TRUE;
 #endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+			want_armpl_bench = RSB_BOOL_TRUE;
+			RSB_STDOUT("# Using ARMPL.\n");
+			{
+				//void armplversion(armpl_int_t *major, armpl_int_t *minor, armpl_int_t *patch, const char **tag);
+				armplinfo();
+			}
+#endif /* RSB_WANT_ARMPL */
+			break;
+			case 0x776e6d6c:
+			/* this flag deactivates all interfaced libraries (if any) */
+#if RSB_WANT_MKL
+			want_mkl_bench = RSB_BOOL_FALSE;
+#endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+			want_armpl_bench = RSB_BOOL_FALSE;
+#endif /* RSB_WANT_ARMPL */
 			break;
 			case 0x6B: /* ncA */
 			want_column_expand = rsb__util_atoi(optarg);
@@ -1031,6 +1434,26 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			break;
 			case 0x774446:	/* wde */
 			want_getdiag_bench = 1;
+			break;
+			case 0x776264:	/* wbd */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-implicit-diagonal\n");
+			diagin=2;
+			break;
+			case 0x61736875: /* ashu */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-symmetries\n");
+			asfin=3;
+			break;
+			case 0x616c6c69: /* alli */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-short-idx\n");
+			asiin=2;
+			break;
+			case 0x616363: /* acc */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-coo-csr\n");
+			accin=2;
+			break;
+			case 0x61726563: /* arec */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-recursive\n");
+			arecn=2;
 			break;
 			case 0x776E68:	/* wnh */
 			want_nonzeroes_distplot = 1;
@@ -1046,27 +1469,32 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			case 0x77707373:	/* wpss */
 			want_print_per_subm_stats = RSB_BOOL_TRUE;
 			break;
-			case 0x776F6174:	/* woac */
+			case 0x776F6174:	/* woat */
 			want_accuracy_test = 2;
 			break;
+			case 0x776e6f66:	/* wnof */
+				g_fill_va_with_ones = RSB_BOOL_FALSE;
+			break;
 			case 0x776e7274:	/* wnrt */
+			RSBENCH_STDOUT("# Requesting no autotuning via --want-no-autotune\n");
 			want_autotuner = RSB_TIME_ZERO;
-			just_enter_tuning = 0;
 			wai=wat=0;
 			want_autotuner = merge_experimental = split_experimental = RSB_NEGATED_EXAGGERATED_TUNER_TIMES;
+			just_enter_tuning = 0;
 			break;
 			case 0x7772740a:	/* wrt */
-			/* want_autotuner = rsb__util_atof(optarg); */
+lab_0x7772740a:		/* want_autotuner = rsb__util_atof(optarg); */
 			{
+				const char *optarg_ = optarg ? optarg : "";
 				char wavv = 0x0;
-				int sargs = sscanf(optarg,"%lfs%dx%dt%c%c",&want_autotuner,&wai,&wat,&wav,&wavv);
+				int sargs = sscanf(optarg_,"%lfs%dx%dt%c%c",&want_autotuner,&wai,&wat,&wav,&wavv);
 
-				if(!*optarg)
+				if(!*optarg_)
 					sargs = 0;
-				RSBENCH_STDOUT(" Passed %d arguments via autotuning string \"%s\" (an empty string requests defaults)\n",sargs,optarg);
+				RSBENCH_STDOUT("# Passed %d arguments via autotuning string \"%s\" (an empty string requests defaults)\n",sargs,optarg_);
 				if(sargs < 0)
 				{
-					RSBENCH_STDOUT("Wrong autotuning string detected!\n");
+					RSBENCH_STDOUT("  Wrong autotuning string detected!\n");
 					rsb_test_help_and_exit(argv[0],options, 0);
 					exit(0);
 				}
@@ -1108,13 +1536,13 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			break;
 #endif
 			case 0x776d6174:	/* wmat */
-			sscanf(optarg,"%lf",&want_mkl_autotuner);
+			sscanf(optarg?optarg:"","%lf",&want_mkl_autotuner);
 			want_mkl_autotuner = RSB_MAX(1.0,want_mkl_autotuner); /* FIXME: actual value is unimportant as long as it is positive ! */
 			break;
 			case 0x776d6f62:	/* wmob */
 			mib = 1;
 			break;
-			case 0x776174:	/* wac */
+			case 0x776174:	/* wat */
 			want_accuracy_test = 1;
 			break;
 			case 0x775563:
@@ -1133,10 +1561,13 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			csr_w_filename = optarg;
 			break;
 			case 0x77707266:
-			fprfn = optarg;
+			fprfn = optarg ? optarg : "";
 			want_perf_dump = RSB_BOOL_TRUE;
-			if(optarg && !*optarg)
+			if(fprfn && !*fprfn)
 				fprfn = NULL;
+			else
+				RSBENCH_STDOUT("# performance record file set to: %s\n", fprfn);
+				/* and tuning matrix renderings as well */
 			break;
 			case 0x776e7072:
 			fprfn = NULL;
@@ -1153,7 +1584,7 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			break;
 			case 0x68: /* h */
 			/* should use rsb_test_help_and_exit */
-			RSBENCH_STDERR(
+			RSBENCH_STDOUT(
 				"%s "RSB_INFOMSG_SAK".\n"
 				"You can use it to perform sparse matrix - unitary vector multiplication, "
 				"specifying the blocking parameters, the times to perform multiplication.\n"
@@ -1186,16 +1617,78 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	    	}
 	}
 
+	if(incXss)
+	{
+		if(RSB_SOME_ERROR(rsb__util_get_bx_array_or_default(0x3A/*colon*/,dis,incXss,&incXn,&incXa)) || incXn<1)
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+		RSBENCH_STDOUT("# setting incX=%d\n",incXa[0]);
+	}
+	if(incYss)
+	{
+		if(RSB_SOME_ERROR(rsb__util_get_bx_array_or_default(0x3A/*colon*/,dis,incYss,&incYn,&incYa)) || incYn<1)
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+		RSBENCH_STDOUT("# setting incY=%d\n",incYa[0]);
+	}
+	if(alphass)
+	{
+		errval = rsb__util_get_bx_array_or_default(0x3A/*colon*/,"-1,1,2",alphass,&alphan,&alphaip);
+		if(RSB_SOME_ERROR(errval))
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+	}
+	if(betass)
+	{
+		errval = rsb__util_get_bx_array_or_default(0x3A/*colon*/,"0,1,2",betass,&betan,&betaip);
+		if(RSB_SOME_ERROR(errval))
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+	}
+	if(typess)
+	{
+		const char*toa = typess;
+		ntypecodes=0; /* this neutralizes former -T ... option */
+		/* if( *typess == 0x3A || *typess == 0x2A ) */ /* : or * aka colon or asterisk */
+		if( ( ! isalpha(*typess) ) || ( strstr(typess,"all") != NULL ) )
+			toa = RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS ;
+		if( strstr(typess,"B") == typess )
+			toa = RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS;
+		for(;*toa;++toa)
+		if(isalpha(*toa))
+		{
+			if(ntypecodes<maxtypes)
+				typecodes[ntypecodes++]=typecode=toupper(*toa);
+			else
+			{
+				RSB_ERROR("Up to %d types supported! P.s.: Use a punctuation symbol to ask for all supported types.\n",maxtypes);
+				goto err;
+			}
+		}
+		typecodes[ntypecodes] = RSB_NUL;
+	}
+
 	if( (!RSB_DO_FLAG_HAS(flags_o,RSB_FLAG_QUAD_PARTITIONING)) && want_recursive != RSB_BOOL_FALSE )
 	{
 		RSB_WARN("Assuming a recursive matrix structure is requested...\n");
 		RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_QUAD_PARTITIONING);
 	}
+	fnrprs[0]=RSB_NUL;
 	for (c = optind; c < argc; c++)                                                     
 	{
-		RSB_RSBENCH_ADDF(argv[c])
+		if( c == optind && optind == argc - 1 ) /* if only one and first */
+			rsb__mtxfn_bncp(fnrprs,rsb__basename(argv[c]),0);
+		RSB_RSBENCH_ADDF(argv[c],RSB_FAF_DEFAULTS)
 	}
-	if(want_verbose == RSB_BOOL_TRUE)
+	if(filenamen>0 && want_filenamelist_sort == 1)
+	{
+		RSBENCH_STDOUT("# Sorting matrices list (use --no-sort-filenames-list to prevent this)\n");
+		qsort(filenamea, filenamen, sizeof(char *), rsb__cmpstringp);
+	}
+	if( /* want_verbose > 0 && */ filenamen )
+	{
+		RSBENCH_STDOUT("# Using matrices:");
+		for ( filenamei = 0; filenamei < filenamen ; ++filenamei )
+			RSBENCH_STDOUT(" %s",rsb__basename(filenamea[filenamei]));
+		RSBENCH_STDOUT("\n");
+	}
+	if(want_verbose > 0)
 	{
 		rsb_char_t cbuf[RSB_MAX_COMPILE_COMMAND_LENGTH];
 		rsb__echo_timeandlabel(" beginning run at ","\n",&st);
@@ -1206,14 +1699,62 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 		else
 			RSBENCH_STDOUT("# compiled with: %s\n",cbuf);
 	}
+	if(cn == 1)
+		tcrprs = cns;
+	if(cns)
+	{
+		ca = NULL;
+		cn = 0;
+
+		RSB_DEBUG_ASSERT( sizeof(int) == sizeof(rsb_blk_idx_t )  );
+		RSB_DEBUG_ASSERT( sizeof(int) == sizeof(rsb_thread_t)  );
+
+		if(cns && *cns==0x3A/*colon*/)
+			errval=rsb__util_get_tn_array(cns,&cn,&ca);
+		else
+			errval=rsb__util_get_bx_array(cns,&cn,&ca);
+		if(RSB_SOME_ERROR(errval))
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+		if(cn == 1)
+			tcrprs = cns;
+	}
+	else
+	{
+#if RSB_WANT_OMP_RECURSIVE_KERNELS
+		cn = 1;
+		ca_[0] = RSB__GET_MAX_THREADS();
+		RSBENCH_STDOUT("# User did not specify threads; assuming %d. Environment provides max %d threads; this build supports max %d.\n", cn, ca_[0], RSB_CONST_MAX_SUPPORTED_THREADS  );
+		if( RSB_CONST_MAX_SUPPORTED_THREADS  < ca_[0] )
+		{
+			RSBENCH_STDOUT("# Warning: environment provides more threads than supported by this configuration -- expect trouble !\n");
+		}
+		RSBENCH_STDOUT("# User did not specify threads; assuming %d. Environment provides max %d threads; this build supports max %d.\n", cn, ca_[0], RSB_CONST_MAX_SUPPORTED_THREADS  );
+#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
+		tcrprs = rsb__getenv("OMP_NUM_THREADS");
+	}
 	printf("# average timer granularity: %2.3lg s\n",tinf);
 	if(want_perf_dump)
 	{
 		if(!fprfn)
 		{
-			rsb__impcdstr(fprfnb,"rsbench_pr",".rpr",ppprfn,apprfn);
+			rsb_bool_t with_mkl = RSB_BOOL_FALSE;
+#if RSB_WANT_MKL
+			with_mkl = want_mkl_bench;
+#endif /* RSB_WANT_MKL */
+			rsb__impcdstr(fprfnb,"rsbench_pr",ppprfn,apprfn,with_mkl,tcrprs,fnrprs,".rpr");
 			fprfn = fprfnb;
 		}
+
+		if(fprfn)
+		{
+			const size_t sl = strlen(fprfn);
+
+			strcpy(mtrfpf,fprfn);
+			if( sl >=4 && strcmp(".rpr",mtrfpf+sl-4) == 0 )
+				mtrfpf[sl-4]=RSB_NUL;
+			strcat(mtrfpf,"-tuning-");
+		}
+
 		if(!cprfn)
 			rsb__sprintf(cprfnb,"%s.tmp",fprfn),
 			cprfn = cprfnb;
@@ -1226,8 +1767,8 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	RSBENCH_STDOUT("# will flush cache memory: %s between each operation measurement series, and %s between each operation.\n", want_outer_flush?"":"NOT", want_inner_flush?"":"NOT");
 	RSBENCH_STDOUT("# will %s any zero encountered in the matrix.\n", ( RSB_DO_FLAG_HAS(flags_o,RSB_FLAG_DISCARD_ZEROS) )?"discard":"keep");
 	if( nrhsa == NULL ) nrhsa = &nrhs;
-	if( incXa == NULL ) incXa = &incX;
-	if( incYa == NULL ) incYa = &incY;
+	if( incXa == NULL ) incXa = (rsb_blk_idx_t *const)&incX;
+	if( incYa == NULL ) incYa = (rsb_blk_idx_t *const)&incY;
 	if(want_likwid == RSB_BOOL_TRUE){RSB_LIKWID_MARKER_INIT;}
 
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE
@@ -1241,9 +1782,9 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	}
 
 	io.n_pairs=0;
-	if(should_use_alternate_sort)
+	if(should_use_alternate_sort!=0)
 	{
-		io.values[io.n_pairs]=&should_use_cb_method;
+		io.values[io.n_pairs]=&should_use_alternate_sort;
 		io.keys[io.n_pairs]=RSB_IO_WANT_SORT_METHOD;
 		io.n_pairs++;
 	}
@@ -1280,9 +1821,45 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 		io.n_pairs++;
 	}
 
+#if RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE
+	{
+		static rsb_int_t one=1; // static: needs to survive context leave
+		io.values[io.n_pairs]=&one;
+		io.keys[io.n_pairs]=RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE;
+		io.n_pairs++;
+	}
+#endif /* RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE */
+
+	if(want_verbose >= 2)
+	{
+		static FILE *sp = NULL;
+		sp = RSB_DEFAULT_STREAM;
+		io.values[io.n_pairs]=&sp;
+		io.keys[io.n_pairs]=RSB_IO_WANT_VERBOSE_EXIT;
+		io.n_pairs++;
+	}
+
+	if(want_verbose > 1)
+	{
+		static rsb_int_t one=1; // static: needs to survive context leave
+		io.values[io.n_pairs]=&one;
+		io.keys[io.n_pairs]=RSB_IO_WANT_VERBOSE_TUNING;
+		io.n_pairs++;
+	}
+
+#if RSB_HAVE_STREAMS
+	if(want_verbose >= 2)
+	{
+		static FILE *sp = NULL;
+		sp = RSB_DEFAULT_STREAM;
+		io.values[io.n_pairs]=&sp;
+		io.keys[io.n_pairs]=RSB_IO_WANT_VERBOSE_INIT;
+		io.n_pairs++;
+	}
+#endif /* RSB_HAVE_STREAMS */
+
 #ifdef RSB_HAVE_UNISTD_H
 {
-	extern char **environ;
 	char **me = NULL;
 	rsb_int_t rpevc = 0; /* RSB_ prefixed environment variables count */
 
@@ -1300,57 +1877,131 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 }
 #endif /* RSB_HAVE_UNISTD_H */
 	
-	RSB_TM_GETENV_STDOUT("LD_LIBRARY_PATH");
-	RSB_TM_GETENV_STDOUT("HOSTNAME");
+#define RSB_TM_GETENV_STDOUT(VAR)						\
+	if( rsb__getenv(VAR) )							\
+		RSB_STDOUT("# env: export " VAR "=%s\n",rsb__getenv(VAR));	\
+	else									\
+		RSB_STDOUT("# env: " VAR " is not set\n");
+
+	if(want_verbose >= -2)
+	{
+		RSB_TM_GETENV_STDOUT("PATH");
+		RSB_TM_GETENV_STDOUT("LD_LIBRARY_PATH");
+		RSB_TM_GETENV_STDOUT("HOSTNAME");
 #if defined(RSB_WANT_OMP_RECURSIVE_KERNELS) && (RSB_WANT_OMP_RECURSIVE_KERNELS>0)
-	RSB_TM_GETENV_STDOUT("KMP_AFFINITY");
-	RSB_TM_GETENV_STDOUT("OMP_AFFINITY_FORMAT");
-	RSB_TM_GETENV_STDOUT("OMP_ALLOCATOR");
-	RSB_TM_GETENV_STDOUT("OMP_CANCELLATION");
-	RSB_TM_GETENV_STDOUT("OMP_DEBUG");
-	RSB_TM_GETENV_STDOUT("OMP_DEFAULT_DEVICE");
-	RSB_TM_GETENV_STDOUT("OMP_DISPLAY_ENV");
-	RSB_TM_GETENV_STDOUT("OMP_DISPLAY_AFFINITY");
-	RSB_TM_GETENV_STDOUT("OMP_DYNAMIC");
-	RSB_TM_GETENV_STDOUT("OMP_MAX_ACTIVE_LEVELS");
-	RSB_TM_GETENV_STDOUT("OMP_MAX_TASK_PRIORITY");
-	RSB_TM_GETENV_STDOUT("OMP_NESTED");
-	RSB_TM_GETENV_STDOUT("OMP_NUM_THREADS");
-	RSB_TM_GETENV_STDOUT("OMP_PLACES");
-	RSB_TM_GETENV_STDOUT("OMP_PROC_BIND");
-	RSB_TM_GETENV_STDOUT("OMP_SCHEDULE");
-	RSB_TM_GETENV_STDOUT("OMP_STACKSIZE");
-	RSB_TM_GETENV_STDOUT("OMP_TARGET_OFFLOAD");
-	RSB_TM_GETENV_STDOUT("OMP_THREAD_LIMIT");
-	RSB_TM_GETENV_STDOUT("OMP_TOOL");
-	RSB_TM_GETENV_STDOUT("OMP_TOOL_LIBRARIES");
-	RSB_TM_GETENV_STDOUT("OMP_WAIT_POLICY");
-	RSB_TM_GETENV_STDOUT("SLURM_CLUSTER_NAME");
-	RSB_TM_GETENV_STDOUT("SLURM_CPUS_ON_NODE");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_CPUS_PER_NODE");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_ID");
-	RSB_TM_GETENV_STDOUT("SLURM_JOBID");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_NAME");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_NUM_NODES");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_PARTITION");
-	RSB_TM_GETENV_STDOUT("SLURM_NPROCS");
-	RSB_TM_GETENV_STDOUT("SLURM_NTASKS");
-	RSB_TM_GETENV_STDOUT("SLURM_STEP_TASKS_PER_NODE");
-	RSB_TM_GETENV_STDOUT("SLURM_TASKS_PER_NODE");
+		RSB_TM_GETENV_STDOUT("KMP_AFFINITY");
+		RSB_TM_GETENV_STDOUT("OMP_AFFINITY_FORMAT");
+		RSB_TM_GETENV_STDOUT("OMP_ALLOCATOR");
+		RSB_TM_GETENV_STDOUT("OMP_CANCELLATION");
+		RSB_TM_GETENV_STDOUT("OMP_DEBUG");
+		RSB_TM_GETENV_STDOUT("OMP_DEFAULT_DEVICE");
+		RSB_TM_GETENV_STDOUT("OMP_DISPLAY_ENV");
+		RSB_TM_GETENV_STDOUT("OMP_DISPLAY_AFFINITY");
+		RSB_TM_GETENV_STDOUT("OMP_DYNAMIC");
+		RSB_TM_GETENV_STDOUT("OMP_MAX_ACTIVE_LEVELS");
+		RSB_TM_GETENV_STDOUT("OMP_MAX_TASK_PRIORITY");
+		RSB_TM_GETENV_STDOUT("OMP_NESTED");
+		RSB_TM_GETENV_STDOUT("OMP_NUM_THREADS");
+		RSB_TM_GETENV_STDOUT("OMP_PLACES");
+		RSB_TM_GETENV_STDOUT("OMP_PROC_BIND");
+		RSB_TM_GETENV_STDOUT("OMP_SCHEDULE");
+		RSB_TM_GETENV_STDOUT("OMP_STACKSIZE");
+		RSB_TM_GETENV_STDOUT("OMP_TARGET_OFFLOAD");
+		RSB_TM_GETENV_STDOUT("OMP_THREAD_LIMIT");
+		RSB_TM_GETENV_STDOUT("OMP_TOOL");
+		RSB_TM_GETENV_STDOUT("OMP_TOOL_LIBRARIES");
+		RSB_TM_GETENV_STDOUT("OMP_WAIT_POLICY");
 	//	tcrprs = rsb__set_num_threads() ;
 #else
-	RSB_STDOUT("# serial build: ignoring environment variables: KMP_AFFINITY OMP_PROC_BIND OMP_NUM_THREADS\n");
+		RSB_STDOUT("# serial build: ignoring environment variables: KMP_AFFINITY OMP_PROC_BIND OMP_NUM_THREADS\n");
 #endif
+		RSB_TM_GETENV_STDOUT("RSB_WANT_RSBPP");
+		{
+#if RSB_USE_LIBRSBPP
+			const int wrp = rsb__getenv_int_t("RSB_WANT_RSBPP",1);
+			if(wrp==0)
+				RSBENCH_STDOUT("# NOT using kernels from librsbpp (opted off via environment variable).\n");
+			else
+				RSBENCH_STDOUT("#     using kernels from librsbpp (default).\n");
+#else
+			const int wrp = rsb__getenv_int_t("RSB_WANT_RSBPP",0);
+			if(wrp!=0)
+			{
+				RSBENCH_STDOUT("Error: RSB_WANT_RSBPP environment variable set but librsbpp configured out!\n");
+				goto err;
+			}
+#endif /* RSB_USE_LIBRSBPP */
+		}
+		RSB_TM_GETENV_STDOUT("SLURM_CLUSTER_NAME");
+		RSB_TM_GETENV_STDOUT("SLURM_CPUS_ON_NODE");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_CPUS_PER_NODE");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_ID");
+		RSB_TM_GETENV_STDOUT("SLURM_JOBID");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_NAME");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_NUM_NODES");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_PARTITION");
+		RSB_TM_GETENV_STDOUT("SLURM_NPROCS");
+		RSB_TM_GETENV_STDOUT("SLURM_NTASKS");
+		RSB_TM_GETENV_STDOUT("SLURM_STEP_TASKS_PER_NODE");
+		RSB_TM_GETENV_STDOUT("SLURM_TASKS_PER_NODE");
+		if(1)
+		{
+			rsb_char_t hn[RSB_MAX_HOSTNAME_LEN];
+			rsb__strcpy_hostname(hn);
+			if(hn[0])
+				RSBENCH_STDOUT("# detected hostname: %s\n",hn);
+		}
 
-	if( want_verbose != RSB_BOOL_FALSE )
-		RSBENCH_STDOUT("# user specified a verbosity level of %d (each --verbose occurrence counts +1)\n",want_verbose_tuning );
-	else
-		RSBENCH_STDOUT("# user did not specify any verbosity level (each --verbose occurrence counts +1)\n");
+		if( want_verbose >= 0 )
+			RSBENCH_STDOUT("# user specified a verbosity level of %d (each --verbose occurrence counts +1)\n",want_verbose_tuning );
+		else
+			RSBENCH_STDOUT("# user did not specify any verbosity level (each --verbose occurrence counts +1)\n");
+	}
 
 	if((errval = rsb_lib_reinit(iop))!=RSB_ERR_NO_ERROR)
 	{
 		RSB_PERR_GOTO(err,"Error while reinitializing the library.");
 	}
+
+	if ( want_mbw == RSB_BOOL_TRUE ) 
+	{
+		rsb_time_t dt = RSB_TIME_ZERO;
+		dt = - rsb_time();
+		if((errval = rsb__memory_benchmark(&mbet))!=RSB_ERR_NO_ERROR)
+		{
+			RSB_ERROR("Error while performing bandwidth benchmark!");
+			goto err;
+		}
+		else
+			mbetp = &mbet; // FIXME: need option to turn this feature on/off
+		dt += rsb_time();
+		if( want_verbose >= 1 )
+			RSB_STDOUT("# Memory benchmark took %.3lfs\n",dt);
+	}
+
+#ifdef RSB_HAVE_UNISTD_H
+{
+	/* special environmental variables set just for the sake of being saved in .rpr files */
+#ifdef RSB_CC
+	setenv("RSB_CC",RSB_CC,1);
+#endif /* RSB_CC */
+#ifdef RSB_CFLAGS
+	setenv("RSB_CFLAGS",RSB_CFLAGS,1);
+#endif /* RSB_CFLAGS */
+#ifdef RSB_DETECTED_MEM_HIERARCHY_INFO
+	setenv("RSB_DETECTED_MEM_HIERARCHY_INFO",RSB_DETECTED_MEM_HIERARCHY_INFO,1);
+#endif /* RSB_DETECTED_MEM_HIERARCHY_INFO */
+	{
+		rsb_char_t buf[RSB_MAX_LINE_LENGTH];
+		rsb_char_t usmhib[RSB_MAX_LINE_LENGTH];
+		buf[0]=RSB_NUL;
+		strcat(buf,rsb__get_mem_hierarchy_info_string(usmhib));
+		//rsb_lib_get_opt(RSB_IO_WANT_MEMORY_HIERARCHY_INFO_STRING,buf);//FIXME
+		setenv("RSB_IO_WANT_MEMORY_HIERARCHY_INFO_STRING",&buf[0],1);
+	}
+}
+#endif
+
 #if RSB_WANT_PERFORMANCE_COUNTERS_IN_RSBENCH 
 	if((errval = rsb_perf_counters_init())!=RSB_ERR_NO_ERROR)
 	{
@@ -1359,11 +2010,11 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 	}
 #endif
 
-	if( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( split_experimental ) )
+	if( RSB__APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB__APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB__APPROPRIATE_AT_TIME_SPEC( split_experimental ) )
 	{
 		RSB_STDOUT("# auto-tuning oriented output implies  times==0 iterations and sort-after-load.\n");
 		times = 0;
-		/* if(want_verbose) */
+		/* if(want_verbose>0) */
 		want_impatiently_soon_pre_results = 1;
 		want_sort_after_load = RSB_BOOL_TRUE;
 	}
@@ -1379,61 +2030,42 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 
 	if( 0 == filenamen )
 #if RSB_RSBENCH_STATIC_FILENAMEA
-	       	filenamea[0] = fnbufp[0];
+	       	filenamea[0] = &(fnbuf[0]);
 #else
 	       	filenamea = &fnbufp;
 #endif
 	filenamen = RSB_MAX(1,filenamen);
-
-	if(cns)
-	{
-		ca = NULL;
-		cn = 0;
-		if(RSB_SOME_ERROR(rsb__util_get_bx_array(cns,&cn,&ca)))
-			{RSB_ERROR(RSB_ERRM_ES);goto err;}
-	}
-	else
-	{
-#if RSB_WANT_OMP_RECURSIVE_KERNELS
-		/* #define rsb_get_max_threads omp_get_max_threads */
-		cn = 1;
-		ca_[0] = omp_get_max_threads ();
-		RSBENCH_STDOUT("# User did not specify threads; assuming %d.\n", cn );
-#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
-	}
 
 #if RSB_WANT_MKL
 	if( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_mkl_autotuner ) )
 		want_mkl_bench_csr = RSB_BOOL_FALSE;
 #endif /* RSB_WANT_MKL */
 
-	RSBENCH_STDOUT("# Using alpha=%d beta=%d order=%s for rsb_spmv/rsb_spsv/rsb_spmm/rsb_spsm.\n",alphai,betai,((order==RSB_FLAG_WANT_ROW_MAJOR_ORDER)?"rows":"cols"));
-
 	if(want_perf_dump) 
-		rsb__pr_init(&rspr, NULL, filenamen, cn, incXn, incYn, nrhsn, ntypecodes, tn);
+		rsb__pr_init(&rspr, NULL, filenamen, cn, incXn, incYn, nrhsn, ntypecodes, tn, mbetp );
 
 	for(     filenamei=0;     filenamei<filenamen+want_impatiently_soon_pre_results  ;++filenamei     )
 	{
-		if( filenamea && ( filenamea[filenamei] != filename_old) && filename_old && want_impatiently_soon_pre_results && want_perf_dump && filenamei>0 && filenamen>1) 
+		if( /*filenamea &&*/ ( filenamea[filenamei] != filename_old) && filename_old && want_impatiently_soon_pre_results && want_perf_dump && filenamei>0 && filenamen>1) 
 		{
 			int filenameif = filenamei-1;
 			RSBENCH_STDOUT("# ====== BEGIN Impatient results record for matrix %d/%d: %s.\n",filenamei,filenamen,rsb__basename(filename_old));
-			errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL);
+			errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL, NULL);
 			RSBENCH_STDOUT("# ======  END  Impatient results record for matrix %d/%d: %s.\n",filenamei,filenamen,rsb__basename(filename_old));
 			if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
 			if( filenameif > 0 && filenameif < filenamen-1) /* not after first and not at last */
 				RSBENCH_STDOUT("# ====== BEGIN Impatient summary record for the %d/%d matrices so far.\n", filenameif+1,filenamen),
-				errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL),
+				errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL, NULL),
 				RSBENCH_STDOUT("# ======  END  Impatient summary record for the %d/%d matrices so far.\n", filenameif+1,filenamen);
 			if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
-			errval = rsb__pr_save(cprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE );
+			errval = rsb__pr_save(cprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE);
 			if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
 		}
 
 		if( filenamei >= filenamen )
 			continue; /* temporary: only for the want_impatiently_soon_pre_results trick */
 
-		if(filenamea)
+		if(filenamea[filenamei])
 		{
 			filename = filenamea[filenamei];
 		}
@@ -1443,21 +2075,50 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			RSBENCH_STDOUT("# multi-file benchmarking (file %d/%d) -- now using %s\n",filenamei+1,filenamen,rsb__basename(filename));
 		}
 
-	for(     incXi=0;     incXi<incXn     ;++incXi     )
+		if(!alphaip)
+			errval=rsb__util_get_bx_array("1",&alphan,&alphaip);
+		if(!betaip)
+			errval=rsb__util_get_bx_array("1",&betan,&betaip);
+
+	for(areci=0;areci<arecn;++areci)
 	{
-	for(     incYi=0;     incYi<incYn     ;++incYi     )
+	for(accii=0;accii<accin;++accii)
 	{
-	for(     nrhsi=0;     nrhsi<nrhsn     ;++nrhsi     )
+	for(asiii=0;asiii<asiin;++asiii)
+	{
+	for(asfii=0;asfii<asfin;++asfii)
+	{
+	for(diagii=0;diagii<diagin;++diagii)
 	{
 	for(typecodesi=0;typecodesi<ntypecodes;++typecodesi)
 	{
 	rsb_flags_t flags = flags_o;
 	rsb_thread_t cl; /* cores number last (overrides cn for this typecode cycle) */
 	typecode = typecodes[typecodesi];
-
+	if(areci==0 && arecn > 1)
+		RSB_DO_FLAG_DEL(flags,RSB_FLAG_QUAD_PARTITIONING);
+	if(areci==1 && arecn > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_QUAD_PARTITIONING);
+	if(accii==0 && accin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_USE_HALFWORD_INDICES);
+	if(accii==1 && accin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_USE_FULLWORD_INDICES);
+	if(asiii==0 && asiin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_WANT_BCSS_STORAGE);
+	if(asiii==1 && asiin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_WANT_COO_STORAGE);
+	if(asfii==0 && asfin > 1)
+		want_as_unsymmetric = RSB_BOOL_TRUE, want_as_symmetric = RSB_BOOL_FALSE, want_as_hermitian = RSB_BOOL_FALSE;
+	if(asfii==1)
+		want_as_unsymmetric = RSB_BOOL_FALSE, want_as_symmetric = RSB_BOOL_TRUE, want_as_hermitian = RSB_BOOL_FALSE;
+	if(asfii==2)
+		want_as_unsymmetric = RSB_BOOL_FALSE, want_as_symmetric = RSB_BOOL_FALSE, want_as_hermitian = RSB_BOOL_TRUE;
+	if(diagii>0)
+		RSB_DO_FLAG_XOR(flags,RSB_FLAG_UNIT_DIAG_IMPLICIT);
 	if(ntypecodes>1)
 	{
-		RSBENCH_STDOUT("# multi-type benchmarking (%s) -- now using typecode %c (last was %c).\n",typecodes,typecode,typecode_old);
+		if(want_verbose >= -2)
+			RSBENCH_STDOUT("# multi-type benchmarking (%s) -- now using typecode %c (last was %c).\n",typecodes,typecode,typecode_old);
 		if( RSB_MATRIX_UNSUPPORTED_TYPE ( typecode ) )
 		{
 			RSBENCH_STDOUT("# Skipping unsupported type \"%c\" -- please choose from \"%s\".\n",typecode,RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS );
@@ -1465,38 +2126,22 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 		}
 	}
 
-	nrhs = nrhsa[nrhsi];
-	if( nrhsn > 1 && nrhss )
+	if(want_verbose >= -2)
 	{
-		RSBENCH_STDOUT("# multi-nrhs benchmarking (%s) -- now using nrhs %d.\n",nrhss,nrhs);
+		RSBENCH_STDOUT("# Cache block size total %ld bytes, per-thread %ld bytes\n",rsb__get_lastlevel_c_size(),rsb__get_lastlevel_c_size_per_thread()); /* as used in rsb__allocate_recursive_sparse_matrix_from_row_major_coo */
+ 		RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
+		RSBENCH_MEM_ALLOC_INFO("")
+		RSBENCH_STDOUT(".\n");
 	}
-	incX = incXa[incXi];
-	incY = incYa[incYi];
-	if(incXn>1)
-	{
-		RSBENCH_STDOUT("# multi-incX benchmarking (%d/%d) -- now using incX=%d.\n",incXi+1,incXn,incX);
-	}
-	if(incYn>1)
-	{
-		RSBENCH_STDOUT("# multi-incY benchmarking (%d/%d) -- now using incY=%d.\n",incYi+1,incYn,incY);
-	}
-
-	if( want_only_star_scan )
-		if( RSB_MIN(incXi,1) + RSB_MIN(incYi,1) + RSB_MIN(nrhsi,1) > 1 ) /* two or more exceed index one */
-		{
-			RSBENCH_STDOUT("# Skipping a case with incX=%d incY=%d nrhs=%d.\n",incX,incY,nrhs);
-			goto frv;
-		}
- 	RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
-	/* rsb__getrusage(); */ /* FIXME: new (20140727) */
-#ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
-	RSBENCH_STDOUT("( allocated_memory:%zd allocations_count:%zd)",rsb_global_session_handle.allocated_memory,rsb_global_session_handle.allocations_count);
-#endif
-	RSBENCH_STDOUT(".\n"); /* FIXME: this takes too much space here ! */
 
 	if(cns)
 	{
-		cc = ca[ci];
+		cc = ca[0];
+		if( cc == 0 )
+			RSBENCH_STDOUT("# Using auto threads\n");
+		else
+			RSBENCH_STDOUT("# Using %d threads\n",(int)cc);
+		RSB_DEBUG_ASSERT( cc == 0 || RSB_IS_VALID_THREAD_COUNT ( cc ) );
 	}
 	cl=cn;
 	if(bcs)
@@ -1507,13 +2152,6 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 			{RSB_ERROR(RSB_ERRM_ES);goto err;}
 
 
-
-	if(RSB_SOME_ERROR(errval = rsb__fill_with_ones(beta,typecode,1,1))){ RSB_ERROR(RSB_ERRM_ES);goto err;}
-	if(RSB_SOME_ERROR(errval = rsb__fill_with_ones(alpha,typecode,1,1))){ RSB_ERROR(RSB_ERRM_ES);goto err;}
-	/* FIXME: the following collides with the former */
-	rsb__util_set_area_to_converted_integer(alphap,typecode,alphai);
-	rsb__util_set_area_to_converted_integer(betap ,typecode,betai);
-
 #ifdef RSB_WANT_OSKI_BENCHMARKING 
 	/* FIXME : note that this option is not compatible with g_sort_only .. */
         oski_Init();
@@ -1522,7 +2160,7 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 
 	if(g_sort_only)RSB_DO_FLAG_ADD(flags,RSB_FLAG_SORT_INPUT);
 
-	if(typecode==-1)
+	if( RSB_MATRIX_UNSUPPORTED_TYPE ( typecode ) )
 	{
 		RSBENCH_STDERR("error : please recompile with double precision floating point numbers supported! \n");
 		return RSB_ERR_GENERIC_ERROR;
@@ -1548,39 +2186,40 @@ int rsb__main_block_partitioned_spmv_uaua(const int argc, rsb_char_t * const arg
 		
 		if(((should_generate_lband>-1) || (should_generate_uband>-1)) && should_generate_dense>0)
 		{
-			rsb__sprintf(fnbuf,"banded-%dx%d-%d+%d-%dnz-spaced-%d",dim*spacing,dim*spacing,should_generate_lband,should_generate_uband,RSB_NNZ_OF_BANDED(dim,should_generate_lband,should_generate_uband),spacing);
+			rsb__sprintf(fnbuf,"banded-%zdx%zd-%zd+%zd-%zdnz-spaced-%zd",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)should_generate_lband,(rsb_printf_int_t)should_generate_uband,(rsb_printf_int_t)(RSB_NNZ_OF_BANDED(dim,should_generate_lband,should_generate_uband)),(rsb_printf_int_t)spacing);
 		}
 		else
 		{
 		if(want_generated_spacing>0)
 		{
 			if(should_generate_dense>0)
-				rsb__sprintf(fnbuf,"dense-%dx%d-%dnz",dim*spacing,should_generate_dense_nc*spacing/*dim*spacing*/,dim*dim);
+				rsb__sprintf(fnbuf,"dense-%zdx%zd-%zdnz",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(should_generate_dense_nc*spacing)/*dim*spacing*/,(rsb_printf_int_t)(dim*dim));
 			else
-				rsb__sprintf(fnbuf,"lower-%dx%d-%dnz-spaced-%d",dim*spacing,dim*spacing,(dim*(dim-1))/2+dim,spacing);
+				rsb__sprintf(fnbuf,"lower-%zdx%zd-%zdnz-spaced-%zd",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)((dim*(dim-1))/2+dim),(rsb_printf_int_t)spacing);
 		}
 		else
 		{
 			if(should_generate_dense>0)
-				rsb__sprintf(fnbuf,"dense-%dx%d-%dnz",dim*spacing,should_generate_dense_nc*spacing/*dim*spacing*/,dim*should_generate_dense_nc);
+				rsb__sprintf(fnbuf,"dense-%zdx%zd-%zdnz",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(should_generate_dense_nc*spacing/*dim*spacing*/),(rsb_printf_int_t)(dim*should_generate_dense_nc));
 			else
-				rsb__sprintf(fnbuf,"lower-%dx%d-%dnz",dim*spacing,dim*spacing,(dim*(dim-1))/2+dim);
+				rsb__sprintf(fnbuf,"lower-%zdx%zd-%zdnz",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)((dim*(dim-1))/2+dim));
 		}
 		}
-		if(want_incX)
-				rsb__sprintf(fnbuf+strlen(fnbuf),"-incX-%d",incX);
-		if(want_incY)
-				rsb__sprintf(fnbuf+strlen(fnbuf),"-incY-%d",incY);
 /*		rsb__sprintf(fnbuf,"dense-%dx%d-%dnz",dim,dim,dim*dim);*/
 /*		rsb__sprintf(fnbuf,"dense-%dx%d",dim,dim);*/
 		filename=&(fnbuf[0]);
+		// RSB_RSBENCH_ADDF(filename,RSB_FAF_CHKDUP|RSB_FAF_CHKREC|RSB_FAF_VRBADD); /* FIXME */
 	}
 
 	if(usfnbuf)
 		filename=usfnbuf;
 
 	/* CONDITIONALLY, READING A MATRIX FROM FILE */
-if(filename || b_r_filename)
+if(!(filename || b_r_filename))
+{
+	RSBENCH_STDOUT("%s (spmv_sxsa) : Please specify a matrix filename (with -f)\n",argv[0]);
+}
+else
 {
 
 	rsb_blk_idx_t M_b=0;/* was 0 */
@@ -1623,7 +2262,7 @@ if(filename || b_r_filename)
 	{
 		rsb_bool_t is_symmetric = RSB_BOOL_FALSE;
 		rsb_bool_t is_hermitian = RSB_BOOL_FALSE;
-		size_t fsz = rsb__sys_filesize(filename);
+		const size_t fsz = rsb__sys_filesize(filename);
 
 		frt = - rsb_time();
 
@@ -1672,21 +2311,21 @@ if(filename || b_r_filename)
 		}
 		if( want_slmn > 0 && want_slmn <  nnz )
 		{
-			RSB_STDOUT("# skipping loading matrix %s, having %d > %d allowed nonzeroes.\n",filename,nnz,want_slmn);
+			RSB_STDOUT("# skipping loading matrix %s, having %zd > %zd allowed nonzeroes.\n",filename,(rsb_printf_int_t)nnz,(rsb_printf_int_t)want_slmn);
 			goto nfnm;
 		}
 		if( want_slms > 0 && want_slms <= fsz / 1024 )
 		{
-			RSB_STDOUT("# skipping loading matrix %s, having %zd>=%d allowed filesize (KiB).\n",filename,fsz,want_slms);
+			RSB_STDOUT("# skipping loading matrix %s, having %zd>=%zd allowed filesize (KiB).\n",filename,(size_t)fsz,(size_t)want_slms);
 			goto nfnm;
 		}
 		if( want_slnn > 0 && want_slnn >  nnz )
 		{
-			RSB_STDOUT("# skipping loading matrix %s, having %d < %d allowed nonzeroes.\n",filename,nnz,want_slnn);
+			RSB_STDOUT("# skipping loading matrix %s, having %zd < %zd allowed nonzeroes.\n",filename,(rsb_printf_int_t)nnz,(rsb_printf_int_t)want_slnn);
 			goto nfnm;
 		}
 	
-		RSB_STDOUT("# reading %s (%zd bytes / %zd "RSB_MEGABYTE_SYM" / %zd nnz / %zd rows / %zd columns / %zd MiB COO) as type %c...\n",rsb__basename(filename),fsz,RSB_DIV(fsz,RSB_MEGABYTE),(size_t)nnz,(size_t)nrA,(size_t)ncA,RSB_DIV(RSB_UTIL_COO_OCCUPATION(nrA,ncA,nnz,typecode),RSB_MEGABYTE),typecode);
+		RSB_STDOUT("# reading %s (%zd bytes / %zd "RSB_MEGABYTE_SYM" / %zd nnz / %zd rows / %zd columns / %zd MiB COO) as type %c...\n",rsb__basename(filename),fsz,RSB_DIV(fsz,RSB_MEGABYTE),(size_t)nnz,(size_t)nrA,(size_t)ncA,(size_t)RSB_DIV(RSB_UTIL_COO_OCCUPATION(nrA,ncA,nnz,typecode),RSB_MEGABYTE),typecode);
 
 		if( ( nrA == ncA ) && ( nrA > 1 ) && ( want_only_lowtri || want_only_upptri ) )
 			nnz += nrA;	/* the loading routine shall allocate nnz+nrA */
@@ -1717,10 +2356,77 @@ if(filename || b_r_filename)
 				(((double)rsb__sys_filesize(filename))/(frt*RSB_INT_MILLION))
 			);
 
+			if( mtx_sample_rate < 100.0 && nnz > 0 )
+			{
+				const rsb_nnz_idx_t snnz = RSB_MAX( (mtx_sample_rate * ( nnz / 100.0 )), 1);
+				const rsb_real_t isf = 100.0 / mtx_sample_rate;
+				rsb_coo_idx_t dnzi, snzi;
+				struct rsb_coo_mtx_t coo = {IA,JA,0,0,nnz,VA,typecode};
+
+				if( snnz < 0 || snnz > nnz )
+				{
+					errval = RSB_ERR_BADARGS;
+					RSB_PERR_GOTO(err,RSB_ERRM_BADARGS);
+				}
+
+				for( snzi=0, dnzi=0 ; snzi < nnz; (++dnzi) , snzi = dnzi*isf )
+				{
+					RSB_COO_MEMCPY(VA,IA,JA,VA,IA,JA,dnzi,snzi,1,RSB_SIZEOF(typecode));
+				}
+				RSB_COO_MEMCPY(VA,IA,JA,VA,IA,JA,snnz-1,nnz-1,1,RSB_SIZEOF(typecode));
+
+				RSBENCH_STDOUT("# Matrix sampling: using only %zd nonzeroes out of read %zd.\n",(rsb_printf_int_t)snnz,(rsb_printf_int_t)nnz);
+				if( NULL == rsb__reallocate_coo_matrix_t(&coo, snnz) )
+				{
+					errval = RSB_ERR_ENOMEM;
+					RSB_PERR_GOTO(err,RSB_ERRM_ENOMEM);
+				}
+				VA = coo.VA;
+				IA = coo.IA;
+				JA = coo.JA;
+				nnz = snnz;
+			}
+
+			if ( g_fill_va_with_ones )
+			if(RSB_SOME_ERROR(errval = rsb__fill_with_ones(VA,typecode,nnz,1)))
+			{
+				RSB_PERR_GOTO(err,rsb__get_errstr_ptr(errval));
+			}
+
+			if ( is_symmetric || is_hermitian )
+			if ( want_expand_symmetry )
+			{
+				// Note: might want to move this to internals, e.g. matrix ctor
+				struct rsb_coo_mtx_t coo = {IA,JA,0,0,nnz,VA,typecode};
+
+				if( RSB_NNZ_MUL_OVERFLOW(nnz,2) )
+				{
+					errval = RSB_ERR_INTERNAL_ERROR;
+					RSB_PERR_GOTO(err,RSB_ERRM_ES);
+				}
+
+				if( NULL == rsb__reallocate_coo_matrix_t(&coo, nnz*2) )
+				{
+					errval = RSB_ERR_ENOMEM;
+					RSB_PERR_GOTO(err,RSB_ERRM_ENOMEM);
+				}
+
+				VA = coo.VA;
+				IA = coo.IA;
+				JA = coo.JA;
+				RSB_COO_MEMCPY(VA,IA,JA,VA,JA,IA,nnz,0,nnz,RSB_SIZEOF(typecode)); // transposed copy
+				nnz *= 2;
+				RSBENCH_STDOUT("# Expanded symmetry to %zd nnz (to be cleansed of diagonal duplicates). Deleting and symmetry / hermitianness flags.\n",(size_t)nnz);
+				RSB_DO_FLAG_DEL(flags,RSB_FLAG_SYMMETRIC);
+				RSB_DO_FLAG_DEL(flags,RSB_FLAG_HERMITIAN);
+				is_symmetric = RSB_BOOL_FALSE;
+				is_hermitian = RSB_BOOL_FALSE;
+			}
+
 			if (want_io_only)
 			{
 				/*  */
-				goto err;
+				goto rret;
 			}
 
 			if(want_transpose)
@@ -1733,34 +2439,44 @@ if(filename || b_r_filename)
 			if( nrA==ncA && nrA>1 && ( want_only_lowtri || want_only_upptri ) )
 			{
 				rsb_nnz_idx_t discarded = 0;
-				/*
-				rsb__util_coo_array_set_sequence(IA+nnz,nrA,0,1);
-				rsb__util_coo_array_set_sequence(JA+nnz,nrA,0,1);
-				 */
-				RSB_FCOO_ISET(IA+nnz,0,nrA);
-				RSB_FCOO_ISET(JA+nnz,0,nrA);
+				struct rsb_coo_mtx_t coo = {IA,JA,0,0,nnz,VA,typecode};
+
+				if( NULL == rsb__reallocate_coo_matrix_t(&coo, nnz+nrA) )
+				{
+					errval = RSB_ERR_ENOMEM;
+					RSB_PERR_GOTO(err,RSB_ERRM_ENOMEM);
+				}
+
+				VA = coo.VA;
+				IA = coo.IA;
+				JA = coo.JA;
+
+				RSBENCH_STDOUT("# excluding a triangle and forcibly adding diagonal elements (duplicates will be removed)\n");
+				RSB_FCOO_ISET(IA+nnz,0,nrA); // rsb__util_coo_array_set_sequence(IA+nnz,nrA,0,1); // may want to use this instead
+				RSB_FCOO_ISET(JA+nnz,0,nrA); // rsb__util_coo_array_set_sequence(JA+nnz,nrA,0,1); // may want to use this instead
 				rsb__fill_with_ones(((rsb_byte_t*)VA)+RSB_SIZEOF(typecode)*nnz,typecode,nrA,1);
-				nnz += nrA;	/* nnz+nrA this number has been overwritten as nnz */
+				nnz += nrA;
+
 				if( want_only_lowtri )
 				{
 					RSB_DO_FLAG_ADD(flags,RSB_FLAG_LOWER_TRIANGULAR);
 					errval = rsb__weed_out_non_lowtri(VA,IA,JA,nnz,typecode,NULL,&discarded);
-					RSBENCH_STDOUT("# discarding %d non lower elements of %d.\n",discarded,nnz);
+					RSBENCH_STDOUT("# discarded %zd non lower elements of %zd.\n",(rsb_printf_int_t)discarded,(rsb_printf_int_t)nnz);
 					nnz-=discarded;
 				}
 				if( want_only_upptri )
 				{
 					RSB_DO_FLAG_ADD(flags,RSB_FLAG_UPPER_TRIANGULAR);
 					errval = rsb__weed_out_non_upptri(VA,IA,JA,nnz,typecode,NULL,&discarded);
-					RSBENCH_STDOUT("# discarding %d non upper elements of %d.\n",discarded,nnz);
+					RSBENCH_STDOUT("# discarded %zd non upper elements of %zd.\n",(rsb_printf_int_t)discarded,(rsb_printf_int_t)nnz);
 					nnz-=discarded;
 				}
 
 				if(RSB_SOME_ERROR(errval))
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
+					RSB_PERR_GOTO(err,RSB_ERRM_ES);
 			}
 
-			if(RSB_SOME_ERROR(rsb__util_mm_info_matrix_f(filename,NULL,NULL,NULL,NULL,&is_symmetric,&is_hermitian,NULL,&is_lower,&is_upper,&is_vector) ))
+			if(RSB_SOME_ERROR(rsb__util_mm_info_matrix_f(filename,NULL,NULL,NULL,NULL,NULL,NULL,NULL,&is_lower,&is_upper,&is_vector) ))
 			{
 				RSBENCH_STDERR(RSB_ERRMSG_PROIFAMM ": %s ..\n",filename);
 				goto err;
@@ -1780,7 +2496,7 @@ if(filename || b_r_filename)
 				is_symmetric = RSB_BOOL_FALSE;
 				is_hermitian = RSB_BOOL_FALSE;
 			}
-			if(want_as_symmetric)
+			if(want_as_symmetric || want_as_hermitian)
 			{
 				is_symmetric = RSB_BOOL_TRUE;
 				is_hermitian = RSB_BOOL_TRUE;
@@ -1822,16 +2538,19 @@ if(filename || b_r_filename)
 			{
 				rsb_time_t dt = RSB_TIME_ZERO, ct = RSB_TIME_ZERO;
 				dt = - rsb_time();
-				if((errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS))!=RSB_ERR_NO_ERROR)
+				if((errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,flags_s))!=RSB_ERR_NO_ERROR)
 				{ RSB_ERROR(RSB_ERRM_ES); goto err; }
 				dt += rsb_time();
-				ct = - rsb_time();
-				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,nnz,typecode,NULL,RSB_FLAG_NOFLAGS)))
-					{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+				RSBENCH_STDOUT("#pre-sorting (%zd elements) took %lg s\n",(size_t)nnz,dt);
+				dt = -rsb_time();
+				nnz = rsb__weed_out_duplicates (IA,JA,VA,nnz,typecode,RSB_FLAG_SORTED_INPUT);
+				dt += rsb_time();
+				ct = -rsb_time();
+				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(IA,JA,nnz,typecode,NULL,RSB_FLAG_NOFLAGS)))
+				{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 				ct += rsb_time();
-				RSBENCH_STDOUT("#pre-sorting took %lg s (+ %lg s check)\n",dt,ct);
+				RSBENCH_STDOUT("#weeding duplicates (to %zd elements) took %lg s (and check, %lg s )\n",(size_t)nnz,dt,ct);
 				RSB_DO_FLAG_ADD(flags,RSB_FLAG_SORTED_INPUT);
-
 			}
 #if RSB_HAVE_METIS
 			if(want_wmbr)
@@ -1853,7 +2572,7 @@ if(filename || b_r_filename)
 					RSB_CONDITIONAL_FREE(perm);
 					RSB_CONDITIONAL_FREE(vwgt);
 				}
-				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS);
+				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,flags_s);
 				errval = rsb__do_switch_fullword_array_to_compressed(IA,nnz,nrA);
 				RSBENCH_STDOUT("Calling METIS_NodeND\n");
 				/*errval = */ METIS_NodeND(&nrA,IA,JA,vwgt,NULL,perm,iperm); /* Scotch wrapper crashes on vwgt=NULL. and is void */
@@ -1882,12 +2601,17 @@ if(filename || b_r_filename)
 		rsb_nnz_idx_t dim = RSB_FABS(should_generate_dense),spacing=1;
 		if(want_generated_spacing>1)
 			spacing = want_generated_spacing;
+		if( should_generate_dense_nc !=0 && RSB_FABS(should_generate_dense_nc) < dim )
+			dim = RSB_FABS(should_generate_dense_nc);
 		dim *= spacing;
 
 		if(((should_generate_lband>-1) || (should_generate_uband>-1)) && should_generate_dense>0)
 		{
-			rsb_nnz_idx_t lbw=should_generate_lband,ubw=should_generate_uband;
+			const rsb_nnz_idx_t lbw = should_generate_lband , ubw = should_generate_uband;
 			nrA = ncA = dim;
+			if( should_generate_dense_nc !=0 && RSB_FABS(should_generate_dense_nc) < dim )
+				ncA = RSB_FABS(should_generate_dense_nc);
+			RSBENCH_STDOUT("# Generating a diagonally populated matrix of %zd x %zd\n",(rsb_printf_int_t)nrA,(rsb_printf_int_t)ncA);
 			errval = rsb__generate_blocked_banded_coo(dim/spacing,spacing,lbw,ubw,&IA,&JA,&VA,&nnz,typecode);
 			if(RSB_SOME_ERROR(errval))
 			{RSB_ERROR(RSB_ERRM_ES);goto err;}
@@ -1920,11 +2644,13 @@ if(filename || b_r_filename)
 
 		if(want_as_symmetric)
 			RSB_DO_FLAG_ADD(flags,RSB_FLAG_SYMMETRIC);
+		if(want_as_hermitian)
+			RSB_DO_FLAG_ADD(flags,RSB_FLAG_HERMITIAN);
 	} /* should_generate_dense */
 have_va_ia_ja:
-	RSB_DEBUG_ASSERT( VA != NULL );
-	RSB_DEBUG_ASSERT( IA != NULL );
-	RSB_DEBUG_ASSERT( JA != NULL );
+	RSB_DEBUG_ASSERT( ! ( VA == NULL && !b_r_filename ) );
+	RSB_DEBUG_ASSERT( ! ( IA == NULL && !b_r_filename ) );
+	RSB_DEBUG_ASSERT( ! ( JA == NULL && !b_r_filename ) );
 	r_flags = flags;
 
 	/* CONDITIONALLY, PROCESSING THE INPUT */
@@ -1966,11 +2692,11 @@ have_va_ia_ja:
 		rsb_nnz_idx_t cs=0;
 		rsb_bool_t po = RSB_BOOL_TRUE;
 		const int histres=100;
-		const rsb_char_t*pmsg="\n\nplot \"-\" using 1:2 title \"cumulative %s population (nnz)\"\n";
+		const rsb_char_t*const pmsg="\n\nplot \"-\" using 1:2 title \"cumulative %s population (nnz)\"\n";
 		RSBENCH_STDOUT("set xtics rotate\n");
 		RSBENCH_STDOUT("set term postscript eps color\n");
 		RSBENCH_STDOUT("set output \"%s-distplot.eps\"\n", rsb__basename(filename));
-		RSBENCH_STDOUT("set multiplot layout 1,2 title \"%s (%d x %d, %d nnz)\"\n", rsb__basename(filename),nrA,ncA,nnz);
+		RSBENCH_STDOUT("set multiplot layout 1,2 title \"%s (%zd x %zd, %zd nnz)\"\n", rsb__basename(filename),(rsb_printf_int_t)nrA,(rsb_printf_int_t)ncA,(rsb_printf_int_t)nnz);
 
 		ndA = RSB_MAX(nrA,ncA);
 
@@ -1990,7 +2716,7 @@ have_va_ia_ja:
 		median_m=i; 
 
 		RSB_STDOUT(pmsg,"rows");
-		if(po) for(i=0;i<nrA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%d %d\n",i,cs);}
+		if(po) for(i=0;i<nrA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%ld %ld\n",(long int)i,(long int)cs);}
 		RSB_STDOUT("e\n");
 
 		mm=ncA<histres?1:ncA/histres;
@@ -2015,7 +2741,7 @@ have_va_ia_ja:
 
 		cs=0;
 		RSB_STDOUT(pmsg,"columns");
-		if(po) for(i=0;i<ncA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%d %d\n",i,cs);}
+		if(po) for(i=0;i<ncA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%ld %ld\n",(long int)i,(long int)cs);}
 		RSB_STDOUT("e\n");
 
 		for(i=0;i<ncA;++i)
@@ -2024,11 +2750,11 @@ have_va_ia_ja:
 
 		RSBENCH_STDOUT("unset multiplot\n");
 		RSBENCH_STDOUT("#%%:NNZ_PER_ROW_STDDEV:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
-		RSBENCH_STDOUT("\t%10.0d\n",stdd_m);
+		RSBENCH_STDOUT("\t%10.0zd\n",(rsb_printf_int_t)stdd_m);
 		RSBENCH_STDOUT("#%%:ROWS_MEDIAN:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
 		RSBENCH_STDOUT("\t%10.0g\n",((double)median_m/(double)nrA));
 		RSBENCH_STDOUT("#%%:NNZ_PER_COL_STDDEV:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
-		RSBENCH_STDOUT("\t%10.0d\n",stdd_k);
+		RSBENCH_STDOUT("\t%10.0zd\n",(rsb_printf_int_t)stdd_k);
 		RSBENCH_STDOUT("#%%:COLS_MEDIAN:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
 		RSBENCH_STDOUT("\t%10.0g\n",((double)median_k/(double)ncA));
 nohists:
@@ -2037,52 +2763,10 @@ nohists:
 		goto ret;
 	}
 	#endif /* 1 */
-	if(want_unordered_coo_bench)
-	{
-		struct rsb_coo_matrix_t coo;
-		rsb__fill_coo_struct(&coo,VA,IA,JA,nrA,ncA,nnz,typecode);
-		ndA = RSB_MAX(nrA,ncA);
-		lhs = rsb__calloc_vector(ndA*nrhs*incY,typecode);
-		rhs = rsb__calloc_vector(ndA*nrhs*incX,typecode);
-
-		if(!lhs || !rhs)
-		{
-			RSB_ERROR("problems allocating vectors");
-			RSB_CONDITIONAL_FREE(lhs); RSB_CONDITIONAL_FREE(rhs);
-			{ errval = RSB_ERR_INTERNAL_ERROR; goto err; }
-		}
-
-		if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
-		for(i=0;i<times;++i)
-		{
-			if(want_inner_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
-			unordered_coo_op_time = - rsb_time();
-			if((errval = rsb__do_spmv_fullword_coo(&coo,flags,rhs,lhs,alphap,betap,incX,incY,transA))!=RSB_ERR_NO_ERROR) { goto erru; }
-			unordered_coo_op_time += rsb_time();
-			unordered_coo_op_time_best = RSB_MIN_ABOVE_INF(unordered_coo_op_time_best,unordered_coo_op_time,tinf);
-			unordered_coo_op_tot_time+=unordered_coo_op_time;
-		}
-		if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
-erru:
-		RSB_CONDITIONAL_FREE(lhs); RSB_CONDITIONAL_FREE(rhs);
-		if(want_verbose == RSB_BOOL_TRUE)
-		{
-			/* FIXME ! 20110427 */
-			struct rsb_mtx_t matrixs;
-			mtxAp=&matrixs;
-			rsb__init_rsb_struct_from_coo(mtxAp,&coo);
-			mtxAp->flags = RSB_FLAG_DEFAULT_COO_MATRIX_FLAGS|RSB_DO_FLAG_FILTEROUT((flags),RSB_DO_FLAGS_EXTRACT_STORAGE(flags));
-			rsb__do_set_init_storage_flags(mtxAp,mtxAp->flags);
-			raw_Mflops=nnz*2;
-			RSBENCH_STDOUT("%%:UNORDERED_COO_PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-			RSBENCH_STDOUT("\t%10.2lf\n",((rsb_time_t)raw_Mflops)/(RSB_REAL_MILLION*unordered_coo_op_time_best));
-			mtxAp=NULL;
-		}
-	}
 	/* CONDITIONALLY, PERFORMING SOME TEST ON THE INPUT */
 	if(want_accuracy_test>=1)
 	{
-		struct rsb_coo_matrix_t coo;
+		struct rsb_coo_mtx_t coo;
 		rsb__fill_coo_struct(&coo,VA,IA,JA,nrA,ncA,nnz,typecode);
 		RSB_DO_ERROR_CUMULATE(errval,rsb__do_spmv_accuracy_test(&coo,ca,cn,flags));
 		if(RSB_SOME_ERROR(errval))
@@ -2098,9 +2782,9 @@ erru:
 
 		if( (flags & RSB_FLAG_QUAD_PARTITIONING) && g_all_flags==1)
 		{
-			int /*ci=0,*/hi=0,oi=0;
+			int hi=0,oi=0;
 			fn=0;
-			for(ci=0;ci<3;++ci)
+			for(rsb_thread_t ci=0;ci<3;++ci)
 /*			for(di=0;di<2;++di)*/
 			for(oi=0;oi<2;++oi)
 			for(hi=0;hi<2;++hi)
@@ -2140,7 +2824,7 @@ erru:
 		}
 
 		if(!want_perf_dump)
-		if(!( RSB__APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB__APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB__APPROPRIATE_AT_TIME_SPEC( split_experimental ) )) /* otherwise pr__set.. cannot distinguish samples */
+		if(!( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( split_experimental ) )) /* otherwise pr__set.. cannot distinguish samples */
 		if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
 		{
 			/* adds a no-recursion flag case */
@@ -2155,9 +2839,70 @@ erru:
 			++fn;	/* add ours */
 		}
 
+	for(     nrhsi=0;     nrhsi<nrhsn     ;++nrhsi     )
+	{
+	nrhs = nrhsa[nrhsi];
+	if(nrhs<1)
+	{
+		RSBENCH_STDOUT("# WARNING: Skipping non-positive nrhs (%zd): is this a mistake ?\n",(rsb_printf_int_t)nrhs );
+		continue;
+	}
+	if( nrhsn > 1 && nrhss )
+	{
+		RSBENCH_STDOUT("# multi-nrhs benchmarking (%s) -- now using nrhs %zd.\n",nrhss,(rsb_printf_int_t)nrhs);
+	}
+	for(     alphai=0;     alphai<alphan;++alphai )
+	{
+	for(     betai=0;     betai<betan;++betai )
+	{
+	for(     incXi=0;     incXi<incXn     ;++incXi     )
+	{
+	for(     incYi=0;     incYi<incYn     ;++incYi     )
+	{
+	incX = incXa[incXi];
+	incY = incYa[incYi];
+	if(want_verbose >= -2)
+	{
+		if(incXn>1)
+		{
+			RSBENCH_STDOUT("# multi-incX benchmarking (%zd/%zd) -- now using incX=%zd.\n",(rsb_printf_int_t)(incXi+1),(rsb_printf_int_t)incXn,(rsb_printf_int_t)incX);
+		}
+		if(incYn>1)
+		{
+			RSBENCH_STDOUT("# multi-incY benchmarking (%zd/%zd) -- now using incY=%zd.\n",(rsb_printf_int_t)(incYi+1),(rsb_printf_int_t)incYn,(rsb_printf_int_t)incY);
+		}
+	}
+	if(incX<1)
+	{
+		RSBENCH_STDOUT("# WARNING: Skipping non-positive incX (%d): is this a mistake ?\n",(int)incX );
+		continue;
+	}
+	if(incY<1)
+	{
+		RSBENCH_STDOUT("# WARNING: Skipping non-positive incY (%d): is this a mistake ?\n",(int)incY );
+		continue;
+	}
+	if( want_only_star_scan )
+	if( RSB_MIN(incXi,1) + RSB_MIN(incYi,1) + RSB_MIN(nrhsi,1) > 1 ) /* two or more exceed index one */
+	{
+		RSBENCH_STDOUT("# Skipping a case with incX=%zd incY=%zd nrhs=%zd.\n",(rsb_printf_int_t)incX,(rsb_printf_int_t)incY,(rsb_printf_int_t)nrhs);
+		goto frv;
+	}
+
+
+
+	if(RSB_SOME_ERROR(errval = rsb__fill_with_ones(beta,typecode,1,1))){ RSB_ERROR(RSB_ERRM_ES);goto err;}
+	/* FIXME: the following collides with the former */
+	rsb__util_set_area_to_converted_integer(alphap,typecode,alphai);
+	rsb__util_set_area_to_converted_integer(betap ,typecode,betai);
+	/* FIXME: the following overwrites what above */
+	rsb__util_set_area_to_converted_integer(alphap,typecode,alphaip[alphai]);
+	rsb__util_set_area_to_converted_integer(betap ,typecode, betaip[betai]);
+	if(want_verbose >= -1)
+		RSBENCH_STDOUT("# Using alpha=%d beta=%d order=%s for rsb_spmv/rsb_spsv/rsb_spmm/rsb_spsm.\n",alphaip[alphai],betaip[betai],((order==RSB_FLAG_WANT_ROW_MAJOR_ORDER)?"rows":"cols"));
+
 		for(ti=0;ti<tn;++ti)
 		{
-
 	rsb_time_t op_t = RSB_TIME_ZERO;
 	rsb_time_t mct = RSB_TIME_ZERO;	/* matrix construction time */
 	rsb_time_t fet = RSB_TIME_ZERO;	/* fillin estimation time */
@@ -2216,8 +2961,8 @@ erru:
 	rsb_time_t mkl_gem_op_time = RSB_TIME_ZERO;
 	rsb_time_t mkl_gem_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
 	rsb_time_t mkl_gem_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
-	struct rsb_ts_t btpms[2]; /* first is tuned, first is not */
-	rsb_flags_t mif = ( mib == 0 ) ? RSB_FLAG_NOFLAGS : RSB_FLAG_FORTRAN_INDICES_INTERFACE; /* MKL index flags */
+	struct rsb_ts_t btpms[2]; /* first is tuned, second is not */
+	const rsb_flags_t mif = ( mib == 0 ) ? RSB_FLAG_NOFLAGS : RSB_FLAG_FORTRAN_INDICES_INTERFACE; /* MKL index flags */
 #ifdef RSB_WANT_PERFORMANCE_COUNTERS
 	struct rsb_pci_t mkl_coo_pci,mkl_csr_pci,mkl_gem_pci;
 #endif /* RSB_WANT_PERFORMANCE_COUNTERS */
@@ -2227,16 +2972,64 @@ erru:
 
 	RSB_BZERO_P((&otpos));
 	RSB_BZERO_P((&btpos));
+
 	RSB_BZERO_P((&attr));
+
+	if(want_unordered_coo_bench)
+	{
+		struct rsb_coo_mtx_t coo;
+		int ctimes = times < 1 ? 100 : times;
+		rsb_time_t unordered_coo_op_tot_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, unordered_coo_op_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, unordered_coo_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+
+		rsb__fill_coo_struct(&coo,VA,IA,JA,nrA,ncA,nnz,typecode);
+		ndA = RSB_MAX(nrA,ncA);
+		lhs = rsb__calloc_vector(ndA*nrhs*incY,typecode);
+		rhs = rsb__calloc_vector(ndA*nrhs*incX,typecode);
+
+		if(!lhs || !rhs)
+		{
+			RSB_ERROR("problems allocating vectors");
+			RSB_CONDITIONAL_FREE(lhs); RSB_CONDITIONAL_FREE(rhs);
+			{ errval = RSB_ERR_INTERNAL_ERROR; goto err; }
+		}
+
+		if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
+		for(i=0;i<ctimes;++i)
+		{
+			if(want_inner_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
+			unordered_coo_op_time = - rsb_time();
+			if((errval = rsb__do_spmv_fullword_coo(&coo,flags,rhs,lhs,alphap,betap,incX,incY,transA))!=RSB_ERR_NO_ERROR) { goto erru; }
+			unordered_coo_op_time += rsb_time();
+			unordered_coo_op_time_best = RSB_MIN_ABOVE_INF(unordered_coo_op_time_best,unordered_coo_op_time,tinf);
+			unordered_coo_op_tot_time+=unordered_coo_op_time;
+		}
+		if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
+erru:
+		RSB_CONDITIONAL_FREE(lhs); RSB_CONDITIONAL_FREE(rhs);
+		if(want_verbose > 0)
+		{
+			struct rsb_mtx_t matrixs;
+
+			mtxAp=&matrixs;
+			rsb__init_rsb_struct_from_coo(mtxAp,&coo);
+			mtxAp->flags = RSB_FLAG_DEFAULT_COO_MATRIX_FLAGS|RSB_DO_FLAG_FILTEROUT((flags),RSB_DO_FLAGS_EXTRACT_STORAGE(flags));
+			rsb__do_set_init_storage_flags(mtxAp,mtxAp->flags);
+			raw_Mflops=nnz*2;
+			RSBENCH_STDOUT("%%:UNORDERED_COO_PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+			RSBENCH_STDOUT("\t%10.2lf\n",((rsb_time_t)raw_Mflops)/(RSB_REAL_MILLION*unordered_coo_op_time_best));
+			mtxAp=NULL;
+		}
+	}
+
 		transA = transAo;
 		if(ti>0)
 			transA = rsb__do_transpose_transposition(transAo);
 		if(ti==2)
 			transA = RSB_TRANSPOSITION_C;
 		if(!  (
-			( RSB_IS_MATRIX_TYPE_COMPLEX(typecode) && (ti!=0) && ( flags & RSB_FLAG_SOME_SYMMETRY ) )  ||
+			( RSB_IS_MATRIX_TYPE_COMPLEX(typecode) && (ti!=0) && ( flags & RSB_FLAG_ANY_SYMMETRY ) )  ||
 		       ((!RSB_IS_MATRIX_TYPE_COMPLEX(typecode))&& (ti!=0) && ( flags & RSB_FLAG_SYMMETRIC) )  ||
-		       ((!RSB_IS_MATRIX_TYPE_COMPLEX(typecode))&& (ti==2) &&!( flags & RSB_FLAG_SOME_SYMMETRY) )  ||
+		       ((!RSB_IS_MATRIX_TYPE_COMPLEX(typecode))&& (ti==2) &&!( flags & RSB_FLAG_ANY_SYMMETRY) )  ||
 			g_allow_any_tr_comb
 		))
 		if(tn>1)
@@ -2248,26 +3041,31 @@ erru:
 			RSBENCH_STDOUT("# symmetric matrix --- skipping transposed benchmarking\n");
 			continue;
 		}
+		if(want_verbose > 0)
+		{
+			RSBENCH_STDOUT("# will use input matrix flags: ");
+			rsb__dump_flags(flags,"",", ","\n");
+		}
 		for(fi=0;fi<fn;++fi)
 		for(brvi=-1;brvi<brl;++brvi)
 		for(bcvi=-1;bcvi<bcl;++bcvi)
 #ifndef  RSB_COORDINATE_TYPE_H
 		if(!(flagsa[fi] & RSB_FLAG_USE_HALFWORD_INDICES_CSR))
 #endif /* RSB_COORDINATE_TYPE_H */
-		for(ci=0;ci<cn;++ci)	/* here just for should_recycle_matrix */
-		if(!(ca[ci]>1 && !(RSB_DO_FLAG_HAS(flagsa[fi],RSB_FLAG_QUAD_PARTITIONING)))) /* no need for more than one core without recursion */
+		for(rsb_thread_t ci=0;ci<cn;++ci)	/* here just for should_recycle_matrix */
+		if(!(cn > 1 && ca[ci]>1 && !(RSB_DO_FLAG_HAS(flagsa[fi],RSB_FLAG_QUAD_PARTITIONING)))) /* no need for more than one core without recursion */
 		{
+			rsb_time_t diag_op_tot_time = RSB_TIME_ZERO;
+			rsb_time_t diag_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+			rsb_time_t getrow_op_tot_time = RSB_TIME_ZERO;
+			rsb_time_t getrow_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+			rsb_time_t diag_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+			rsb_time_t getrow_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+			rsb_time_t no_lock_op_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, no_lock_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME,
+			serial_no_lock_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME, no_lock_op_tot_time = RSB_TIME_ZERO;
+			rsb_time_t qt_op_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, qt_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME,
+			qt_op_tot_time = RSB_TIME_ZERO;
 			cc = ca[ci];
-	rsb_time_t diag_op_tot_time = RSB_TIME_ZERO;
-	rsb_time_t diag_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
-	rsb_time_t getrow_op_tot_time = RSB_TIME_ZERO;
-	rsb_time_t getrow_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
-	rsb_time_t diag_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
-	rsb_time_t getrow_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
-	rsb_time_t no_lock_op_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, no_lock_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME,
-	serial_no_lock_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME, no_lock_op_tot_time = RSB_TIME_ZERO;
-	rsb_time_t qt_op_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, qt_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME,
-	qt_op_tot_time = RSB_TIME_ZERO;
 			should_recycle_matrix=(ci>0)?RSB_BOOL_TRUE:RSB_BOOL_FALSE;
 			/* if this is the special "vanilla CSR" run after/before recursive runs ... */
 			if(rsb__set_num_threads(cc)!=cc)
@@ -2275,6 +3073,12 @@ erru:
 				RSB_ERROR("failed setting %d threads!\n",cc);
 				errval = RSB_ERR_INTERNAL_ERROR;
 				goto err;
+			}
+			else
+			{
+				const rsb_thread_t rtn = rsb__set_num_threads(RSB_THREADS_GET);
+				RSBENCH_STDOUT("# Using %ld threads\n",(long)rtn );
+				RSB_DEBUG_ASSERT( RSB_CONST_MAX_SUPPORTED_THREADS >= rtn );
 			}
 			flags=flagsa[fi];
 			if(cn>1 && !RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
@@ -2320,9 +3124,8 @@ erru:
 
 				if((! p_r) || (! p_c))
 				{
-					RSB_ERROR(RSB_ERRM_ES);
 					errval = RSB_ERR_ENOMEM;
-					goto erri;
+					RSB_PERR_GOTO(erri,RSB_ERRM_ES);
 				}
 			}
 
@@ -2348,8 +3151,7 @@ erru:
 					mct += rsb_time();
 					if((RSB_SOME_ERROR(errval)) || !mtxAp )
 					{
-						RSB_ERROR(RSB_ERRM_ES);
-						goto err;
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 					}
 					else
 					{
@@ -2370,17 +3172,16 @@ erru:
 					if(repeat_construction>1 && mci==0)
 						RSBENCH_STDOUT("# will repeat constructor %d times\n",repeat_construction);
 					mct = - rsb_time();
-					if(want_in_place_assembly)
+					if(RSB_UNLIKELY(want_in_place_assembly))
 						mtxAp = rsb__do_mtx_alloc_from_coo_inplace(VA,IA,JA,nnz,typecode,nrA,ncA,br,bc,flags,&errval);
 					else
-						mtxAp = rsb_mtx_alloc_from_coo_const(VA,IA,JA,nnz,typecode,nrA,ncA,br,bc,flags,&errval);
+						mtxAp = rsb__do_mtx_alloc_from_coo_const(VA,IA,JA,nnz,typecode,nrA,ncA,br,bc,flags,&errval);
 					mct += rsb_time();
 					if((RSB_SOME_ERROR(errval)) || !mtxAp )
 					{
 						RSB_PERR_GOTO(err,RSB_ERRM_MBE);
 					}
 
-/*					RSBENCH_STDOUT("running constructor for time %d/%d\n",mci+1,repeat_construction);*/
 					if(mect == RSB_TIME_ZERO || mect>mtxAp->ect)
 						mect=mtxAp->est;
 					if(mest == RSB_TIME_ZERO || mest>mtxAp->est)
@@ -2449,39 +3250,52 @@ noddc:
 			if(do_perform_ilu == RSB_BOOL_TRUE)
 			{
 				/* FIXME: experimental */
-				rsb_time_t ilut = - rsb_time();
+				rsb_time_t ilut;
+{
+				// TODO: switch to coo, merge, and csr.
+				while(rsb__submatrices(mtxAp)>1)
+				{
+					errval = rsb__leaves_merge(mtxAp, 0, NULL, NULL, NULL, 0, 0);
+					if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(err,RSB_ERRM_ES); }
+				}
+				errval = rsb__do_switch_recursive_matrix_to_fullword_storage(mtxAp);
+				if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(err,RSB_ERRM_ES); }
+}
+				ilut = - rsb_time();
 				RSB_STDOUT("performing EXPERIMENTAL ILU-0\n");
 				errval = rsb__prec_ilu0(mtxAp);//TODO: actually, only for CSR
 				ilut += rsb_time();
 				if(RSB_SOME_ERROR(errval))
 				{
-					RSB_ERROR(RSB_ERRM_ES);
-					goto err;
+					RSB_PERR_GOTO(err,RSB_ERRM_ES);
 				}
 				else
 					RSB_STDOUT("performed EXPERIMENTAL ILU-0 with success in %lg s.\n",ilut);
 				rsb_file_mtx_save(mtxAp,NULL);
-				goto ret;
 			} /* do_perform_ilu */
 
 			if(want_update && mtxAp)
 			{
 				rsb_time_t ct = - rsb_time();
 				/* FIXME: this is update, not conversion, so it should not be here */
+
 				errval = rsb__do_set_coo_elements(mtxAp,VA,IA,JA,nnz);
 				if(RSB_SOME_ERROR(errval))
-				{ RSB_ERROR(RSB_ERRM_ES);goto erri;}
+				{
+					RSB_PERR_GOTO(erri,RSB_ERRM_ES);
+				}
 				ct += rsb_time();
 				/* missing check */
-				RSBENCH_STDOUT("#individual update of %d elements in assembled RSB took %2.5f s: %2.5f%% of construction time\n",nnz,ct,(100*ct)/mtxAp->tat);
+				RSBENCH_STDOUT("#individual update of %zd elements in assembled RSB took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)nnz,ct,(100*ct)/mtxAp->tat);
 			} /* want_update */
 
 			if(want_convert && mtxAp)
 			{
-				/* FIXME: here all conversions should occur, and be benchmarked */
+				/* benchmark conversions */
 				rsb_time_t ct;
 				rsb_nnz_idx_t rnz=0;
-				struct rsb_coo_matrix_t coo;
+				struct rsb_coo_mtx_t coo;
+				struct rsb_coo_mtx_t cor;
 
 				coo.nnz = RSB_MAX(mtxAp->nnz,RSB_MAX(nrA,ncA));
 				coo.typecode=mtxAp->typecode;
@@ -2493,22 +3307,32 @@ noddc:
 				coo.nr = mtxAp->nr;
 				coo.nc = mtxAp->nc;
 
+				cor.nnz = RSB_MAX(mtxAp->nnz,RSB_MAX(nrA,ncA));
+				cor.typecode=mtxAp->typecode;
+				if(rsb__allocate_coo_matrix_t(&cor)!=&cor)
+				{
+					RSB_ERROR(RSB_ERRM_ES);
+					goto errc;
+				}
+				cor.nr = mtxAp->nr;
+				cor.nc = mtxAp->nc;
+
 				ct = - rsb_time();
 				errval = rsb__do_get_rows_sparse(RSB_TRANSPOSITION_N,NULL,mtxAp,coo.VA,coo.IA,coo.JA,0,mtxAp->nr-1,&rnz,RSB_FLAG_NOFLAGS);
 				if(RSB_SOME_ERROR(errval))
 				{ RSB_ERROR(RSB_ERRM_ES);goto erri;}
 				ct += rsb_time();
-				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(coo.VA,coo.IA,coo.JA,coo.nnz,coo.typecode,
+				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(coo.IA,coo.JA,coo.nnz,coo.typecode,
 					NULL,RSB_FLAG_NOFLAGS)))
-					{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-				RSBENCH_STDOUT("#extraction of %d elements in sorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+				RSBENCH_STDOUT("#extraction of %zd elements in sorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 				RSBENCH_STDOUT("#extraction to unsorted COO unimplemented\n");
-				//RSBENCH_STDOUT("#extraction of %d elements in unsorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+				//RSBENCH_STDOUT("#extraction of %zd elements in unsorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 
-				RSB_DO_ERROR_CUMULATE(errval,rsb_mtx_get_coo(mtxAp,VA,IA,JA,RSB_FLAG_C_INDICES_INTERFACE));
+				RSB_DO_ERROR_CUMULATE(errval,rsb_mtx_get_coo(mtxAp,cor.VA,cor.IA,cor.JA,RSB_FLAG_C_INDICES_INTERFACE));
 
 				rsb__util_coo_array_set(coo.JA,coo.nnz,0);
-				rsb_coo_sort(VA,IA,JA,mtxAp->nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS);
+				rsb_coo_sort(cor.VA,cor.IA,cor.JA,mtxAp->nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS);
 				if(RSB_SOME_ERROR(errval))
 				{ RSB_ERROR(RSB_ERRM_ES);goto erri;}
 
@@ -2517,153 +3341,157 @@ noddc:
 				if(RSB_SOME_ERROR(errval))
 				{ RSB_ERROR(RSB_ERRM_ES);goto erri;}
 				ct += rsb_time();
-				for(i=0;i<mtxAp->nnz;++i)if(coo.JA[i]!=JA[i]){RSB_ERROR("@%d: %d != %d!\n",i,coo.JA[i],JA[i]);errval = RSB_ERR_INTERNAL_ERROR;goto err;}
+				for(i=0;i<mtxAp->nnz;++i)if(coo.JA[i]!=cor.JA[i]){RSB_ERROR("@%d: %d != %d!\n",i,coo.JA[i],cor.JA[i]);errval = RSB_ERR_INTERNAL_ERROR;goto err;}
 				if(RSB_SOME_ERROR(errval=rsb__csr_chk(coo.IA,coo.JA,coo.nr,coo.nc,coo.nnz,mib)))
-					{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-				RSBENCH_STDOUT("#extraction of %d elements in CSR took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+				RSBENCH_STDOUT("#extraction of %zd elements in CSR took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 
 /*				ct = - rsb_time();*/
 /*				errval = rsb__do_get_coo(mtxAp,&coo.VA,&coo.IA,&coo.JA);	// FIXME : bugged ?*/
 /*				if(RSB_SOME_ERROR(errval)) goto erri;*/
 /*				ct += rsb_time();*/
-/*				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(coo.VA,coo.IA,coo.JA,coo.nnz,coo.typecode,*/
+/*				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(coo.IA,coo.JA,coo.nnz,coo.typecode,*/
 /*					NULL,RSB_FLAG_NOFLAGS)))*/
-/*					{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}*/
-/*				RSBENCH_STDOUT("#extraction of %d elements in sorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);*/
+/*				{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);} */
+/*				RSBENCH_STDOUT("#extraction of %zd elements in sorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);*/
 
 				rsb__util_coo_array_set(coo.IA,coo.nnz,0);
-				rsb_coo_sort(VA,JA,IA,mtxAp->nnz,ncA,nrA,typecode,RSB_FLAG_NOFLAGS);
+				rsb_coo_sort(cor.VA,cor.JA,cor.IA,mtxAp->nnz,ncA,nrA,typecode,RSB_FLAG_NOFLAGS);
 				ct = - rsb_time();
 				errval = rsb__do_get_csc(mtxAp,(rsb_byte_t**) &coo.VA,&coo.JA,&coo.IA);
 				if(RSB_SOME_ERROR(errval))
 					{goto erri;}
 				ct += rsb_time();
-				for(i=0;i<mtxAp->nnz;++i)if(coo.IA[i]!=IA[i]){RSB_ERROR("@%d: %d != %d!\n",i,coo.IA[i],IA[i]);errval = RSB_ERR_INTERNAL_ERROR;goto err;}
+				for(i=0;i<mtxAp->nnz;++i)if(coo.IA[i]!=cor.IA[i]){RSB_ERROR("@%d: %d != %d!\n",i,coo.IA[i],cor.IA[i]);errval = RSB_ERR_INTERNAL_ERROR;goto err;}
 				if(RSB_SOME_ERROR(rsb__csc_chk(coo.JA,coo.IA,coo.nr,coo.nc,coo.nnz,mib)))
-					{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-				RSBENCH_STDOUT("#extraction of %d elements in CSC took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+				RSBENCH_STDOUT("#extraction of %zd elements in CSC took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
 					ct = - rsb_time();
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
 					ct += rsb_time();
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					if(!rsb__mtx_chk(cmatrix))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					RSB_MTX_FREE(cmatrix);
 				}
-				RSBENCH_STDOUT("#cloning of %d elements took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+				RSBENCH_STDOUT("#cloning of %zd elements took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_rcoo(cmatrix,RSB_BOOL_FALSE);
 					ct += rsb_time();
 					if(!rsb__mtx_chk(cmatrix))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					if(
 rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(cmatrix,RSB_MATRIX_STORAGE_BCOR,RSB_FLAG_USE_HALFWORD_INDICES_CSR)
 					!= rsb__terminal_recursive_matrix_count(cmatrix))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 
-					RSBENCH_STDOUT("#conversion of %d elements to RCOO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					RSBENCH_STDOUT("#conversion of %zd elements to RCOO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					RSB_MTX_FREE(cmatrix);
 				}
 
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
-					struct rsb_coo_matrix_t icoo;
+					struct rsb_coo_mtx_t icoo;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(cmatrix,&icoo);
 					ct += rsb_time();
 
-					if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(icoo.VA,icoo.IA,icoo.JA,icoo.nnz,icoo.typecode,NULL,RSB_FLAG_NOFLAGS)))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-					RSBENCH_STDOUT("#conversion of %d elements to sorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(icoo.IA,icoo.JA,icoo.nnz,icoo.typecode,NULL,RSB_FLAG_NOFLAGS)))
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+					RSBENCH_STDOUT("#conversion of %zd elements to sorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					rsb__destroy_coo_matrix_t(&icoo);
 				}
 				
 				if(!RSB_DO_TOOFEWNNZFORCSR(mtxAp->nnz,mtxAp->nr))
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
-					struct rsb_coo_matrix_t icoo;
+					struct rsb_coo_mtx_t icoo;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_csr(cmatrix,&icoo);
 					ct += rsb_time();
 					if(RSB_SOME_ERROR(rsb__csr_chk(icoo.IA,icoo.JA,icoo.nr,icoo.nc,icoo.nnz,mib)))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-					RSBENCH_STDOUT("#conversion of %d elements to CSR took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+					RSBENCH_STDOUT("#conversion of %zd elements to CSR took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					rsb__destroy_coo_matrix_t(&icoo);
 				}
 
 				if(!RSB_DO_TOOFEWNNZFORCSR(mtxAp->nnz,mtxAp->nc))
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
-					struct rsb_coo_matrix_t icoo;
+					struct rsb_coo_mtx_t icoo;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_csc(cmatrix,&icoo);
 					ct += rsb_time();
 					if(RSB_SOME_ERROR(rsb__csc_chk(icoo.JA,icoo.IA,icoo.nr,icoo.nc,icoo.nnz,mib)))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 
-					RSBENCH_STDOUT("#conversion of %d elements to CSC took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					RSBENCH_STDOUT("#conversion of %zd elements to CSC took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					rsb__destroy_coo_matrix_t(&icoo);
 				}
 
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
-					struct rsb_coo_matrix_t icoo;
+					struct rsb_coo_mtx_t icoo;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_unsorted(cmatrix,&icoo);
 					ct += rsb_time();
 
-					RSBENCH_STDOUT("#conversion of %d elements to unsorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					RSBENCH_STDOUT("#conversion of %zd elements to unsorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					rsb__destroy_coo_matrix_t(&icoo);
 				}
 errc:
 				rsb__destroy_coo_matrix_t(&coo);
+				rsb__destroy_coo_matrix_t(&cor);
 			} /* want_convert */
 
 			if(RSB_SOME_ERROR(errval))
-			{
-				RSB_ERROR("problems assembling / converting matrix\n");
-				goto erri;
-			}
+				RSB_PERR_GOTO(erri,RSB_ERRM_MASM);
 
 			if(!mtxAp)
 			{
 				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_ERROR("problems assembling matrix\n");
-				goto erri;
+				RSB_PERR_GOTO(erri,RSB_ERRM_MASM);
 			}
 
-			totht -= rsb_time();
+			if( want_verbose > 0 )
+			{
+				RSBENCH_STDOUT("# Constructed matrix (took %.3lfs): ", mct);
+				RSBENCH_STDOUT(RSB_PRINTF_MTX_SUMMARY_ARGS(mtxAp));
+				RSBENCH_STDOUT("\n");
+			}
+
+			ht = -rsb_time();
 			if(!rsb__mtx_chk(mtxAp))
 			{
 				RSB_ERROR("matrix does not seem to be built correctly\n");
 				errval = RSB_ERR_INTERNAL_ERROR;
 				goto erri;
 			}
-			totht += rsb_time();
+			ht += rsb_time();
+			totht += ht;
+			if( want_verbose > 0 )
+				RSBENCH_STDOUT("# matrix consistency check took %.3lfs (ok)\n",ht);
 
 
 			if(zsort_for_coo)
 				rsb__do_zsort_coo_submatrices(mtxAp);
 			if(reverse_odd_rows)
 				rsb__do_reverse_odd_rows(mtxAp);
-
-			//rsb_file_mtx_save(mtxAp,NULL);
-			//rsb__dump_blocks(mtxAp);
 
 			if(b_w_filename || csr_w_filename)
 			{
@@ -2689,22 +3517,23 @@ errc:
 
 			if(dumpout_internals)
 			{
-				errval = rsb__do_print_matrix_stats(mtxAp,RSB_CONST_DUMP_RECURSION,NULL);
-				if(RSB_SOME_ERROR(errval))goto err;
-				//goto ret; /* we want to continue */
+				RSB_DO_ERROR_CUMULATE(errval,rsb__do_print_matrix_stats(mtxAp,RSB_CONST_DUMP_RECURSION,NULL));
+				if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
 			}
 
-			errval = rsb__get_blocking_size(mtxAp,&br,&bc);
+			rsb__get_blocking_size(mtxAp,&br,&bc);
 
-			if(RSB_SOME_ERROR(errval))
+			if(br<0 || br <0)
 			{
 				RSB_ERROR("problems getting blocking size");
 				goto erri;
 			}
 
-			/* NOTE: the matrix constructor could have removed duplicates or zeros */
-			/* nnz=mtxAp->nnz; */ /* 20120922 commented out: in case of removed entries, it would remember this number in spite of unchanged IA,JA,VA arrays */ 
-			if(!RSB_IS_VALID_NNZ_COUNT(nnz)){errval = RSB_ERR_INTERNAL_ERROR;goto erri;}
+			if(!RSB_IS_VALID_NNZ_COUNT(nnz))
+			{
+				errval = RSB_ERR_INTERNAL_ERROR;
+				RSB_PERR_GOTO(erri,RSB_ERRM_INZCL);
+			}
 			/* NOTE: if loading from a binary dump, we need to set nrA,ncA */
 			nrA = mtxAp->nr;
 			ncA = mtxAp->nc;
@@ -2727,19 +3556,20 @@ errc:
 				int wvmbat = RSB_AUT0_TUNING_SILENT; /* wanted verbosity in merge based autotuning */
 				int eps = 0; /* effective partitioning steps */
 				rsb_time_t btt = RSB_TIME_ZERO; /* blocks tuning time */
-				rsb_submatrix_idx_t maxms = merge_experimental, maxss = split_experimental;
-				int maxr = RSB_CONST_AUTO_TUNING_ROUNDS;
-				enum rsb_op_t op = rsb_op_spmv;
-				// const int mintimes = RSB_CONST_AT_OP_SAMPLES_MIN/*RSB_AT_NTIMES_AUTO*/;
+				const rsb_bool_t want_auto_threads = ( merge_experimental < 0 || split_experimental < 0 ) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
+				const rsb_submatrix_idx_t maxms = RSB_ABS( merge_experimental );
+				const rsb_submatrix_idx_t maxss = RSB_ABS( split_experimental );
+				const int maxr = ( just_enter_tuning == 0 || (merge_experimental == 0 && split_experimental == 0 )) ? 0 : RSB_CONST_AUTO_TUNING_ROUNDS;
+				const enum rsb_op_t op = rsb_op_spmv;
 				const rsb_time_t maxtime = /* RSB_AT_TIME_AUTO*/ RSB_AT_MAX_TIME;
 				struct rsb_mtx_t mtxA = *mtxAp;
+				const rsb_submatrix_idx_t lmn = mtxAp->all_leaf_matrices_n;
 
 				/* please note at_mkl_csr_nt in the following... */
-				if(maxms < 0 || maxss < 0) { at_mkl_csr_nt = me_at_nt = RSB_THREADS_AUTO; }
-				if(maxms < 0) maxms *= -1;
-				if(maxss < 0) maxss *= -1;
+				if(want_auto_threads) { at_mkl_csr_nt = me_at_nt = RSB_THREADS_AUTO; }
 				
-				RSBENCH_STDOUT("RSB Sparse Blocks Autotuner invoked requesting max %d splits and max %d merges in %d rounds, threads spec.%d (specify negative values to enable threads tuning).\n",maxss,maxms,maxr,me_at_nt);
+				if(want_verbose >= -1)
+					RSBENCH_STDOUT("RSB Sparse Blocks Autotuner invoked requesting max %d splits and max %d merges in %d rounds, threads spec.%d (specify negative values to enable threads tuning).\n",maxss,maxms,maxr,me_at_nt);
 
 				if (want_verbose_tuning > 0)
 					wvmbat = RSB_AUT0_TUNING_VERBOSE;
@@ -2749,10 +3579,8 @@ errc:
 					wvmbat = RSB_AUT0_TUNING_QUATSCH + 1;
 				btt -= rsb_time(); 
 
-				if( just_enter_tuning == 0 || merge_experimental == 0 && split_experimental == 0 )
-					maxr = 0;
 				mtxOp = mtxAp;
-				errval = rsb__tune_spxx(&mtxOp,NULL,&me_at_nt,maxr,maxms,maxss,mintimes,maxtimes,maxtime,transA,alphap,NULL,nrhs,order,rhs,rhsnri,betap,lhs,outnri,op,&eps,&me_best_t,&me_at_best_t,wvmbat,rsb__basename(filename),&attr,&otpos,&btpos);
+				errval = rsb__tune_spxx(&mtxOp,NULL,&me_at_nt,maxr,maxms,maxss,mintimes,maxtimes,maxtime,transA,alphap,NULL,nrhs,order,rhs,rhsnri,betap,lhs,outnri,op,&eps,&me_best_t,&me_at_best_t,wvmbat,mtrfpf,rsb__basename(filename),&attr,&otpos,&btpos);
 
 				btt += rsb_time(); 
 				tottt += btt;
@@ -2761,9 +3589,9 @@ errc:
 					rsb__pr_set(rspr, &mtxA, me_at_best_t<me_best_t?mtxOp:NULL, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti, transA, me_best_t, RSB_CONST_IMPOSSIBLY_BIG_TIME, me_at_best_t, RSB_CONST_IMPOSSIBLY_BIG_TIME, me_at_nt, RSB_THREADS_AUTO, btt, eps, &otpos, &btpos, NULL, NULL);
 				if( mtxAp != mtxOp && mtxOp )
 			 	{
-					RSBENCH_STDOUT("RSB Autotuner suggested a new clone.\n");
 #if RSB_AT_DESTROYS_MTX
 					mtxAp = mtxOp;
+					RSBENCH_STDOUT("First run of RSB Autotuner took %lg s  (%.3le s -> %.3le s per spmv_sxsa) (tuned: %d -> %d lsubm).\n",btt,otpos.min,btpos.min,(int)lmn,(int)(mtxAp->all_leaf_matrices_n));
 #else  /* RSB_AT_DESTROYS_MTX */
 #if 1
  					/* FIXME: this is to have mtxAp address constant. */
@@ -2771,10 +3599,13 @@ errc:
 					mtxOp = NULL;
 					if(RSB_SOME_ERROR(errval)) { errval = RSB_ERR_INTERNAL_ERROR; goto erri; }
 #else
-				 	RSB_MTX_FREE(mtxAp); mtxAp = mtxOp;
+					RSB_MTX_FREE(mtxAp);
+					mtxAp = mtxOp;
 #endif
 #endif /* RSB_AT_DESTROYS_MTX */
-				 }
+				}
+				else
+					RSBENCH_STDOUT("First run of RSB Autotuner took %lg s and did not change matrix.\n",btt);
 			}
 
 			if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
@@ -2786,7 +3617,8 @@ errc:
 				rsb_time_t att = - rsb_time();
 				struct rsb_mtx_t * mtxOp = NULL;
 				struct rsb_mtx_t ** mtxOpp = NULL;
-				enum rsb_op_t op = rsb_op_spmv;
+				const enum rsb_op_t op = rsb_op_spmv;
+				const rsb_submatrix_idx_t lmn = mtxAp->all_leaf_matrices_n;
 
 				if(wat >  0)
 					otnp = &otn; /* starting thread suggestion */
@@ -2801,18 +3633,21 @@ errc:
 					otnp = &otn; /* starting thread suggestion */
 					mtxOpp = &mtxOp; /* matrix structure tuning */
 				}
-				errval = rsb__tune_spxx(mtxOpp, &sf, otnp, wai, 0, 0, mintimes, maxtimes, want_autotuner, transA, alphap, mtxAp, nrhs, order, rhs, rhsnri, betap, lhs, outnri, op , NULL, NULL, NULL, wavf, rsb__basename(filename), &attr, &otpos, &btpos);
+				RSBENCH_STDOUT("RSB Sparse Blocks Autotuner invoked requesting max %d splits and max %d merges in %d rounds, auto threads spec.\n",0,0,wai);
+				errval = rsb__tune_spxx(mtxOpp, &sf, otnp, wai, 0, 0, mintimes, maxtimes, want_autotuner, transA, alphap, mtxAp, nrhs, order, rhs, rhsnri, betap, lhs, outnri, op , NULL, NULL, NULL, wavf, mtrfpf, rsb__basename(filename), &attr, &otpos, &btpos);
 				att += rsb_time();
 				tottt += att;
 				if(mtxOpp && *mtxOpp)
 				{
-					RSBENCH_STDOUT("RSB Autotuner suggested a new matrix: freeing the existing one.\n");
+					RSBENCH_STDOUT("Second run of RSB Autotuner took %lg s and estimated a speedup of %lf x (%.3le s -> %.3le s per op) in new matrix (%d -> %d lsubm)\n",att,sf,otpos.min,btpos.min,(int)lmn,(int)((*mtxOpp)->all_leaf_matrices_n));
+					RSBENCH_STDOUT("RSB Autotuner suggested a new matrix: freeing the old one.\n");
 					RSB_MTX_FREE(mtxAp);
 					mtxAp = mtxOp;
 					mtxOp = NULL;
 					mtxOpp = NULL;
 				}
-				RSBENCH_STDOUT("RSB Autotuner took %lg s and estimated a speedup of %lf x\n",att,sf);
+				else
+					RSBENCH_STDOUT("Second run of RSB Autotuner took %lg s and estimated a speedup of %lf x (%.3le s -> %.3le s per op) in same matrix (%d -> %d lsubm)\n",att,sf,otpos.min,btpos.min,(int)lmn,(int)(mtxAp->all_leaf_matrices_n));
 				if(wat && otn > 0)
 				{
 					/* FIXME: this breaks consistency! Shall skip further cycles!  */
@@ -2834,15 +3669,15 @@ errc:
 			if(RSB_SOME_ERROR(errval)) { errval = RSB_ERR_INTERNAL_ERROR; goto erri; }
 				if(n_dumpres)
 				{
-					RSBENCH_STDOUT("##RSB LHS %d elements pre-peek:\n",n_dumpres);
+					RSBENCH_STDOUT("##RSB LHS %zd elements pre-peek:\n",(rsb_printf_int_t)n_dumpres);
 					rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incX);
 				}
 				if(n_dumprhs)
 				{
-					RSBENCH_STDOUT("##RSB RHS %d elements pre-peek:\n",n_dumprhs);
+					RSBENCH_STDOUT("##RSB RHS %zd elements pre-peek:\n",(rsb_printf_int_t)n_dumprhs);
 					rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumprhs),typecode,incX);
 				}
-			if ( times >= 0 ) /* benchmark of spmv_uaua */
+			if ( times >= 0 ) /* benchmark of spmv_sxsa */
 			{
 				/* 20140616 use this in conjunction with --dump-n-lhs-elements .. */
 				for(nrhsl=0;nrhsl<nrhs;++nrhsl)
@@ -2852,13 +3687,13 @@ errc:
 				RSB_PERFORMANCE_COUNTERS_DUMP_MEAN("POST_RSB_SPMV_",0,times,NULL);
 				op_t = - rsb_time();
 				RSB_TM_LIKWID_MARKER_R_START("RSB_SPMV");
-				for(i=0;i<times;++i)  /* benchmark loop of spmv_uaua begin */
+				for(i=0;i<times;++i)  /* benchmark loop of spmv_sxsa begin */
 				{
 #if RSB_EXPERIMENTAL_WANT_BEST_TIMES
 				spmv_t = - rsb_time();
 #endif /* RSB_EXPERIMENTAL_WANT_BEST_TIMES */
 				RSB_PERFORMANCE_COUNTERS_DUMP("PRE_RSB_SPMV_",0);
-				if((errval = rsb__do_spmm_general(mtxAp,rhs,lhs,alphap,betap,incX,incY,transA,RSB_OP_FLAG_DEFAULT,order RSB_OUTER_NRHS_SPMV_ARGS_IDS))!=RSB_ERR_NO_ERROR) /* benchmark -- mop is spmv_uaua */
+				if((errval = rsb__do_spmm_general(mtxAp,rhs,lhs,alphap,betap,incX,incY,transA,RSB_OP_FLAG_DEFAULT,order RSB_OUTER_NRHS_SPMV_ARGS_IDS))!=RSB_ERR_NO_ERROR) /* benchmark -- mop is spmv_sxsa */
 				{
 					RSBENCH_STDERR("[!] "RSB_ERRM_MV);
 					goto erri;
@@ -2874,12 +3709,13 @@ errc:
 	#ifdef RSB_WANT_KERNELS_DEBUG
 				/* ... */
 	#endif /* RSB_WANT_KERNELS_DEBUG */
-				}  /* times: benchmark loop of spmv_uaua end */
+				}  /* times: benchmark loop of spmv_sxsa end */
 				RSB_TM_LIKWID_MARKER_R_STOP("RSB_SPMV");
 				RSB_PERFORMANCE_COUNTERS_DUMP_MEAN("POST_RSB_SPMV_",1,times,&rsb_pci);
+				if( want_verbose > 0 )
 				if((g_debug || 1) /*&& i==times-1*/)
 				{
-					/* this is debug information, very cheap to include */
+					/* debug info */
 					RSB_DO_ERROR_CUMULATE(errval,rsb__do_print_some_vector_stats(lhs,typecode,nrA,incY));
 				}
 			if(rsb__set_num_threads(cc)!=cc)
@@ -2961,12 +3797,12 @@ errc:
 				if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
 				if(n_dumpres)
 				{
-					RSBENCH_STDOUT("##RSB LHS %d elements post-peek:\n",n_dumpres);
+					RSBENCH_STDOUT("##RSB LHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumpres);
 					rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incY);
 				}
 				if(n_dumprhs)
 				{
-					RSBENCH_STDOUT("##RSB RHS %d elements post-peek:\n",n_dumprhs);
+					RSBENCH_STDOUT("##RSB RHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumprhs);
 					rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumprhs),typecode,incY);
 				}
 				if(!g_sort_only)
@@ -2997,12 +3833,11 @@ errc:
 				}
 				else
 				{
-	                                raw_Mflops = rsb__estimate_mflops_per_op_spmv_uaua(mtxAp);
+	                                raw_Mflops = rsb__estimate_mflops_per_op_spmv_sxsa(mtxAp);
 	                                true_Mflops = raw_Mflops/fillin;
 	                                raw_Mflops *=nrhs;
 	                                true_Mflops*=nrhs;
 				}
-
 
 #if RSB_WANT_MKL
 	if(want_mkl_bench && !(cc==1 && mkl_coo_op_time_best_serial != RSB_CONST_IMPOSSIBLY_BIG_TIME))
@@ -3038,8 +3873,8 @@ errc:
 			if(!want_sort_after_load)
 			if(!want_in_place_assembly)
 			{
-				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS);
-				mklnz = rsb_weed_out_duplicates (IA,JA,VA,nnz,typecode,RSB_FLAG_SORTED_INPUT);
+				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,flags_s);
+				mklnz = rsb__weed_out_duplicates (IA,JA,VA,nnz,typecode,RSB_FLAG_SORTED_INPUT);
 				if((!RSB_IS_VALID_NNZ_COUNT(mklnz)) || (!mklnz) || (RSB_SOME_ERROR(errval)))
 				{
 					RSB_PERR_GOTO(err,RSB_ERRM_EM);
@@ -3083,7 +3918,7 @@ errc:
 			if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
 			if(n_dumpres)
 			{
-				RSBENCH_STDOUT("##MKL COO LHS %d elements post-peek:\n",n_dumpres);
+				RSBENCH_STDOUT("##MKL COO LHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumpres);
 				rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incY);
 			}
 			if(cc==1) 
@@ -3123,9 +3958,13 @@ errc:
 				mkl_coo2csr_time = - rsb_time();
 				RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_coo2csr(nrA,ncA,mklnz,VA,IA,JA,M_VAC,M_IAC,M_JAC,typecode,mib));
 				mkl_coo2csr_time += rsb_time();
+				if(RSB_SOME_ERROR(errval))
+				{
+					RSB_PERR_GOTO(err,"MKL conversion of COO to CSR: error! Is the input suitable ? E.g. NO duplicates ?")
+				}
 				if(RSB_SOME_ERROR(rsb__csr_chk(M_IAC,M_JAC,nrA,ncA,mklnz,mib)))
 				{
-      					RSB_PERR_GOTO(err,RSB_ERRM_EM)
+					RSB_PERR_GOTO(err,"MKL conversion of COO to CSR: error.")
 				}
 			}
 			else
@@ -3137,14 +3976,15 @@ errc:
 
 			if(n_dumpres)
 			{
-				RSBENCH_STDOUT("##MKL CSR LHS %d elements pre-peek:\n",n_dumpres);
+				RSBENCH_STDOUT("##MKL CSR LHS %zd elements pre-peek:\n",(rsb_printf_int_t)n_dumpres);
 				rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incX);
 			}			RSB_DO_ERROR_CUMULATE(errval,rsb__vectors_reinit(rhs,lhs,typecode,ndA,ndA,incX,incY));
 			if(n_dumprhs)
 			{
-				RSBENCH_STDOUT("##MKL CSR RHS %d elements pre-peek:\n",n_dumprhs);
+				RSBENCH_STDOUT("##MKL CSR RHS %zd elements pre-peek:\n",(rsb_printf_int_t)n_dumprhs);
 				rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumprhs),typecode,incY);
 			}			if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
+
 			if(want_mkl_bench_csr)
 			{
 			RSB_PERFORMANCE_COUNTERS_DUMP_MEAN("PRE_MKL_CSR_SPXV_",0,times,NULL);
@@ -3170,18 +4010,20 @@ errc:
 			if(cc==1)mkl_csr_op_time_best_serial=mkl_csr_op_time_best;
 			if(n_dumpres)
 			{
-				RSBENCH_STDOUT("##MKL CSR LHS %d elements post-peek:\n",n_dumpres);
+				RSBENCH_STDOUT("##MKL CSR LHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumpres);
 				rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incY);
 			}
 			if(n_dumprhs)
 			{
-				RSBENCH_STDOUT("##MKL CSR RHS %d elements post-peek:\n",n_dumprhs);
+				RSBENCH_STDOUT("##MKL CSR RHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumprhs);
 				rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumprhs),typecode,incY);
 			}
+#if RSB_WANT_OMP_RECURSIVE_KERNELS
 			if( mkl_csr_op_time_best != RSB_CONST_IMPOSSIBLY_BIG_TIME )
 				RSBENCH_STDOUT("##MKL STUFF DEBUG omp_set_num_threads():%d==omp_get_num_threads():%d  bestserialcsr:%0.5lf vs bestcsr:%0.5lf\n",omp_get_num_threads(),cc,mkl_csr_op_time_best_serial,mkl_csr_op_time_best);
 			if( mkl_coo_op_time_best != RSB_CONST_IMPOSSIBLY_BIG_TIME )
 				RSBENCH_STDOUT("##MKL STUFF DEBUG omp_set_num_threads():%d==omp_get_num_threads():%d  bestserialcoo:%0.5lf vs bestcoo:%0.5lf\n",omp_get_num_threads(),cc,mkl_coo_op_time_best_serial,mkl_coo_op_time_best);
+#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 
 			if( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_mkl_autotuner ) && want_mkl_autotuner > RSB_TIME_ZERO )
 			{
@@ -3193,10 +4035,28 @@ errc:
 				rsb__tattr_init(&(attr.clattr), NULL, nrA, mklnz, typecode, flags, nrhs);
 				attr.clattr.vl = 1; /* FIXME: new */
 				RSBENCH_STDOUT("# MKL CSR %s autotuning for thread spec. %d  trans %c (0=current (=%d),<0=auto,>0=specified)\n",ops,bthreads,RSB_TRANSPOSITION_AS_CHAR(transA),cc);
-				if(nrhs>1)
-					RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_csr_spmm_bench(M_VAC,nrA,ncA,nrhs,mklnz,M_IAC,M_JAC,rhs,rhsnri,lhs,outnri,alphap,betap,transA,typecode,flags|mif,&bthreads,&btime,&(attr.clattr),&btpms));
+#if RSB_WANT_MKL_INSPECTOR
+				if( want_mkl_inspector == RSB_BOOL_TRUE )
+				{
+					const sparse_layout_t layout = ( order == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER ) ? SPARSE_LAYOUT_COLUMN_MAJOR : SPARSE_LAYOUT_ROW_MAJOR;
+					MKL_INT ldc = 0, ldb = 0;
+					RSB_DO_ERROR_CUMULATE(errval,rsb__set_ldX_for_spmm(transA, mtxAp, nrhs, order, &ldb, &ldc));
+					if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(err,RSB_ERRM_ES); }
+					RSBENCH_STDOUT("# Using the MKL \"Inspector-executor Sparse BLAS routines\" interface %s!\n",mkl_ie_hintlvl == 2?" (aggressive memory usage option)": (mkl_ie_hintlvl == 1 ? "(no memory usage option)" : "(no optimization)") );
+					if(nrhs>1)
+						RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_inspector_csr_spmm_bench(M_VAC,nrA,ncA,layout,nrhs,mklnz,M_IAC,M_JAC,rhs,ldb,lhs,ldc,alphap,betap,transA,typecode,flags|mif,&bthreads,&btime,&(attr.clattr),&btpms[0],mkl_ie_hintlvl));
+					else
+						RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_inspector_csr_spmv_bench(M_VAC,nrA,ncA,nrhs,mklnz,M_IAC,M_JAC,rhs,rhsnri,lhs,outnri,alphap,betap,transA,typecode,flags|mif,&bthreads,&btime,&(attr.clattr),&btpms[0],mkl_ie_hintlvl));
+				} /* want_mkl_inspector */
 				else
-					RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_csr_spmv_bench(M_VAC,nrA,ncA,mklnz,M_IAC,M_JAC,rhs,lhs,alphap,betap,transA,typecode,flags,&bthreads,&btime,&(attr.clattr),&btpms));
+#endif /* RSB_WANT_MKL_INSPECTOR */
+				{
+					RSBENCH_STDOUT("# Using the MKL \"Sparse BLAS routines\" interface !\n");
+					if(nrhs>1)
+						RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_csr_spmm_bench(M_VAC,nrA,ncA,nrhs,mklnz,M_IAC,M_JAC,rhs,rhsnri,lhs,outnri,alphap,betap,transA,typecode,flags|mif,&bthreads,&btime,&(attr.clattr),&btpms[0]));
+					else
+						RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_csr_spmv_bench(M_VAC,nrA,ncA,mklnz,M_IAC,M_JAC,rhs,lhs,alphap,betap,transA,typecode,flags,&bthreads,&btime,&(attr.clattr),&btpms[0]));
+				}
 				ops = "SPMV";
 				bthreads = bthreads ? bthreads : cc;
 				RSBENCH_STDOUT("# MKL CSR %s best threads / time / perf. were: %d / %lg / %lg\n",ops,bthreads,btime,(rsb__estimate_mflops_per_op_spmv_uaua(mtxAp)*nrhs)/btime);
@@ -3238,7 +4098,7 @@ errc:
 			if(cc==1)mkl_gem_op_time_best_serial=mkl_gem_op_time_best;
 			if(n_dumpres)
 			{
-				RSBENCH_STDOUT("##MKL GEMX LHS %d elements peek:\n",n_dumpres);
+				RSBENCH_STDOUT("##MKL GEMX LHS %zd elements peek:\n",(rsb_printf_int_t)n_dumpres);
 				rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incY);
 			}
 			} /* want_mkl_bench_gem */
@@ -3252,6 +4112,31 @@ mklerr:
 			rsb_perror(NULL,errval);
 		} /* want_mkl_bench  */
 #endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+		if ( want_armpl_bench )
+		{
+			const rsb_coo_idx_t aib = 0; /* ARMPL index base */
+			void *M_VA = NULL;
+			armpl_int_t *M_IA = NULL, *M_JA = NULL;
+			const rsb_nnz_idx_t annz = RSB_MAX(nnz,nrA+1), armplnz = nnz;
+			rsb_thread_t bthreads = cc;
+			struct rsb_ts_t btpms[3]; /* first is tuned, second is not */
+
+			rsb_time_t armpl_csr_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME, at_armpl_csr_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+			errval = rsb__util_coo_alloc_copy_and_stats(&M_VA,&M_IA,&M_JA,NULL,NULL,NULL,NULL,NULL,armplnz,(annz-armplnz),typecode,0,aib,RSB_FLAG_NOFLAGS,NULL);
+			RSB_DEBUG_ASSERT( errval == RSB_ERR_NO_ERROR);
+			errval = rsb_mtx_get_csr(mtxAp->typecode,mtxAp,M_VA,M_IA,M_JA,flags);
+			RSB_DEBUG_ASSERT( errval == RSB_ERR_NO_ERROR);
+			//rsb__armpl_csr_spmv_bench(VA, nrA, ncA, nnz, M_IA, M_JA, lhs, rhs, alphap, betap, transA, typecode, flags, NULL, NULL, NULL, NULL);
+			rsb__armpl_csr_spmv_bench(VA, nrA, ncA, nnz, M_IA, M_JA, lhs, rhs, alphap, betap, transA, typecode, flags, &bthreads, &armpl_csr_op_time_best, &(attr.clattr), &btpms[1],RSB_BOOL_FALSE);
+			btpms[0] = btpms[1]; // only and best
+			rsb__armpl_csr_spmv_bench(VA, nrA, ncA, nnz, M_IA, M_JA, lhs, rhs, alphap, betap, transA, typecode, flags, &bthreads, &at_armpl_csr_op_time_best, &(attr.clattr), &btpms[2],RSB_BOOL_TRUE);
+			btpms[1] = btpms[2]; // only and best
+			at_armpl_csr_op_time_best = RSB_MIN(armpl_csr_op_time_best, at_armpl_csr_op_time_best);
+			rsb__pr_set(rspr, mtxAp, NULL, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti, transA, RSB_CONST_IMPOSSIBLY_BIG_TIME, armpl_csr_op_time_best, RSB_CONST_IMPOSSIBLY_BIG_TIME, at_armpl_csr_op_time_best, RSB_THREADS_AUTO, bthreads, RSB_CONST_IMPOSSIBLY_BIG_TIME, -1, NULL, NULL, &btpms[0], &btpms[1]);
+			// printf("VALS: %lf -> %lf\n",btpms[1].min,btpms[0].min);
+		} /* want_armpl_bench */
+#endif /* RSB_WANT_ARMPL */
 #ifdef RSB_WANT_OSKI_BENCHMARKING 
 			/* FIXME : should only exist for double as type */
 			if(want_oski_bench && guess_blocking_test!=2 /* g.b.t=2 is an extra run*/) 
@@ -3408,18 +4293,22 @@ errgr:
 				RSBENCH_STDOUT ( "%-20s	%s", rsb__basename(filename),rsb__sprint_matrix_implementation_code2(mtxAp,buf,flags));
 
 				RSBENCH_STDOUT ( "	%.3lf	%lg",
-				//raw_Mflops/op_t,	/* please note that in the sort case, it is an absolutely meaningless value */
-				true_Mflops/op_t,	/* algorithmic millions of ops per second (not an accurated model)  */
-				op_t/true_Mflops	/* the sorting algorithmic constant (not an accurated model) */
+					//raw_Mflops/op_t,	/* please note that in the sort case, it is an absolutely meaningless value */
+					true_Mflops/op_t,	/* algorithmic millions of ops per second (not an accurated model)  */
+					op_t/true_Mflops	/* the sorting algorithmic constant (not an accurated model) */
 				);
 			}
 			else
 			if(!g_estimate_matrix_construction_time)
+			if(want_verbose >= -2)
 			{
 #if RSB_EXPERIMENTAL_WANT_BEST_TIMES
-				rsb__dump_performance_record(rsb__basename(filename),mtxAp,true_Mflops/best_t,raw_Mflops/best_t,"spmv_uaua",flags);
+				if( best_t != RSB_CONST_IMPOSSIBLY_BIG_TIME )
+				{
+					rsb__dump_performance_record(rsb__basename(filename),mtxAp,true_Mflops/best_t,raw_Mflops/best_t,"spmv_sxsa",flags);
+				}
 #else /* RSB_EXPERIMENTAL_WANT_BEST_TIMES */
-				rsb__dump_performance_record(rsb__basename(filename),mtxAp,true_Mflops/op_t,raw_Mflops/op_t,"spmv_uaua",flags);
+				rsb__dump_performance_record(rsb__basename(filename),mtxAp,true_Mflops/op_t,raw_Mflops/op_t,"spmv_sxsa",flags);
 #endif /* RSB_EXPERIMENTAL_WANT_BEST_TIMES */
 			}
 			if(g_estimate_matrix_construction_time)
@@ -3429,7 +4318,7 @@ errgr:
 				   * a ratio of the selected op time with the matrix construction time
 				 */
 				RSBENCH_STDOUT("\t%.3lg\t%.3lg	", ((double)nnz)/(mct*RSB_REAL_MILLION), mct/op_t);
-				rsb__fprint_matrix_implementation_code(mtxAp, "spmv_uaua", flags, RSB_STDOUT_FD);
+				rsb__fprint_matrix_implementation_code(mtxAp, "spmv_sxsa", flags, RSB_STDOUT_FD);
 				RSBENCH_STDOUT ( "\n");
 			}
 			omta=((double)rsb_spmv_memory_accessed_bytes(mtxAp));
@@ -3485,20 +4374,21 @@ errgr:
 			{
 #if RSB_WANT_MKL
 				/* FIXME: this #if is horrible */
-				rsb__pr_set(rspr, mtxAp/*NULL */ /* FIXME */, NULL, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti, transA, RSB_CONST_IMPOSSIBLY_BIG_TIME, mkl_csr_op_time_best, RSB_CONST_IMPOSSIBLY_BIG_TIME, at_mkl_csr_op_time_best, RSB_THREADS_AUTO, at_mkl_csr_nt, RSB_CONST_IMPOSSIBLY_BIG_TIME, -1, NULL, NULL, &btpms[1], &btpms);
+				rsb__pr_set(rspr, mtxAp/*NULL */ /* FIXME */, NULL, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti, transA, RSB_CONST_IMPOSSIBLY_BIG_TIME, mkl_csr_op_time_best, RSB_CONST_IMPOSSIBLY_BIG_TIME, at_mkl_csr_op_time_best, RSB_THREADS_AUTO, at_mkl_csr_nt, RSB_CONST_IMPOSSIBLY_BIG_TIME, -1, NULL, NULL, &btpms[1], &btpms[0]);
 #endif
 			}
 
+			if( want_verbose >= -1 && times > 0 )
+			{
+				// TODO: update these statistics here.
 #if RSB_EXPERIMENTAL_WANT_BEST_TIMES
-			RSBENCH_STDOUT ( "#	%10.2lf	%10.2lf	( best, average net performance in %d tries ); diff:%2.0lf%%\n",
-				((double)true_Mflops/best_t), ((double)true_Mflops/op_t),
-				(int)times,
-				/* for marcin : */
-				((((double)true_Mflops/best_t)-((double)true_Mflops/op_t))*100)/((double)true_Mflops/op_t)
+				RSBENCH_STDOUT ( "#	%10.2lf	%10.2lf	( best, average net performance in %ld tries ); diff:%2.0lf%%\n",
+					((double)true_Mflops/best_t), ((double)true_Mflops/op_t),
+					(long)times,
+					((((double)true_Mflops/best_t)-((double)true_Mflops/op_t))*100)/((double)true_Mflops/op_t)
 				);
 #endif /* RSB_EXPERIMENTAL_WANT_BEST_TIMES */
-
-			RSBENCH_STDOUT ( "#	%10.2lf	%10.2lf	%10.2lf %10.6lf (min bw, reasonable bw, exceedingly max bw, w/r ratio) (MB/s)\n"
+				RSBENCH_STDOUT ( "#	%10.2lf	%10.2lf	%10.2lf %10.6lf (min bw, reasonable bw, exceedingly max bw, w/r ratio) (MB/s)\n"
 				     "#	%10.2lf (MB per mop) %10.2lf (rhs loads, with a variable degree of locality)\n"
 				     "#	%10.2lf (MB per mop, estimated)\n"
 				     "#	%10.2lf (assembly + extra to (best) mop time ratio) (%10.2lf s)\n"
@@ -3531,27 +4421,31 @@ errgr:
 				((mtxAp->rpt)/(best_t)),((long)rsb__get_recursive_matrix_depth(mtxAp)),
 				(double)nnz/nrA, (double)nnz/ncA
 				);
+			}
 				if(RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE>1)
-				RSBENCH_STDOUT ( 
-				     "#	%10.2lf (estimated fillin)"
-				     "#	%10.2lf (estimated fillin error)\n"
-				     "#	%10.2lf (estimated raw performance)"
-				     "#	%10.2lf (estimated raw performance error)\n"
-				     "#	%10.2lf (estimated net performance)"
-				     "#	%10.2lf (estimated net performance error)\n",
-				efillin, (efillin-fillin)/fillin,
-				eperf, (eperf-raw_Mflops/best_t)/(raw_Mflops/best_t),
-				efillin?(eperf/efillin):-1,efillin?(((eperf/efillin)-(true_Mflops/best_t))/(true_Mflops/best_t)):-1
-				);
-				RSBENCH_STDOUT( "#used index storage compared to COO:%zd vs %zd bytes (%.02lf%%) "
-					,(size_t)rsb__get_index_storage_amount(mtxAp),sizeof(rsb_coo_idx_t)*2*nnz
-					,(100*(double)rsb__get_index_storage_amount(mtxAp))/RSB_UTIL_COO_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
-				);
-				RSBENCH_STDOUT( "; compared to CSR:%zd vs %zd bytes (%.02lf%%)\n"
-					,(size_t)rsb__get_index_storage_amount(mtxAp),
-					 (sizeof(rsb_coo_idx_t)*nnz+sizeof(rsb_nnz_idx_t)*(mtxAp->nr+1))
-					,(100*(double)rsb__get_index_storage_amount(mtxAp))/RSB_UTIL_CSR_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
-				);
+					RSBENCH_STDOUT ( 
+					     "#	%10.2lf (estimated fillin)"
+					     "#	%10.2lf (estimated fillin error)\n"
+					     "#	%10.2lf (estimated raw performance)"
+					     "#	%10.2lf (estimated raw performance error)\n"
+					     "#	%10.2lf (estimated net performance)"
+					     "#	%10.2lf (estimated net performance error)\n",
+					efillin, (efillin-fillin)/fillin,
+					eperf, (eperf-raw_Mflops/best_t)/(raw_Mflops/best_t),
+					efillin?(eperf/efillin):-1,efillin?(((eperf/efillin)-(true_Mflops/best_t))/(true_Mflops/best_t)):-1
+					);
+				if(want_verbose >= -1)
+				{
+					RSBENCH_STDOUT( "#used index storage compared to COO:%zd vs %zd bytes (%.02lf%%) "
+						,(size_t)rsb__get_index_storage_amount(mtxAp),(size_t)(sizeof(rsb_coo_idx_t)*2*nnz)
+						,(100*(double)rsb__get_index_storage_amount(mtxAp))/RSB_UTIL_COO_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
+					);
+					RSBENCH_STDOUT( "; compared to CSR:%zd vs %zd bytes (%.02lf%%)\n"
+						,(size_t)rsb__get_index_storage_amount(mtxAp),
+						 (size_t)(sizeof(rsb_coo_idx_t)*nnz+sizeof(rsb_nnz_idx_t)*(mtxAp->nr+1))
+						,(100*(double)rsb__get_index_storage_amount(mtxAp))/RSB_UTIL_CSR_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
+					);
+				}
 			rsb__attr_dump(&attr);
 			RSB_BZERO_P((&attr));
 			if(ci==0 && smt == RSB_TIME_ZERO && RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
@@ -3567,48 +4461,48 @@ errgr:
 			{
 				pmt=best_t;
 			}
-				if(want_verbose == RSB_BOOL_TRUE && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
+				if(want_verbose > 0 && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
 				{
 					rsb_nnz_idx_t minnz=0,maxnz=0,avgnz=0;
-					rsb_bool_t vrpr = (times != 0) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
+					const rsb_bool_t vrpr = (times != 0) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
 
 					if(vrpr)
 					{
-					RSBENCH_STDOUT("%%:PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.2lf\n",true_Mflops/best_t);
-					RSBENCH_STDOUT("\t%le\t%le\n",true_Mflops,best_t);
+						RSBENCH_STDOUT("%%:PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.2lf\n",true_Mflops/best_t);
+						RSBENCH_STDOUT("\t%le\t%le\n",true_Mflops,best_t);
 
-					RSBENCH_STDOUT("%%:OP_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.6lf\n",best_t);
+						RSBENCH_STDOUT("%%:OP_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.6lf\n",best_t);
 					}
 
 					if( no_lock_op_time_best != RSB_CONST_IMPOSSIBLY_BIG_TIME )
 					{
-					RSBENCH_STDOUT("%%:FAKE_LOCK_PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.2lf\n",true_Mflops/no_lock_op_time_best);
+						RSBENCH_STDOUT("%%:FAKE_LOCK_PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.2lf\n",true_Mflops/no_lock_op_time_best);
 
-					RSBENCH_STDOUT("%%:FAKE_LOCK_OP_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.2lf\n",no_lock_op_time_best);
+						RSBENCH_STDOUT("%%:FAKE_LOCK_OP_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.2lf\n",no_lock_op_time_best);
 
-					RSBENCH_STDOUT("%%:FAKE_LOCK_PERF_SCALING:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.2lf\n",serial_no_lock_op_time_best/no_lock_op_time_best);
+						RSBENCH_STDOUT("%%:FAKE_LOCK_PERF_SCALING:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.2lf\n",serial_no_lock_op_time_best/no_lock_op_time_best);
 					}
 
 					if(qt_op_time_best != RSB_CONST_IMPOSSIBLY_BIG_TIME && cc==1)
 					{
-					RSBENCH_STDOUT("%%:RECURSIVE_SERIAL_PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.2lf\n",true_Mflops/qt_op_time_best);
+						RSBENCH_STDOUT("%%:RECURSIVE_SERIAL_PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.2lf\n",true_Mflops/qt_op_time_best);
 
-					RSBENCH_STDOUT("%%:RECURSIVE_SERIAL_OP_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.2lf\n",qt_op_time_best);
+						RSBENCH_STDOUT("%%:RECURSIVE_SERIAL_OP_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.2lf\n",qt_op_time_best);
 					}
 
 
 					if(vrpr)
 					{
-					if( serial_best_t != RSB_CONST_IMPOSSIBLY_BIG_TIME )
-					RSBENCH_STDOUT("%%:PERF_SCALING:"),RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(),
-					RSBENCH_STDOUT("\t%10.2lf\n",serial_best_t/best_t);
+						if( serial_best_t != RSB_CONST_IMPOSSIBLY_BIG_TIME )
+							RSBENCH_STDOUT("%%:PERF_SCALING:"),RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(),
+							RSBENCH_STDOUT("\t%10.2lf\n",serial_best_t/best_t);
 					}
 
 					RSBENCH_STDOUT("#%%:CONSTRUCTOR_*:SORT	SCAN	INSERT	SCAN+INSERT\n");
@@ -3691,8 +4585,8 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 
 					RSBENCH_STDOUT("%%:SM_IDXOCCUPATIONRSBVSCOOANDCSR:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
 					RSBENCH_STDOUT("\t%zd\t%zd\t%zd\n",rsb__get_index_storage_amount(mtxAp),
-						RSB_UTIL_COO_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz),
-						RSB_UTIL_CSR_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
+						(size_t)RSB_UTIL_COO_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz),
+						(size_t)RSB_UTIL_CSR_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
 						);
 
 					RSBENCH_STDOUT("%%:SM_IDXOCCUPATION:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
@@ -3714,13 +4608,13 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 							maxnz = RSB_MAX(maxnz,submatrix->nnz);
 							minnz = RSB_MIN(minnz,submatrix->nnz);
 						}
-						RSBENCH_STDOUT(" %d %d %.2lf %d\n",minnz,maxnz,avgnz,mtxAp->all_leaf_matrices_n);
+						RSBENCH_STDOUT(" %zd %zd %.2lf %zd\n",(rsb_printf_int_t)minnz,(rsb_printf_int_t)maxnz,avgnz,(rsb_printf_int_t)mtxAp->all_leaf_matrices_n);
 					}
 #else
 					/* old, obsolete */
 					rsb__do_compute_terminal_nnz_min_max_avg_count(mtxAp,&minnz,&maxnz,&avgnz);
 					RSBENCH_STDOUT("%%:SM_MINMAXAVGNNZ:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%d\t%d\t%d\n",minnz,maxnz,avgnz);
+					RSBENCH_STDOUT("\t%zd\t%zd\t%zd\n",(rsb_printf_int_t)minnz,(rsb_printf_int_t)maxnz,(rsb_printf_int_t)avgnz);
 #endif
 
 				if(want_print_per_subm_stats)
@@ -3764,7 +4658,7 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 			} /* times */
 #if RSB_WANT_MKL
 				if(want_mkl_bench) /* 20110428 */
-				if(want_verbose == RSB_BOOL_TRUE && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
+				if(want_verbose > 0 && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
 				{
 #ifdef mkl_get_version
 					MKLVersion mv;
@@ -3830,14 +4724,14 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 
 					if( mkl_coo2csr_time != RSB_TIME_ZERO )
 					{
-					RSBENCH_STDOUT("%%:MKL_COO2CSR_T0_CSR_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.6lf\n",mkl_coo2csr_time);
-					RSBENCH_STDOUT("%%:MKL_COO2CSR_T0_CSR_OP:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.2lf\n",mkl_coo2csr_time/mkl_csr_op_time_best);
+						RSBENCH_STDOUT("%%:MKL_COO2CSR_T0_CSR_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.6lf\n",mkl_coo2csr_time);
+						RSBENCH_STDOUT("%%:MKL_COO2CSR_T0_CSR_OP:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.2lf\n",mkl_coo2csr_time/mkl_csr_op_time_best);
 
 
-					RSBENCH_STDOUT("%%:SORTEDCOO2RSB_VS_MKLCOO2CSR:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.3lf\n", (msat+meit)/(mkl_coo2csr_time));
+						RSBENCH_STDOUT("%%:SORTEDCOO2RSB_VS_MKLCOO2CSR:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.3lf\n", (msat+meit)/(mkl_coo2csr_time));
 					}
 				} /* want_mkl_bench */
 #endif /* RSB_WANT_MKL */
@@ -3846,10 +4740,11 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 					const char*norsbnotice="";
 					const char*rsbnotice="NORSB_";
 					const char*notice=norsbnotice;
-				if(want_verbose == RSB_BOOL_TRUE && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
-					{}
-				else
-					notice = rsbnotice;
+
+					if(want_verbose > 0 && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
+						{}
+					else
+						notice = rsbnotice;
 
 					RSBENCH_STDOUT("%%:%sGETROW_PERFORMANCE:",notice);RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
 					RSBENCH_STDOUT("\t%10.2lf\n",((rsb_time_t)mtxAp->nnz)/(RSB_REAL_MILLION*getrow_op_time_best));
@@ -3864,10 +4759,10 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 					const char*norsbnotice="";
 					const char*rsbnotice="NORSB_";
 					const char*notice=norsbnotice;
-				if(want_verbose == RSB_BOOL_TRUE && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
-					{}
-				else
-					notice = rsbnotice;
+					if(want_verbose > 0 && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
+						{}
+					else
+						notice = rsbnotice;
 
 					RSBENCH_STDOUT("%%:%sGETDIAG_PERFORMANCE:",notice);RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
 					RSBENCH_STDOUT("\t%10.2lf\n",((rsb_time_t)mtxAp->nr)/(RSB_REAL_MILLION*diag_op_time_best));
@@ -3877,7 +4772,8 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 					RSBENCH_STDOUT("\t%10.6lf\n",diag_op_time_best/best_t);
 
 				}
-				RSBENCH_STDOUT( "#\n");/* end of record */
+				if(want_verbose > -2)
+					RSBENCH_STDOUT( "#\n");/* end of record */
 				if(guess_blocking_test)
 				{
 					rsb_flags_t oflags = RSB_FLAG_NOFLAGS;
@@ -3996,7 +4892,7 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 			if(brl==0 || bcl==0) break;
 		} /* ci : core (count) index */
 
-			if(want_verbose == RSB_BOOL_TRUE)
+			if(want_verbose > 0)
 			{
             			RSBENCH_STDOUT("%%operation:matrix	CONSTRUCTOR[%d]	SPMV[%d]	SPMV[%d]\n",ca[0],ca[0],ca[cl-1]);
             			RSBENCH_STDOUT("%%operation:%s	%lg	%lg	%lg\n",
@@ -4007,14 +4903,21 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 					rsb__basename(filename),sest,ssat,scpt,seit);
 			}
 		} /* ti (transposition index) */
+	}	/* incYi */
+	}	/* incXi */
+	}	/* betai */
+	}	/* alphai */
+	}	/* nrhsi */
 	}
-	else
+
+	if(want_verbose >= -2)
 	{
-		RSBENCH_STDOUT("%s (spmv_uaua) : Please specify a matrix filename (with -f)\n",argv[0]);
+ 		RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
+		RSBENCH_STDOUT(".\n"); /* FIXME: this takes too much space here ! */
 	}
- 	RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
-	RSBENCH_STDOUT(".\n"); /* FIXME: this takes too much space here ! */
-	rsb__getrusage();
+
+	if(want_verbose >= 0)
+		rsb__getrusage();
 done:
 frv:
 	if( !should_recycle_io )
@@ -4031,9 +4934,11 @@ frv:
 		RSBENCH_MAY_SQUIT(ret,{}) /* early end of program */
 		RSBENCH_MAY_TQUIT(ret,{}) /* early end of program */
 	}	/* typecodesi */
-	}	/* nrhsi */
-	}	/* incXi */
-	}	/* incYi */
+	}	/* diagi */
+	}	/* asfii */
+	}	/* asiii */
+	}	/* accii */
+	}	/* areci */
 nfnm:	RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS;
 	}	/* filenamei */
 	RSBENCH_STDOUT("# benchmarking terminated --- finalizing run.\n");
@@ -4058,189 +4963,237 @@ rret:
 	if(want_perf_dump) 
 	{
 		RSBENCH_STDOUT("# ====== BEGIN Total summary record.\n");
-		errval = rsb__pr_dump(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL );
+		errval = rsb__pr_dump(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, NULL );
 		RSBENCH_STDOUT("# ======  END  Total summary record.\n");
-		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
-		errval = rsb__pr_save(fprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE );
-		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
+		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(tret,RSB_ERRM_ES);
+		errval = rsb__pr_save(fprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE);
+		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(tret,RSB_ERRM_ES);
 		RSBENCH_STDOUT("# Removing the temporary record file %s.\n",cprfn);
 		remove(cprfn);
 	}
 	if( ca  != ca_ ) {RSB_CONDITIONAL_FREE(ca);}
-#if !RSB_RSBENCH_STATIC_FILENAMEA
+#if RSB_RSBENCH_STATIC_FILENAMEA
+	{
+		rsb_int_t filenamei;
+		for ( filenamei = 0; filenamei < filenamen ; ++filenamei )
+	       		if( filenamea[filenamei] != fnbufp[0] )
+				free(filenamea[filenamei]); /* allocated in rsb__strdup */
+	}
+#else
 	/* if(filenamea!=&fnbufp)RSB_CONDITIONAL_FREE(filenamea); */
 	if(filenamea!=&fnbufp)free(filenamea); /* FIXME */
 #endif
-	if(nrhsa!=(&nrhs))RSB_CONDITIONAL_FREE(nrhsa); /* FIXME: they get allocated (and thus shall be deallocated) before init */
-	if(incXa!=(&incX))RSB_CONDITIONAL_FREE(incXa);
- 	if(incYa!=(&incY))RSB_CONDITIONAL_FREE(incYa); 
+	if(nrhsa!=(&nrhs))RSB_CONDITIONAL_FREE(nrhsa); /* if same, nrhsa only points to incx */
+	if(incXa!=(&incX))RSB_CONDITIONAL_FREE(incXa); /* same trick */
+ 	if(incYa!=(&incY))RSB_CONDITIONAL_FREE(incYa); /* same trick */
+	RSB_CONDITIONAL_FREE(alphaip);
+	RSB_CONDITIONAL_FREE(betaip);
 	if(want_likwid == RSB_BOOL_TRUE){RSB_LIKWID_MARKER_EXIT;} /* FIXME: and other cases ? */
-	if(want_verbose == RSB_BOOL_TRUE)
+	RSBENCH_MEM_ALLOC_INFO("\n");
+	if(want_verbose > 0)
 		rsb__echo_timeandlabel(" terminating run at ","\n",&st);
+	rsb__mbw_es_free(mbetp);
 	rsb__pr_free(rspr);
+tret:
 	if(RSB_SOME_ERROR(rsb_lib_exit(RSB_NULL_EXIT_OPTIONS)))
 		return RSB_ERR_GENERIC_ERROR;
 	return errval;
+#else /* RSB_HAVE_GETOPT_H */
+	return RSB_ERR_NO_ERROR;
+#endif /* RSB_HAVE_GETOPT_H */
 }
 
-int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const argv[])
+int rsb__main_block_partitioned_spsv_sxsx(const int argc, rsb_char_t * const argv[])
 {
+#if RSB_HAVE_GETOPT_H
 	/*!
 	 * \ingroup gr_bench
 	 * This function implements a complete program for using our variable block
 	 * rows sparse matrix storage as it was a fixed block size format.
 	 * It is useful for benchmark against fixed block sparse matrix codes.
-	 * 
-	 * This function will benchmark the "spsv_uxua" matrix operation.
+	 *
+	 * This function will benchmark the "spsv_sxsx" matrix operation.
 	 * */
 
 	/*
 	 * This example main program reads in a Matrix Market file in block format and multiplies it against a unit vector.
 	 **/
-	rsb_option options[] = {
-	    {"all-flags",	0 , NULL, 0x51},/* Q */  
-	    {"allow-any-transposition-combination",	0 , NULL, 0x61617463 },/* aatc */  
-	    {"alpha",	required_argument, NULL , 0x414C},/* AL */
-	    {"alternate-sort",	no_argument, NULL , 0x4153},/* AS */
-	    {"auto-blocking",	0 , NULL, 0x41},/* A */
-	    {"be-verbose",		0, NULL, 0x76},	/* v */
-	    {"beta",	required_argument, NULL ,  0x4246},/* BE */
-	    {"block-columnsize",	required_argument, NULL, 0x63},/* c */  
-	    {"block-rowsize",   required_argument, NULL, 0x72 },/* r */
-	    {"cache-blocking",	required_argument, NULL , 0x4342},/* CB */
-/*	    {"cache-flush",	no_argument, NULL, 0x4343},*/ /*   */
-	    {"column-expand",	required_argument, NULL, 0x6B},/* k */  
-	    {"compare-competitors",	no_argument, NULL, 0x6363},/* cc */  
-	    {"convert",	0, NULL, 0x4B},/* K */  
-/*	    {"convert",	required_argument, NULL, 0x4B},*//* K   */
-	    {"dense",	required_argument, NULL, 0x64 },   /* d */
-	    {"diagonal-dominance-check",	no_argument , NULL, 0x4444},/* DD */  /* new */
-	    {"dump-n-lhs-elements",	required_argument , NULL, 0x444444},/* DDD */  /* new */
-	    {"echo-arguments",	no_argument , NULL, 0x6563686f},/* echo */  /* new */
-	    {"flush-cache-in-iterations",	no_argument, NULL, 0x4343},/*  */  
-	    {"impatient",	no_argument, NULL, 0x696d7061},/* impa[tient] */  
-	    {"no-flush-cache-in-iterations",	no_argument, NULL, 0x434E},/*  */  
-	    {"flush-cache-around-loop",	no_argument, NULL, 0x434343},/*  */  
-	    {"want-ancillary-execs",	no_argument, NULL, 0x767646},/*  */  
-	    {"no-want-ancillary-execs",	no_argument, NULL, 0x42767646},/*  */  
-	    {"no-flush-cache-around-loop", no_argument	, NULL, 0x43434E},/*  */  
-	    {"want-no-recursive",	no_argument, NULL, 0x776e720a},/*  */  
-	    {"guess-blocking",	no_argument , NULL, 0x47},/* G */
-	    {"help",	no_argument , NULL, 0x68},	/* h */
-	    {"ilu0",	no_argument , NULL, 0x494B55},/* ILU */  /* new */
-	    {"incx",	required_argument, NULL, 0xb1bb0 },/* */  
-	    {"incy",	required_argument, NULL, 0xb1bb1 },/* */  
-	    {"in-place-assembly-experimental",	no_argument , NULL, 0x6970},/* i */  
-	    {"in-place-csr",	0 , NULL, 0x69},/* i */  
-	    {"in-place-permutation",	no_argument, NULL, 0x50},   /* P */
-#if RSB_WITH_LIKWID
-	    {"likwid",	no_argument, NULL, 0x6c696b77},   /* likw */
-#endif /* RSB_WITH_LIKWID */
-	    {"lower",	required_argument, NULL, 0x6c},   /* l */
-	    {"lower-dense",	required_argument, NULL, 0x6c64},   /* ld */
-	    {"generate-lowerband",	required_argument, NULL, 0x6c6c},   /* ll */
-	    {"gen-lband",	required_argument, NULL, 0x6c6c},   /* ll */
-	    {"generate-spacing",	required_argument, NULL, 0xbabb2 },   /* */
-	    {"matrix-dump",	0 , NULL, 0x44044},/* D */  
-	    {"matrix-dump-graph",	required_argument , NULL, 0x44047},/* DG */  
-	    {"matrix-dump-internals",	0 , NULL, 0x49049},/* I */  
-	    {"merge-experimental",	required_argument , NULL, 0x6d656578},/* meex */  
-	    {"split-experimental",	required_argument , NULL, 0x73706578},/* spex */  
-	    {"ms-experimental",	required_argument , NULL, 0x6d736578},/* msex */  
-	    {"matrix-filename",	required_argument, NULL, 0x66},/* f */  
-	    {"matrix-storage",	required_argument, NULL, 0x46},/* F */  
-	    {"matrix-time",	0 , NULL, 0x4D},/* M */  /* new */
-	    {"mem-hierarchy-info",	required_argument , NULL, 0x4D4D},/* MM */  /* new */
-	    {"max-runtime",	required_argument , NULL, 0x6d617275},/* maru */
-	    {"no-op",		0 , NULL, 0x4E},	/* N */
-	    {"notranspose",	no_argument, NULL, 0x5051},   /* do not transpose the operation */
-	    {"nrhs",	required_argument, NULL, 0x6e726873},   /* */
-	    {"nrhs-by-rows",	no_argument, NULL, 0x726f7773},   /* */
-	    {"by-rows",	no_argument, NULL, 0x726f7773},   /* */
-	    {"nrhs-by-columns",	no_argument, NULL, 0x636f6c73},   /* */
-	    {"by-columns",	no_argument, NULL, 0x636f6c73},   /* */
-	    {"nrhs-by-cols",	no_argument, NULL, 0x636f6c73},   /* undocumented alias */
-	    {"by-cols",	no_argument, NULL, 0x636f6c73},   /* undocumented alias */
-	    {"one-nonunit-incx-incy-nrhs-per-type",	no_argument, NULL, 0x6e697270},   /* */
-	    RSB_BENCH_PROG_OPTS
-	    {"oski-benchmark",	0 , NULL, 0x42},/* B: only long option *//* comparative benchmarking agains OSKI */
-	    {"mkl-benchmark",	0 , NULL, 0x4C},/* L: only long option *//* comparative benchmarking agains MKL */
-	    {"out-lhs",		0 , NULL, 0x6F6C6873},/* o */	/* should accept an output file name, optionally */
-	    {"out-rhs",		0 , NULL, 0x6F6F},/* o */	/* should accept an output file name, optionally */
-	    {"override-matrix-name",	required_argument , NULL, 0x6F6D6E},/* omn */	
-	    {"pattern-mark",	0 , NULL, 0x70},/* p */
-	    {"pre-transpose",	no_argument, NULL, 0x5454},   /* transpose the matrix before assembly  */
-	    {"read-as-binary",		required_argument, NULL, 0x62},/* b */
-	    {"repeat-constructor",	required_argument , NULL, 0x4A4A},
-	    {"reuse-io-arrays",	no_argument , NULL, 0x726961}, /* ria */
-	    {"no-reuse-io-arrays",	no_argument , NULL, 0x6e726961 }, /* nria */
-	    {"reverse-alternate-rows",	no_argument , NULL, 0x4A4A4A},
-	    {"generate-upperband",	required_argument, NULL, 0x7575},   /* uu */
-	    {"gen-uband",	required_argument, NULL, 0x7575},   /* uu */
-	    {"generate-diagonal",	required_argument, NULL, 0x6464 },   /* dd */
-	    {"gen-diag",	required_argument, NULL, 0x6464 },   /* dd */
-	    {"zig-zag",	no_argument , NULL, 0x4A4A4A},
-	    {"subdivision-multiplier",	required_argument, NULL , 0x534D},/* SM */
-#if RSB_WANT_BOUNDED_BOXES
-	    {"bounded-box",	required_argument, NULL , 0x4242},/* BB */
-#endif /* RSB_WANT_BOUNDED_BOXES */
-	    {"sort",		0 , NULL, 0x73},	/* s */
-	    {"no-leaf-multivec",	no_argument, NULL , 0x6e6c6d6d},/* nlmm */
-	    {"with-leaf-multivec",	no_argument, NULL , 0x636c6d6d},/* wlmm */
-	    {"sort-after-load",	no_argument, NULL, 0x7373},/* ss */  
-	    {"skip-loading-symmetric-matrices",	 no_argument, NULL, 0x736c736d},/* slsm */  
-	    {"skip-loading-unsymmetric-matrices",no_argument, NULL, 0x736c756d},/* slum */  
-	    {"skip-loading-hermitian-matrices",no_argument, NULL, 0x736c686d},/* slhm */  
-	    {"skip-loading-not-unsymmetric-matrices",no_argument, NULL, 0x736c6e75},/* slnu */  
-	    {"skip-loading-if-more-nnz-matrices",required_argument, NULL, 0x736c6d6},/* slmn */  
-	    {"skip-loading-if-less-nnz-matrices",required_argument, NULL, 0x736c6e6e},/* slnn */  
-	    {"skip-loading-if-more-filesize-kb-matrices",required_argument, NULL, 0x736c6d73},/* slms */  
-#ifdef RSB_HAVE_REGEX_H 
-	    {"skip-loading-if-matching-regex",required_argument, NULL, 0x736c6d72},/* slmr */  
-#endif /* RSB_HAVE_REGEX_H */
-	    {"skip-loading-if-matching-substr",required_argument, NULL, 0x736c7373},/* slss */  
-	    {"times",		required_argument, NULL, 0x74},/* t */  
-	    {"transpose-as",	required_argument, NULL, 0x5040},   /* do transpose the operation */
-	    {"transpose",	no_argument, NULL, 0x5050},   /* do transpose the operation */
-	    {"also-transpose",	no_argument, NULL, 0x4150},  /* N,T: do transpose the operation after no transposition */
-	    {"all-transposes",	no_argument, NULL, 0x616c6c74},  /* N,T,C */
-	    {"type",		required_argument, NULL, 0x54},/* T */  
-	    {"types",		required_argument, NULL, 0x54},/* T */  
-	    {"update",		0 , NULL, 0x55},	/* U */
-	    {"as-unsymmetric",		0 , NULL, 0x5555},	/* UU: TODO: to insert such a test in as default, in order to quantify the benefit of symmetry */
-	    {"as-symmetric",		0 , NULL, 0x5353},	/* SS */
-	    {"only-lower-triangle",		0 , NULL, 0x4F4C54},	/* OLT */
-   	    {"only-upper-triangle",		0 , NULL, 0x4F4554},	/* OUT */
-	    {"verbose",	no_argument , NULL, 0x56},/* V */
-	    {"want-io-only",	no_argument , NULL, 0x4949},/* --want-io-only */
-	    {"want-nonzeroes-distplot",	no_argument, NULL, 0x776E68},/* wnh */  
-	    {"want-accuracy-test",	no_argument, NULL, 0x776174},/* wat */  
-	    {"want-getdiag-bench",	no_argument , NULL, 0x774446},/* wde */  /* FIXME: obsolete ? */
-	    {"want-getrow-bench",	no_argument , NULL, 0x777246},/* wre */  /* FIXME: obsolete ? */
-#ifdef RSB_WANT_PERFORMANCE_COUNTERS
-	    {"want-perf-counters",	no_argument , NULL, 0x707763},/* wpc */
-#endif
-	    {"want-print-per-subm-stats",	no_argument , NULL, 0x77707373},/* wpss */
-	    {"want-only-accuracy-test",	no_argument, NULL, 0x776F6174},/* woat */  
-	    {"want-autotune",	required_argument, NULL, 0x7772740a},/* wrt */  
-	    {"want-no-autotune",	no_argument, NULL, 0x776e7274},/* wnrt */  
-#if RSB_HAVE_METIS
-	    {"want-metis-reordering",	no_argument, NULL, 0x776d6272 },/* wmbr */  
-#endif
-	    {"want-mkl-autotune",	required_argument, NULL, 0x776d6174},/* wmat */  
-	    {"want-mkl-one-based-indexing",	no_argument, NULL, 0x776d6f62 },/* wmob */  
-	    {"want-unordered-coo-test",	no_argument, NULL, 0x775563},/* */  
-	    {"with-flags",	required_argument, NULL, 0x71},/* q */  
-	    {"write-as-binary",	required_argument, NULL, 0x77 }, /* w */
-	    {"write-as-csr",	required_argument, NULL,  0x63777273 }, /* wcsr */
-	    {"write-performance-record",	required_argument, NULL, 0x77707266 }, /* write performance record file  */
-	    {"performance-record-name-append",	required_argument, NULL, 0x77707261 }, /* ...append  */
-	    {"performance-record-name-prepend",	required_argument, NULL, 0x77707270 }, /* ...prepend  */
-	    {"write-no-performance-record",	no_argument, NULL, 0x776e7072 }, /* write no performance record */
-	    {"discard-read-zeros",	no_argument, NULL,  0x64697a65 }, /* dize */
-	    {"z-sorted-coo",	no_argument, NULL , 0x7A},/* z */
-	    {0,0,0,0}	};
 
+	const struct rsb_option_struct rsb_options[] = {
+	    {{"all-flags",	no_argument, NULL, 0x51}},/* Q */
+	    {{"all-formats",	no_argument, NULL, 0x616c666f}},/* alfo */
+	    {{"all-blas-opts",	no_argument, NULL, 0x616c626f}},/* albo */
+	    {{"all-blas-types",	no_argument, NULL, 0x616c6274}},/* albt */
+	    {{"allow-any-transposition-combination",	no_argument, NULL, 0x61617463 }},/* aatc */
+	    {{"alpha",	required_argument, NULL , 0x414C}},/* AL */
+	    {{"alternate-sort",	required_argument, NULL , 0x4153}},/* AS */
+	    {{"auto-blocking",	no_argument, NULL, 0x41}},/* A */
+	    {{"be-verbose",		no_argument, NULL, 0x76}},	/* v */
+	    {{"bench",	no_argument , NULL, 0x626e6368}},	/* bnch */
+	    {{"beta",	required_argument, NULL ,  0x4246}},/* BE */
+	    {{"block-columnsize",	required_argument, NULL, 0x63}},/* c */
+	    {{"block-rowsize",   required_argument, NULL, 0x72 }},/* r */
+	    {{"cache-blocking",	required_argument, NULL , 0x4342}},/* CB */
+/*	    {{"cache-flush",	no_argument, NULL, 0x4343}},*/ /*   */
+	    {{"chdir",	required_argument, NULL, 0x6364}},/* cd */
+	    {{"column-expand",	required_argument, NULL, 0x6B}},/* k */
+	    {{"compare-competitors",	no_argument, NULL, 0x6363}},/* cc */
+	    {{"no-compare-competitors",	no_argument, NULL, 0x776e6d6c }},/* wnml */  /* want no mkl */
+	    {{"convert",	no_argument, NULL, 0x4B}},/* K */
+/*	    {{"convert",	required_argument, NULL, 0x4B}},*//* K   */
+	    {{"dense",	required_argument, NULL, 0x64 }},   /* d */
+	    {{"diagonal-dominance-check",	no_argument , NULL, 0x4444}},/* DD */  /* new */
+	    {{"dump-n-lhs-elements",	required_argument , NULL, 0x444444}},/* DDD */  /* new */
+	    {{"echo-arguments",	no_argument , NULL, 0x6563686f}},/* echo */  /* new */
+	    {{"flush-cache-in-iterations",	no_argument, NULL, 0x4343}},/*  */
+	    {{"impatient",	no_argument, NULL, 0x696d7061}},/* impa[tient] */
+	    {{"no-flush-cache-in-iterations",	no_argument, NULL, 0x434E}},/*  */
+	    {{"flush-cache-around-loop",	no_argument, NULL, 0x434343}},/*  */
+	    {{"want-ancillary-execs",	no_argument, NULL, 0x767646}},/*  */
+	    {{"no-want-ancillary-execs",	no_argument, NULL, 0x42767646}},/*  */
+	    {{"no-flush-cache-around-loop", no_argument	, NULL, 0x43434E}},/*  */
+	    {{"want-no-recursive",	no_argument, NULL, 0x776e720a}},/*  */
+	    {{"want-memory-benchmark",	no_argument, NULL, 0x776d62}},/* wmb */
+	    {{"want-no-memory-benchmark",	no_argument, NULL, 0x776e6d62}},/* wnmb */
+	    {{"nmb",	no_argument, NULL, 0x776e6d62}},/* wnmb */
+	    {{"guess-blocking",	no_argument , NULL, 0x47}},/* G */
+	    {{"help",	no_argument , NULL, 0x68}},	/* h */
+	    {{"ilu0",	no_argument , NULL, 0x494B55}},/* ILU */  /* new */
+	    {{"inc",	required_argument, NULL, 0x696e632a }},/* inc* */
+	    {{"incx",	required_argument, NULL, 0xb1bb0 }},/* */
+	    {{"incy",	required_argument, NULL, 0xb1bb1 }},/* */
+	    {{"in-place-assembly-experimental",	no_argument , NULL, 0x6970}},/* i */
+	    {{"in-place-csr",	no_argument, NULL, 0x69}},/* i */
+	    {{"in-place-permutation",	no_argument, NULL, 0x50}},   /* P */
+#if RSB_WITH_LIKWID
+	    {{"likwid",	no_argument, NULL, 0x6c696b77}},   /* likw */
+#endif /* RSB_WITH_LIKWID */
+	    {{"lower",	required_argument, NULL, 0x6c}},   /* l */
+	    {{"lower-dense",	required_argument, NULL, 0x6c64}},   /* ld */
+	    {{"generate-lowerband",	required_argument, NULL, 0x6c6c}},   /* ll */
+	    {{"gen-lband",	required_argument, NULL, 0x6c6c}},   /* ll */
+	    {{"generate-spacing",	required_argument, NULL, 0xbabb2 }},   /* */
+	    {{"matrix-dump",	no_argument, NULL, 0x44044}},/* D */
+	    {{"matrix-dump-graph",	required_argument , NULL, 0x44047}},/* DG */
+	    {{"matrix-dump-internals",	no_argument, NULL, 0x49049}},/* I 0x0 I */
+	    {{"merge-experimental",	required_argument , NULL, 0x6d656578}},/* meex */
+	    {{"split-experimental",	required_argument , NULL, 0x73706578}},/* spex */
+	    {{"ms-experimental",	required_argument , NULL, 0x6d736578}},/* msex */
+	    {{"matrix-filename",	required_argument, NULL, 0x66}},/* f */
+	    {{"matrix-sample-pcnt",	required_argument, NULL, 0x6d747873}},/* mtxs */
+	    {{"matrix-storage",	required_argument, NULL, 0x46}},/* F */
+	    {{"matrix-time",	no_argument, NULL, 0x4D}},/* M */  /* new */
+	    {{"mem-hierarchy-info",	required_argument , NULL, 0x4D4D}},/* MM */  /* new */
+	    {{"max-runtime",	required_argument , NULL, 0x6d617275}},/* maru */
+	    {{"no-op",		no_argument, NULL, 0x4E}},	/* N */
+	    {{"notranspose",	no_argument, NULL, 0x5051}},   /* do not transpose the operation */
+	    {{"no-transpose",	no_argument, NULL, 0x5051}},   /* do not transpose the operation */
+	    {{"nrhs",	required_argument, NULL, 0x6e726873}},   /* */
+	    {{"nrhs-by-rows",	no_argument, NULL, 0x726f7773}},   /* */
+	    {{"by-rows",	no_argument, NULL, 0x726f7773}},   /* */
+	    {{"nrhs-by-columns", no_argument, NULL, 0x636f6c73}},   /* */
+	    {{"by-columns",      no_argument, NULL, 0x636f6c73}},   /* */
+	    {{"nrhs-by-cols",    no_argument, NULL, 0x636f6c73}},   /* undocumented alias */
+	    {{"by-cols", no_argument, NULL, 0x636f6c73}},   /* undocumented alias */
+	    {{"one-nonunit-incx-incy-nrhs-per-type",	no_argument, NULL, 0x6e697270}},   /* */
+	    {RSB_BENCH_PROG_OPTS},
+	    {{"oski-benchmark",	no_argument, NULL, 0x42}},/* B: only long option *//* comparative benchmarking agains OSKI */
+	    {{"out-lhs",		no_argument, NULL, 0x6F6C6873}},/* o */	/* should accept an output file name, optionally */
+	    {{"out-rhs",		no_argument, NULL, 0x6F6F}},/* o */	/* should accept an output file name, optionally */
+	    {{"override-matrix-name",	required_argument , NULL, 0x6F6D6E}},/* omn */	
+	    {{"pattern-mark",	no_argument, NULL, 0x70}},/* p */
+	    {{"pre-transpose",	no_argument, NULL, 0x5454}},   /* transpose the matrix before assembly  */
+	    {{"read-as-binary",		required_argument, NULL, 0x62}},/* b */
+	    {{"repeat-constructor",	required_argument , NULL, 0x4A4A}},
+	    {{"reuse-io-arrays",	no_argument , NULL, 0x726961}}, /* ria */
+	    {{"no-reuse-io-arrays",	no_argument , NULL, 0x6e726961 }}, /* nria */
+	    {{"reverse-alternate-rows",	no_argument , NULL, 0x4A4A4A}},
+	    {{"generate-upperband",	required_argument, NULL, 0x7575}},   /* uu */
+	    {{"gen-uband",	required_argument, NULL, 0x7575}},   /* uu */
+	    {{"generate-diagonal",	required_argument, NULL, 0x6464 }},   /* dd */
+	    {{"gen-diag",	required_argument, NULL, 0x6464 }},   /* dd */
+	    {{"implicit-diagonal",	no_argument, NULL, 0x6964}},   /* id */
+	    {{"also-implicit-diagonal",	no_argument , NULL, 0x776264}},/* wbd */
+	    {{"also-symmetries",	no_argument , NULL, 0x61736875}},/* ashu */
+	    {{"also-short-idx",	no_argument , NULL, 0x616c6c69}},/* alli */
+	    {{"also-coo-csr",	no_argument , NULL, 0x616363}},/* acc */
+	    {{"also-recursive",	no_argument , NULL, 0x61726563}},/* arec */
+	    {{"zig-zag",	no_argument , NULL, 0x4A4A4A}},
+	    {{"subdivision-multiplier",	required_argument, NULL , 0x534D}},/* SM */
+#if RSB_WANT_BOUNDED_BOXES
+	    {{"bounded-box",	required_argument, NULL , 0x4242}},/* BB */
+#endif /* RSB_WANT_BOUNDED_BOXES */
+	    {{"sort",		no_argument, NULL, 0x73}},	/* s */
+	    {{"no-leaf-multivec",	no_argument, NULL , 0x6e6c6d6d}},/* nlmm */
+	    {{"with-leaf-multivec",	no_argument, NULL , 0x636c6d6d}},/* wlmm */
+	    {{"setenv",	required_argument, NULL, 0x7365}},/* se */
+	    {{"unsetenv", required_argument, NULL, 0x757365}},/* use */
+	    {{"sort-after-load",	no_argument, NULL, 0x7373}},/* ss */
+	    {{"sort-filenames-list",	no_argument, NULL, 0x73666e6c}},/* sfnl */
+	    {{"no-sort-filenames-list",	no_argument, NULL, 0x6e73666e}},/* nsfn */
+	    {{"skip-loading-symmetric-matrices",	 no_argument, NULL, 0x736c736d}},/* slsm */
+	    {{"skip-loading-unsymmetric-matrices",no_argument, NULL, 0x736c756d}},/* slum */
+	    {{"skip-loading-hermitian-matrices",no_argument, NULL, 0x736c686d}},/* slhm */
+	    {{"skip-loading-not-unsymmetric-matrices",no_argument, NULL, 0x736c6e75}},/* slnu */
+	    {{"skip-loading-if-more-nnz-matrices",required_argument, NULL, 0x736c6d6}},/* slmn */
+	    {{"skip-loading-if-less-nnz-matrices",required_argument, NULL, 0x736c6e6e}},/* slnn */
+	    {{"skip-loading-if-more-filesize-kb-matrices",required_argument, NULL, 0x736c6d73}},/* slms */
+#ifdef RSB_HAVE_REGEX_H
+	    {{"skip-loading-if-matching-regex",required_argument, NULL, 0x736c6d72}},/* slmr */
+#endif /* RSB_HAVE_REGEX_H */
+	    {{"skip-loading-if-matching-substr",required_argument, NULL, 0x736c7373}},/* slss */
+	    {{"times",		required_argument, NULL, 0x74}},/* t */
+	    {{"transpose-as",	required_argument, NULL, 0x5040}},   /* do transpose the operation */
+	    {{"transpose",	no_argument, NULL, 0x5050}},   /* do transpose the operation */
+	    {{"also-transpose",	no_argument, NULL, 0x4150}},  /* N,T: do transpose the operation after no transposition */
+	    {{"all-transposes",	no_argument, NULL, 0x616c6c74}},  /* N,T,C */
+	    {{"type",		required_argument, NULL, 0x54}},/* T */
+	    {{"types",		required_argument, NULL, 0x54}},/* T */
+	    {{"update",		no_argument, NULL, 0x55}},	/* U */
+	    {{"as-unsymmetric",		no_argument, NULL, 0x5555}},	/* UU: TODO: to insert such a test in as default, in order to quantify the benefit of symmetry */
+	    {{"as-symmetric",		no_argument, NULL, 0x5353}},	/* SS */
+	    {{"expand-symmetry",		no_argument, NULL, 0x4553}},	/* ES */
+	    {{"as-hermitian",		no_argument, NULL, 0x4853}},	/* HS */
+	    {{"only-lower-triangle",		no_argument, NULL, 0x4F4C54}},	/* OLT */
+   	    {{"only-upper-triangle",		no_argument, NULL, 0x4F4554}},	/* OUT */
+	    {{"verbose",	no_argument , NULL, 0x56}},/* V */
+	    {{"less-verbose",	no_argument , NULL, 0x6c56}},/* lV */
+	    {{"want-io-only",	no_argument , NULL, 0x4949}},/* --want-io-only */
+	    {{"want-nonzeroes-distplot",	no_argument, NULL, 0x776E68}},/* wnh */
+	    {{"want-accuracy-test",	no_argument, NULL, 0x776174}},/* wat */
+	    {{"want-getdiag-bench",	no_argument , NULL, 0x774446}},/* wde */  /* FIXME: obsolete ? */
+	    {{"want-getrow-bench",	no_argument , NULL, 0x777246}},/* wre */  /* FIXME: obsolete ? */
+#ifdef RSB_WANT_PERFORMANCE_COUNTERS
+	    {{"want-perf-counters",	no_argument , NULL, 0x707763}},/* wpc */
+#endif
+	    {{"want-print-per-subm-stats",	no_argument , NULL, 0x77707373}},/* wpss */
+	    {{"want-only-accuracy-test",	no_argument, NULL, 0x776F6174}},/* woat */
+	    {{"want-autotune",	optional_argument, NULL, 0x7772740a}},/* wrt */
+	    {{"want-no-autotune",	no_argument, NULL, 0x776e7274}},/* wnrt */
+	    {{"want-no-ones-fill",	no_argument, NULL, 0x776e6f66}},/* wnof */
+#if RSB_HAVE_METIS
+	    {{"want-metis-reordering",	no_argument, NULL, 0x776d6272 }},/* wmbr */
+#endif
+	    {{"want-mkl-autotune",	optional_argument, NULL, 0x776d6174}},/* wmat */
+	    {{"want-mkl-one-based-indexing",	no_argument, NULL, 0x776d6f62 }},/* wmob */
+	    {{"mkl-inspector-super-light",	no_argument , NULL, 0x6d6b6c73}},/* mkls */
+	    {{"mkl-inspector-light",	no_argument , NULL, 0x6d6b6c6c}},/* mkll */
+	    {{"mkl-inspector",	no_argument , NULL, 0x6d6b6c69}},/* mkli */
+	    {{"mkl-no-inspector",	no_argument , NULL, 0x6d6b6c6f}},/* mklo */
+	    {{"want-unordered-coo-test",	no_argument, NULL, 0x775563}},/* */
+	    {{"with-flags",	required_argument, NULL, 0x71}},/* q */
+	    {{"write-as-binary",	required_argument, NULL, 0x77 }}, /* w */
+	    {{"write-as-csr",	required_argument, NULL,  0x63777273 }}, /* wcsr */
+	    {{"write-performance-record",	optional_argument, NULL, 0x77707266 }}, /* write performance record file  */
+	    {{"performance-record-name-append",	required_argument, NULL, 0x77707261 }}, /* ...append  */
+	    {{"performance-record-name-prepend",	required_argument, NULL, 0x77707270 }}, /* ...prepend  */
+	    {{"write-no-performance-record",	no_argument, NULL, 0x776e7072 }}, /* write no performance record */
+	    {{"discard-read-zeros",	no_argument, NULL,  0x64697a65 }}, /* dize */
+	    {{"z-sorted-coo",	no_argument, NULL , 0x7A}},/* z */
+	    {{0,no_argument,0,0}}	};
+
+	const int rsb_options_count = sizeof(rsb_options)/sizeof(rsb_option_t);
+	rsb_option_t options[rsb_options_count];
 	rsb_nnz_idx_t nnz = 0;/* was 0 */
 	int c;
 	int opt_index = 0;
@@ -4257,37 +5210,42 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	rsb_int ntypecodes = 0,typecodesi;
 	const rsb_int maxtypes = 2*RSB_IMPLEMENTED_TYPES;
 	rsb_type_t typecodes[maxtypes+1] ;
+	char * typess = NULL; /* types specification string */
 
 	rsb_blk_idx_t br = 1;
 	rsb_blk_idx_t bc = 1;
 	char * bcs = NULL, *brs = NULL, *cns = NULL, *mhs = NULL;
+	const char *tcrprs = NULL; // thread count rpr string
+	rsb_char_t fnrprs[RSB_MAX_FILENAME_LENGTH]; //  file  name  rpr string
 	rsb_blk_idx_t * brv = NULL;
 	rsb_blk_idx_t * bcv = NULL;
 	int brl = 0;
 	int bcl = 0;
 	rsb_thread_t ca_[1] = {1};
 	rsb_thread_t * ca = ca_;
-	rsb_thread_t cn = 1, ci = 0, cc = ca[ci];
+	rsb_thread_t cn = 1, cc = ca[0];
 
-	int times = 100;	/* the default number of times to perform spsv_uxua */
+	int times = 100;	/* the default number of times to perform spsv_sxsx */
 	rsb_coo_idx_t nrA = 0, ncA = 0, ndA = 0;
 	int filenamen = 0, filenamei = 0;
+	int want_filenamelist_sort = 1;
 #define RSB_RSBENCH_STATIC_FILENAMEA 1
 #if RSB_RSBENCH_STATIC_FILENAMEA
-#define RSB_RSBENCH_MAX_MTXFILES 256
-	const rsb_char_t *filenamea[RSB_RSBENCH_MAX_MTXFILES];
+	rsb_char_t *filenamea[RSB_RSBENCH_MAX_MTXFILES];
 #else
-	const rsb_char_t **filenamea = NULL;
+	rsb_char_t **filenamea = NULL;
 #endif
 	const rsb_char_t *filename = NULL;
 	const rsb_char_t *filename_old = NULL;
 	const rsb_char_t *usfnbuf = NULL;
-	rsb_char_t*fprfn = NULL, *cprfn = NULL, *apprfn = NULL, *ppprfn = NULL; /* final/checkpoint      performance file name , append/prepend */
+	rsb_char_t *fprfn = NULL, *cprfn = NULL, *apprfn = NULL, *ppprfn = NULL; /* final/checkpoint      performance file name , append/prepend */
 	rsb_char_t fprfnb[RSB_MAX_FILENAME_LENGTH], cprfnb[RSB_MAX_FILENAME_LENGTH];/* final/checkpoint      performance file name buffers */
-	rsb_char_t fnbuf[RSB_MAX_FILENAME_LENGTH];
-	rsb_char_t*fnbufp[1]={&(fnbuf[0])};
-	rsb_char_t * dump_graph_file=NULL;
+	rsb_char_t mtrfpf[RSB_MAX_FILENAME_LENGTH];/* matrix tuning rendering file prefix */
+	rsb_char_t fnbuf[RSB_MAX_FILENAME_LENGTH] = {RSB_NUL, /* ... */ }; /* matrix file name buffer */
+	rsb_char_t *fnbufp[1]={&(fnbuf[0])};
+	rsb_char_t *dump_graph_file=NULL;
 	rsb_flags_t flags_o = RSB_FLAG_NOFLAGS|RSB_FLAG_OWN_PARTITIONING_ARRAYS;
+	rsb_flags_t flags_s = RSB_FLAG_NOFLAGS; /* sorting flags */
 /*	RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_DISCARD_ZEROS)	;	*/ /* FIXME : EXPERIMENTAL (watch nnz count on a multi blocking run ...) */
 	rsb_flags_t flagsa[128] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	rsb_flags_t r_flags = RSB_FLAG_NOFLAGS; /* recycling flags */
@@ -4322,6 +5280,7 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	rsb_bool_t should_recycle_matrix = RSB_BOOL_FALSE; /* reuse the matrix across measurements */
 	rsb_bool_t should_recycle_io = RSB_BOOL_TRUE;/* reuse the input arrays */
 	rsb_bool_t g_allow_any_tr_comb = RSB_BOOL_FALSE; /* allow any transposition combination */
+	rsb_bool_t g_fill_va_with_ones = RSB_BOOL_TRUE;
 	
 	rsb_trans_t transAo = RSB_DEFAULT_TRANSPOSITION;
 	rsb_trans_t transA = RSB_DEFAULT_TRANSPOSITION;
@@ -4331,9 +5290,14 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	rsb_nnz_idx_t want_generated_spacing = 0;
 	rsb_bool_t want_only_star_scan = RSB_BOOL_FALSE;
 	rsb_blk_idx_t nrhs = 1, nrhsn = 1, nrhsi = 1, nrhsl = 1;
+	rsb_blk_idx_t asfii = 0, asfin = 1;
+	rsb_blk_idx_t asiii = 0, asiin = 1;
+	rsb_blk_idx_t accii = 0, accin = 1;
+	rsb_blk_idx_t areci = 0, arecn = 1;
+	rsb_int_t diagin = 1, diagii = 0;
 	const char*nrhss = NULL;
 	rsb_blk_idx_t *nrhsa = NULL;
-	const size_t outnri = 0, rhsnri = 0; /* Could be ndA for order == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER and nrhs otherwise; this way is auto. */;
+	const size_t outnri = 0, rhsnri = 0; /* Could be ndA for order == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER and nrhs otherwise; this way is auto. */
 	rsb_nnz_idx_t n_dumpres = 0;
 	rsb_nnz_idx_t n_dumprhs = 0;
 	rsb_bool_t ignore_failed_fio = RSB_BOOL_TRUE; /* FIXME 20140912 experimental */
@@ -4348,11 +5312,13 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	rsb_time_t totatt = RSB_TIME_ZERO; /* total ancillary tests time */ /* FIXME: is this complete ? */
 	rsb_time_t totct = RSB_TIME_ZERO; /* total conversions time */ /* FIXME: is this complete ? */
 	rsb_time_t tottt = RSB_TIME_ZERO; /* total tuning time */
-	rsb_time_t totht = RSB_TIME_ZERO; /* total checks time */ /* FIXME: is this complete ? */
+	rsb_time_t totht = RSB_TIME_ZERO, ht = RSB_TIME_ZERO; /* total checks time */ /* FIXME: is this complete ? */
 	rsb_time_t maxtprt = RSB_TIME_ZERO; /* max total program run time */
 	const rsb_time_t totprt = - rsb_time(); /* total program run time */
 	rsb_bool_t want_as_unsymmetric = RSB_BOOL_FALSE;
 	rsb_bool_t want_as_symmetric = RSB_BOOL_FALSE;
+	rsb_bool_t want_expand_symmetry = RSB_BOOL_FALSE;
+	rsb_bool_t want_as_hermitian = RSB_BOOL_FALSE;
 	rsb_bool_t want_only_lowtri = RSB_BOOL_FALSE;
 	rsb_bool_t want_only_upptri = RSB_BOOL_FALSE;
 	rsb_bool_t want_sort_after_load = RSB_BOOL_FALSE;
@@ -4375,25 +5341,39 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	rsb_bool_t want_mkl_bench_csr = RSB_BOOL_TRUE;
 	rsb_bool_t want_mkl_bench_gem = RSB_BOOL_TRUE;
 	rsb_bool_t want_mkl_bench_coo = RSB_BOOL_FALSE;
+#if RSB_WANT_MKL_INSPECTOR
+	rsb_bool_t want_mkl_inspector = RSB_BOOL_TRUE;
+	rsb_int_t mkl_ie_hintlvl = 2;
+#endif /* RSB_WANT_MKL_INSPECTOR */
 #endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+	rsb_bool_t want_armpl_bench = RSB_BOOL_FALSE;
+#endif /* RSB_WANT_ARMPL */
 	rsb_time_t totmt = RSB_TIME_ZERO; /* total mkl/competitors (tuning) time */
 	rsb_bool_t want_perf_dump = RSB_BOOL_FALSE;
 	void*rspr = NULL; /* rsb sampled performance record structure pointer */
 
+	rsb_aligned_t errnorm[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 	rsb_aligned_t alpha[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 	rsb_aligned_t beta[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-	rsb_aligned_t errnorm[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
-	rsb_aligned_t * alphap = &(alpha[0]);
-	rsb_aligned_t * betap = &(beta[0]);
+	void * alphap = &(alpha[0]);
+	void * betap = &(beta[0]);
+	rsb_blk_idx_t * alphaip = NULL; // here, int
+	rsb_blk_idx_t * betaip = NULL; // here, int
+	rsb_int alphan = 1, betan = 1;
 	rsb_int alphai = 1, betai = 1;
+	const char * betass = NULL; /* beta specification string */
+	const char * alphass = NULL; /* alpha specification string */
 	rsb_coo_idx_t incX = 1, incY = 1;
 	rsb_blk_idx_t incXn = 1, incXi = 1;
 	rsb_blk_idx_t incYn = 1, incYi = 1;
 	rsb_blk_idx_t *incXa = NULL, *incYa = NULL;
-	rsb_coo_idx_t ldX = 0, ldY = 0;
-	rsb_bool_t want_incX = RSB_BOOL_FALSE,want_incY = RSB_BOOL_FALSE;
-	rsb_bool_t want_verbose = RSB_BOOL_FALSE;
+	const char * dis = "1,2"; /* default inc string */
+	const char * incYss = NULL; /* incY specification string */
+	const char * incXss = NULL; /* incX specification string */
+	rsb_int_t want_verbose = 0;
 	rsb_int_t want_verbose_tuning = 0;
+	rsb_bool_t want_mbw = RSB_BOOL_FALSE;
 	rsb_bool_t want_transpose = RSB_BOOL_FALSE;
 	#if 1
 	const int max_io = 10;
@@ -4409,11 +5389,10 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	#else /* 1 */
 	struct rsb_initopts *iop = RSB_NULL_INIT_OPTIONS;
 	#endif /* 1 */
-	rsb_bool_t should_use_alternate_sort = RSB_BOOL_FALSE;
+	rsb_int_t should_use_alternate_sort = 0;
 	rsb_bool_t reverse_odd_rows = RSB_BOOL_FALSE;
 	rsb_bool_t zsort_for_coo = RSB_BOOL_FALSE;
 	rsb_bool_t want_unordered_coo_bench = RSB_BOOL_FALSE;
-	rsb_time_t unordered_coo_op_tot_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, unordered_coo_op_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, unordered_coo_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
 #ifdef RSB_WANT_OSKI_BENCHMARKING 
 	/* FIXME : unfinished */
 	rsb_time_t oski_t = RSB_TIME_ZERO,oski_m_t = RSB_TIME_ZERO,oski_a_t = RSB_TIME_ZERO,oski_t_t = RSB_TIME_ZERO;
@@ -4432,10 +5411,10 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	setenv("OSKI_LUA_PATH",OSKI_LUA_PATH,0/* if 0, will not override. if 1, it would. */);
 	#endif /* RSB_HAVE_SETENV */
 #endif /* RSB_WANT_OSKI_BENCHMARKING */
-	rsb_time_t tinf = rsb__timer_granularity();
+	const rsb_time_t tinf = rsb__timer_granularity(); /* After rsb_lib_init one may use RSB_CACHED_TIMER_GRANULARITY; */
 	rsb_aligned_t pone[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 	rsb_bool_t want_likwid = RSB_BOOL_FALSE;
-	rsb_flags_t order = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+	rsb_flags_t order = RSB_FLAG_WANT_COLUMN_MAJOR_ORDER;
 	rsb_time_t want_autotuner = RSB_NEGATED_EXAGGERATED_TUNER_TIMES, want_mkl_autotuner = RSB_NEGATED_EXAGGERATED_TUNER_TIMES;
 	rsb_bool_t want_io_only = RSB_BOOL_FALSE;
 	rsb_int wat = 1;	/* want autotuning threads choice */
@@ -4450,7 +5429,16 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	rsb_bool_t want_wmbr = RSB_BOOL_FALSE;
 #endif
 	rsb_bool_t want_recursive = RSB_BOOL_TRUE;
+	struct rsb_mbw_et_t mbet, *mbetp = NULL;
+	rsb_real_t mtx_sample_rate = 100.0;
 
+	{
+		int roi;
+		for(roi=0;roi<rsb_options_count;++roi)
+			options[roi] = rsb_options[roi].ro;
+	}
+
+	RSB_DEBUG_ASSERT( fnbuf[0]==RSB_NUL );
 	io.keys = io_keys;
 	io.values = io_values;
 	io.n_pairs = 0;
@@ -4460,51 +5448,41 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 		RSB_PERR_GOTO(err,"Error while initializing the library.");
 	}
 
+	optind = 0; /* FIXME: NEW 20160708 */
     	for (;;)
 	{
-		c = rsb_getopt_long(argc,argv,RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS"b:w:BGht:f:r:c:vpn:MNS:Bk:KU" /* Flawfinder: ignore */
+		c = rsb__getopt_long(argc,argv,RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS"b:w:BGht:f:r:c:vpn:MNS:Bk:KU" /* Flawfinder: ignore */
 		/* s is in anyway, with RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS */
 		"o:O:"
 		, options, &opt_index);
 		if (c == -1)break;
 
 		RSB_DO_FLAG_ADD(flags_o,rsb__sample_program_options_get_flags(c,optarg));
+		RSB_DO_FLAG_ADD(flags_s,flags_o & RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING);
 
 		switch (c)
 		{
 			case 0x62:	/* b */
 			b_r_filename = optarg;
 			break;
-			case  0xb1bb0:
-#if 0
-				incX = rsb__util_atoi(optarg);
-				if(incX<1){errval = RSB_ERR_BADARGS;goto err;}
-				if(incX>1)RSBENCH_STDOUT("# setting incX=%d\n",incX);
-				want_incX = RSB_BOOL_TRUE;
-#else
-			if(RSB_SOME_ERROR(rsb__util_get_bx_array(optarg,&incXn,&incXa)))
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
-#endif
+			case  0xb1bb0: // incX
+			incXss=optarg;
+			break;
+			case  0xb1bb1: // incY
+			incYss=optarg;
+			break;
+			case  0x696e632a: // inc*
+			incXss=optarg;
+			incYss=optarg;
 			break;
 			case  0x6970:
 				RSBENCH_STDOUT("# WARNING: in place assembly is an UNFINISHED, EXPERIMENTAL feature\n");
 				want_in_place_assembly = RSB_BOOL_TRUE;
 			break;
-			case  0xb1bb1:
-#if 0
-				incY = rsb__util_atoi(optarg);
-				if(incY<1){errval = RSB_ERR_BADARGS;goto err;}
-				if(incY>1)RSBENCH_STDOUT("# setting incY=%d\n",incY);
-				want_incY = RSB_BOOL_TRUE;
-#else
-			if(RSB_SOME_ERROR(rsb__util_get_bx_array(optarg,&incYn,&incYa)))
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
-#endif
-			break;
 			case 0x6c:
 			case 0x6c64: /* lower-dense */
 			{
-				should_generate_dense = - rsb__util_atoi(optarg); // FIXME ! PROBLEMS
+				should_generate_dense = - rsb__util_atoi_km10(optarg); // FIXME ! PROBLEMS
 			}
 			break;
 			case 0x6c696b77:
@@ -4515,41 +5493,43 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			break;
 			case 0x6c6c:
 			{
-				should_generate_lband = rsb__util_atoi(optarg); // FIXME ! PROBLEMS
+				should_generate_lband = rsb__util_atoi_km10(optarg); // FIXME ! PROBLEMS
 				if(should_generate_uband==-1)should_generate_uband=0;
 			}
 			break;
 			case 0x7575:
 			{
-				should_generate_uband = rsb__util_atoi(optarg); // FIXME ! PROBLEMS
+				should_generate_uband = rsb__util_atoi_km10(optarg); // FIXME ! PROBLEMS
 				if(should_generate_lband==-1)should_generate_lband=0;
-			}
-			break;
-			case 0x6464: /* gen-diag */
-			{
-				should_generate_uband = 0;
-				should_generate_lband = 0;
-				should_generate_dense = rsb__util_atoi(optarg); // FIXME ! PROBLEMS
 			}
 			break;
 			case 0xbabb2:
 			{
-				want_generated_spacing = rsb__util_atoi(optarg);
+				want_generated_spacing = rsb__util_atoi_km10(optarg);
 			}
 			break;
 			case 0x6e697270:
 			want_only_star_scan = RSB_BOOL_TRUE;
 			break;
+			case 0x6964:
+				RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_UNIT_DIAG_IMPLICIT);
+			break;
+			case 0x6464: /* gen-diag */
+				should_generate_uband = 0;
+				should_generate_lband = 0;
 			case 0x64: /* dense */
 			{
-				/* should_generate_dense = rsb__util_atoi(optarg); */  // FIXME ! PROBLEMS
-				int sargs = sscanf(optarg,"%dx%d",&should_generate_dense,&should_generate_dense_nc);
+				const char*p= optarg, *xp="x";
+				should_generate_dense = rsb__util_atoi_km10(optarg);
+				while(*p && *p != *xp)
+					++p;
+				if(*p == *xp)
+					should_generate_dense_nc = rsb__util_atoi_km10(p+1);
 				if( should_generate_dense_nc == 0)
 					should_generate_dense_nc = should_generate_dense;
-				/* RSBENCH_STDOUT("# Requested generation of a %d by %d matrix\n",should_generate_dense,should_generate_dense_nc); */
 			}
 			break;
-			/* FIXME : please note that specifying two or more times -r or -c will cause memory leaks */
+			/* note that specifying multiple times -r (or -c) will overwrite old setting */
 			case 0x72:/* r */
 			brs=optarg;
 			break;
@@ -4572,41 +5552,99 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			goto err;
 #endif /* RSB_WANT_MKL */
 			break;
+			case 0x6d6b6c73: /* mkls */
+#if RSB_WANT_MKL_INSPECTOR
+			mkl_ie_hintlvl = 0;
+#endif /* RSB_WANT_MKL_INSPECTOR */
+			goto wi;
+			break;
+			case 0x6d6b6c6c: /* mkll */
+#if RSB_WANT_MKL_INSPECTOR
+			mkl_ie_hintlvl = 1;
+#endif /* RSB_WANT_MKL_INSPECTOR */
+			goto wi;
+			break;
+			case 0x6d6b6c69: /* mkli */
+wi:
+#if RSB_WANT_MKL_INSPECTOR
+			want_mkl_inspector = RSB_BOOL_TRUE;
+#else /* RSB_WANT_MKL_INSPECTOR */
+			RSB_ERROR("Sorry, no MKL Inspector Interface in --- aborting!\n");
+			goto err;
+#endif /* RSB_WANT_MKL_INSPECTOR */
+			break;
+#if RSB_WANT_MKL_INSPECTOR
+			case 0x6d6b6c6f: /* mklo */
+				want_mkl_inspector = RSB_BOOL_FALSE;
+			break;
+#endif /* RSB_WANT_MKL_INSPECTOR */
 			case 0x61617463:
 			g_allow_any_tr_comb = RSB_BOOL_TRUE;
 			break;
 			case 0x51: /* Q (do not ask me why) */
 			g_all_flags = 1;
 			break;
+			case 0x616c6274: /* albt */
+				RSBENCH_STDOUT("# EXPERIMENTAL --all-blas-types option implies types: " RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS "\n");
+				typess="B"; // RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS
+			break;
+			case 0x616c626f: /* albo */
+			RSBENCH_STDOUT("# EXPERIMENTAL --all-blas-opts option implies: --types : --inc : --alpha : --beta : :\n");
+			RSBENCH_STDOUT("# EXPERIMENTAL --types :\n"); // 0x54
+			typess=":";
+			RSBENCH_STDOUT("# EXPERIMENTAL --inc :\n"); // 0x696e632a
+			incXss=":";
+			incYss=":";
+			RSBENCH_STDOUT("# EXPERIMENTAL --alpha :\n"); // 0x414C
+			alphass=":";
+			RSBENCH_STDOUT("# EXPERIMENTAL --beta :\n"); // 0x4246
+			betass=":";
+			break;
+			case 0x616c666f: /* alfo */
+			/* FIXME: need formal bond with these options */
+			RSBENCH_STDOUT("# EXPERIMENTAL --all-formats option implies: --also-implicit-diagonal --also-symmetries --also-short-idx --also-coo-csr --also-recursive:\n");
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-implicit-diagonal\n"); // 0x6964: /* id */
+			diagin=2;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-symmetries\n"); // 0x61736875: /* ashu */
+			asfin=3;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-short-idx\n"); // 0x616c6c69: /* alli */
+			asiin=2;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-coo-csr\n"); // 0x616363: /* acc */
+			accin=2;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-recursive\n"); // 0x61726563: /* arec */
+			arecn=2;
+			break;
 			break;
 			case 0x44044: /* D */
 			dumpout = 1;
 			break;
 			case 0x5040: /*  */
-			transAo = rsb__do_transposition_from_char(*optarg);	/* */
+				transAo = rsb__do_transposition_from_char(*optarg);	/* */
+				tn = 1;
+				RSBENCH_STDOUT("# Requested user-specified transposition: %c\n",(char)transAo );
 			break;
 			case 0x4150:
-			tn = 2;
+				RSBENCH_STDOUT("# Requested no transposition and transposition.\n");
+				tn = 2;
 			break;
 			case 0x616c6c74:
-			tn = 3;
+				RSBENCH_STDOUT("# Requested all transposes: no transposition, transposition and conjugate transposition.\n");
+				tn = 3;
 			break;
 			case 0x5050: /*  */
-			transAo = rsb__do_transpose_transposition(transAo);
+				tn = 1;
+				RSBENCH_STDOUT("# Requested transposition.\n");
+				transAo = rsb__do_transpose_transposition(transAo);
 			break;
 			case 0x5051: /*  */
-			transAo = RSB_TRANSPOSITION_N;
+				RSBENCH_STDOUT("# Requested no transposition.\n");
+				tn = 1;
+				transAo = RSB_TRANSPOSITION_N;
 			break;
 			case 0x6e726873: /*  */
-#if 0
-			nrhs = rsb__util_atoi(optarg);
-			/* if(nrhs>1){ RSB_ERROR("Sorry, nrhs > 1 still unsupported!\n"); goto err; } */
-#else
 			nrhss = optarg;
-			if(RSB_SOME_ERROR(rsb__util_get_bx_array(nrhss,&nrhsn,&nrhsa)))
+			if(RSB_SOME_ERROR(rsb__util_get_bx_array(nrhss,&nrhsn,&nrhsa)) || nrhsn<1)
 				{RSB_ERROR(RSB_ERRM_ES);goto err;}
-#endif
-
 			break;
 			case 0x726f7773: /* --nrhs-by-rows --by-rows */
 				order = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
@@ -4624,23 +5662,23 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			dumpout_internals = 1;
 			break;
 			case 0x6d656578: /* meex */
-			merge_experimental = rsb__util_atoi(optarg);
-			RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				merge_experimental = rsb__util_atoi(optarg);
+				RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
 			break;
 			case 0x73706578: /* spex */
-			split_experimental = rsb__util_atoi(optarg);
-			RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				split_experimental = rsb__util_atoi(optarg);
+				RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
 			break;
 			case 0x6d736578: /* msex */
-			merge_experimental = split_experimental = rsb__util_atoi(optarg);
-			RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
-			RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				merge_experimental = split_experimental = rsb__util_atoi(optarg);
+				RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
 			break;
 			case 0x4444 : /* DD */
 			do_perform_ddc = RSB_BOOL_TRUE;
 			break;
 			case 0x444444 : /* DDD */
-			n_dumprhs = n_dumpres = rsb__util_atoi(optarg);
+			n_dumprhs = n_dumpres = rsb__util_atoi_km10(optarg);
 			break;
 			case 0x6563686f: /* echo */
 			{
@@ -4660,6 +5698,14 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			case 0x4343: /* */
 			want_inner_flush = RSB_BOOL_TRUE;
 			break;
+			case 0x6364: /* */
+			{
+				if( chdir(optarg) ) // unistd.h
+					RSB_WARN("change dir to %s failed!\n", optarg);
+				else
+					RSBENCH_STDOUT("# chdir to %s succeeded\n", optarg);
+			}
+			break;
 			case 0x434E: /* */
 			want_inner_flush = RSB_BOOL_FALSE;
 			break;
@@ -4671,6 +5717,12 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			break;
 			case 0x776e720a: /*  */
 			want_recursive = RSB_BOOL_FALSE;
+			break;
+			case 0x776e6d62: /* wnmb */
+			want_mbw = RSB_BOOL_FALSE;
+			break;
+			case 0x776d62: /* wmb */
+			want_mbw = RSB_BOOL_TRUE;
 			break;
 			case 0x4D: /* M */
 			g_estimate_matrix_construction_time=1;
@@ -4695,7 +5747,7 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			usfnbuf = optarg;
 			break;
 			case 0x4A4A:
-			repeat_construction = rsb__util_atoi(optarg);
+			repeat_construction = rsb__util_atoi_km10(optarg);
 			if(repeat_construction<1)
 			{
 				RSB_ERROR("Constructor repetition times should be a positive number!\n");goto err;
@@ -4705,7 +5757,7 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			should_use_cb_method = rsb__util_atoi(optarg);
 			break;
 			case 0x4153: /* AS */
-			should_use_alternate_sort = RSB_BOOL_TRUE;
+			should_use_alternate_sort = rsb__util_atoi(optarg);
 			break;
 			case 0x534D: /* SM */
 			subdivision_multiplier = rsb__util_atof(optarg);
@@ -4749,8 +5801,31 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 				RSB_DEPRECATED("use of the sort flag");
 				flags_o = flags_o;
 			break;
+#ifdef RSB_HAVE_SETENV
+			case 0x7365: /* se */
+			rsb__setenv(optarg);
+			break;
+			case 0x757365: /* use */
+			if(optarg)
+			{
+				RSBENCH_STDOUT("# Calling unsetenv() with argument %s\n",optarg);
+				unsetenv(optarg);
+			}
+			break;
+#else /* RSB_HAVE_SETENV */
+			case 0x7365: /* se */
+			case 0x757365: /* use */
+			RSBENCH_STDERR("setenv/unsetenv not found on your machine ! Skipping --setenv/--unsetenv !");
+			break;
+#endif /* RSB_HAVE_SETENV */
 			case 0x7373: /* ss */
 			want_sort_after_load = RSB_BOOL_TRUE;
+			break;
+			case 0x73666e6c: /* sfnl */
+			want_filenamelist_sort = 1;
+			break;
+			case 0x6e73666e: /* nsfn */
+			want_filenamelist_sort = 0;
 			break;
 			case 0x736c736d: /* slsm */
 			want_slsm = RSB_BOOL_TRUE;
@@ -4788,63 +5863,90 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			guess_blocking_test = 1;
 			break;
 			case 0x54: /* T */
-			{
-				const char*toa = optarg;
-				ntypecodes=0; /* this neutralizes former -T ... option */
-				/* if( *optarg == 0x3A || *optarg == 0x2A ) */ /* : or * aka colon or asterisk */
-				if( ( ! isalpha(*optarg) ) || ( strstr(optarg,"all") != NULL ) )
-					toa = RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS ;
-				for(;*toa;++toa)
-				if(isalpha(*toa))
-				{
-					if(ntypecodes<maxtypes)
-						typecodes[ntypecodes++]=typecode=toupper(*toa);
-					else
-					{
-						RSB_ERROR("Up to %d types supported! P.s.: Use a punctuation symbol to ask for all supported types.\n",maxtypes);
-						goto err;
-					}
-				}
-				typecodes[ntypecodes] = RSB_NUL;
-			}
+			typess=optarg;
 			break;
 			case 0x56: /* V */
-			want_verbose = RSB_BOOL_TRUE;
+			want_verbose++;
 			want_verbose_tuning ++;
+			break;
+			case 0x6c56: /* lV */
+			if(want_verbose_tuning >  0)
+				want_verbose_tuning --;
+			if(want_verbose_tuning == 0)
+				want_verbose--;
 			break;
 			case 0x4949: /* II */
 			want_io_only = RSB_BOOL_TRUE;
 			break;
+			case 0x46: /* F */
+			/* F handled by rsb__sample_program_options_get_flags() */
+			break;
 			case 0x66: /* f */
 			filename = optarg;
 #if RSB_RSBENCH_STATIC_FILENAMEA
-#define RSB_RSBENCH_ADDF(FILENAME)	if(filenamen<RSB_RSBENCH_MAX_MTXFILES)filenamea[filenamen++] = (FILENAME); else {errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("Please increase RSB_RSBENCH_MAX_MTXFILES (%d) and recompile !!\n",RSB_RSBENCH_MAX_MTXFILES);goto err;}
+/* #define RSB_RSBENCH_ADDF(FILENAME)	if(filenamen<RSB_RSBENCH_MAX_MTXFILES)filenamea[filenamen++] = (FILENAME); else {errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("Please increase RSB_RSBENCH_MAX_MTXFILES (%d) and recompile !!\n",RSB_RSBENCH_MAX_MTXFILES);goto err;} */
+#define RSB_RSBENCH_ADDF(FILENAME, FAF)	if ( RSB_ERR_NO_ERROR != ( errval = rsb__adddir(&filenamea[0], &filenamen, (FILENAME), FAF) ) ){if(errval == RSB_ERR_LIMITS ){RSB_ERROR("Please increase RSB_RSBENCH_MAX_MTXFILES (%d) and recompile !!\n",RSB_RSBENCH_MAX_MTXFILES);}errval = RSB_ERR_INTERNAL_ERROR;goto err;}
 #else
  /* FIXME: for some reason, this seems to break e.g.  ./rsbench -oa -Ob --nrhs 1,2 -f pd.mtx -f A.mtx.
     Of course this is wrong also w.r.t. rsb_calloc/rsb_lib_init, but that is not a problem.
     Using calloc / realloc does not solve the problem.  */
-#define RSB_RSBENCH_ADDF(FILENAME)		if(filenamen==0) \
+#define RSB_RSBENCH_ADDF(FILENAME,RSB_FAF_DEFAULTS)		if(filenamen==0) \
 				filenamea = rsb__calloc(sizeof(filenamea)*(filenamen+1)); \
 			else \
 				filenamea = rsb__do_realloc(filenamea, sizeof(filenamea)*(filenamen+1), sizeof(filenamea)); \
 			filenamea[filenamen++] = (FILENAME);
 #endif
-			RSB_RSBENCH_ADDF(filename) /* FIXME */
+			RSB_RSBENCH_ADDF(filename,RSB_FAF_DEFAULTS) /* FIXME */
+			break;
+			case 0x6d747873: /* mtxs **/
+				mtx_sample_rate = rsb__util_atof(optarg);
+				RSBENCH_STDOUT("# Using only %lg %% of the matrix nonzeroes\n",mtx_sample_rate);
+				if( mtx_sample_rate > 100 || mtx_sample_rate < 1 )
+					RSB_PERR_GOTO(err,"--matrix-sample-pcnt: want arg between 1 and 100!");
 			break;
 			case 0x414C: /* AL */
-			alphai = rsb__util_atoi(optarg);
+				alphass=optarg;
 			break;
 			case 0x4246: /* BE */
-			betai = rsb__util_atoi(optarg);
+				betass=optarg;
+			break;
+			case 0x626e6368: /* bnch */
+			RSBENCH_STDOUT("# --bench option implies -qH -R --write-performance-record --want-mkl-autotune --mkl-benchmark --types : --split-experimental %d --merge-experimental %d --also-transpose --sort-filenames-list --want-memory-benchmark\n",RSB_CONST_DEF_MS_AT_AUTO_STEPS,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+			want_filenamelist_sort = 1; /* 0x73666e6c: sfnl */
+			want_perf_dump = RSB_BOOL_TRUE; // 0x77707266
+			want_mkl_autotuner = 1.0;
+			want_mkl_autotuner = RSB_MAX(1.0,want_mkl_autotuner); // 0x776d6174
+			RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_QUAD_PARTITIONING); // -R
+#if RSB_USE_MKL
+			if(rsb__getenv_int_t("RSB_WANT_USE_MKL",1)==0)
+#endif /* RSB_USE_MKL */
+				RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_USE_HALFWORD_INDICES); // 0x71 = -qH
+			merge_experimental = split_experimental = RSB_CONST_DEF_MS_AT_AUTO_STEPS; /* msex */
+			want_mbw = RSB_BOOL_TRUE; /* 0x776d62: wmb */
+#if RSB_WANT_MKL
+			want_mkl_bench = RSB_BOOL_TRUE; // 0x4C
+#endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+			want_armpl_bench = RSB_BOOL_TRUE; // 0x4C
+#endif /* RSB_WANT_ARMPL */
+			tn = 2; /* 0x4150 */
+			typess=":"; /* 0x54 */
+			optarg = NULL; goto lab_0x7772740a; // 0x7772740a
 			break;
 			case 0x4B: /* K */
 			want_convert = RSB_BOOL_TRUE; /* FIXME: ignoring argument */
 			break;
 			case 0x55: /* U */
-			want_update = RSB_BOOL_TRUE; /* FIXME: ignoring argument */
+			want_update = RSB_BOOL_TRUE;
+			break;
+			case 0x4853: /* HS */
+			want_as_hermitian = RSB_BOOL_TRUE;
 			break;
 			case 0x5353: /* SS */
 			want_as_symmetric = RSB_BOOL_TRUE;
+			break;
+			case 0x4553: /* ES */
+			want_expand_symmetry = RSB_BOOL_TRUE;
 			break;
 			case 0x5555: /* UU */
 			want_as_unsymmetric = RSB_BOOL_TRUE;
@@ -4860,6 +5962,23 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 #if RSB_WANT_MKL
 			want_mkl_bench = RSB_BOOL_TRUE;
 #endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+			want_armpl_bench = RSB_BOOL_TRUE;
+			RSB_STDOUT("# Using ARMPL.\n");
+			{
+				//void armplversion(armpl_int_t *major, armpl_int_t *minor, armpl_int_t *patch, const char **tag);
+				armplinfo();
+			}
+#endif /* RSB_WANT_ARMPL */
+			break;
+			case 0x776e6d6c:
+			/* this flag deactivates all interfaced libraries (if any) */
+#if RSB_WANT_MKL
+			want_mkl_bench = RSB_BOOL_FALSE;
+#endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+			want_armpl_bench = RSB_BOOL_FALSE;
+#endif /* RSB_WANT_ARMPL */
 			break;
 			case 0x6B: /* ncA */
 			want_column_expand = rsb__util_atoi(optarg);
@@ -4872,6 +5991,26 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			break;
 			case 0x774446:	/* wde */
 			want_getdiag_bench = 1;
+			break;
+			case 0x776264:	/* wbd */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-implicit-diagonal\n");
+			diagin=2;
+			break;
+			case 0x61736875: /* ashu */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-symmetries\n");
+			asfin=3;
+			break;
+			case 0x616c6c69: /* alli */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-short-idx\n");
+			asiin=2;
+			break;
+			case 0x616363: /* acc */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-coo-csr\n");
+			accin=2;
+			break;
+			case 0x61726563: /* arec */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-recursive\n");
+			arecn=2;
 			break;
 			case 0x776E68:	/* wnh */
 			want_nonzeroes_distplot = 1;
@@ -4887,27 +6026,32 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			case 0x77707373:	/* wpss */
 			want_print_per_subm_stats = RSB_BOOL_TRUE;
 			break;
-			case 0x776F6174:	/* woac */
+			case 0x776F6174:	/* woat */
 			want_accuracy_test = 2;
 			break;
+			case 0x776e6f66:	/* wnof */
+				g_fill_va_with_ones = RSB_BOOL_FALSE;
+			break;
 			case 0x776e7274:	/* wnrt */
+			RSBENCH_STDOUT("# Requesting no autotuning via --want-no-autotune\n");
 			want_autotuner = RSB_TIME_ZERO;
-			just_enter_tuning = 0;
 			wai=wat=0;
 			want_autotuner = merge_experimental = split_experimental = RSB_NEGATED_EXAGGERATED_TUNER_TIMES;
+			just_enter_tuning = 0;
 			break;
 			case 0x7772740a:	/* wrt */
-			/* want_autotuner = rsb__util_atof(optarg); */
+lab_0x7772740a:		/* want_autotuner = rsb__util_atof(optarg); */
 			{
+				const char *optarg_ = optarg ? optarg : "";
 				char wavv = 0x0;
-				int sargs = sscanf(optarg,"%lfs%dx%dt%c%c",&want_autotuner,&wai,&wat,&wav,&wavv);
+				int sargs = sscanf(optarg_,"%lfs%dx%dt%c%c",&want_autotuner,&wai,&wat,&wav,&wavv);
 
-				if(!*optarg)
+				if(!*optarg_)
 					sargs = 0;
-				RSBENCH_STDOUT(" Passed %d arguments via autotuning string \"%s\" (an empty string requests defaults)\n",sargs,optarg);
+				RSBENCH_STDOUT("# Passed %d arguments via autotuning string \"%s\" (an empty string requests defaults)\n",sargs,optarg_);
 				if(sargs < 0)
 				{
-					RSBENCH_STDOUT("Wrong autotuning string detected!\n");
+					RSBENCH_STDOUT("  Wrong autotuning string detected!\n");
 					rsb_test_help_and_exit(argv[0],options, 0);
 					exit(0);
 				}
@@ -4949,13 +6093,13 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			break;
 #endif
 			case 0x776d6174:	/* wmat */
-			sscanf(optarg,"%lf",&want_mkl_autotuner);
+			sscanf(optarg?optarg:"","%lf",&want_mkl_autotuner);
 			want_mkl_autotuner = RSB_MAX(1.0,want_mkl_autotuner); /* FIXME: actual value is unimportant as long as it is positive ! */
 			break;
 			case 0x776d6f62:	/* wmob */
 			mib = 1;
 			break;
-			case 0x776174:	/* wac */
+			case 0x776174:	/* wat */
 			want_accuracy_test = 1;
 			break;
 			case 0x775563:
@@ -4974,10 +6118,13 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			csr_w_filename = optarg;
 			break;
 			case 0x77707266:
-			fprfn = optarg;
+			fprfn = optarg ? optarg : "";
 			want_perf_dump = RSB_BOOL_TRUE;
-			if(optarg && !*optarg)
+			if(fprfn && !*fprfn)
 				fprfn = NULL;
+			else
+				RSBENCH_STDOUT("# performance record file set to: %s\n", fprfn);
+				/* and tuning matrix renderings as well */
 			break;
 			case 0x776e7072:
 			fprfn = NULL;
@@ -4994,7 +6141,7 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			break;
 			case 0x68: /* h */
 			/* should use rsb_test_help_and_exit */
-			RSBENCH_STDERR(
+			RSBENCH_STDOUT(
 				"%s "RSB_INFOMSG_SAK".\n"
 				"You can use it to perform sparse matrix - unitary vector multiplication, "
 				"specifying the blocking parameters, the times to perform multiplication.\n"
@@ -5027,16 +6174,78 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	    	}
 	}
 
+	if(incXss)
+	{
+		if(RSB_SOME_ERROR(rsb__util_get_bx_array_or_default(0x3A/*colon*/,dis,incXss,&incXn,&incXa)) || incXn<1)
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+		RSBENCH_STDOUT("# setting incX=%d\n",incXa[0]);
+	}
+	if(incYss)
+	{
+		if(RSB_SOME_ERROR(rsb__util_get_bx_array_or_default(0x3A/*colon*/,dis,incYss,&incYn,&incYa)) || incYn<1)
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+		RSBENCH_STDOUT("# setting incY=%d\n",incYa[0]);
+	}
+	if(alphass)
+	{
+		errval = rsb__util_get_bx_array_or_default(0x3A/*colon*/,"-1,1,2",alphass,&alphan,&alphaip);
+		if(RSB_SOME_ERROR(errval))
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+	}
+	if(betass)
+	{
+		errval = rsb__util_get_bx_array_or_default(0x3A/*colon*/,"0,1,2",betass,&betan,&betaip);
+		if(RSB_SOME_ERROR(errval))
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+	}
+	if(typess)
+	{
+		const char*toa = typess;
+		ntypecodes=0; /* this neutralizes former -T ... option */
+		/* if( *typess == 0x3A || *typess == 0x2A ) */ /* : or * aka colon or asterisk */
+		if( ( ! isalpha(*typess) ) || ( strstr(typess,"all") != NULL ) )
+			toa = RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS ;
+		if( strstr(typess,"B") == typess )
+			toa = RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS;
+		for(;*toa;++toa)
+		if(isalpha(*toa))
+		{
+			if(ntypecodes<maxtypes)
+				typecodes[ntypecodes++]=typecode=toupper(*toa);
+			else
+			{
+				RSB_ERROR("Up to %d types supported! P.s.: Use a punctuation symbol to ask for all supported types.\n",maxtypes);
+				goto err;
+			}
+		}
+		typecodes[ntypecodes] = RSB_NUL;
+	}
+
 	if( (!RSB_DO_FLAG_HAS(flags_o,RSB_FLAG_QUAD_PARTITIONING)) && want_recursive != RSB_BOOL_FALSE )
 	{
 		RSB_WARN("Assuming a recursive matrix structure is requested...\n");
 		RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_QUAD_PARTITIONING);
 	}
+	fnrprs[0]=RSB_NUL;
 	for (c = optind; c < argc; c++)                                                     
 	{
-		RSB_RSBENCH_ADDF(argv[c])
+		if( c == optind && optind == argc - 1 ) /* if only one and first */
+			rsb__mtxfn_bncp(fnrprs,rsb__basename(argv[c]),0);
+		RSB_RSBENCH_ADDF(argv[c],RSB_FAF_DEFAULTS)
 	}
-	if(want_verbose == RSB_BOOL_TRUE)
+	if(filenamen>0 && want_filenamelist_sort == 1)
+	{
+		RSBENCH_STDOUT("# Sorting matrices list (use --no-sort-filenames-list to prevent this)\n");
+		qsort(filenamea, filenamen, sizeof(char *), rsb__cmpstringp);
+	}
+	if( /* want_verbose > 0 && */ filenamen )
+	{
+		RSBENCH_STDOUT("# Using matrices:");
+		for ( filenamei = 0; filenamei < filenamen ; ++filenamei )
+			RSBENCH_STDOUT(" %s",rsb__basename(filenamea[filenamei]));
+		RSBENCH_STDOUT("\n");
+	}
+	if(want_verbose > 0)
 	{
 		rsb_char_t cbuf[RSB_MAX_COMPILE_COMMAND_LENGTH];
 		rsb__echo_timeandlabel(" beginning run at ","\n",&st);
@@ -5047,14 +6256,62 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 		else
 			RSBENCH_STDOUT("# compiled with: %s\n",cbuf);
 	}
+	if(cn == 1)
+		tcrprs = cns;
+	if(cns)
+	{
+		ca = NULL;
+		cn = 0;
+
+		RSB_DEBUG_ASSERT( sizeof(int) == sizeof(rsb_blk_idx_t )  );
+		RSB_DEBUG_ASSERT( sizeof(int) == sizeof(rsb_thread_t)  );
+
+		if(cns && *cns==0x3A/*colon*/)
+			errval=rsb__util_get_tn_array(cns,&cn,&ca);
+		else
+			errval=rsb__util_get_bx_array(cns,&cn,&ca);
+		if(RSB_SOME_ERROR(errval))
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+		if(cn == 1)
+			tcrprs = cns;
+	}
+	else
+	{
+#if RSB_WANT_OMP_RECURSIVE_KERNELS
+		cn = 1;
+		ca_[0] = RSB__GET_MAX_THREADS();
+		RSBENCH_STDOUT("# User did not specify threads; assuming %d. Environment provides max %d threads; this build supports max %d.\n", cn, ca_[0], RSB_CONST_MAX_SUPPORTED_THREADS  );
+		if( RSB_CONST_MAX_SUPPORTED_THREADS  < ca_[0] )
+		{
+			RSBENCH_STDOUT("# Warning: environment provides more threads than supported by this configuration -- expect trouble !\n");
+		}
+		RSBENCH_STDOUT("# User did not specify threads; assuming %d. Environment provides max %d threads; this build supports max %d.\n", cn, ca_[0], RSB_CONST_MAX_SUPPORTED_THREADS  );
+#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
+		tcrprs = rsb__getenv("OMP_NUM_THREADS");
+	}
 	printf("# average timer granularity: %2.3lg s\n",tinf);
 	if(want_perf_dump)
 	{
 		if(!fprfn)
 		{
-			rsb__impcdstr(fprfnb,"rsbench_pr",".rpr",ppprfn,apprfn);
+			rsb_bool_t with_mkl = RSB_BOOL_FALSE;
+#if RSB_WANT_MKL
+			with_mkl = want_mkl_bench;
+#endif /* RSB_WANT_MKL */
+			rsb__impcdstr(fprfnb,"rsbench_pr",ppprfn,apprfn,with_mkl,tcrprs,fnrprs,".rpr");
 			fprfn = fprfnb;
 		}
+
+		if(fprfn)
+		{
+			const size_t sl = strlen(fprfn);
+
+			strcpy(mtrfpf,fprfn);
+			if( sl >=4 && strcmp(".rpr",mtrfpf+sl-4) == 0 )
+				mtrfpf[sl-4]=RSB_NUL;
+			strcat(mtrfpf,"-tuning-");
+		}
+
 		if(!cprfn)
 			rsb__sprintf(cprfnb,"%s.tmp",fprfn),
 			cprfn = cprfnb;
@@ -5067,8 +6324,8 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	RSBENCH_STDOUT("# will flush cache memory: %s between each operation measurement series, and %s between each operation.\n", want_outer_flush?"":"NOT", want_inner_flush?"":"NOT");
 	RSBENCH_STDOUT("# will %s any zero encountered in the matrix.\n", ( RSB_DO_FLAG_HAS(flags_o,RSB_FLAG_DISCARD_ZEROS) )?"discard":"keep");
 	if( nrhsa == NULL ) nrhsa = &nrhs;
-	if( incXa == NULL ) incXa = &incX;
-	if( incYa == NULL ) incYa = &incY;
+	if( incXa == NULL ) incXa = (rsb_blk_idx_t *const)&incX;
+	if( incYa == NULL ) incYa = (rsb_blk_idx_t *const)&incY;
 	if(want_likwid == RSB_BOOL_TRUE){RSB_LIKWID_MARKER_INIT;}
 
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE
@@ -5082,9 +6339,9 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	}
 
 	io.n_pairs=0;
-	if(should_use_alternate_sort)
+	if(should_use_alternate_sort!=0)
 	{
-		io.values[io.n_pairs]=&should_use_cb_method;
+		io.values[io.n_pairs]=&should_use_alternate_sort;
 		io.keys[io.n_pairs]=RSB_IO_WANT_SORT_METHOD;
 		io.n_pairs++;
 	}
@@ -5121,9 +6378,45 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 		io.n_pairs++;
 	}
 
+#if RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE
+	{
+		static rsb_int_t one=1; // static: needs to survive context leave
+		io.values[io.n_pairs]=&one;
+		io.keys[io.n_pairs]=RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE;
+		io.n_pairs++;
+	}
+#endif /* RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE */
+
+	if(want_verbose >= 2)
+	{
+		static FILE *sp = NULL;
+		sp = RSB_DEFAULT_STREAM;
+		io.values[io.n_pairs]=&sp;
+		io.keys[io.n_pairs]=RSB_IO_WANT_VERBOSE_EXIT;
+		io.n_pairs++;
+	}
+
+	if(want_verbose > 1)
+	{
+		static rsb_int_t one=1; // static: needs to survive context leave
+		io.values[io.n_pairs]=&one;
+		io.keys[io.n_pairs]=RSB_IO_WANT_VERBOSE_TUNING;
+		io.n_pairs++;
+	}
+
+#if RSB_HAVE_STREAMS
+	if(want_verbose >= 2)
+	{
+		static FILE *sp = NULL;
+		sp = RSB_DEFAULT_STREAM;
+		io.values[io.n_pairs]=&sp;
+		io.keys[io.n_pairs]=RSB_IO_WANT_VERBOSE_INIT;
+		io.n_pairs++;
+	}
+#endif /* RSB_HAVE_STREAMS */
+
 #ifdef RSB_HAVE_UNISTD_H
 {
-	extern char **environ;
 	char **me = NULL;
 	rsb_int_t rpevc = 0; /* RSB_ prefixed environment variables count */
 
@@ -5141,57 +6434,131 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 }
 #endif /* RSB_HAVE_UNISTD_H */
 	
-	RSB_TM_GETENV_STDOUT("LD_LIBRARY_PATH");
-	RSB_TM_GETENV_STDOUT("HOSTNAME");
+#define RSB_TM_GETENV_STDOUT(VAR)						\
+	if( rsb__getenv(VAR) )							\
+		RSB_STDOUT("# env: export " VAR "=%s\n",rsb__getenv(VAR));	\
+	else									\
+		RSB_STDOUT("# env: " VAR " is not set\n");
+
+	if(want_verbose >= -2)
+	{
+		RSB_TM_GETENV_STDOUT("PATH");
+		RSB_TM_GETENV_STDOUT("LD_LIBRARY_PATH");
+		RSB_TM_GETENV_STDOUT("HOSTNAME");
 #if defined(RSB_WANT_OMP_RECURSIVE_KERNELS) && (RSB_WANT_OMP_RECURSIVE_KERNELS>0)
-	RSB_TM_GETENV_STDOUT("KMP_AFFINITY");
-	RSB_TM_GETENV_STDOUT("OMP_AFFINITY_FORMAT");
-	RSB_TM_GETENV_STDOUT("OMP_ALLOCATOR");
-	RSB_TM_GETENV_STDOUT("OMP_CANCELLATION");
-	RSB_TM_GETENV_STDOUT("OMP_DEBUG");
-	RSB_TM_GETENV_STDOUT("OMP_DEFAULT_DEVICE");
-	RSB_TM_GETENV_STDOUT("OMP_DISPLAY_ENV");
-	RSB_TM_GETENV_STDOUT("OMP_DISPLAY_AFFINITY");
-	RSB_TM_GETENV_STDOUT("OMP_DYNAMIC");
-	RSB_TM_GETENV_STDOUT("OMP_MAX_ACTIVE_LEVELS");
-	RSB_TM_GETENV_STDOUT("OMP_MAX_TASK_PRIORITY");
-	RSB_TM_GETENV_STDOUT("OMP_NESTED");
-	RSB_TM_GETENV_STDOUT("OMP_NUM_THREADS");
-	RSB_TM_GETENV_STDOUT("OMP_PLACES");
-	RSB_TM_GETENV_STDOUT("OMP_PROC_BIND");
-	RSB_TM_GETENV_STDOUT("OMP_SCHEDULE");
-	RSB_TM_GETENV_STDOUT("OMP_STACKSIZE");
-	RSB_TM_GETENV_STDOUT("OMP_TARGET_OFFLOAD");
-	RSB_TM_GETENV_STDOUT("OMP_THREAD_LIMIT");
-	RSB_TM_GETENV_STDOUT("OMP_TOOL");
-	RSB_TM_GETENV_STDOUT("OMP_TOOL_LIBRARIES");
-	RSB_TM_GETENV_STDOUT("OMP_WAIT_POLICY");
-	RSB_TM_GETENV_STDOUT("SLURM_CLUSTER_NAME");
-	RSB_TM_GETENV_STDOUT("SLURM_CPUS_ON_NODE");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_CPUS_PER_NODE");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_ID");
-	RSB_TM_GETENV_STDOUT("SLURM_JOBID");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_NAME");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_NUM_NODES");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_PARTITION");
-	RSB_TM_GETENV_STDOUT("SLURM_NPROCS");
-	RSB_TM_GETENV_STDOUT("SLURM_NTASKS");
-	RSB_TM_GETENV_STDOUT("SLURM_STEP_TASKS_PER_NODE");
-	RSB_TM_GETENV_STDOUT("SLURM_TASKS_PER_NODE");
+		RSB_TM_GETENV_STDOUT("KMP_AFFINITY");
+		RSB_TM_GETENV_STDOUT("OMP_AFFINITY_FORMAT");
+		RSB_TM_GETENV_STDOUT("OMP_ALLOCATOR");
+		RSB_TM_GETENV_STDOUT("OMP_CANCELLATION");
+		RSB_TM_GETENV_STDOUT("OMP_DEBUG");
+		RSB_TM_GETENV_STDOUT("OMP_DEFAULT_DEVICE");
+		RSB_TM_GETENV_STDOUT("OMP_DISPLAY_ENV");
+		RSB_TM_GETENV_STDOUT("OMP_DISPLAY_AFFINITY");
+		RSB_TM_GETENV_STDOUT("OMP_DYNAMIC");
+		RSB_TM_GETENV_STDOUT("OMP_MAX_ACTIVE_LEVELS");
+		RSB_TM_GETENV_STDOUT("OMP_MAX_TASK_PRIORITY");
+		RSB_TM_GETENV_STDOUT("OMP_NESTED");
+		RSB_TM_GETENV_STDOUT("OMP_NUM_THREADS");
+		RSB_TM_GETENV_STDOUT("OMP_PLACES");
+		RSB_TM_GETENV_STDOUT("OMP_PROC_BIND");
+		RSB_TM_GETENV_STDOUT("OMP_SCHEDULE");
+		RSB_TM_GETENV_STDOUT("OMP_STACKSIZE");
+		RSB_TM_GETENV_STDOUT("OMP_TARGET_OFFLOAD");
+		RSB_TM_GETENV_STDOUT("OMP_THREAD_LIMIT");
+		RSB_TM_GETENV_STDOUT("OMP_TOOL");
+		RSB_TM_GETENV_STDOUT("OMP_TOOL_LIBRARIES");
+		RSB_TM_GETENV_STDOUT("OMP_WAIT_POLICY");
 	//	tcrprs = rsb__set_num_threads() ;
 #else
-	RSB_STDOUT("# serial build: ignoring environment variables: KMP_AFFINITY OMP_PROC_BIND OMP_NUM_THREADS\n");
+		RSB_STDOUT("# serial build: ignoring environment variables: KMP_AFFINITY OMP_PROC_BIND OMP_NUM_THREADS\n");
 #endif
+		RSB_TM_GETENV_STDOUT("RSB_WANT_RSBPP");
+		{
+#if RSB_USE_LIBRSBPP
+			const int wrp = rsb__getenv_int_t("RSB_WANT_RSBPP",1);
+			if(wrp==0)
+				RSBENCH_STDOUT("# NOT using kernels from librsbpp (opted off via environment variable).\n");
+			else
+				RSBENCH_STDOUT("#     using kernels from librsbpp (default).\n");
+#else
+			const int wrp = rsb__getenv_int_t("RSB_WANT_RSBPP",0);
+			if(wrp!=0)
+			{
+				RSBENCH_STDOUT("Error: RSB_WANT_RSBPP environment variable set but librsbpp configured out!\n");
+				goto err;
+			}
+#endif /* RSB_USE_LIBRSBPP */
+		}
+		RSB_TM_GETENV_STDOUT("SLURM_CLUSTER_NAME");
+		RSB_TM_GETENV_STDOUT("SLURM_CPUS_ON_NODE");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_CPUS_PER_NODE");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_ID");
+		RSB_TM_GETENV_STDOUT("SLURM_JOBID");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_NAME");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_NUM_NODES");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_PARTITION");
+		RSB_TM_GETENV_STDOUT("SLURM_NPROCS");
+		RSB_TM_GETENV_STDOUT("SLURM_NTASKS");
+		RSB_TM_GETENV_STDOUT("SLURM_STEP_TASKS_PER_NODE");
+		RSB_TM_GETENV_STDOUT("SLURM_TASKS_PER_NODE");
+		if(1)
+		{
+			rsb_char_t hn[RSB_MAX_HOSTNAME_LEN];
+			rsb__strcpy_hostname(hn);
+			if(hn[0])
+				RSBENCH_STDOUT("# detected hostname: %s\n",hn);
+		}
 
-	if( want_verbose != RSB_BOOL_FALSE )
-		RSBENCH_STDOUT("# user specified a verbosity level of %d (each --verbose occurrence counts +1)\n",want_verbose_tuning );
-	else
-		RSBENCH_STDOUT("# user did not specify any verbosity level (each --verbose occurrence counts +1)\n");
+		if( want_verbose >= 0 )
+			RSBENCH_STDOUT("# user specified a verbosity level of %d (each --verbose occurrence counts +1)\n",want_verbose_tuning );
+		else
+			RSBENCH_STDOUT("# user did not specify any verbosity level (each --verbose occurrence counts +1)\n");
+	}
 
 	if((errval = rsb_lib_reinit(iop))!=RSB_ERR_NO_ERROR)
 	{
 		RSB_PERR_GOTO(err,"Error while reinitializing the library.");
 	}
+
+	if ( want_mbw == RSB_BOOL_TRUE ) 
+	{
+		rsb_time_t dt = RSB_TIME_ZERO;
+		dt = - rsb_time();
+		if((errval = rsb__memory_benchmark(&mbet))!=RSB_ERR_NO_ERROR)
+		{
+			RSB_ERROR("Error while performing bandwidth benchmark!");
+			goto err;
+		}
+		else
+			mbetp = &mbet; // FIXME: need option to turn this feature on/off
+		dt += rsb_time();
+		if( want_verbose >= 1 )
+			RSB_STDOUT("# Memory benchmark took %.3lfs\n",dt);
+	}
+
+#ifdef RSB_HAVE_UNISTD_H
+{
+	/* special environmental variables set just for the sake of being saved in .rpr files */
+#ifdef RSB_CC
+	setenv("RSB_CC",RSB_CC,1);
+#endif /* RSB_CC */
+#ifdef RSB_CFLAGS
+	setenv("RSB_CFLAGS",RSB_CFLAGS,1);
+#endif /* RSB_CFLAGS */
+#ifdef RSB_DETECTED_MEM_HIERARCHY_INFO
+	setenv("RSB_DETECTED_MEM_HIERARCHY_INFO",RSB_DETECTED_MEM_HIERARCHY_INFO,1);
+#endif /* RSB_DETECTED_MEM_HIERARCHY_INFO */
+	{
+		rsb_char_t buf[RSB_MAX_LINE_LENGTH];
+		rsb_char_t usmhib[RSB_MAX_LINE_LENGTH];
+		buf[0]=RSB_NUL;
+		strcat(buf,rsb__get_mem_hierarchy_info_string(usmhib));
+		//rsb_lib_get_opt(RSB_IO_WANT_MEMORY_HIERARCHY_INFO_STRING,buf);//FIXME
+		setenv("RSB_IO_WANT_MEMORY_HIERARCHY_INFO_STRING",&buf[0],1);
+	}
+}
+#endif
+
 #if RSB_WANT_PERFORMANCE_COUNTERS_IN_RSBENCH 
 	if((errval = rsb_perf_counters_init())!=RSB_ERR_NO_ERROR)
 	{
@@ -5200,11 +6567,11 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 	}
 #endif
 
-	if( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( split_experimental ) )
+	if( RSB__APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB__APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB__APPROPRIATE_AT_TIME_SPEC( split_experimental ) )
 	{
 		RSB_STDOUT("# auto-tuning oriented output implies  times==0 iterations and sort-after-load.\n");
 		times = 0;
-		/* if(want_verbose) */
+		/* if(want_verbose>0) */
 		want_impatiently_soon_pre_results = 1;
 		want_sort_after_load = RSB_BOOL_TRUE;
 	}
@@ -5220,61 +6587,42 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 
 	if( 0 == filenamen )
 #if RSB_RSBENCH_STATIC_FILENAMEA
-	       	filenamea[0] = fnbufp[0];
+	       	filenamea[0] = &(fnbuf[0]);
 #else
 	       	filenamea = &fnbufp;
 #endif
 	filenamen = RSB_MAX(1,filenamen);
-
-	if(cns)
-	{
-		ca = NULL;
-		cn = 0;
-		if(RSB_SOME_ERROR(rsb__util_get_bx_array(cns,&cn,&ca)))
-			{RSB_ERROR(RSB_ERRM_ES);goto err;}
-	}
-	else
-	{
-#if RSB_WANT_OMP_RECURSIVE_KERNELS
-		/* #define rsb_get_max_threads omp_get_max_threads */
-		cn = 1;
-		ca_[0] = omp_get_max_threads ();
-		RSBENCH_STDOUT("# User did not specify threads; assuming %d.\n", cn );
-#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
-	}
 
 #if RSB_WANT_MKL
 	if( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_mkl_autotuner ) )
 		want_mkl_bench_csr = RSB_BOOL_FALSE;
 #endif /* RSB_WANT_MKL */
 
-	RSBENCH_STDOUT("# Using alpha=%d beta=%d order=%s for rsb_spmv/rsb_spsv/rsb_spmm/rsb_spsm.\n",alphai,betai,((order==RSB_FLAG_WANT_ROW_MAJOR_ORDER)?"rows":"cols"));
-
 	if(want_perf_dump) 
-		rsb__pr_init(&rspr, NULL, filenamen, cn, incXn, incYn, nrhsn, ntypecodes, tn);
+		rsb__pr_init(&rspr, NULL, filenamen, cn, incXn, incYn, nrhsn, ntypecodes, tn, mbetp );
 
 	for(     filenamei=0;     filenamei<filenamen+want_impatiently_soon_pre_results  ;++filenamei     )
 	{
-		if( filenamea && ( filenamea[filenamei] != filename_old) && filename_old && want_impatiently_soon_pre_results && want_perf_dump && filenamei>0 && filenamen>1) 
+		if( /*filenamea &&*/ ( filenamea[filenamei] != filename_old) && filename_old && want_impatiently_soon_pre_results && want_perf_dump && filenamei>0 && filenamen>1) 
 		{
 			int filenameif = filenamei-1;
 			RSBENCH_STDOUT("# ====== BEGIN Impatient results record for matrix %d/%d: %s.\n",filenamei,filenamen,rsb__basename(filename_old));
-			errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL);
+			errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL, NULL);
 			RSBENCH_STDOUT("# ======  END  Impatient results record for matrix %d/%d: %s.\n",filenamei,filenamen,rsb__basename(filename_old));
 			if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
 			if( filenameif > 0 && filenameif < filenamen-1) /* not after first and not at last */
 				RSBENCH_STDOUT("# ====== BEGIN Impatient summary record for the %d/%d matrices so far.\n", filenameif+1,filenamen),
-				errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL),
+				errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL, NULL),
 				RSBENCH_STDOUT("# ======  END  Impatient summary record for the %d/%d matrices so far.\n", filenameif+1,filenamen);
 			if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
-			errval = rsb__pr_save(cprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE );
+			errval = rsb__pr_save(cprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE);
 			if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
 		}
 
 		if( filenamei >= filenamen )
 			continue; /* temporary: only for the want_impatiently_soon_pre_results trick */
 
-		if(filenamea)
+		if(filenamea[filenamei])
 		{
 			filename = filenamea[filenamei];
 		}
@@ -5284,21 +6632,50 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 			RSBENCH_STDOUT("# multi-file benchmarking (file %d/%d) -- now using %s\n",filenamei+1,filenamen,rsb__basename(filename));
 		}
 
-	for(     incXi=0;     incXi<incXn     ;++incXi     )
+		if(!alphaip)
+			errval=rsb__util_get_bx_array("1",&alphan,&alphaip);
+		if(!betaip)
+			errval=rsb__util_get_bx_array("1",&betan,&betaip);
+
+	for(areci=0;areci<arecn;++areci)
 	{
-	for(     incYi=0;     incYi<incYn     ;++incYi     )
+	for(accii=0;accii<accin;++accii)
 	{
-	for(     nrhsi=0;     nrhsi<nrhsn     ;++nrhsi     )
+	for(asiii=0;asiii<asiin;++asiii)
+	{
+	for(asfii=0;asfii<asfin;++asfii)
+	{
+	for(diagii=0;diagii<diagin;++diagii)
 	{
 	for(typecodesi=0;typecodesi<ntypecodes;++typecodesi)
 	{
 	rsb_flags_t flags = flags_o;
 	rsb_thread_t cl; /* cores number last (overrides cn for this typecode cycle) */
 	typecode = typecodes[typecodesi];
-
+	if(areci==0 && arecn > 1)
+		RSB_DO_FLAG_DEL(flags,RSB_FLAG_QUAD_PARTITIONING);
+	if(areci==1 && arecn > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_QUAD_PARTITIONING);
+	if(accii==0 && accin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_USE_HALFWORD_INDICES);
+	if(accii==1 && accin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_USE_FULLWORD_INDICES);
+	if(asiii==0 && asiin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_WANT_BCSS_STORAGE);
+	if(asiii==1 && asiin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_WANT_COO_STORAGE);
+	if(asfii==0 && asfin > 1)
+		want_as_unsymmetric = RSB_BOOL_TRUE, want_as_symmetric = RSB_BOOL_FALSE, want_as_hermitian = RSB_BOOL_FALSE;
+	if(asfii==1)
+		want_as_unsymmetric = RSB_BOOL_FALSE, want_as_symmetric = RSB_BOOL_TRUE, want_as_hermitian = RSB_BOOL_FALSE;
+	if(asfii==2)
+		want_as_unsymmetric = RSB_BOOL_FALSE, want_as_symmetric = RSB_BOOL_FALSE, want_as_hermitian = RSB_BOOL_TRUE;
+	if(diagii>0)
+		RSB_DO_FLAG_XOR(flags,RSB_FLAG_UNIT_DIAG_IMPLICIT);
 	if(ntypecodes>1)
 	{
-		RSBENCH_STDOUT("# multi-type benchmarking (%s) -- now using typecode %c (last was %c).\n",typecodes,typecode,typecode_old);
+		if(want_verbose >= -2)
+			RSBENCH_STDOUT("# multi-type benchmarking (%s) -- now using typecode %c (last was %c).\n",typecodes,typecode,typecode_old);
 		if( RSB_MATRIX_UNSUPPORTED_TYPE ( typecode ) )
 		{
 			RSBENCH_STDOUT("# Skipping unsupported type \"%c\" -- please choose from \"%s\".\n",typecode,RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS );
@@ -5306,38 +6683,22 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 		}
 	}
 
-	nrhs = nrhsa[nrhsi];
-	if( nrhsn > 1 && nrhss )
+	if(want_verbose >= -2)
 	{
-		RSBENCH_STDOUT("# multi-nrhs benchmarking (%s) -- now using nrhs %d.\n",nrhss,nrhs);
+		RSBENCH_STDOUT("# Cache block size total %ld bytes, per-thread %ld bytes\n",rsb__get_lastlevel_c_size(),rsb__get_lastlevel_c_size_per_thread()); /* as used in rsb__allocate_recursive_sparse_matrix_from_row_major_coo */
+ 		RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
+		RSBENCH_MEM_ALLOC_INFO("")
+		RSBENCH_STDOUT(".\n");
 	}
-	incX = incXa[incXi];
-	incY = incYa[incYi];
-	if(incXn>1)
-	{
-		RSBENCH_STDOUT("# multi-incX benchmarking (%d/%d) -- now using incX=%d.\n",incXi+1,incXn,incX);
-	}
-	if(incYn>1)
-	{
-		RSBENCH_STDOUT("# multi-incY benchmarking (%d/%d) -- now using incY=%d.\n",incYi+1,incYn,incY);
-	}
-
-	if( want_only_star_scan )
-		if( RSB_MIN(incXi,1) + RSB_MIN(incYi,1) + RSB_MIN(nrhsi,1) > 1 ) /* two or more exceed index one */
-		{
-			RSBENCH_STDOUT("# Skipping a case with incX=%d incY=%d nrhs=%d.\n",incX,incY,nrhs);
-			goto frv;
-		}
- 	RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
-	/* rsb__getrusage(); */ /* FIXME: new (20140727) */
-#ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
-	RSBENCH_STDOUT("( allocated_memory:%zd allocations_count:%zd)",rsb_global_session_handle.allocated_memory,rsb_global_session_handle.allocations_count);
-#endif
-	RSBENCH_STDOUT(".\n"); /* FIXME: this takes too much space here ! */
 
 	if(cns)
 	{
-		cc = ca[ci];
+		cc = ca[0];
+		if( cc == 0 )
+			RSBENCH_STDOUT("# Using auto threads\n");
+		else
+			RSBENCH_STDOUT("# Using %d threads\n",(int)cc);
+		RSB_DEBUG_ASSERT( cc == 0 || RSB_IS_VALID_THREAD_COUNT ( cc ) );
 	}
 	cl=cn;
 	if(bcs)
@@ -5347,18 +6708,6 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 		if(RSB_SOME_ERROR(rsb__util_get_bx_array(brs,&brl,&brv)))
 			{RSB_ERROR(RSB_ERRM_ES);goto err;}
 
-	if(incX!=incY)
-	{
-		RSB_ERROR("setting (incX=%d) != (incY=%d) in triangular solve is unsupported in this program\n",incX,incY);
-		errval = RSB_ERR_BADARGS;goto err;
-	}
-
-
-	if(RSB_SOME_ERROR(errval = rsb__fill_with_ones(beta,typecode,1,1))){ RSB_ERROR(RSB_ERRM_ES);goto err;}
-	if(RSB_SOME_ERROR(errval = rsb__fill_with_ones(alpha,typecode,1,1))){ RSB_ERROR(RSB_ERRM_ES);goto err;}
-	/* FIXME: the following collides with the former */
-	rsb__util_set_area_to_converted_integer(alphap,typecode,alphai);
-	rsb__util_set_area_to_converted_integer(betap ,typecode,betai);
 
 #ifdef RSB_WANT_OSKI_BENCHMARKING 
 	/* FIXME : note that this option is not compatible with g_sort_only .. */
@@ -5368,7 +6717,7 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 
 	if(g_sort_only)RSB_DO_FLAG_ADD(flags,RSB_FLAG_SORT_INPUT);
 
-	if(typecode==-1)
+	if( RSB_MATRIX_UNSUPPORTED_TYPE ( typecode ) )
 	{
 		RSBENCH_STDERR("error : please recompile with double precision floating point numbers supported! \n");
 		return RSB_ERR_GENERIC_ERROR;
@@ -5394,39 +6743,40 @@ int rsb__main_block_partitioned_spsv_uxua(const int argc, rsb_char_t * const arg
 		
 		if(((should_generate_lband>-1) || (should_generate_uband>-1)) && should_generate_dense>0)
 		{
-			rsb__sprintf(fnbuf,"banded-%dx%d-%d+%d-%dnz-spaced-%d",dim*spacing,dim*spacing,should_generate_lband,should_generate_uband,RSB_NNZ_OF_BANDED(dim,should_generate_lband,should_generate_uband),spacing);
+			rsb__sprintf(fnbuf,"banded-%zdx%zd-%zd+%zd-%zdnz-spaced-%zd",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)should_generate_lband,(rsb_printf_int_t)should_generate_uband,(rsb_printf_int_t)(RSB_NNZ_OF_BANDED(dim,should_generate_lband,should_generate_uband)),(rsb_printf_int_t)spacing);
 		}
 		else
 		{
 		if(want_generated_spacing>0)
 		{
 			if(should_generate_dense>0)
-				rsb__sprintf(fnbuf,"dense-%dx%d-%dnz",dim*spacing,should_generate_dense_nc*spacing/*dim*spacing*/,dim*dim);
+				rsb__sprintf(fnbuf,"dense-%zdx%zd-%zdnz",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(should_generate_dense_nc*spacing)/*dim*spacing*/,(rsb_printf_int_t)(dim*dim));
 			else
-				rsb__sprintf(fnbuf,"lower-%dx%d-%dnz-spaced-%d",dim*spacing,dim*spacing,(dim*(dim-1))/2+dim,spacing);
+				rsb__sprintf(fnbuf,"lower-%zdx%zd-%zdnz-spaced-%zd",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)((dim*(dim-1))/2+dim),(rsb_printf_int_t)spacing);
 		}
 		else
 		{
 			if(should_generate_dense>0)
-				rsb__sprintf(fnbuf,"dense-%dx%d-%dnz",dim*spacing,should_generate_dense_nc*spacing/*dim*spacing*/,dim*should_generate_dense_nc);
+				rsb__sprintf(fnbuf,"dense-%zdx%zd-%zdnz",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(should_generate_dense_nc*spacing/*dim*spacing*/),(rsb_printf_int_t)(dim*should_generate_dense_nc));
 			else
-				rsb__sprintf(fnbuf,"lower-%dx%d-%dnz",dim*spacing,dim*spacing,(dim*(dim-1))/2+dim);
+				rsb__sprintf(fnbuf,"lower-%zdx%zd-%zdnz",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)((dim*(dim-1))/2+dim));
 		}
 		}
-		if(want_incX)
-				rsb__sprintf(fnbuf+strlen(fnbuf),"-incX-%d",incX);
-		if(want_incY)
-				rsb__sprintf(fnbuf+strlen(fnbuf),"-incY-%d",incY);
 /*		rsb__sprintf(fnbuf,"dense-%dx%d-%dnz",dim,dim,dim*dim);*/
 /*		rsb__sprintf(fnbuf,"dense-%dx%d",dim,dim);*/
 		filename=&(fnbuf[0]);
+		// RSB_RSBENCH_ADDF(filename,RSB_FAF_CHKDUP|RSB_FAF_CHKREC|RSB_FAF_VRBADD); /* FIXME */
 	}
 
 	if(usfnbuf)
 		filename=usfnbuf;
 
 	/* CONDITIONALLY, READING A MATRIX FROM FILE */
-if(filename || b_r_filename)
+if(!(filename || b_r_filename))
+{
+	RSBENCH_STDOUT("%s (spsv_sxsx) : Please specify a matrix filename (with -f)\n",argv[0]);
+}
+else
 {
 
 	rsb_blk_idx_t M_b=0;/* was 0 */
@@ -5469,7 +6819,7 @@ if(filename || b_r_filename)
 	{
 		rsb_bool_t is_symmetric = RSB_BOOL_FALSE;
 		rsb_bool_t is_hermitian = RSB_BOOL_FALSE;
-		size_t fsz = rsb__sys_filesize(filename);
+		const size_t fsz = rsb__sys_filesize(filename);
 
 		frt = - rsb_time();
 
@@ -5532,21 +6882,21 @@ if(filename || b_r_filename)
 		}
 		if( want_slmn > 0 && want_slmn <  nnz )
 		{
-			RSB_STDOUT("# skipping loading matrix %s, having %d > %d allowed nonzeroes.\n",filename,nnz,want_slmn);
+			RSB_STDOUT("# skipping loading matrix %s, having %zd > %zd allowed nonzeroes.\n",filename,(rsb_printf_int_t)nnz,(rsb_printf_int_t)want_slmn);
 			goto nfnm;
 		}
 		if( want_slms > 0 && want_slms <= fsz / 1024 )
 		{
-			RSB_STDOUT("# skipping loading matrix %s, having %zd>=%d allowed filesize (KiB).\n",filename,fsz,want_slms);
+			RSB_STDOUT("# skipping loading matrix %s, having %zd>=%zd allowed filesize (KiB).\n",filename,(size_t)fsz,(size_t)want_slms);
 			goto nfnm;
 		}
 		if( want_slnn > 0 && want_slnn >  nnz )
 		{
-			RSB_STDOUT("# skipping loading matrix %s, having %d < %d allowed nonzeroes.\n",filename,nnz,want_slnn);
+			RSB_STDOUT("# skipping loading matrix %s, having %zd < %zd allowed nonzeroes.\n",filename,(rsb_printf_int_t)nnz,(rsb_printf_int_t)want_slnn);
 			goto nfnm;
 		}
 	
-		RSB_STDOUT("# reading %s (%zd bytes / %zd "RSB_MEGABYTE_SYM" / %zd nnz / %zd rows / %zd columns / %zd MiB COO) as type %c...\n",rsb__basename(filename),fsz,RSB_DIV(fsz,RSB_MEGABYTE),(size_t)nnz,(size_t)nrA,(size_t)ncA,RSB_DIV(RSB_UTIL_COO_OCCUPATION(nrA,ncA,nnz,typecode),RSB_MEGABYTE),typecode);
+		RSB_STDOUT("# reading %s (%zd bytes / %zd "RSB_MEGABYTE_SYM" / %zd nnz / %zd rows / %zd columns / %zd MiB COO) as type %c...\n",rsb__basename(filename),fsz,RSB_DIV(fsz,RSB_MEGABYTE),(size_t)nnz,(size_t)nrA,(size_t)ncA,(size_t)RSB_DIV(RSB_UTIL_COO_OCCUPATION(nrA,ncA,nnz,typecode),RSB_MEGABYTE),typecode);
 
 		if( ( nrA == ncA ) && ( nrA > 1 ) && ( want_only_lowtri || want_only_upptri ) )
 			nnz += nrA;	/* the loading routine shall allocate nnz+nrA */
@@ -5577,10 +6927,77 @@ if(filename || b_r_filename)
 				(((double)rsb__sys_filesize(filename))/(frt*RSB_INT_MILLION))
 			);
 
+			if( mtx_sample_rate < 100.0 && nnz > 0 )
+			{
+				const rsb_nnz_idx_t snnz = RSB_MAX( (mtx_sample_rate * ( nnz / 100.0 )), 1);
+				const rsb_real_t isf = 100.0 / mtx_sample_rate;
+				rsb_coo_idx_t dnzi, snzi;
+				struct rsb_coo_mtx_t coo = {IA,JA,0,0,nnz,VA,typecode};
+
+				if( snnz < 0 || snnz > nnz )
+				{
+					errval = RSB_ERR_BADARGS;
+					RSB_PERR_GOTO(err,RSB_ERRM_BADARGS);
+				}
+
+				for( snzi=0, dnzi=0 ; snzi < nnz; (++dnzi) , snzi = dnzi*isf )
+				{
+					RSB_COO_MEMCPY(VA,IA,JA,VA,IA,JA,dnzi,snzi,1,RSB_SIZEOF(typecode));
+				}
+				RSB_COO_MEMCPY(VA,IA,JA,VA,IA,JA,snnz-1,nnz-1,1,RSB_SIZEOF(typecode));
+
+				RSBENCH_STDOUT("# Matrix sampling: using only %zd nonzeroes out of read %zd.\n",(rsb_printf_int_t)snnz,(rsb_printf_int_t)nnz);
+				if( NULL == rsb__reallocate_coo_matrix_t(&coo, snnz) )
+				{
+					errval = RSB_ERR_ENOMEM;
+					RSB_PERR_GOTO(err,RSB_ERRM_ENOMEM);
+				}
+				VA = coo.VA;
+				IA = coo.IA;
+				JA = coo.JA;
+				nnz = snnz;
+			}
+
+			if ( g_fill_va_with_ones )
+			if(RSB_SOME_ERROR(errval = rsb__fill_with_ones(VA,typecode,nnz,1)))
+			{
+				RSB_PERR_GOTO(err,rsb__get_errstr_ptr(errval));
+			}
+
+			if ( is_symmetric || is_hermitian )
+			if ( want_expand_symmetry )
+			{
+				// Note: might want to move this to internals, e.g. matrix ctor
+				struct rsb_coo_mtx_t coo = {IA,JA,0,0,nnz,VA,typecode};
+
+				if( RSB_NNZ_MUL_OVERFLOW(nnz,2) )
+				{
+					errval = RSB_ERR_INTERNAL_ERROR;
+					RSB_PERR_GOTO(err,RSB_ERRM_ES);
+				}
+
+				if( NULL == rsb__reallocate_coo_matrix_t(&coo, nnz*2) )
+				{
+					errval = RSB_ERR_ENOMEM;
+					RSB_PERR_GOTO(err,RSB_ERRM_ENOMEM);
+				}
+
+				VA = coo.VA;
+				IA = coo.IA;
+				JA = coo.JA;
+				RSB_COO_MEMCPY(VA,IA,JA,VA,JA,IA,nnz,0,nnz,RSB_SIZEOF(typecode)); // transposed copy
+				nnz *= 2;
+				RSBENCH_STDOUT("# Expanded symmetry to %zd nnz (to be cleansed of diagonal duplicates). Deleting and symmetry / hermitianness flags.\n",(size_t)nnz);
+				RSB_DO_FLAG_DEL(flags,RSB_FLAG_SYMMETRIC);
+				RSB_DO_FLAG_DEL(flags,RSB_FLAG_HERMITIAN);
+				is_symmetric = RSB_BOOL_FALSE;
+				is_hermitian = RSB_BOOL_FALSE;
+			}
+
 			if (want_io_only)
 			{
 				/*  */
-				goto err;
+				goto rret;
 			}
 
 			if(want_transpose)
@@ -5593,34 +7010,44 @@ if(filename || b_r_filename)
 			if( nrA==ncA && nrA>1 && ( want_only_lowtri || want_only_upptri ) )
 			{
 				rsb_nnz_idx_t discarded = 0;
-				/*
-				rsb__util_coo_array_set_sequence(IA+nnz,nrA,0,1);
-				rsb__util_coo_array_set_sequence(JA+nnz,nrA,0,1);
-				 */
-				RSB_FCOO_ISET(IA+nnz,0,nrA);
-				RSB_FCOO_ISET(JA+nnz,0,nrA);
+				struct rsb_coo_mtx_t coo = {IA,JA,0,0,nnz,VA,typecode};
+
+				if( NULL == rsb__reallocate_coo_matrix_t(&coo, nnz+nrA) )
+				{
+					errval = RSB_ERR_ENOMEM;
+					RSB_PERR_GOTO(err,RSB_ERRM_ENOMEM);
+				}
+
+				VA = coo.VA;
+				IA = coo.IA;
+				JA = coo.JA;
+
+				RSBENCH_STDOUT("# excluding a triangle and forcibly adding diagonal elements (duplicates will be removed)\n");
+				RSB_FCOO_ISET(IA+nnz,0,nrA); // rsb__util_coo_array_set_sequence(IA+nnz,nrA,0,1); // may want to use this instead
+				RSB_FCOO_ISET(JA+nnz,0,nrA); // rsb__util_coo_array_set_sequence(JA+nnz,nrA,0,1); // may want to use this instead
 				rsb__fill_with_ones(((rsb_byte_t*)VA)+RSB_SIZEOF(typecode)*nnz,typecode,nrA,1);
-				nnz += nrA;	/* nnz+nrA this number has been overwritten as nnz */
+				nnz += nrA;
+
 				if( want_only_lowtri )
 				{
 					RSB_DO_FLAG_ADD(flags,RSB_FLAG_LOWER_TRIANGULAR);
 					errval = rsb__weed_out_non_lowtri(VA,IA,JA,nnz,typecode,NULL,&discarded);
-					RSBENCH_STDOUT("# discarding %d non lower elements of %d.\n",discarded,nnz);
+					RSBENCH_STDOUT("# discarded %zd non lower elements of %zd.\n",(rsb_printf_int_t)discarded,(rsb_printf_int_t)nnz);
 					nnz-=discarded;
 				}
 				if( want_only_upptri )
 				{
 					RSB_DO_FLAG_ADD(flags,RSB_FLAG_UPPER_TRIANGULAR);
 					errval = rsb__weed_out_non_upptri(VA,IA,JA,nnz,typecode,NULL,&discarded);
-					RSBENCH_STDOUT("# discarding %d non upper elements of %d.\n",discarded,nnz);
+					RSBENCH_STDOUT("# discarded %zd non upper elements of %zd.\n",(rsb_printf_int_t)discarded,(rsb_printf_int_t)nnz);
 					nnz-=discarded;
 				}
 
 				if(RSB_SOME_ERROR(errval))
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
+					RSB_PERR_GOTO(err,RSB_ERRM_ES);
 			}
 
-			if(RSB_SOME_ERROR(rsb__util_mm_info_matrix_f(filename,NULL,NULL,NULL,NULL,&is_symmetric,&is_hermitian,NULL,&is_lower,&is_upper,&is_vector) ))
+			if(RSB_SOME_ERROR(rsb__util_mm_info_matrix_f(filename,NULL,NULL,NULL,NULL,NULL,NULL,NULL,&is_lower,&is_upper,&is_vector) ))
 			{
 				RSBENCH_STDERR(RSB_ERRMSG_PROIFAMM ": %s ..\n",filename);
 				goto err;
@@ -5640,7 +7067,7 @@ if(filename || b_r_filename)
 				is_symmetric = RSB_BOOL_FALSE;
 				is_hermitian = RSB_BOOL_FALSE;
 			}
-			if(want_as_symmetric)
+			if(want_as_symmetric || want_as_hermitian)
 			{
 				is_symmetric = RSB_BOOL_TRUE;
 				is_hermitian = RSB_BOOL_TRUE;
@@ -5682,16 +7109,19 @@ if(filename || b_r_filename)
 			{
 				rsb_time_t dt = RSB_TIME_ZERO, ct = RSB_TIME_ZERO;
 				dt = - rsb_time();
-				if((errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS))!=RSB_ERR_NO_ERROR)
+				if((errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,flags_s))!=RSB_ERR_NO_ERROR)
 				{ RSB_ERROR(RSB_ERRM_ES); goto err; }
 				dt += rsb_time();
-				ct = - rsb_time();
-				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,nnz,typecode,NULL,RSB_FLAG_NOFLAGS)))
-					{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+				RSBENCH_STDOUT("#pre-sorting (%zd elements) took %lg s\n",(size_t)nnz,dt);
+				dt = -rsb_time();
+				nnz = rsb__weed_out_duplicates (IA,JA,VA,nnz,typecode,RSB_FLAG_SORTED_INPUT);
+				dt += rsb_time();
+				ct = -rsb_time();
+				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(IA,JA,nnz,typecode,NULL,RSB_FLAG_NOFLAGS)))
+				{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 				ct += rsb_time();
-				RSBENCH_STDOUT("#pre-sorting took %lg s (+ %lg s check)\n",dt,ct);
+				RSBENCH_STDOUT("#weeding duplicates (to %zd elements) took %lg s (and check, %lg s )\n",(size_t)nnz,dt,ct);
 				RSB_DO_FLAG_ADD(flags,RSB_FLAG_SORTED_INPUT);
-
 			}
 #if RSB_HAVE_METIS
 			if(want_wmbr)
@@ -5713,7 +7143,7 @@ if(filename || b_r_filename)
 					RSB_CONDITIONAL_FREE(perm);
 					RSB_CONDITIONAL_FREE(vwgt);
 				}
-				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS);
+				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,flags_s);
 				errval = rsb__do_switch_fullword_array_to_compressed(IA,nnz,nrA);
 				RSBENCH_STDOUT("Calling METIS_NodeND\n");
 				/*errval = */ METIS_NodeND(&nrA,IA,JA,vwgt,NULL,perm,iperm); /* Scotch wrapper crashes on vwgt=NULL. and is void */
@@ -5742,12 +7172,17 @@ if(filename || b_r_filename)
 		rsb_nnz_idx_t dim = RSB_FABS(should_generate_dense),spacing=1;
 		if(want_generated_spacing>1)
 			spacing = want_generated_spacing;
+		if( should_generate_dense_nc !=0 && RSB_FABS(should_generate_dense_nc) < dim )
+			dim = RSB_FABS(should_generate_dense_nc);
 		dim *= spacing;
 
 		if(((should_generate_lband>-1) || (should_generate_uband>-1)) && should_generate_dense>0)
 		{
-			rsb_nnz_idx_t lbw=should_generate_lband,ubw=should_generate_uband;
+			const rsb_nnz_idx_t lbw = should_generate_lband , ubw = should_generate_uband;
 			nrA = ncA = dim;
+			if( should_generate_dense_nc !=0 && RSB_FABS(should_generate_dense_nc) < dim )
+				ncA = RSB_FABS(should_generate_dense_nc);
+			RSBENCH_STDOUT("# Generating a diagonally populated matrix of %zd x %zd\n",(rsb_printf_int_t)nrA,(rsb_printf_int_t)ncA);
 			errval = rsb__generate_blocked_banded_coo(dim/spacing,spacing,lbw,ubw,&IA,&JA,&VA,&nnz,typecode);
 			if(RSB_SOME_ERROR(errval))
 			{RSB_ERROR(RSB_ERRM_ES);goto err;}
@@ -5786,11 +7221,13 @@ if(filename || b_r_filename)
 
 		if(want_as_symmetric)
 			RSB_DO_FLAG_ADD(flags,RSB_FLAG_SYMMETRIC);
+		if(want_as_hermitian)
+			RSB_DO_FLAG_ADD(flags,RSB_FLAG_HERMITIAN);
 	} /* should_generate_dense */
 have_va_ia_ja:
-	RSB_DEBUG_ASSERT( VA != NULL );
-	RSB_DEBUG_ASSERT( IA != NULL );
-	RSB_DEBUG_ASSERT( JA != NULL );
+	RSB_DEBUG_ASSERT( ! ( VA == NULL && !b_r_filename ) );
+	RSB_DEBUG_ASSERT( ! ( IA == NULL && !b_r_filename ) );
+	RSB_DEBUG_ASSERT( ! ( JA == NULL && !b_r_filename ) );
 	r_flags = flags;
 			flags = rsb__do_detect_and_add_triangular_flags(IA,JA,nnz,flags);
 			if(
@@ -5798,7 +7235,7 @@ have_va_ia_ja:
 		(!RSB_DO_FLAG_HAS(flags,RSB_FLAG_UPPER_TRIANGULAR)&&!RSB_DO_FLAG_HAS(flags,RSB_FLAG_LOWER_TRIANGULAR))
 			)
 			{
-				RSB_ERROR("Matrix contains both upper and lower elements ? It is not suited for spsv_uxua, then!\n");
+				RSB_ERROR("Matrix contains both upper and lower elements ? It is not suited for spsv_sxsx, then!\n");
 				errval = RSB_ERR_CORRUPT_INPUT_DATA;	/* uhm */
 				{RSB_ERROR(RSB_ERRM_ES);goto err;}
 			}
@@ -5842,11 +7279,11 @@ have_va_ia_ja:
 		rsb_nnz_idx_t cs=0;
 		rsb_bool_t po = RSB_BOOL_TRUE;
 		const int histres=100;
-		const rsb_char_t*pmsg="\n\nplot \"-\" using 1:2 title \"cumulative %s population (nnz)\"\n";
+		const rsb_char_t*const pmsg="\n\nplot \"-\" using 1:2 title \"cumulative %s population (nnz)\"\n";
 		RSBENCH_STDOUT("set xtics rotate\n");
 		RSBENCH_STDOUT("set term postscript eps color\n");
 		RSBENCH_STDOUT("set output \"%s-distplot.eps\"\n", rsb__basename(filename));
-		RSBENCH_STDOUT("set multiplot layout 1,2 title \"%s (%d x %d, %d nnz)\"\n", rsb__basename(filename),nrA,ncA,nnz);
+		RSBENCH_STDOUT("set multiplot layout 1,2 title \"%s (%zd x %zd, %zd nnz)\"\n", rsb__basename(filename),(rsb_printf_int_t)nrA,(rsb_printf_int_t)ncA,(rsb_printf_int_t)nnz);
 
 		ndA = RSB_MAX(nrA,ncA);
 
@@ -5866,7 +7303,7 @@ have_va_ia_ja:
 		median_m=i; 
 
 		RSB_STDOUT(pmsg,"rows");
-		if(po) for(i=0;i<nrA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%d %d\n",i,cs);}
+		if(po) for(i=0;i<nrA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%ld %ld\n",(long int)i,(long int)cs);}
 		RSB_STDOUT("e\n");
 
 		mm=ncA<histres?1:ncA/histres;
@@ -5891,7 +7328,7 @@ have_va_ia_ja:
 
 		cs=0;
 		RSB_STDOUT(pmsg,"columns");
-		if(po) for(i=0;i<ncA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%d %d\n",i,cs);}
+		if(po) for(i=0;i<ncA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%ld %ld\n",(long int)i,(long int)cs);}
 		RSB_STDOUT("e\n");
 
 		for(i=0;i<ncA;++i)
@@ -5900,11 +7337,11 @@ have_va_ia_ja:
 
 		RSBENCH_STDOUT("unset multiplot\n");
 		RSBENCH_STDOUT("#%%:NNZ_PER_ROW_STDDEV:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
-		RSBENCH_STDOUT("\t%10.0d\n",stdd_m);
+		RSBENCH_STDOUT("\t%10.0zd\n",(rsb_printf_int_t)stdd_m);
 		RSBENCH_STDOUT("#%%:ROWS_MEDIAN:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
 		RSBENCH_STDOUT("\t%10.0g\n",((double)median_m/(double)nrA));
 		RSBENCH_STDOUT("#%%:NNZ_PER_COL_STDDEV:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
-		RSBENCH_STDOUT("\t%10.0d\n",stdd_k);
+		RSBENCH_STDOUT("\t%10.0zd\n",(rsb_printf_int_t)stdd_k);
 		RSBENCH_STDOUT("#%%:COLS_MEDIAN:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
 		RSBENCH_STDOUT("\t%10.0g\n",((double)median_k/(double)ncA));
 nohists:
@@ -5913,52 +7350,10 @@ nohists:
 		goto ret;
 	}
 	#endif /* 1 */
-	if(want_unordered_coo_bench)
-	{
-		struct rsb_coo_matrix_t coo;
-		rsb__fill_coo_struct(&coo,VA,IA,JA,nrA,ncA,nnz,typecode);
-		ndA = RSB_MAX(nrA,ncA);
-		lhs = rsb__calloc_vector(ndA*nrhs*incY,typecode);
-		rhs = rsb__calloc_vector(ndA*nrhs*incX,typecode);
-
-		if(!lhs || !rhs)
-		{
-			RSB_ERROR("problems allocating vectors");
-			RSB_CONDITIONAL_FREE(lhs); RSB_CONDITIONAL_FREE(rhs);
-			{ errval = RSB_ERR_INTERNAL_ERROR; goto err; }
-		}
-
-		if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
-		for(i=0;i<times;++i)
-		{
-			if(want_inner_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
-			unordered_coo_op_time = - rsb_time();
-			if((errval = rsb__do_spmv_fullword_coo(&coo,flags,rhs,lhs,alphap,betap,incX,incY,transA))!=RSB_ERR_NO_ERROR) { goto erru; }
-			unordered_coo_op_time += rsb_time();
-			unordered_coo_op_time_best = RSB_MIN_ABOVE_INF(unordered_coo_op_time_best,unordered_coo_op_time,tinf);
-			unordered_coo_op_tot_time+=unordered_coo_op_time;
-		}
-		if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
-erru:
-		RSB_CONDITIONAL_FREE(lhs); RSB_CONDITIONAL_FREE(rhs);
-		if(want_verbose == RSB_BOOL_TRUE)
-		{
-			/* FIXME ! 20110427 */
-			struct rsb_mtx_t matrixs;
-			mtxAp=&matrixs;
-			rsb__init_rsb_struct_from_coo(mtxAp,&coo);
-			mtxAp->flags = RSB_FLAG_DEFAULT_COO_MATRIX_FLAGS|RSB_DO_FLAG_FILTEROUT((flags),RSB_DO_FLAGS_EXTRACT_STORAGE(flags));
-			rsb__do_set_init_storage_flags(mtxAp,mtxAp->flags);
-			raw_Mflops=nnz*2;
-			RSBENCH_STDOUT("%%:UNORDERED_COO_PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-			RSBENCH_STDOUT("\t%10.2lf\n",((rsb_time_t)raw_Mflops)/(RSB_REAL_MILLION*unordered_coo_op_time_best));
-			mtxAp=NULL;
-		}
-	}
 	/* CONDITIONALLY, PERFORMING SOME TEST ON THE INPUT */
 	if(want_accuracy_test>=1)
 	{
-		struct rsb_coo_matrix_t coo;
+		struct rsb_coo_mtx_t coo;
 		rsb__fill_coo_struct(&coo,VA,IA,JA,nrA,ncA,nnz,typecode);
 		RSB_DO_ERROR_CUMULATE(errval,rsb__do_spmv_accuracy_test(&coo,ca,cn,flags));
 		if(RSB_SOME_ERROR(errval))
@@ -5974,9 +7369,9 @@ erru:
 
 		if( (flags & RSB_FLAG_QUAD_PARTITIONING) && g_all_flags==1)
 		{
-			int /*ci=0,*/hi=0,oi=0;
+			int hi=0,oi=0;
 			fn=0;
-			for(ci=0;ci<3;++ci)
+			for(rsb_thread_t ci=0;ci<3;++ci)
 /*			for(di=0;di<2;++di)*/
 			for(oi=0;oi<2;++oi)
 			for(hi=0;hi<2;++hi)
@@ -6016,7 +7411,7 @@ erru:
 		}
 
 		if(!want_perf_dump)
-		if(!( RSB__APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB__APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB__APPROPRIATE_AT_TIME_SPEC( split_experimental ) )) /* otherwise pr__set.. cannot distinguish samples */
+		if(!( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( split_experimental ) )) /* otherwise pr__set.. cannot distinguish samples */
 		if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
 		{
 			/* adds a no-recursion flag case */
@@ -6031,9 +7426,75 @@ erru:
 			++fn;	/* add ours */
 		}
 
+	for(     nrhsi=0;     nrhsi<nrhsn     ;++nrhsi     )
+	{
+	nrhs = nrhsa[nrhsi];
+	if(nrhs<1)
+	{
+		RSBENCH_STDOUT("# WARNING: Skipping non-positive nrhs (%zd): is this a mistake ?\n",(rsb_printf_int_t)nrhs );
+		continue;
+	}
+	if( nrhsn > 1 && nrhss )
+	{
+		RSBENCH_STDOUT("# multi-nrhs benchmarking (%s) -- now using nrhs %zd.\n",nrhss,(rsb_printf_int_t)nrhs);
+	}
+	for(     alphai=0;     alphai<alphan;++alphai )
+	{
+	for(     betai=0;     betai<betan;++betai )
+	{
+	for(     incXi=0;     incXi<incXn     ;++incXi     )
+	{
+	for(     incYi=0;     incYi<incYn     ;++incYi     )
+	{
+	incX = incXa[incXi];
+	incY = incYa[incYi];
+	if(want_verbose >= -2)
+	{
+		if(incXn>1)
+		{
+			RSBENCH_STDOUT("# multi-incX benchmarking (%zd/%zd) -- now using incX=%zd.\n",(rsb_printf_int_t)(incXi+1),(rsb_printf_int_t)incXn,(rsb_printf_int_t)incX);
+		}
+		if(incYn>1)
+		{
+			RSBENCH_STDOUT("# multi-incY benchmarking (%zd/%zd) -- now using incY=%zd.\n",(rsb_printf_int_t)(incYi+1),(rsb_printf_int_t)incYn,(rsb_printf_int_t)incY);
+		}
+	}
+	if(incX<1)
+	{
+		RSBENCH_STDOUT("# WARNING: Skipping non-positive incX (%d): is this a mistake ?\n",(int)incX );
+		continue;
+	}
+	if(incY<1)
+	{
+		RSBENCH_STDOUT("# WARNING: Skipping non-positive incY (%d): is this a mistake ?\n",(int)incY );
+		continue;
+	}
+	if( want_only_star_scan )
+	if( RSB_MIN(incXi,1) + RSB_MIN(incYi,1) + RSB_MIN(nrhsi,1) > 1 ) /* two or more exceed index one */
+	{
+		RSBENCH_STDOUT("# Skipping a case with incX=%zd incY=%zd nrhs=%zd.\n",(rsb_printf_int_t)incX,(rsb_printf_int_t)incY,(rsb_printf_int_t)nrhs);
+		goto frv;
+	}
+
+	if(incX!=incY)
+	{
+		RSB_ERROR("setting (incX=%d) != (incY=%d) in triangular solve is unsupported in this program\n",incX,incY);
+		errval = RSB_ERR_BADARGS;goto err;
+	}
+
+
+	if(RSB_SOME_ERROR(errval = rsb__fill_with_ones(beta,typecode,1,1))){ RSB_ERROR(RSB_ERRM_ES);goto err;}
+	/* FIXME: the following collides with the former */
+	rsb__util_set_area_to_converted_integer(alphap,typecode,alphai);
+	rsb__util_set_area_to_converted_integer(betap ,typecode,betai);
+	/* FIXME: the following overwrites what above */
+	rsb__util_set_area_to_converted_integer(alphap,typecode,alphaip[alphai]);
+	rsb__util_set_area_to_converted_integer(betap ,typecode, betaip[betai]);
+	if(want_verbose >= -1)
+		RSBENCH_STDOUT("# Using alpha=%d beta=%d order=%s for rsb_spmv/rsb_spsv/rsb_spmm/rsb_spsm.\n",alphaip[alphai],betaip[betai],((order==RSB_FLAG_WANT_ROW_MAJOR_ORDER)?"rows":"cols"));
+
 		for(ti=0;ti<tn;++ti)
 		{
-
 	rsb_time_t op_t = RSB_TIME_ZERO;
 	rsb_time_t mct = RSB_TIME_ZERO;	/* matrix construction time */
 	rsb_time_t fet = RSB_TIME_ZERO;	/* fillin estimation time */
@@ -6094,8 +7555,8 @@ erru:
 	rsb_time_t mkl_gem_op_time = RSB_TIME_ZERO;
 	rsb_time_t mkl_gem_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
 	rsb_time_t mkl_gem_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
-	struct rsb_ts_t btpms[2]; /* first is tuned, first is not */
-	rsb_flags_t mif = ( mib == 0 ) ? RSB_FLAG_NOFLAGS : RSB_FLAG_FORTRAN_INDICES_INTERFACE; /* MKL index flags */
+	struct rsb_ts_t btpms[2]; /* first is tuned, second is not */
+	const rsb_flags_t mif = ( mib == 0 ) ? RSB_FLAG_NOFLAGS : RSB_FLAG_FORTRAN_INDICES_INTERFACE; /* MKL index flags */
 #ifdef RSB_WANT_PERFORMANCE_COUNTERS
 	struct rsb_pci_t mkl_coo_pci,mkl_csr_pci,mkl_gem_pci;
 #endif /* RSB_WANT_PERFORMANCE_COUNTERS */
@@ -6105,16 +7566,64 @@ erru:
 
 	RSB_BZERO_P((&otpos));
 	RSB_BZERO_P((&btpos));
+
 	RSB_BZERO_P((&attr));
+
+	if(want_unordered_coo_bench)
+	{
+		struct rsb_coo_mtx_t coo;
+		int ctimes = times < 1 ? 100 : times;
+		rsb_time_t unordered_coo_op_tot_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, unordered_coo_op_time = RSB_CONST_IMPOSSIBLY_BIG_TIME, unordered_coo_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+
+		rsb__fill_coo_struct(&coo,VA,IA,JA,nrA,ncA,nnz,typecode);
+		ndA = RSB_MAX(nrA,ncA);
+		lhs = rsb__calloc_vector(ndA*nrhs*incY,typecode);
+		rhs = rsb__calloc_vector(ndA*nrhs*incX,typecode);
+
+		if(!lhs || !rhs)
+		{
+			RSB_ERROR("problems allocating vectors");
+			RSB_CONDITIONAL_FREE(lhs); RSB_CONDITIONAL_FREE(rhs);
+			{ errval = RSB_ERR_INTERNAL_ERROR; goto err; }
+		}
+
+		if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
+		for(i=0;i<ctimes;++i)
+		{
+			if(want_inner_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
+			unordered_coo_op_time = - rsb_time();
+			if((errval = rsb__do_spmv_fullword_coo(&coo,flags,rhs,lhs,alphap,betap,incX,incY,transA))!=RSB_ERR_NO_ERROR) { goto erru; }
+			unordered_coo_op_time += rsb_time();
+			unordered_coo_op_time_best = RSB_MIN_ABOVE_INF(unordered_coo_op_time_best,unordered_coo_op_time,tinf);
+			unordered_coo_op_tot_time+=unordered_coo_op_time;
+		}
+		if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
+erru:
+		RSB_CONDITIONAL_FREE(lhs); RSB_CONDITIONAL_FREE(rhs);
+		if(want_verbose > 0)
+		{
+			struct rsb_mtx_t matrixs;
+
+			mtxAp=&matrixs;
+			rsb__init_rsb_struct_from_coo(mtxAp,&coo);
+			mtxAp->flags = RSB_FLAG_DEFAULT_COO_MATRIX_FLAGS|RSB_DO_FLAG_FILTEROUT((flags),RSB_DO_FLAGS_EXTRACT_STORAGE(flags));
+			rsb__do_set_init_storage_flags(mtxAp,mtxAp->flags);
+			raw_Mflops=nnz*2;
+			RSBENCH_STDOUT("%%:UNORDERED_COO_PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+			RSBENCH_STDOUT("\t%10.2lf\n",((rsb_time_t)raw_Mflops)/(RSB_REAL_MILLION*unordered_coo_op_time_best));
+			mtxAp=NULL;
+		}
+	}
+
 		transA = transAo;
 		if(ti>0)
 			transA = rsb__do_transpose_transposition(transAo);
 		if(ti==2)
 			transA = RSB_TRANSPOSITION_C;
 		if(!  (
-			( RSB_IS_MATRIX_TYPE_COMPLEX(typecode) && (ti!=0) && ( flags & RSB_FLAG_SOME_SYMMETRY ) )  ||
+			( RSB_IS_MATRIX_TYPE_COMPLEX(typecode) && (ti!=0) && ( flags & RSB_FLAG_ANY_SYMMETRY ) )  ||
 		       ((!RSB_IS_MATRIX_TYPE_COMPLEX(typecode))&& (ti!=0) && ( flags & RSB_FLAG_SYMMETRIC) )  ||
-		       ((!RSB_IS_MATRIX_TYPE_COMPLEX(typecode))&& (ti==2) &&!( flags & RSB_FLAG_SOME_SYMMETRY) )  ||
+		       ((!RSB_IS_MATRIX_TYPE_COMPLEX(typecode))&& (ti==2) &&!( flags & RSB_FLAG_ANY_SYMMETRY) )  ||
 			g_allow_any_tr_comb
 		))
 		if(tn>1)
@@ -6126,22 +7635,27 @@ erru:
 			RSBENCH_STDOUT("# symmetric matrix --- skipping transposed benchmarking\n");
 			continue;
 		}
+		if(want_verbose > 0)
+		{
+			RSBENCH_STDOUT("# will use input matrix flags: ");
+			rsb__dump_flags(flags,"",", ","\n");
+		}
 		for(fi=0;fi<fn;++fi)
 		for(brvi=-1;brvi<brl;++brvi)
 		for(bcvi=-1;bcvi<bcl;++bcvi)
 #ifndef  RSB_COORDINATE_TYPE_H
 		if(!(flagsa[fi] & RSB_FLAG_USE_HALFWORD_INDICES_CSR))
 #endif /* RSB_COORDINATE_TYPE_H */
-		for(ci=0;ci<cn;++ci)	/* here just for should_recycle_matrix */
-		if(!(ca[ci]>1 && !(RSB_DO_FLAG_HAS(flagsa[fi],RSB_FLAG_QUAD_PARTITIONING)))) /* no need for more than one core without recursion */
+		for(rsb_thread_t ci=0;ci<cn;++ci)	/* here just for should_recycle_matrix */
+		if(!(cn > 1 && ca[ci]>1 && !(RSB_DO_FLAG_HAS(flagsa[fi],RSB_FLAG_QUAD_PARTITIONING)))) /* no need for more than one core without recursion */
 		{
+			rsb_time_t diag_op_tot_time = RSB_TIME_ZERO;
+			rsb_time_t diag_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+			rsb_time_t getrow_op_tot_time = RSB_TIME_ZERO;
+			rsb_time_t getrow_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+			rsb_time_t diag_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+			rsb_time_t getrow_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
 			cc = ca[ci];
-	rsb_time_t diag_op_tot_time = RSB_TIME_ZERO;
-	rsb_time_t diag_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
-	rsb_time_t getrow_op_tot_time = RSB_TIME_ZERO;
-	rsb_time_t getrow_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
-	rsb_time_t diag_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
-	rsb_time_t getrow_op_time_best_serial = RSB_CONST_IMPOSSIBLY_BIG_TIME;
 			should_recycle_matrix=(ci>0)?RSB_BOOL_TRUE:RSB_BOOL_FALSE;
 			/* if this is the special "vanilla CSR" run after/before recursive runs ... */
 			if(rsb__set_num_threads(cc)!=cc)
@@ -6149,6 +7663,12 @@ erru:
 				RSB_ERROR("failed setting %d threads!\n",cc);
 				errval = RSB_ERR_INTERNAL_ERROR;
 				goto err;
+			}
+			else
+			{
+				const rsb_thread_t rtn = rsb__set_num_threads(RSB_THREADS_GET);
+				RSBENCH_STDOUT("# Using %ld threads\n",(long)rtn );
+				RSB_DEBUG_ASSERT( RSB_CONST_MAX_SUPPORTED_THREADS >= rtn );
 			}
 			flags=flagsa[fi];
 			if(cn>1 && !RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
@@ -6194,9 +7714,8 @@ erru:
 
 				if((! p_r) || (! p_c))
 				{
-					RSB_ERROR(RSB_ERRM_ES);
 					errval = RSB_ERR_ENOMEM;
-					goto erri;
+					RSB_PERR_GOTO(erri,RSB_ERRM_ES);
 				}
 			}
 
@@ -6218,8 +7737,8 @@ erru:
 			if(RSB_SOME_ERROR(rsb__fill_with_ones(VA,typecode,nnz,1))) { errval = RSB_ERR_INTERNAL_ERROR; goto erri; }
 #else /* 0 */
 			/* FIXME : temporary fix */
-			double uthreshold=.0001;
-			double athreshold=10000000;
+			const double uthreshold=.0001;
+			const double athreshold=10000000;
 			if(RSB_SOME_ERROR(rsb__util_drop_to_zero_if_under_threshold(VA,typecode,nnz,&uthreshold))) { errval = RSB_ERR_INTERNAL_ERROR; goto erri; }
 			if(RSB_SOME_ERROR(rsb__util_drop_to_zero_if_above_threshold(VA,typecode,nnz,&athreshold))) { errval = RSB_ERR_INTERNAL_ERROR; goto erri; }
 #endif /* 0 */
@@ -6239,8 +7758,7 @@ erru:
 					mct += rsb_time();
 					if((RSB_SOME_ERROR(errval)) || !mtxAp )
 					{
-						RSB_ERROR(RSB_ERRM_ES);
-						goto err;
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 					}
 					else
 					{
@@ -6261,17 +7779,16 @@ erru:
 					if(repeat_construction>1 && mci==0)
 						RSBENCH_STDOUT("# will repeat constructor %d times\n",repeat_construction);
 					mct = - rsb_time();
-					if(want_in_place_assembly)
+					if(RSB_UNLIKELY(want_in_place_assembly))
 						mtxAp = rsb__do_mtx_alloc_from_coo_inplace(VA,IA,JA,nnz,typecode,nrA,ncA,br,bc,flags,&errval);
 					else
-						mtxAp = rsb_mtx_alloc_from_coo_const(VA,IA,JA,nnz,typecode,nrA,ncA,br,bc,flags,&errval);
+						mtxAp = rsb__do_mtx_alloc_from_coo_const(VA,IA,JA,nnz,typecode,nrA,ncA,br,bc,flags,&errval);
 					mct += rsb_time();
 					if((RSB_SOME_ERROR(errval)) || !mtxAp )
 					{
 						RSB_PERR_GOTO(err,RSB_ERRM_MBE);
 					}
 
-/*					RSBENCH_STDOUT("running constructor for time %d/%d\n",mci+1,repeat_construction);*/
 					if(mect == RSB_TIME_ZERO || mect>mtxAp->ect)
 						mect=mtxAp->est;
 					if(mest == RSB_TIME_ZERO || mest>mtxAp->est)
@@ -6340,39 +7857,52 @@ noddc:
 			if(do_perform_ilu == RSB_BOOL_TRUE)
 			{
 				/* FIXME: experimental */
-				rsb_time_t ilut = - rsb_time();
+				rsb_time_t ilut;
+{
+				// TODO: switch to coo, merge, and csr.
+				while(rsb__submatrices(mtxAp)>1)
+				{
+					errval = rsb__leaves_merge(mtxAp, 0, NULL, NULL, NULL, 0, 0);
+					if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(err,RSB_ERRM_ES); }
+				}
+				errval = rsb__do_switch_recursive_matrix_to_fullword_storage(mtxAp);
+				if(RSB_SOME_ERROR(errval)) { RSB_PERR_GOTO(err,RSB_ERRM_ES); }
+}
+				ilut = - rsb_time();
 				RSB_STDOUT("performing EXPERIMENTAL ILU-0\n");
 				errval = rsb__prec_ilu0(mtxAp);//TODO: actually, only for CSR
 				ilut += rsb_time();
 				if(RSB_SOME_ERROR(errval))
 				{
-					RSB_ERROR(RSB_ERRM_ES);
-					goto err;
+					RSB_PERR_GOTO(err,RSB_ERRM_ES);
 				}
 				else
 					RSB_STDOUT("performed EXPERIMENTAL ILU-0 with success in %lg s.\n",ilut);
 				rsb_file_mtx_save(mtxAp,NULL);
-				goto ret;
 			} /* do_perform_ilu */
 
 			if(want_update && mtxAp)
 			{
 				rsb_time_t ct = - rsb_time();
 				/* FIXME: this is update, not conversion, so it should not be here */
+
 				errval = rsb__do_set_coo_elements(mtxAp,VA,IA,JA,nnz);
 				if(RSB_SOME_ERROR(errval))
-				{ RSB_ERROR(RSB_ERRM_ES);goto erri;}
+				{
+					RSB_PERR_GOTO(erri,RSB_ERRM_ES);
+				}
 				ct += rsb_time();
 				/* missing check */
-				RSBENCH_STDOUT("#individual update of %d elements in assembled RSB took %2.5f s: %2.5f%% of construction time\n",nnz,ct,(100*ct)/mtxAp->tat);
+				RSBENCH_STDOUT("#individual update of %zd elements in assembled RSB took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)nnz,ct,(100*ct)/mtxAp->tat);
 			} /* want_update */
 
 			if(want_convert && mtxAp)
 			{
-				/* FIXME: here all conversions should occur, and be benchmarked */
+				/* benchmark conversions */
 				rsb_time_t ct;
 				rsb_nnz_idx_t rnz=0;
-				struct rsb_coo_matrix_t coo;
+				struct rsb_coo_mtx_t coo;
+				struct rsb_coo_mtx_t cor;
 
 				coo.nnz = RSB_MAX(mtxAp->nnz,RSB_MAX(nrA,ncA));
 				coo.typecode=mtxAp->typecode;
@@ -6384,22 +7914,32 @@ noddc:
 				coo.nr = mtxAp->nr;
 				coo.nc = mtxAp->nc;
 
+				cor.nnz = RSB_MAX(mtxAp->nnz,RSB_MAX(nrA,ncA));
+				cor.typecode=mtxAp->typecode;
+				if(rsb__allocate_coo_matrix_t(&cor)!=&cor)
+				{
+					RSB_ERROR(RSB_ERRM_ES);
+					goto errc;
+				}
+				cor.nr = mtxAp->nr;
+				cor.nc = mtxAp->nc;
+
 				ct = - rsb_time();
 				errval = rsb__do_get_rows_sparse(RSB_TRANSPOSITION_N,NULL,mtxAp,coo.VA,coo.IA,coo.JA,0,mtxAp->nr-1,&rnz,RSB_FLAG_NOFLAGS);
 				if(RSB_SOME_ERROR(errval))
 				{ RSB_ERROR(RSB_ERRM_ES);goto erri;}
 				ct += rsb_time();
-				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(coo.VA,coo.IA,coo.JA,coo.nnz,coo.typecode,
+				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(coo.IA,coo.JA,coo.nnz,coo.typecode,
 					NULL,RSB_FLAG_NOFLAGS)))
-					{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-				RSBENCH_STDOUT("#extraction of %d elements in sorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+				RSBENCH_STDOUT("#extraction of %zd elements in sorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 				RSBENCH_STDOUT("#extraction to unsorted COO unimplemented\n");
-				//RSBENCH_STDOUT("#extraction of %d elements in unsorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+				//RSBENCH_STDOUT("#extraction of %zd elements in unsorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 
-				RSB_DO_ERROR_CUMULATE(errval,rsb_mtx_get_coo(mtxAp,VA,IA,JA,RSB_FLAG_C_INDICES_INTERFACE));
+				RSB_DO_ERROR_CUMULATE(errval,rsb_mtx_get_coo(mtxAp,cor.VA,cor.IA,cor.JA,RSB_FLAG_C_INDICES_INTERFACE));
 
 				rsb__util_coo_array_set(coo.JA,coo.nnz,0);
-				rsb_coo_sort(VA,IA,JA,mtxAp->nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS);
+				rsb_coo_sort(cor.VA,cor.IA,cor.JA,mtxAp->nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS);
 				if(RSB_SOME_ERROR(errval))
 				{ RSB_ERROR(RSB_ERRM_ES);goto erri;}
 
@@ -6408,153 +7948,157 @@ noddc:
 				if(RSB_SOME_ERROR(errval))
 				{ RSB_ERROR(RSB_ERRM_ES);goto erri;}
 				ct += rsb_time();
-				for(i=0;i<mtxAp->nnz;++i)if(coo.JA[i]!=JA[i]){RSB_ERROR("@%d: %d != %d!\n",i,coo.JA[i],JA[i]);errval = RSB_ERR_INTERNAL_ERROR;goto err;}
+				for(i=0;i<mtxAp->nnz;++i)if(coo.JA[i]!=cor.JA[i]){RSB_ERROR("@%d: %d != %d!\n",i,coo.JA[i],cor.JA[i]);errval = RSB_ERR_INTERNAL_ERROR;goto err;}
 				if(RSB_SOME_ERROR(errval=rsb__csr_chk(coo.IA,coo.JA,coo.nr,coo.nc,coo.nnz,mib)))
-					{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-				RSBENCH_STDOUT("#extraction of %d elements in CSR took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+				RSBENCH_STDOUT("#extraction of %zd elements in CSR took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 
 /*				ct = - rsb_time();*/
 /*				errval = rsb__do_get_coo(mtxAp,&coo.VA,&coo.IA,&coo.JA);	// FIXME : bugged ?*/
 /*				if(RSB_SOME_ERROR(errval)) goto erri;*/
 /*				ct += rsb_time();*/
-/*				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(coo.VA,coo.IA,coo.JA,coo.nnz,coo.typecode,*/
+/*				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(coo.IA,coo.JA,coo.nnz,coo.typecode,*/
 /*					NULL,RSB_FLAG_NOFLAGS)))*/
-/*					{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}*/
-/*				RSBENCH_STDOUT("#extraction of %d elements in sorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);*/
+/*				{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);} */
+/*				RSBENCH_STDOUT("#extraction of %zd elements in sorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);*/
 
 				rsb__util_coo_array_set(coo.IA,coo.nnz,0);
-				rsb_coo_sort(VA,JA,IA,mtxAp->nnz,ncA,nrA,typecode,RSB_FLAG_NOFLAGS);
+				rsb_coo_sort(cor.VA,cor.JA,cor.IA,mtxAp->nnz,ncA,nrA,typecode,RSB_FLAG_NOFLAGS);
 				ct = - rsb_time();
 				errval = rsb__do_get_csc(mtxAp,(rsb_byte_t**) &coo.VA,&coo.JA,&coo.IA);
 				if(RSB_SOME_ERROR(errval))
 					{goto erri;}
 				ct += rsb_time();
-				for(i=0;i<mtxAp->nnz;++i)if(coo.IA[i]!=IA[i]){RSB_ERROR("@%d: %d != %d!\n",i,coo.IA[i],IA[i]);errval = RSB_ERR_INTERNAL_ERROR;goto err;}
+				for(i=0;i<mtxAp->nnz;++i)if(coo.IA[i]!=cor.IA[i]){RSB_ERROR("@%d: %d != %d!\n",i,coo.IA[i],cor.IA[i]);errval = RSB_ERR_INTERNAL_ERROR;goto err;}
 				if(RSB_SOME_ERROR(rsb__csc_chk(coo.JA,coo.IA,coo.nr,coo.nc,coo.nnz,mib)))
-					{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-				RSBENCH_STDOUT("#extraction of %d elements in CSC took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+				RSBENCH_STDOUT("#extraction of %zd elements in CSC took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
 					ct = - rsb_time();
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
 					ct += rsb_time();
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					if(!rsb__mtx_chk(cmatrix))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					RSB_MTX_FREE(cmatrix);
 				}
-				RSBENCH_STDOUT("#cloning of %d elements took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+				RSBENCH_STDOUT("#cloning of %zd elements took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_rcoo(cmatrix,RSB_BOOL_FALSE);
 					ct += rsb_time();
 					if(!rsb__mtx_chk(cmatrix))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					if(
 rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(cmatrix,RSB_MATRIX_STORAGE_BCOR,RSB_FLAG_USE_HALFWORD_INDICES_CSR)
 					!= rsb__terminal_recursive_matrix_count(cmatrix))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 
-					RSBENCH_STDOUT("#conversion of %d elements to RCOO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					RSBENCH_STDOUT("#conversion of %zd elements to RCOO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					RSB_MTX_FREE(cmatrix);
 				}
 
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
-					struct rsb_coo_matrix_t icoo;
+					struct rsb_coo_mtx_t icoo;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(cmatrix,&icoo);
 					ct += rsb_time();
 
-					if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(icoo.VA,icoo.IA,icoo.JA,icoo.nnz,icoo.typecode,NULL,RSB_FLAG_NOFLAGS)))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-					RSBENCH_STDOUT("#conversion of %d elements to sorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(icoo.IA,icoo.JA,icoo.nnz,icoo.typecode,NULL,RSB_FLAG_NOFLAGS)))
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+					RSBENCH_STDOUT("#conversion of %zd elements to sorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					rsb__destroy_coo_matrix_t(&icoo);
 				}
 				
 				if(!RSB_DO_TOOFEWNNZFORCSR(mtxAp->nnz,mtxAp->nr))
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
-					struct rsb_coo_matrix_t icoo;
+					struct rsb_coo_mtx_t icoo;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_csr(cmatrix,&icoo);
 					ct += rsb_time();
 					if(RSB_SOME_ERROR(rsb__csr_chk(icoo.IA,icoo.JA,icoo.nr,icoo.nc,icoo.nnz,mib)))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
-					RSBENCH_STDOUT("#conversion of %d elements to CSR took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+					RSBENCH_STDOUT("#conversion of %zd elements to CSR took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					rsb__destroy_coo_matrix_t(&icoo);
 				}
 
 				if(!RSB_DO_TOOFEWNNZFORCSR(mtxAp->nnz,mtxAp->nc))
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
-					struct rsb_coo_matrix_t icoo;
+					struct rsb_coo_mtx_t icoo;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_csc(cmatrix,&icoo);
 					ct += rsb_time();
 					if(RSB_SOME_ERROR(rsb__csc_chk(icoo.JA,icoo.IA,icoo.nr,icoo.nc,icoo.nnz,mib)))
-						{errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR(RSB_ERRM_ES);goto err;}
+						{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 
-					RSBENCH_STDOUT("#conversion of %d elements to CSC took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					RSBENCH_STDOUT("#conversion of %zd elements to CSC took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					rsb__destroy_coo_matrix_t(&icoo);
 				}
 
 				{
 					struct rsb_mtx_t * cmatrix=NULL;
-					struct rsb_coo_matrix_t icoo;
+					struct rsb_coo_mtx_t icoo;
 					cmatrix = rsb__mtx_clone_simple(mtxAp);
-					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_ERROR(RSB_ERRM_ES);goto err;}
+					if(!cmatrix){errval = RSB_ERR_ENOMEM;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 					ct = - rsb_time();
 					errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_unsorted(cmatrix,&icoo);
 					ct += rsb_time();
 
-					RSBENCH_STDOUT("#conversion of %d elements to unsorted COO took %2.5f s: %2.5f%% of construction time\n",rnz,ct,(100*ct)/mtxAp->tat);
+					RSBENCH_STDOUT("#conversion of %zd elements to unsorted COO took %2.5f s: %2.5f%% of construction time\n",(rsb_printf_int_t)rnz,ct,(100*ct)/mtxAp->tat);
 					rsb__destroy_coo_matrix_t(&icoo);
 				}
 errc:
 				rsb__destroy_coo_matrix_t(&coo);
+				rsb__destroy_coo_matrix_t(&cor);
 			} /* want_convert */
 
 			if(RSB_SOME_ERROR(errval))
-			{
-				RSB_ERROR("problems assembling / converting matrix\n");
-				goto erri;
-			}
+				RSB_PERR_GOTO(erri,RSB_ERRM_MASM);
 
 			if(!mtxAp)
 			{
 				errval = RSB_ERR_INTERNAL_ERROR;
-				RSB_ERROR("problems assembling matrix\n");
-				goto erri;
+				RSB_PERR_GOTO(erri,RSB_ERRM_MASM);
 			}
 
-			totht -= rsb_time();
+			if( want_verbose > 0 )
+			{
+				RSBENCH_STDOUT("# Constructed matrix (took %.3lfs): ", mct);
+				RSBENCH_STDOUT(RSB_PRINTF_MTX_SUMMARY_ARGS(mtxAp));
+				RSBENCH_STDOUT("\n");
+			}
+
+			ht = -rsb_time();
 			if(!rsb__mtx_chk(mtxAp))
 			{
 				RSB_ERROR("matrix does not seem to be built correctly\n");
 				errval = RSB_ERR_INTERNAL_ERROR;
 				goto erri;
 			}
-			totht += rsb_time();
+			ht += rsb_time();
+			totht += ht;
+			if( want_verbose > 0 )
+				RSBENCH_STDOUT("# matrix consistency check took %.3lfs (ok)\n",ht);
 
 
 			if(zsort_for_coo)
 				rsb__do_zsort_coo_submatrices(mtxAp);
 			if(reverse_odd_rows)
 				rsb__do_reverse_odd_rows(mtxAp);
-
-			//rsb_file_mtx_save(mtxAp,NULL);
-			//rsb__dump_blocks(mtxAp);
 
 			if(b_w_filename || csr_w_filename)
 			{
@@ -6580,22 +8124,23 @@ errc:
 
 			if(dumpout_internals)
 			{
-				errval = rsb__do_print_matrix_stats(mtxAp,RSB_CONST_DUMP_RECURSION,NULL);
-				if(RSB_SOME_ERROR(errval))goto err;
-				//goto ret; /* we want to continue */
+				RSB_DO_ERROR_CUMULATE(errval,rsb__do_print_matrix_stats(mtxAp,RSB_CONST_DUMP_RECURSION,NULL));
+				if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
 			}
 
-			errval = rsb__get_blocking_size(mtxAp,&br,&bc);
+			rsb__get_blocking_size(mtxAp,&br,&bc);
 
-			if(RSB_SOME_ERROR(errval))
+			if(br<0 || br <0)
 			{
 				RSB_ERROR("problems getting blocking size");
 				goto erri;
 			}
 
-			/* NOTE: the matrix constructor could have removed duplicates or zeros */
-			/* nnz=mtxAp->nnz; */ /* 20120922 commented out: in case of removed entries, it would remember this number in spite of unchanged IA,JA,VA arrays */ 
-			if(!RSB_IS_VALID_NNZ_COUNT(nnz)){errval = RSB_ERR_INTERNAL_ERROR;goto erri;}
+			if(!RSB_IS_VALID_NNZ_COUNT(nnz))
+			{
+				errval = RSB_ERR_INTERNAL_ERROR;
+				RSB_PERR_GOTO(erri,RSB_ERRM_INZCL);
+			}
 			/* NOTE: if loading from a binary dump, we need to set nrA,ncA */
 			nrA = mtxAp->nr;
 			ncA = mtxAp->nc;
@@ -6618,19 +8163,20 @@ errc:
 				int wvmbat = RSB_AUT0_TUNING_SILENT; /* wanted verbosity in merge based autotuning */
 				int eps = 0; /* effective partitioning steps */
 				rsb_time_t btt = RSB_TIME_ZERO; /* blocks tuning time */
-				rsb_submatrix_idx_t maxms = merge_experimental, maxss = split_experimental;
-				int maxr = RSB_CONST_AUTO_TUNING_ROUNDS;
-				enum rsb_op_t op = rsb_op_spsvlt;
-				// const int mintimes = RSB_CONST_AT_OP_SAMPLES_MIN/*RSB_AT_NTIMES_AUTO*/;
+				const rsb_bool_t want_auto_threads = ( merge_experimental < 0 || split_experimental < 0 ) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
+				const rsb_submatrix_idx_t maxms = RSB_ABS( merge_experimental );
+				const rsb_submatrix_idx_t maxss = RSB_ABS( split_experimental );
+				const int maxr = ( just_enter_tuning == 0 || (merge_experimental == 0 && split_experimental == 0 )) ? 0 : RSB_CONST_AUTO_TUNING_ROUNDS;
+				const enum rsb_op_t op = rsb_op_spsvlt;
 				const rsb_time_t maxtime = /* RSB_AT_TIME_AUTO*/ RSB_AT_MAX_TIME;
 				struct rsb_mtx_t mtxA = *mtxAp;
+				const rsb_submatrix_idx_t lmn = mtxAp->all_leaf_matrices_n;
 
 				/* please note at_mkl_csr_nt in the following... */
-				if(maxms < 0 || maxss < 0) { at_mkl_csr_nt = me_at_nt = RSB_THREADS_AUTO; }
-				if(maxms < 0) maxms *= -1;
-				if(maxss < 0) maxss *= -1;
+				if(want_auto_threads) { at_mkl_csr_nt = me_at_nt = RSB_THREADS_AUTO; }
 				
-				RSBENCH_STDOUT("RSB Sparse Blocks Autotuner invoked requesting max %d splits and max %d merges in %d rounds, threads spec.%d (specify negative values to enable threads tuning).\n",maxss,maxms,maxr,me_at_nt);
+				if(want_verbose >= -1)
+					RSBENCH_STDOUT("RSB Sparse Blocks Autotuner invoked requesting max %d splits and max %d merges in %d rounds, threads spec.%d (specify negative values to enable threads tuning).\n",maxss,maxms,maxr,me_at_nt);
 
 				if (want_verbose_tuning > 0)
 					wvmbat = RSB_AUT0_TUNING_VERBOSE;
@@ -6640,10 +8186,8 @@ errc:
 					wvmbat = RSB_AUT0_TUNING_QUATSCH + 1;
 				btt -= rsb_time(); 
 
-				if( just_enter_tuning == 0 || merge_experimental == 0 && split_experimental == 0 )
-					maxr = 0;
 				mtxOp = mtxAp;
-				errval = rsb__tune_spxx(&mtxOp,NULL,&me_at_nt,maxr,maxms,maxss,mintimes,maxtimes,maxtime,transA,alphap,NULL,nrhs,order,rhs,rhsnri,betap,lhs,outnri,op,&eps,&me_best_t,&me_at_best_t,wvmbat,rsb__basename(filename),&attr,&otpos,&btpos);
+				errval = rsb__tune_spxx(&mtxOp,NULL,&me_at_nt,maxr,maxms,maxss,mintimes,maxtimes,maxtime,transA,alphap,NULL,nrhs,order,rhs,rhsnri,betap,lhs,outnri,op,&eps,&me_best_t,&me_at_best_t,wvmbat,mtrfpf,rsb__basename(filename),&attr,&otpos,&btpos);
 
 				btt += rsb_time(); 
 				tottt += btt;
@@ -6652,9 +8196,9 @@ errc:
 					rsb__pr_set(rspr, &mtxA, me_at_best_t<me_best_t?mtxOp:NULL, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti, transA, me_best_t, RSB_CONST_IMPOSSIBLY_BIG_TIME, me_at_best_t, RSB_CONST_IMPOSSIBLY_BIG_TIME, me_at_nt, RSB_THREADS_AUTO, btt, eps, &otpos, &btpos, NULL, NULL);
 				if( mtxAp != mtxOp && mtxOp )
 			 	{
-					RSBENCH_STDOUT("RSB Autotuner suggested a new clone.\n");
 #if RSB_AT_DESTROYS_MTX
 					mtxAp = mtxOp;
+					RSBENCH_STDOUT("First run of RSB Autotuner took %lg s  (%.3le s -> %.3le s per spsv_sxsx) (tuned: %d -> %d lsubm).\n",btt,otpos.min,btpos.min,(int)lmn,(int)(mtxAp->all_leaf_matrices_n));
 #else  /* RSB_AT_DESTROYS_MTX */
 #if 1
  					/* FIXME: this is to have mtxAp address constant. */
@@ -6662,10 +8206,13 @@ errc:
 					mtxOp = NULL;
 					if(RSB_SOME_ERROR(errval)) { errval = RSB_ERR_INTERNAL_ERROR; goto erri; }
 #else
-				 	RSB_MTX_FREE(mtxAp); mtxAp = mtxOp;
+					RSB_MTX_FREE(mtxAp);
+					mtxAp = mtxOp;
 #endif
 #endif /* RSB_AT_DESTROYS_MTX */
-				 }
+				}
+				else
+					RSBENCH_STDOUT("First run of RSB Autotuner took %lg s and did not change matrix.\n",btt);
 			}
 
 			if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
@@ -6677,7 +8224,8 @@ errc:
 				rsb_time_t att = - rsb_time();
 				struct rsb_mtx_t * mtxOp = NULL;
 				struct rsb_mtx_t ** mtxOpp = NULL;
-				enum rsb_op_t op = rsb_op_spsvlt;
+				const enum rsb_op_t op = rsb_op_spsvlt;
+				const rsb_submatrix_idx_t lmn = mtxAp->all_leaf_matrices_n;
 
 				if(wat >  0)
 					otnp = &otn; /* starting thread suggestion */
@@ -6692,18 +8240,21 @@ errc:
 					otnp = &otn; /* starting thread suggestion */
 					mtxOpp = &mtxOp; /* matrix structure tuning */
 				}
-				errval = rsb__tune_spxx(mtxOpp, &sf, otnp, wai, 0, 0, mintimes, maxtimes, want_autotuner, transA, alphap, mtxAp, nrhs, order, rhs, rhsnri, betap, lhs, outnri, op , NULL, NULL, NULL, wavf, rsb__basename(filename), &attr, &otpos, &btpos);
+				RSBENCH_STDOUT("RSB Sparse Blocks Autotuner invoked requesting max %d splits and max %d merges in %d rounds, auto threads spec.\n",0,0,wai);
+				errval = rsb__tune_spxx(mtxOpp, &sf, otnp, wai, 0, 0, mintimes, maxtimes, want_autotuner, transA, alphap, mtxAp, nrhs, order, rhs, rhsnri, betap, lhs, outnri, op , NULL, NULL, NULL, wavf, mtrfpf, rsb__basename(filename), &attr, &otpos, &btpos);
 				att += rsb_time();
 				tottt += att;
 				if(mtxOpp && *mtxOpp)
 				{
-					RSBENCH_STDOUT("RSB Autotuner suggested a new matrix: freeing the existing one.\n");
+					RSBENCH_STDOUT("Second run of RSB Autotuner took %lg s and estimated a speedup of %lf x (%.3le s -> %.3le s per op) in new matrix (%d -> %d lsubm)\n",att,sf,otpos.min,btpos.min,(int)lmn,(int)((*mtxOpp)->all_leaf_matrices_n));
+					RSBENCH_STDOUT("RSB Autotuner suggested a new matrix: freeing the old one.\n");
 					RSB_MTX_FREE(mtxAp);
 					mtxAp = mtxOp;
 					mtxOp = NULL;
 					mtxOpp = NULL;
 				}
-				RSBENCH_STDOUT("RSB Autotuner took %lg s and estimated a speedup of %lf x\n",att,sf);
+				else
+					RSBENCH_STDOUT("Second run of RSB Autotuner took %lg s and estimated a speedup of %lf x (%.3le s -> %.3le s per op) in same matrix (%d -> %d lsubm)\n",att,sf,otpos.min,btpos.min,(int)lmn,(int)(mtxAp->all_leaf_matrices_n));
 				if(wat && otn > 0)
 				{
 					/* FIXME: this breaks consistency! Shall skip further cycles!  */
@@ -6725,21 +8276,21 @@ errc:
 			if(RSB_SOME_ERROR(errval)) { errval = RSB_ERR_INTERNAL_ERROR; goto erri; }
 				if(n_dumpres)
 				{
-					RSBENCH_STDOUT("##RSB LHS %d elements pre-peek:\n",n_dumpres);
+					RSBENCH_STDOUT("##RSB LHS %zd elements pre-peek:\n",(rsb_printf_int_t)n_dumpres);
 					rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incX);
 				}
 				if(n_dumprhs)
 				{
-					RSBENCH_STDOUT("##RSB RHS %d elements pre-peek:\n",n_dumprhs);
+					RSBENCH_STDOUT("##RSB RHS %zd elements pre-peek:\n",(rsb_printf_int_t)n_dumprhs);
 					rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumprhs),typecode,incX);
 				}
-			if ( times >= 0 ) /* benchmark of spsv_uxua */
+			if ( times >= 0 ) /* benchmark of spsv_sxsx */
 			{
 				if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
 				RSB_PERFORMANCE_COUNTERS_DUMP_MEAN("POST_RSB_SPMV_",0,times,NULL);
 				op_t = - rsb_time();
 				RSB_TM_LIKWID_MARKER_R_START("RSB_SPMV");
-				for(i=0;i<times;++i)  /* benchmark loop of spsv_uxua begin */
+				for(i=0;i<times;++i)  /* benchmark loop of spsv_sxsx begin */
 				{
 #if 0
 	{
@@ -6784,7 +8335,7 @@ errc:
 				}
 				/* FIXME: if RSB_OUTER_NRHS_SPMV_ARGS_IDS defined to empty string, will not handle properly nrhs! */
 #if 0
-				if((errval = rsb__do_spsv_general(transA,alphap,mtxAp,lhs,incX,lhs,incY,RSB_OP_FLAG_DEFAULT RSB_OUTER_NRHS_SPMV_ARGS_IDS))!=RSB_ERR_NO_ERROR)/* mop is spsv_uxua*/
+				if((errval = rsb__do_spsv_general(transA,alphap,mtxAp,lhs,incX,lhs,incY,RSB_OP_FLAG_DEFAULT RSB_OUTER_NRHS_SPMV_ARGS_IDS))!=RSB_ERR_NO_ERROR)/* mop is spsv_sxsx*/
 				{
 					RSB_ERROR(RSB_ERRM_ES);
 					goto err;
@@ -6800,7 +8351,7 @@ errc:
 #if RSB_EXPERIMENTAL_WANT_BEST_TIMES
 				spmv_t = - rsb_time();
 #endif /* RSB_EXPERIMENTAL_WANT_BEST_TIMES */
-				if((errval = rsb__do_spsm(transA,alphap,mtxAp,nrhs,order,betap,lhs,incY*mtxAp->nr,lhs,incY*mtxAp->nr))!=RSB_ERR_NO_ERROR) /* benchmark -- mop is spsv_uxua*/
+				if((errval = rsb_spsm(transA,alphap,mtxAp,nrhs,order,betap,lhs,incY*mtxAp->nr,lhs,incY*mtxAp->nr))!=RSB_ERR_NO_ERROR) /* benchmark -- mop is spsv_sxsx*/
 				{
 					RSBENCH_STDERR("[!] "RSB_ERRM_TS);
 					goto erri;
@@ -6823,7 +8374,6 @@ errc:
 					if(RSB_SOME_ERROR(rsb__cblas_Xscal(typecode,1,NULL,errnorm,1))){ errval = RSB_ERR_INTERNAL_ERROR; goto err;}
 					if((errval = rsb__do_spmm_general(mtxAp,lhs,out2,alphap,mbetap,incX,incY,transA,RSB_OP_FLAG_DEFAULT,order RSB_OUTER_NRHS_SPMV_ARGS_IDS))!=RSB_ERR_NO_ERROR)
 					{
-						/* e is our error code*/
 						RSBENCH_STDERR("[!] some problem occurred in sparse matrix vector product!\n");
 						goto erri;
 					}
@@ -6837,12 +8387,13 @@ errc:
 	#ifdef RSB_WANT_KERNELS_DEBUG
 				/* ... */
 	#endif /* RSB_WANT_KERNELS_DEBUG */
-				}  /* times: benchmark loop of spsv_uxua end */
+				}  /* times: benchmark loop of spsv_sxsx end */
 				RSB_TM_LIKWID_MARKER_R_STOP("RSB_SPMV");
 				RSB_PERFORMANCE_COUNTERS_DUMP_MEAN("POST_RSB_SPMV_",1,times,&rsb_pci);
+				if( want_verbose > 0 )
 				if((g_debug || 1) /*&& i==times-1*/)
 				{
-					/* this is debug information, very cheap to include */
+					/* debug info */
 					RSB_DO_ERROR_CUMULATE(errval,rsb__do_print_some_vector_stats(lhs,typecode,nrA,incY));
 				}
 
@@ -6854,12 +8405,12 @@ errc:
 				if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
 				if(n_dumpres)
 				{
-					RSBENCH_STDOUT("##RSB LHS %d elements post-peek:\n",n_dumpres);
+					RSBENCH_STDOUT("##RSB LHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumpres);
 					rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incY);
 				}
 				if(n_dumprhs)
 				{
-					RSBENCH_STDOUT("##RSB RHS %d elements post-peek:\n",n_dumprhs);
+					RSBENCH_STDOUT("##RSB RHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumprhs);
 					rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumprhs),typecode,incY);
 				}
 				if(!g_sort_only)
@@ -6890,12 +8441,11 @@ errc:
 				}
 				else
 				{
-	                                raw_Mflops = rsb__estimate_mflops_per_op_spsv_uxua(mtxAp);
+	                                raw_Mflops = rsb__estimate_mflops_per_op_spsv_sxsx(mtxAp);
 	                                true_Mflops = raw_Mflops/fillin;
 	                                raw_Mflops *=nrhs;
 	                                true_Mflops*=nrhs;
 				}
-
 
 #if RSB_WANT_MKL
 	if(want_mkl_bench && !(cc==1 && mkl_coo_op_time_best_serial != RSB_CONST_IMPOSSIBLY_BIG_TIME))
@@ -6931,8 +8481,8 @@ errc:
 			if(!want_sort_after_load)
 			if(!want_in_place_assembly)
 			{
-				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS);
-				mklnz = rsb_weed_out_duplicates (IA,JA,VA,nnz,typecode,RSB_FLAG_SORTED_INPUT);
+				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,flags_s);
+				mklnz = rsb__weed_out_duplicates (IA,JA,VA,nnz,typecode,RSB_FLAG_SORTED_INPUT);
 				if((!RSB_IS_VALID_NNZ_COUNT(mklnz)) || (!mklnz) || (RSB_SOME_ERROR(errval)))
 				{
 					RSB_PERR_GOTO(err,RSB_ERRM_EM);
@@ -6972,7 +8522,7 @@ errc:
 			if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
 			if(n_dumpres)
 			{
-				RSBENCH_STDOUT("##MKL COO LHS %d elements post-peek:\n",n_dumpres);
+				RSBENCH_STDOUT("##MKL COO LHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumpres);
 				rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incY);
 			}
 			if(cc==1) 
@@ -7012,9 +8562,13 @@ errc:
 				mkl_coo2csr_time = - rsb_time();
 				RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_coo2csr(nrA,ncA,mklnz,VA,IA,JA,M_VAC,M_IAC,M_JAC,typecode,mib));
 				mkl_coo2csr_time += rsb_time();
+				if(RSB_SOME_ERROR(errval))
+				{
+					RSB_PERR_GOTO(err,"MKL conversion of COO to CSR: error! Is the input suitable ? E.g. NO duplicates ?")
+				}
 				if(RSB_SOME_ERROR(rsb__csr_chk(M_IAC,M_JAC,nrA,ncA,mklnz,mib)))
 				{
-      					RSB_PERR_GOTO(err,RSB_ERRM_EM)
+					RSB_PERR_GOTO(err,"MKL conversion of COO to CSR: error.")
 				}
 			}
 			else
@@ -7026,14 +8580,15 @@ errc:
 
 			if(n_dumpres)
 			{
-				RSBENCH_STDOUT("##MKL CSR LHS %d elements pre-peek:\n",n_dumpres);
+				RSBENCH_STDOUT("##MKL CSR LHS %zd elements pre-peek:\n",(rsb_printf_int_t)n_dumpres);
 				rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incX);
 			}			RSB_DO_ERROR_CUMULATE(errval,rsb__vectors_reinit(rhs,lhs,typecode,ndA,ndA,incX,incY));
 			if(n_dumprhs)
 			{
-				RSBENCH_STDOUT("##MKL CSR RHS %d elements pre-peek:\n",n_dumprhs);
+				RSBENCH_STDOUT("##MKL CSR RHS %zd elements pre-peek:\n",(rsb_printf_int_t)n_dumprhs);
 				rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumprhs),typecode,incY);
 			}			if(want_outer_flush == RSB_BOOL_TRUE) RSB_DO_ERROR_CUMULATE(errval,rsb__flush_cache(0));
+
 			if(want_mkl_bench_csr)
 			{
 			RSB_PERFORMANCE_COUNTERS_DUMP_MEAN("PRE_MKL_CSR_SPXV_",0,times,NULL);
@@ -7060,18 +8615,20 @@ errc:
 			if(cc==1)mkl_csr_op_time_best_serial=mkl_csr_op_time_best;
 			if(n_dumpres)
 			{
-				RSBENCH_STDOUT("##MKL CSR LHS %d elements post-peek:\n",n_dumpres);
+				RSBENCH_STDOUT("##MKL CSR LHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumpres);
 				rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incY);
 			}
 			if(n_dumprhs)
 			{
-				RSBENCH_STDOUT("##MKL CSR RHS %d elements post-peek:\n",n_dumprhs);
+				RSBENCH_STDOUT("##MKL CSR RHS %zd elements post-peek:\n",(rsb_printf_int_t)n_dumprhs);
 				rsb__debug_print_vector(rhs,RSB_MIN(ndA*nrhs,n_dumprhs),typecode,incY);
 			}
+#if RSB_WANT_OMP_RECURSIVE_KERNELS
 			if( mkl_csr_op_time_best != RSB_CONST_IMPOSSIBLY_BIG_TIME )
 				RSBENCH_STDOUT("##MKL STUFF DEBUG omp_set_num_threads():%d==omp_get_num_threads():%d  bestserialcsr:%0.5lf vs bestcsr:%0.5lf\n",omp_get_num_threads(),cc,mkl_csr_op_time_best_serial,mkl_csr_op_time_best);
 			if( mkl_coo_op_time_best != RSB_CONST_IMPOSSIBLY_BIG_TIME )
 				RSBENCH_STDOUT("##MKL STUFF DEBUG omp_set_num_threads():%d==omp_get_num_threads():%d  bestserialcoo:%0.5lf vs bestcoo:%0.5lf\n",omp_get_num_threads(),cc,mkl_coo_op_time_best_serial,mkl_coo_op_time_best);
+#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 
 			if( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_mkl_autotuner ) && want_mkl_autotuner > RSB_TIME_ZERO )
 			{
@@ -7085,9 +8642,9 @@ errc:
 				RSBENCH_STDOUT("# MKL CSR %s autotuning for thread spec. %d  trans %c (0=current (=%d),<0=auto,>0=specified)\n",ops,bthreads,RSB_TRANSPOSITION_AS_CHAR(transA),cc);
 #if 1
 				if(nrhs>1)
-					RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_csr_spsm_bench(M_VAC,nrA,nrhs,M_IAC,M_JAC,rhs,lhs,alphap,transA,typecode,flags,nrhs/*ldX*/,nrhs/*ldY*/,&bthreads,&btime,&(attr.clattr),&btpms));
+					RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_csr_spsm_bench(M_VAC,nrA,nrhs,M_IAC,M_JAC,rhs,lhs,alphap,transA,typecode,flags,nrhs/*ldX*/,nrhs/*ldY*/,&bthreads,&btime,&(attr.clattr),&btpms[0]));
 				else
-					RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_csr_spsv_bench(M_VAC,nrA,ncA,mklnz,M_IAC,M_JAC,rhs,lhs,alphap,betap,transA,typecode,flags,&bthreads,&btime,&(attr.clattr),&btpms));
+					RSB_DO_ERROR_CUMULATE(errval,rsb__mkl_csr_spsv_bench(M_VAC,nrA,ncA,mklnz,M_IAC,M_JAC,rhs,lhs,alphap,betap,transA,typecode,flags,&bthreads,&btime,&(attr.clattr),&btpms[0]));
 				ops = "SPSV";
 #endif
 				bthreads = bthreads ? bthreads : cc;
@@ -7126,7 +8683,7 @@ errc:
 			if(cc==1)mkl_gem_op_time_best_serial=mkl_gem_op_time_best;
 			if(n_dumpres)
 			{
-				RSBENCH_STDOUT("##MKL GEMX LHS %d elements peek:\n",n_dumpres);
+				RSBENCH_STDOUT("##MKL GEMX LHS %zd elements peek:\n",(rsb_printf_int_t)n_dumpres);
 				rsb__debug_print_vector(lhs,RSB_MIN(ndA*nrhs,n_dumpres),typecode,incY);
 			}
 			} /* want_mkl_bench_gem */
@@ -7140,6 +8697,31 @@ mklerr:
 			rsb_perror(NULL,errval);
 		} /* want_mkl_bench  */
 #endif /* RSB_WANT_MKL */
+#if RSB_WANT_ARMPL
+		if ( want_armpl_bench )
+		{
+			const rsb_coo_idx_t aib = 0; /* ARMPL index base */
+			void *M_VA = NULL;
+			armpl_int_t *M_IA = NULL, *M_JA = NULL;
+			const rsb_nnz_idx_t annz = RSB_MAX(nnz,nrA+1), armplnz = nnz;
+			rsb_thread_t bthreads = cc;
+			struct rsb_ts_t btpms[3]; /* first is tuned, second is not */
+
+			rsb_time_t armpl_csr_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME, at_armpl_csr_op_time_best = RSB_CONST_IMPOSSIBLY_BIG_TIME;
+			errval = rsb__util_coo_alloc_copy_and_stats(&M_VA,&M_IA,&M_JA,NULL,NULL,NULL,NULL,NULL,armplnz,(annz-armplnz),typecode,0,aib,RSB_FLAG_NOFLAGS,NULL);
+			RSB_DEBUG_ASSERT( errval == RSB_ERR_NO_ERROR);
+			errval = rsb_mtx_get_csr(mtxAp->typecode,mtxAp,M_VA,M_IA,M_JA,flags);
+			RSB_DEBUG_ASSERT( errval == RSB_ERR_NO_ERROR);
+			//rsb__armpl_csr_spmv_bench(VA, nrA, ncA, nnz, M_IA, M_JA, lhs, rhs, alphap, betap, transA, typecode, flags, NULL, NULL, NULL, NULL);
+			rsb__armpl_csr_spmv_bench(VA, nrA, ncA, nnz, M_IA, M_JA, lhs, rhs, alphap, betap, transA, typecode, flags, &bthreads, &armpl_csr_op_time_best, &(attr.clattr), &btpms[1],RSB_BOOL_FALSE);
+			btpms[0] = btpms[1]; // only and best
+			rsb__armpl_csr_spmv_bench(VA, nrA, ncA, nnz, M_IA, M_JA, lhs, rhs, alphap, betap, transA, typecode, flags, &bthreads, &at_armpl_csr_op_time_best, &(attr.clattr), &btpms[2],RSB_BOOL_TRUE);
+			btpms[1] = btpms[2]; // only and best
+			at_armpl_csr_op_time_best = RSB_MIN(armpl_csr_op_time_best, at_armpl_csr_op_time_best);
+			rsb__pr_set(rspr, mtxAp, NULL, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti, transA, RSB_CONST_IMPOSSIBLY_BIG_TIME, armpl_csr_op_time_best, RSB_CONST_IMPOSSIBLY_BIG_TIME, at_armpl_csr_op_time_best, RSB_THREADS_AUTO, bthreads, RSB_CONST_IMPOSSIBLY_BIG_TIME, -1, NULL, NULL, &btpms[0], &btpms[1]);
+			// printf("VALS: %lf -> %lf\n",btpms[1].min,btpms[0].min);
+		} /* want_armpl_bench */
+#endif /* RSB_WANT_ARMPL */
 #ifdef RSB_WANT_OSKI_BENCHMARKING 
 			/* FIXME : should only exist for double as type */
 			if(want_oski_bench && guess_blocking_test!=2 /* g.b.t=2 is an extra run*/) 
@@ -7296,21 +8878,25 @@ errgr:
 				RSBENCH_STDOUT ( "%-20s	%s", rsb__basename(filename),rsb__sprint_matrix_implementation_code2(mtxAp,buf,flags));
 
 				RSBENCH_STDOUT ( "	%.3lf	%lg",
-				//raw_Mflops/op_t,	/* please note that in the sort case, it is an absolutely meaningless value */
-				true_Mflops/op_t,	/* algorithmic millions of ops per second (not an accurated model)  */
-				op_t/true_Mflops	/* the sorting algorithmic constant (not an accurated model) */
+					//raw_Mflops/op_t,	/* please note that in the sort case, it is an absolutely meaningless value */
+					true_Mflops/op_t,	/* algorithmic millions of ops per second (not an accurated model)  */
+					op_t/true_Mflops	/* the sorting algorithmic constant (not an accurated model) */
 				);
 			}
 			else
 			if(!g_estimate_matrix_construction_time)
+			if(want_verbose >= -2)
 			{
 #if RSB_EXPERIMENTAL_WANT_BEST_TIMES
-				rsb__dump_performance_record(rsb__basename(filename),mtxAp,true_Mflops/best_t,raw_Mflops/best_t,"spsv_uxua",flags);
-				if( spsv_spmv_t != RSB_TIME_ZERO )
-				printf("# (extra) SpMV performance record:\n"),
-				rsb__dump_performance_record(rsb__basename(filename),mtxAp,(true_Mflops/best_t)*(tot_t/spsv_spmv_t),raw_Mflops/best_t*(tot_t/spsv_spmv_t),"spmv_uaua*",flags);
+				if( best_t != RSB_CONST_IMPOSSIBLY_BIG_TIME )
+				{
+					rsb__dump_performance_record(rsb__basename(filename),mtxAp,true_Mflops/best_t,raw_Mflops/best_t,"spsv_sxsx",flags);
+					if( spsv_spmv_t != RSB_TIME_ZERO )
+						RSB_STDOUT ("# (extra) SpMV performance record:\n"),
+						rsb__dump_performance_record(rsb__basename(filename),mtxAp,(true_Mflops/best_t)*(tot_t/spsv_spmv_t),raw_Mflops/best_t*(tot_t/spsv_spmv_t),"spmv_uaua*",flags);
+				}
 #else /* RSB_EXPERIMENTAL_WANT_BEST_TIMES */
-				rsb__dump_performance_record(rsb__basename(filename),mtxAp,true_Mflops/op_t,raw_Mflops/op_t,"spsv_uxua",flags);
+				rsb__dump_performance_record(rsb__basename(filename),mtxAp,true_Mflops/op_t,raw_Mflops/op_t,"spsv_sxsx",flags);
 #endif /* RSB_EXPERIMENTAL_WANT_BEST_TIMES */
 			}
 			if(g_estimate_matrix_construction_time)
@@ -7320,7 +8906,7 @@ errgr:
 				   * a ratio of the selected op time with the matrix construction time
 				 */
 				RSBENCH_STDOUT("\t%.3lg\t%.3lg	", ((double)nnz)/(mct*RSB_REAL_MILLION), mct/op_t);
-				rsb__fprint_matrix_implementation_code(mtxAp, "spsv_uxua", flags, RSB_STDOUT_FD);
+				rsb__fprint_matrix_implementation_code(mtxAp, "spsv_sxsx", flags, RSB_STDOUT_FD);
 				RSBENCH_STDOUT ( "\n");
 			}
 			omta=((double)rsb_spmv_memory_accessed_bytes(mtxAp));
@@ -7362,20 +8948,21 @@ errgr:
 			{
 #if RSB_WANT_MKL
 				/* FIXME: this #if is horrible */
-				rsb__pr_set(rspr, mtxAp/*NULL */ /* FIXME */, NULL, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti, transA, RSB_CONST_IMPOSSIBLY_BIG_TIME, mkl_csr_op_time_best, RSB_CONST_IMPOSSIBLY_BIG_TIME, at_mkl_csr_op_time_best, RSB_THREADS_AUTO, at_mkl_csr_nt, RSB_CONST_IMPOSSIBLY_BIG_TIME, -1, NULL, NULL, &btpms[1], &btpms);
+				rsb__pr_set(rspr, mtxAp/*NULL */ /* FIXME */, NULL, filenamei, ci, incXi, incYi, nrhsi, typecodesi, ti, transA, RSB_CONST_IMPOSSIBLY_BIG_TIME, mkl_csr_op_time_best, RSB_CONST_IMPOSSIBLY_BIG_TIME, at_mkl_csr_op_time_best, RSB_THREADS_AUTO, at_mkl_csr_nt, RSB_CONST_IMPOSSIBLY_BIG_TIME, -1, NULL, NULL, &btpms[1], &btpms[0]);
 #endif
 			}
 
+			if( want_verbose >= -1 && times > 0 )
+			{
+				// TODO: update these statistics here.
 #if RSB_EXPERIMENTAL_WANT_BEST_TIMES
-			RSBENCH_STDOUT ( "#	%10.2lf	%10.2lf	( best, average net performance in %d tries ); diff:%2.0lf%%\n",
-				((double)true_Mflops/best_t), ((double)true_Mflops/op_t),
-				(int)times,
-				/* for marcin : */
-				((((double)true_Mflops/best_t)-((double)true_Mflops/op_t))*100)/((double)true_Mflops/op_t)
+				RSBENCH_STDOUT ( "#	%10.2lf	%10.2lf	( best, average net performance in %ld tries ); diff:%2.0lf%%\n",
+					((double)true_Mflops/best_t), ((double)true_Mflops/op_t),
+					(long)times,
+					((((double)true_Mflops/best_t)-((double)true_Mflops/op_t))*100)/((double)true_Mflops/op_t)
 				);
 #endif /* RSB_EXPERIMENTAL_WANT_BEST_TIMES */
-
-			RSBENCH_STDOUT ( "#	%10.2lf	%10.2lf	%10.2lf %10.6lf (min bw, reasonable bw, exceedingly max bw, w/r ratio) (MB/s)\n"
+				RSBENCH_STDOUT ( "#	%10.2lf	%10.2lf	%10.2lf %10.6lf (min bw, reasonable bw, exceedingly max bw, w/r ratio) (MB/s)\n"
 				     "#	%10.2lf (MB per mop) %10.2lf (rhs loads, with a variable degree of locality)\n"
 				     "#	%10.2lf (MB per mop, estimated)\n"
 				     "#	%10.2lf (assembly + extra to (best) mop time ratio) (%10.2lf s)\n"
@@ -7408,34 +8995,38 @@ errgr:
 				((mtxAp->rpt)/(best_t)),((long)rsb__get_recursive_matrix_depth(mtxAp)),
 				(double)nnz/nrA, (double)nnz/ncA
 				);
+			}
 				if(RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE>1)
-				RSBENCH_STDOUT ( 
-				     "#	%10.2lf (estimated fillin)"
-				     "#	%10.2lf (estimated fillin error)\n"
-				     "#	%10.2lf (estimated raw performance)"
-				     "#	%10.2lf (estimated raw performance error)\n"
-				     "#	%10.2lf (estimated net performance)"
-				     "#	%10.2lf (estimated net performance error)\n",
-				efillin, (efillin-fillin)/fillin,
-				eperf, (eperf-raw_Mflops/best_t)/(raw_Mflops/best_t),
-				efillin?(eperf/efillin):-1,efillin?(((eperf/efillin)-(true_Mflops/best_t))/(true_Mflops/best_t)):-1
-				);
-				RSBENCH_STDOUT( "#used index storage compared to COO:%zd vs %zd bytes (%.02lf%%) "
-					,(size_t)rsb__get_index_storage_amount(mtxAp),sizeof(rsb_coo_idx_t)*2*nnz
-					,(100*(double)rsb__get_index_storage_amount(mtxAp))/RSB_UTIL_COO_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
-				);
-				RSBENCH_STDOUT( "; compared to CSR:%zd vs %zd bytes (%.02lf%%)\n"
-					,(size_t)rsb__get_index_storage_amount(mtxAp),
-					 (sizeof(rsb_coo_idx_t)*nnz+sizeof(rsb_nnz_idx_t)*(mtxAp->nr+1))
-					,(100*(double)rsb__get_index_storage_amount(mtxAp))/RSB_UTIL_CSR_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
-				);
+					RSBENCH_STDOUT ( 
+					     "#	%10.2lf (estimated fillin)"
+					     "#	%10.2lf (estimated fillin error)\n"
+					     "#	%10.2lf (estimated raw performance)"
+					     "#	%10.2lf (estimated raw performance error)\n"
+					     "#	%10.2lf (estimated net performance)"
+					     "#	%10.2lf (estimated net performance error)\n",
+					efillin, (efillin-fillin)/fillin,
+					eperf, (eperf-raw_Mflops/best_t)/(raw_Mflops/best_t),
+					efillin?(eperf/efillin):-1,efillin?(((eperf/efillin)-(true_Mflops/best_t))/(true_Mflops/best_t)):-1
+					);
+				if(want_verbose >= -1)
+				{
+					RSBENCH_STDOUT( "#used index storage compared to COO:%zd vs %zd bytes (%.02lf%%) "
+						,(size_t)rsb__get_index_storage_amount(mtxAp),(size_t)(sizeof(rsb_coo_idx_t)*2*nnz)
+						,(100*(double)rsb__get_index_storage_amount(mtxAp))/RSB_UTIL_COO_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
+					);
+					RSBENCH_STDOUT( "; compared to CSR:%zd vs %zd bytes (%.02lf%%)\n"
+						,(size_t)rsb__get_index_storage_amount(mtxAp),
+						 (size_t)(sizeof(rsb_coo_idx_t)*nnz+sizeof(rsb_nnz_idx_t)*(mtxAp->nr+1))
+						,(100*(double)rsb__get_index_storage_amount(mtxAp))/RSB_UTIL_CSR_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
+					);
+				}
 				totatt += spsv_f_t;
 				if( spsv_d_t != RSB_TIME_ZERO)
-				RSBENCH_STDOUT( "#gain for spsv if we had infinite spmv-workers:%lf\n",((double)tot_t)/((double)(spsv_d_t)));
+					RSBENCH_STDOUT( "#gain for spsv if we had infinite spmv-workers:%lf\n",((double)tot_t)/((double)(spsv_d_t)));
 				if( spsv_spmv_t != RSB_TIME_ZERO)
-				RSBENCH_STDOUT( "#spsv performance vs spmv_uaua*:%lf\n",spsv_spmv_t/tot_t);
+					RSBENCH_STDOUT( "#spsv performance vs spmv_uaua*:%lf\n",spsv_spmv_t/tot_t);
 				if( spsv_f_t != RSB_TIME_ZERO)
-				RSBENCH_STDOUT( "#gain for spsv if we had no concurrent writes preventing locks at all:%lf\n",((double)tot_t)/((double)(spsv_f_t)));
+					RSBENCH_STDOUT( "#gain for spsv if we had no concurrent writes preventing locks at all:%lf\n",((double)tot_t)/((double)(spsv_f_t)));
 							
 			if(ci==0 && smt == RSB_TIME_ZERO && RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
 				smt=best_spsv_spmv_t;
@@ -7447,27 +9038,27 @@ errgr:
 				pst=best_t;
 			rsb__attr_dump(&attr);
 			RSB_BZERO_P((&attr));
-				if(want_verbose == RSB_BOOL_TRUE && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
+				if(want_verbose > 0 && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
 				{
 					rsb_nnz_idx_t minnz=0,maxnz=0,avgnz=0;
-					rsb_bool_t vrpr = (times != 0) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
+					const rsb_bool_t vrpr = (times != 0) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
 
 					if(vrpr)
 					{
-					RSBENCH_STDOUT("%%:PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.2lf\n",true_Mflops/best_t);
-					RSBENCH_STDOUT("\t%le\t%le\n",true_Mflops,best_t);
+						RSBENCH_STDOUT("%%:PERFORMANCE:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.2lf\n",true_Mflops/best_t);
+						RSBENCH_STDOUT("\t%le\t%le\n",true_Mflops,best_t);
 
-					RSBENCH_STDOUT("%%:OP_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.6lf\n",best_t);
+						RSBENCH_STDOUT("%%:OP_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.6lf\n",best_t);
 					}
 
 
 					if(vrpr)
 					{
-					if( serial_best_t != RSB_CONST_IMPOSSIBLY_BIG_TIME )
-					RSBENCH_STDOUT("%%:PERF_SCALING:"),RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(),
-					RSBENCH_STDOUT("\t%10.2lf\n",serial_best_t/best_t);
+						if( serial_best_t != RSB_CONST_IMPOSSIBLY_BIG_TIME )
+							RSBENCH_STDOUT("%%:PERF_SCALING:"),RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(),
+							RSBENCH_STDOUT("\t%10.2lf\n",serial_best_t/best_t);
 					}
 
 					RSBENCH_STDOUT("#%%:CONSTRUCTOR_*:SORT	SCAN	INSERT	SCAN+INSERT\n");
@@ -7550,8 +9141,8 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 
 					RSBENCH_STDOUT("%%:SM_IDXOCCUPATIONRSBVSCOOANDCSR:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
 					RSBENCH_STDOUT("\t%zd\t%zd\t%zd\n",rsb__get_index_storage_amount(mtxAp),
-						RSB_UTIL_COO_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz),
-						RSB_UTIL_CSR_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
+						(size_t)RSB_UTIL_COO_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz),
+						(size_t)RSB_UTIL_CSR_IDX_OCCUPATION(mtxAp->nr,mtxAp->nc,mtxAp->nnz)
 						);
 
 					RSBENCH_STDOUT("%%:SM_IDXOCCUPATION:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
@@ -7573,13 +9164,13 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 							maxnz = RSB_MAX(maxnz,submatrix->nnz);
 							minnz = RSB_MIN(minnz,submatrix->nnz);
 						}
-						RSBENCH_STDOUT(" %d %d %.2lf %d\n",minnz,maxnz,avgnz,mtxAp->all_leaf_matrices_n);
+						RSBENCH_STDOUT(" %zd %zd %.2lf %zd\n",(rsb_printf_int_t)minnz,(rsb_printf_int_t)maxnz,avgnz,(rsb_printf_int_t)mtxAp->all_leaf_matrices_n);
 					}
 #else
 					/* old, obsolete */
 					rsb__do_compute_terminal_nnz_min_max_avg_count(mtxAp,&minnz,&maxnz,&avgnz);
 					RSBENCH_STDOUT("%%:SM_MINMAXAVGNNZ:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%d\t%d\t%d\n",minnz,maxnz,avgnz);
+					RSBENCH_STDOUT("\t%zd\t%zd\t%zd\n",(rsb_printf_int_t)minnz,(rsb_printf_int_t)maxnz,(rsb_printf_int_t)avgnz);
 #endif
 
 				if(want_print_per_subm_stats)
@@ -7623,7 +9214,7 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 			} /* times */
 #if RSB_WANT_MKL
 				if(want_mkl_bench) /* 20110428 */
-				if(want_verbose == RSB_BOOL_TRUE && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
+				if(want_verbose > 0 && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
 				{
 #ifdef mkl_get_version
 					MKLVersion mv;
@@ -7689,14 +9280,14 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 
 					if( mkl_coo2csr_time != RSB_TIME_ZERO )
 					{
-					RSBENCH_STDOUT("%%:MKL_COO2CSR_T0_CSR_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.6lf\n",mkl_coo2csr_time);
-					RSBENCH_STDOUT("%%:MKL_COO2CSR_T0_CSR_OP:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.2lf\n",mkl_coo2csr_time/mkl_csr_op_time_best);
+						RSBENCH_STDOUT("%%:MKL_COO2CSR_T0_CSR_TIME:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.6lf\n",mkl_coo2csr_time);
+						RSBENCH_STDOUT("%%:MKL_COO2CSR_T0_CSR_OP:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.2lf\n",mkl_coo2csr_time/mkl_csr_op_time_best);
 
 
-					RSBENCH_STDOUT("%%:SORTEDCOO2RSB_VS_MKLCOO2CSR:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
-					RSBENCH_STDOUT("\t%10.3lf\n", (msat+meit)/(mkl_coo2csr_time));
+						RSBENCH_STDOUT("%%:SORTEDCOO2RSB_VS_MKLCOO2CSR:");RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
+						RSBENCH_STDOUT("\t%10.3lf\n", (msat+meit)/(mkl_coo2csr_time));
 					}
 				} /* want_mkl_bench */
 #endif /* RSB_WANT_MKL */
@@ -7705,10 +9296,11 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 					const char*norsbnotice="";
 					const char*rsbnotice="NORSB_";
 					const char*notice=norsbnotice;
-				if(want_verbose == RSB_BOOL_TRUE && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
-					{}
-				else
-					notice = rsbnotice;
+
+					if(want_verbose > 0 && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
+						{}
+					else
+						notice = rsbnotice;
 
 					RSBENCH_STDOUT("%%:%sGETROW_PERFORMANCE:",notice);RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
 					RSBENCH_STDOUT("\t%10.2lf\n",((rsb_time_t)mtxAp->nnz)/(RSB_REAL_MILLION*getrow_op_time_best));
@@ -7723,10 +9315,10 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 					const char*norsbnotice="";
 					const char*rsbnotice="NORSB_";
 					const char*notice=norsbnotice;
-				if(want_verbose == RSB_BOOL_TRUE && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
-					{}
-				else
-					notice = rsbnotice;
+					if(want_verbose > 0 && (RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING)||fn==1))
+						{}
+					else
+						notice = rsbnotice;
 
 					RSBENCH_STDOUT("%%:%sGETDIAG_PERFORMANCE:",notice);RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH();
 					RSBENCH_STDOUT("\t%10.2lf\n",((rsb_time_t)mtxAp->nr)/(RSB_REAL_MILLION*diag_op_time_best));
@@ -7736,7 +9328,8 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 					RSBENCH_STDOUT("\t%10.6lf\n",diag_op_time_best/best_t);
 
 				}
-				RSBENCH_STDOUT( "#\n");/* end of record */
+				if(want_verbose > -2)
+					RSBENCH_STDOUT( "#\n");/* end of record */
 				if(guess_blocking_test)
 				{
 					rsb_flags_t oflags = RSB_FLAG_NOFLAGS;
@@ -7855,7 +9448,7 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 			if(brl==0 || bcl==0) break;
 		} /* ci : core (count) index */
 
-			if(want_verbose == RSB_BOOL_TRUE)
+			if(want_verbose > 0)
 			{
             			RSBENCH_STDOUT("%%operation:matrix	CONSTRUCTOR[%d]	SPMV[%d]	SPMV[%d]	STSV[%d]	STSV[%d]\n",
 					ca[0], ca[0], ca[cl-1], ca[0], ca[cl-1]);
@@ -7867,14 +9460,21 @@ rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(mtxAp,RSB_MATRIX_
 					rsb__basename(filename),sest,ssat,scpt,seit);
 			}
 		} /* ti (transposition index) */
+	}	/* incYi */
+	}	/* incXi */
+	}	/* betai */
+	}	/* alphai */
+	}	/* nrhsi */
 	}
-	else
+
+	if(want_verbose >= -2)
 	{
-		RSBENCH_STDOUT("%s (spsv_uxua) : Please specify a matrix filename (with -f)\n",argv[0]);
+ 		RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
+		RSBENCH_STDOUT(".\n"); /* FIXME: this takes too much space here ! */
 	}
- 	RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
-	RSBENCH_STDOUT(".\n"); /* FIXME: this takes too much space here ! */
-	rsb__getrusage();
+
+	if(want_verbose >= 0)
+		rsb__getrusage();
 done:
 frv:
 	if( !should_recycle_io )
@@ -7891,9 +9491,11 @@ frv:
 		RSBENCH_MAY_SQUIT(ret,{}) /* early end of program */
 		RSBENCH_MAY_TQUIT(ret,{}) /* early end of program */
 	}	/* typecodesi */
-	}	/* nrhsi */
-	}	/* incXi */
-	}	/* incYi */
+	}	/* diagi */
+	}	/* asfii */
+	}	/* asiii */
+	}	/* accii */
+	}	/* areci */
 nfnm:	RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS;
 	}	/* filenamei */
 	RSBENCH_STDOUT("# benchmarking terminated --- finalizing run.\n");
@@ -7918,182 +9520,227 @@ rret:
 	if(want_perf_dump) 
 	{
 		RSBENCH_STDOUT("# ====== BEGIN Total summary record.\n");
-		errval = rsb__pr_dump(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL );
+		errval = rsb__pr_dump(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, NULL );
 		RSBENCH_STDOUT("# ======  END  Total summary record.\n");
-		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
-		errval = rsb__pr_save(fprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE );
-		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
+		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(tret,RSB_ERRM_ES);
+		errval = rsb__pr_save(fprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE);
+		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(tret,RSB_ERRM_ES);
 		RSBENCH_STDOUT("# Removing the temporary record file %s.\n",cprfn);
 		remove(cprfn);
 	}
 	if( ca  != ca_ ) {RSB_CONDITIONAL_FREE(ca);}
-#if !RSB_RSBENCH_STATIC_FILENAMEA
+#if RSB_RSBENCH_STATIC_FILENAMEA
+	{
+		rsb_int_t filenamei;
+		for ( filenamei = 0; filenamei < filenamen ; ++filenamei )
+	       		if( filenamea[filenamei] != fnbufp[0] )
+				free(filenamea[filenamei]); /* allocated in rsb__strdup */
+	}
+#else
 	/* if(filenamea!=&fnbufp)RSB_CONDITIONAL_FREE(filenamea); */
 	if(filenamea!=&fnbufp)free(filenamea); /* FIXME */
 #endif
-	if(nrhsa!=(&nrhs))RSB_CONDITIONAL_FREE(nrhsa); /* FIXME: they get allocated (and thus shall be deallocated) before init */
-	if(incXa!=(&incX))RSB_CONDITIONAL_FREE(incXa);
- 	if(incYa!=(&incY))RSB_CONDITIONAL_FREE(incYa); 
+	if(nrhsa!=(&nrhs))RSB_CONDITIONAL_FREE(nrhsa); /* if same, nrhsa only points to incx */
+	if(incXa!=(&incX))RSB_CONDITIONAL_FREE(incXa); /* same trick */
+ 	if(incYa!=(&incY))RSB_CONDITIONAL_FREE(incYa); /* same trick */
+	RSB_CONDITIONAL_FREE(alphaip);
+	RSB_CONDITIONAL_FREE(betaip);
 	if(want_likwid == RSB_BOOL_TRUE){RSB_LIKWID_MARKER_EXIT;} /* FIXME: and other cases ? */
-	if(want_verbose == RSB_BOOL_TRUE)
+	RSBENCH_MEM_ALLOC_INFO("\n");
+	if(want_verbose > 0)
 		rsb__echo_timeandlabel(" terminating run at ","\n",&st);
+	rsb__mbw_es_free(mbetp);
 	rsb__pr_free(rspr);
+tret:
 	if(RSB_SOME_ERROR(rsb_lib_exit(RSB_NULL_EXIT_OPTIONS)))
 		return RSB_ERR_GENERIC_ERROR;
 	return errval;
+#else /* RSB_HAVE_GETOPT_H */
+	return RSB_ERR_NO_ERROR;
+#endif /* RSB_HAVE_GETOPT_H */
 }
 
 int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const argv[])
 {
+#if RSB_HAVE_GETOPT_H
 	/*!
 	 * \ingroup gr_bench
 	 * This function implements a complete program for using our variable block
 	 * rows sparse matrix storage as it was a fixed block size format.
 	 * It is useful for benchmark against fixed block sparse matrix codes.
-	 * 
+	 *
 	 * This function will benchmark the "mat_stats" matrix operation.
 	 * */
 
 	/*
 	 * This example main program reads in a Matrix Market file in block format and multiplies it against a unit vector.
 	 **/
-	rsb_option options[] = {
-	    {"all-flags",	0 , NULL, 0x51},/* Q */  
-	    {"allow-any-transposition-combination",	0 , NULL, 0x61617463 },/* aatc */  
-	    {"alternate-sort",	no_argument, NULL , 0x4153},/* AS */
-	    {"auto-blocking",	0 , NULL, 0x41},/* A */
-	    {"be-verbose",		0, NULL, 0x76},	/* v */
-	    {"block-columnsize",	required_argument, NULL, 0x63},/* c */  
-	    {"block-rowsize",   required_argument, NULL, 0x72 },/* r */
-	    {"cache-blocking",	required_argument, NULL , 0x4342},/* CB */
-/*	    {"cache-flush",	no_argument, NULL, 0x4343},*/ /*   */
-	    {"column-expand",	required_argument, NULL, 0x6B},/* k */  
-	    {"compare-competitors",	no_argument, NULL, 0x6363},/* cc */  
-	    {"convert",	0, NULL, 0x4B},/* K */  
-/*	    {"convert",	required_argument, NULL, 0x4B},*//* K   */
-	    {"dense",	required_argument, NULL, 0x64 },   /* d */
-	    {"diagonal-dominance-check",	no_argument , NULL, 0x4444},/* DD */  /* new */
-	    {"dump-n-lhs-elements",	required_argument , NULL, 0x444444},/* DDD */  /* new */
-	    {"echo-arguments",	no_argument , NULL, 0x6563686f},/* echo */  /* new */
-	    {"estimate-samples",		required_argument, NULL, 0x53},	/* S */
-	    {"estimate-fillin",required_argument, NULL, 0x65},	/* e */
-	    {"flush-cache-in-iterations",	no_argument, NULL, 0x4343},/*  */  
-	    {"impatient",	no_argument, NULL, 0x696d7061},/* impa[tient] */  
-	    {"no-flush-cache-in-iterations",	no_argument, NULL, 0x434E},/*  */  
-	    {"flush-cache-around-loop",	no_argument, NULL, 0x434343},/*  */  
-	    {"want-ancillary-execs",	no_argument, NULL, 0x767646},/*  */  
-	    {"no-want-ancillary-execs",	no_argument, NULL, 0x42767646},/*  */  
-	    {"no-flush-cache-around-loop", no_argument	, NULL, 0x43434E},/*  */  
-	    {"want-no-recursive",	no_argument, NULL, 0x776e720a},/*  */  
-	    {"guess-blocking",	no_argument , NULL, 0x47},/* G */
-	    {"help",	no_argument , NULL, 0x68},	/* h */
-	    {"ilu0",	no_argument , NULL, 0x494B55},/* ILU */  /* new */
-	    {"incx",	required_argument, NULL, 0xb1bb0 },/* */  
-	    {"incy",	required_argument, NULL, 0xb1bb1 },/* */  
-	    {"in-place-assembly-experimental",	no_argument , NULL, 0x6970},/* i */  
-	    {"in-place-csr",	0 , NULL, 0x69},/* i */  
-	    {"in-place-permutation",	no_argument, NULL, 0x50},   /* P */
-#if RSB_WITH_LIKWID
-	    {"likwid",	no_argument, NULL, 0x6c696b77},   /* likw */
-#endif /* RSB_WITH_LIKWID */
-	    {"lower",	required_argument, NULL, 0x6c},   /* l */
-	    {"lower-dense",	required_argument, NULL, 0x6c64},   /* ld */
-	    {"generate-lowerband",	required_argument, NULL, 0x6c6c},   /* ll */
-	    {"gen-lband",	required_argument, NULL, 0x6c6c},   /* ll */
-	    {"generate-spacing",	required_argument, NULL, 0xbabb2 },   /* */
-	    {"matrix-dump",	0 , NULL, 0x44044},/* D */  
-	    {"matrix-dump-graph",	required_argument , NULL, 0x44047},/* DG */  
-	    {"matrix-dump-internals",	0 , NULL, 0x49049},/* I */  
-	    {"merge-experimental",	required_argument , NULL, 0x6d656578},/* meex */  
-	    {"split-experimental",	required_argument , NULL, 0x73706578},/* spex */  
-	    {"ms-experimental",	required_argument , NULL, 0x6d736578},/* msex */  
-	    {"matrix-filename",	required_argument, NULL, 0x66},/* f */  
-	    {"matrix-storage",	required_argument, NULL, 0x46},/* F */  
-	    {"matrix-time",	0 , NULL, 0x4D},/* M */  /* new */
-	    {"mem-hierarchy-info",	required_argument , NULL, 0x4D4D},/* MM */  /* new */
-	    {"max-runtime",	required_argument , NULL, 0x6d617275},/* maru */
-	    {"no-op",		0 , NULL, 0x4E},	/* N */
-	    {"notranspose",	no_argument, NULL, 0x5051},   /* do not transpose the operation */
-	    {"nrhs",	required_argument, NULL, 0x6e726873},   /* */
-	    {"one-nonunit-incx-incy-nrhs-per-type",	no_argument, NULL, 0x6e697270},   /* */
-	    RSB_BENCH_PROG_OPTS
-	    {"oski-benchmark",	0 , NULL, 0x42},/* B: only long option *//* comparative benchmarking agains OSKI */
-	    {"out-lhs",		0 , NULL, 0x6F6C6873},/* o */	/* should accept an output file name, optionally */
-	    {"out-rhs",		0 , NULL, 0x6F6F},/* o */	/* should accept an output file name, optionally */
-	    {"override-matrix-name",	required_argument , NULL, 0x6F6D6E},/* omn */	
-	    {"pattern-mark",	0 , NULL, 0x70},/* p */
-	    {"pre-transpose",	no_argument, NULL, 0x5454},   /* transpose the matrix before assembly  */
-	    {"read-as-binary",		required_argument, NULL, 0x62},/* b */
-	    {"repeat-constructor",	required_argument , NULL, 0x4A4A},
-	    {"reuse-io-arrays",	no_argument , NULL, 0x726961}, /* ria */
-	    {"no-reuse-io-arrays",	no_argument , NULL, 0x6e726961 }, /* nria */
-	    {"reverse-alternate-rows",	no_argument , NULL, 0x4A4A4A},
-	    {"generate-upperband",	required_argument, NULL, 0x7575},   /* uu */
-	    {"gen-uband",	required_argument, NULL, 0x7575},   /* uu */
-	    {"generate-diagonal",	required_argument, NULL, 0x6464 },   /* dd */
-	    {"gen-diag",	required_argument, NULL, 0x6464 },   /* dd */
-	    {"zig-zag",	no_argument , NULL, 0x4A4A4A},
-	    {"subdivision-multiplier",	required_argument, NULL , 0x534D},/* SM */
-#if RSB_WANT_BOUNDED_BOXES
-	    {"bounded-box",	required_argument, NULL , 0x4242},/* BB */
-#endif /* RSB_WANT_BOUNDED_BOXES */
-	    {"max-nnz-samples",	required_argument, NULL, 0x73},	/* s */
-	    {"no-leaf-multivec",	no_argument, NULL , 0x6e6c6d6d},/* nlmm */
-	    {"with-leaf-multivec",	no_argument, NULL , 0x636c6d6d},/* wlmm */
-	    {"sort-after-load",	no_argument, NULL, 0x7373},/* ss */  
-	    {"skip-loading-symmetric-matrices",	 no_argument, NULL, 0x736c736d},/* slsm */  
-	    {"skip-loading-unsymmetric-matrices",no_argument, NULL, 0x736c756d},/* slum */  
-	    {"skip-loading-hermitian-matrices",no_argument, NULL, 0x736c686d},/* slhm */  
-	    {"skip-loading-not-unsymmetric-matrices",no_argument, NULL, 0x736c6e75},/* slnu */  
-	    {"skip-loading-if-more-nnz-matrices",required_argument, NULL, 0x736c6d6},/* slmn */  
-	    {"skip-loading-if-less-nnz-matrices",required_argument, NULL, 0x736c6e6e},/* slnn */  
-	    {"skip-loading-if-more-filesize-kb-matrices",required_argument, NULL, 0x736c6d73},/* slms */  
-#ifdef RSB_HAVE_REGEX_H 
-	    {"skip-loading-if-matching-regex",required_argument, NULL, 0x736c6d72},/* slmr */  
-#endif /* RSB_HAVE_REGEX_H */
-	    {"skip-loading-if-matching-substr",required_argument, NULL, 0x736c7373},/* slss */  
-	    {"times",		required_argument, NULL, 0x74},/* t */  
-	    {"transpose-as",	required_argument, NULL, 0x5040},   /* do transpose the operation */
-	    {"transpose",	no_argument, NULL, 0x5050},   /* do transpose the operation */
-	    {"also-transpose",	no_argument, NULL, 0x4150},  /* N,T: do transpose the operation after no transposition */
-	    {"all-transposes",	no_argument, NULL, 0x616c6c74},  /* N,T,C */
-	    {"type",		required_argument, NULL, 0x54},/* T */  
-	    {"types",		required_argument, NULL, 0x54},/* T */  
-	    {"update",		0 , NULL, 0x55},	/* U */
-	    {"as-unsymmetric",		0 , NULL, 0x5555},	/* UU: TODO: to insert such a test in as default, in order to quantify the benefit of symmetry */
-	    {"as-symmetric",		0 , NULL, 0x5353},	/* SS */
-	    {"only-lower-triangle",		0 , NULL, 0x4F4C54},	/* OLT */
-   	    {"only-upper-triangle",		0 , NULL, 0x4F4554},	/* OUT */
-	    {"verbose",	no_argument , NULL, 0x56},/* V */
-	    {"want-io-only",	no_argument , NULL, 0x4949},/* --want-io-only */
-	    {"want-nonzeroes-distplot",	no_argument, NULL, 0x776E68},/* wnh */  
-	    {"want-accuracy-test",	no_argument, NULL, 0x776174},/* wat */  
-	    {"want-getdiag-bench",	no_argument , NULL, 0x774446},/* wde */  /* FIXME: obsolete ? */
-	    {"want-getrow-bench",	no_argument , NULL, 0x777246},/* wre */  /* FIXME: obsolete ? */
-#ifdef RSB_WANT_PERFORMANCE_COUNTERS
-	    {"want-perf-counters",	no_argument , NULL, 0x707763},/* wpc */
-#endif
-	    {"want-print-per-subm-stats",	no_argument , NULL, 0x77707373},/* wpss */
-	    {"want-only-accuracy-test",	no_argument, NULL, 0x776F6174},/* woat */  
-	    {"want-autotune",	required_argument, NULL, 0x7772740a},/* wrt */  
-	    {"want-no-autotune",	no_argument, NULL, 0x776e7274},/* wnrt */  
-#if RSB_HAVE_METIS
-	    {"want-metis-reordering",	no_argument, NULL, 0x776d6272 },/* wmbr */  
-#endif
-	    {"want-mkl-autotune",	required_argument, NULL, 0x776d6174},/* wmat */  
-	    {"want-mkl-one-based-indexing",	no_argument, NULL, 0x776d6f62 },/* wmob */  
-	    {"want-unordered-coo-test",	no_argument, NULL, 0x775563},/* */  
-	    {"with-flags",	required_argument, NULL, 0x71},/* q */  
-	    {"write-as-binary",	required_argument, NULL, 0x77 }, /* w */
-	    {"write-as-csr",	required_argument, NULL,  0x63777273 }, /* wcsr */
-	    {"write-performance-record",	required_argument, NULL, 0x77707266 }, /* write performance record file  */
-	    {"performance-record-name-append",	required_argument, NULL, 0x77707261 }, /* ...append  */
-	    {"performance-record-name-prepend",	required_argument, NULL, 0x77707270 }, /* ...prepend  */
-	    {"write-no-performance-record",	no_argument, NULL, 0x776e7072 }, /* write no performance record */
-	    {"discard-read-zeros",	no_argument, NULL,  0x64697a65 }, /* dize */
-	    {"z-sorted-coo",	no_argument, NULL , 0x7A},/* z */
-	    {0,0,0,0}	};
 
+	const struct rsb_option_struct rsb_options[] = {
+	    {{"all-flags",	no_argument, NULL, 0x51}},/* Q */
+	    {{"all-formats",	no_argument, NULL, 0x616c666f}},/* alfo */
+	    {{"all-blas-opts",	no_argument, NULL, 0x616c626f}},/* albo */
+	    {{"all-blas-types",	no_argument, NULL, 0x616c6274}},/* albt */
+	    {{"allow-any-transposition-combination",	no_argument, NULL, 0x61617463 }},/* aatc */
+	    {{"alternate-sort",	required_argument, NULL , 0x4153}},/* AS */
+	    {{"auto-blocking",	no_argument, NULL, 0x41}},/* A */
+	    {{"be-verbose",		no_argument, NULL, 0x76}},	/* v */
+	    {{"bench",	no_argument , NULL, 0x626e6368}},	/* bnch */
+	    {{"block-columnsize",	required_argument, NULL, 0x63}},/* c */
+	    {{"block-rowsize",   required_argument, NULL, 0x72 }},/* r */
+	    {{"cache-blocking",	required_argument, NULL , 0x4342}},/* CB */
+/*	    {{"cache-flush",	no_argument, NULL, 0x4343}},*/ /*   */
+	    {{"chdir",	required_argument, NULL, 0x6364}},/* cd */
+	    {{"column-expand",	required_argument, NULL, 0x6B}},/* k */
+	    {{"compare-competitors",	no_argument, NULL, 0x6363}},/* cc */
+	    {{"no-compare-competitors",	no_argument, NULL, 0x776e6d6c }},/* wnml */  /* want no mkl */
+	    {{"convert",	no_argument, NULL, 0x4B}},/* K */
+/*	    {{"convert",	required_argument, NULL, 0x4B}},*//* K   */
+	    {{"dense",	required_argument, NULL, 0x64 }},   /* d */
+	    {{"diagonal-dominance-check",	no_argument , NULL, 0x4444}},/* DD */  /* new */
+	    {{"dump-n-lhs-elements",	required_argument , NULL, 0x444444}},/* DDD */  /* new */
+	    {{"echo-arguments",	no_argument , NULL, 0x6563686f}},/* echo */  /* new */
+	    {{"estimate-samples",		required_argument, NULL, 0x53}},	/* S */
+	    {{"estimate-fillin",required_argument, NULL, 0x65}},	/* e */
+	    {{"flush-cache-in-iterations",	no_argument, NULL, 0x4343}},/*  */
+	    {{"impatient",	no_argument, NULL, 0x696d7061}},/* impa[tient] */
+	    {{"no-flush-cache-in-iterations",	no_argument, NULL, 0x434E}},/*  */
+	    {{"flush-cache-around-loop",	no_argument, NULL, 0x434343}},/*  */
+	    {{"want-ancillary-execs",	no_argument, NULL, 0x767646}},/*  */
+	    {{"no-want-ancillary-execs",	no_argument, NULL, 0x42767646}},/*  */
+	    {{"no-flush-cache-around-loop", no_argument	, NULL, 0x43434E}},/*  */
+	    {{"want-no-recursive",	no_argument, NULL, 0x776e720a}},/*  */
+	    {{"want-memory-benchmark",	no_argument, NULL, 0x776d62}},/* wmb */
+	    {{"want-no-memory-benchmark",	no_argument, NULL, 0x776e6d62}},/* wnmb */
+	    {{"nmb",	no_argument, NULL, 0x776e6d62}},/* wnmb */
+	    {{"guess-blocking",	no_argument , NULL, 0x47}},/* G */
+	    {{"help",	no_argument , NULL, 0x68}},	/* h */
+	    {{"ilu0",	no_argument , NULL, 0x494B55}},/* ILU */  /* new */
+	    {{"inc",	required_argument, NULL, 0x696e632a }},/* inc* */
+	    {{"incx",	required_argument, NULL, 0xb1bb0 }},/* */
+	    {{"incy",	required_argument, NULL, 0xb1bb1 }},/* */
+	    {{"in-place-assembly-experimental",	no_argument , NULL, 0x6970}},/* i */
+	    {{"in-place-csr",	no_argument, NULL, 0x69}},/* i */
+	    {{"in-place-permutation",	no_argument, NULL, 0x50}},   /* P */
+#if RSB_WITH_LIKWID
+	    {{"likwid",	no_argument, NULL, 0x6c696b77}},   /* likw */
+#endif /* RSB_WITH_LIKWID */
+	    {{"lower",	required_argument, NULL, 0x6c}},   /* l */
+	    {{"lower-dense",	required_argument, NULL, 0x6c64}},   /* ld */
+	    {{"generate-lowerband",	required_argument, NULL, 0x6c6c}},   /* ll */
+	    {{"gen-lband",	required_argument, NULL, 0x6c6c}},   /* ll */
+	    {{"generate-spacing",	required_argument, NULL, 0xbabb2 }},   /* */
+	    {{"matrix-dump",	no_argument, NULL, 0x44044}},/* D */
+	    {{"matrix-dump-graph",	required_argument , NULL, 0x44047}},/* DG */
+	    {{"matrix-dump-internals",	no_argument, NULL, 0x49049}},/* I 0x0 I */
+	    {{"merge-experimental",	required_argument , NULL, 0x6d656578}},/* meex */
+	    {{"split-experimental",	required_argument , NULL, 0x73706578}},/* spex */
+	    {{"ms-experimental",	required_argument , NULL, 0x6d736578}},/* msex */
+	    {{"matrix-filename",	required_argument, NULL, 0x66}},/* f */
+	    {{"matrix-sample-pcnt",	required_argument, NULL, 0x6d747873}},/* mtxs */
+	    {{"matrix-storage",	required_argument, NULL, 0x46}},/* F */
+	    {{"matrix-time",	no_argument, NULL, 0x4D}},/* M */  /* new */
+	    {{"mem-hierarchy-info",	required_argument , NULL, 0x4D4D}},/* MM */  /* new */
+	    {{"max-runtime",	required_argument , NULL, 0x6d617275}},/* maru */
+	    {{"no-op",		no_argument, NULL, 0x4E}},	/* N */
+	    {{"notranspose",	no_argument, NULL, 0x5051}},   /* do not transpose the operation */
+	    {{"no-transpose",	no_argument, NULL, 0x5051}},   /* do not transpose the operation */
+	    {{"nrhs",	required_argument, NULL, 0x6e726873}},   /* */
+	    {{"one-nonunit-incx-incy-nrhs-per-type",	no_argument, NULL, 0x6e697270}},   /* */
+	    {RSB_BENCH_PROG_OPTS},
+	    {{"oski-benchmark",	no_argument, NULL, 0x42}},/* B: only long option *//* comparative benchmarking agains OSKI */
+	    {{"out-lhs",		no_argument, NULL, 0x6F6C6873}},/* o */	/* should accept an output file name, optionally */
+	    {{"out-rhs",		no_argument, NULL, 0x6F6F}},/* o */	/* should accept an output file name, optionally */
+	    {{"override-matrix-name",	required_argument , NULL, 0x6F6D6E}},/* omn */	
+	    {{"pattern-mark",	no_argument, NULL, 0x70}},/* p */
+	    {{"pre-transpose",	no_argument, NULL, 0x5454}},   /* transpose the matrix before assembly  */
+	    {{"read-as-binary",		required_argument, NULL, 0x62}},/* b */
+	    {{"repeat-constructor",	required_argument , NULL, 0x4A4A}},
+	    {{"reuse-io-arrays",	no_argument , NULL, 0x726961}}, /* ria */
+	    {{"no-reuse-io-arrays",	no_argument , NULL, 0x6e726961 }}, /* nria */
+	    {{"reverse-alternate-rows",	no_argument , NULL, 0x4A4A4A}},
+	    {{"generate-upperband",	required_argument, NULL, 0x7575}},   /* uu */
+	    {{"gen-uband",	required_argument, NULL, 0x7575}},   /* uu */
+	    {{"generate-diagonal",	required_argument, NULL, 0x6464 }},   /* dd */
+	    {{"gen-diag",	required_argument, NULL, 0x6464 }},   /* dd */
+	    {{"implicit-diagonal",	no_argument, NULL, 0x6964}},   /* id */
+	    {{"also-implicit-diagonal",	no_argument , NULL, 0x776264}},/* wbd */
+	    {{"also-symmetries",	no_argument , NULL, 0x61736875}},/* ashu */
+	    {{"also-short-idx",	no_argument , NULL, 0x616c6c69}},/* alli */
+	    {{"also-coo-csr",	no_argument , NULL, 0x616363}},/* acc */
+	    {{"also-recursive",	no_argument , NULL, 0x61726563}},/* arec */
+	    {{"zig-zag",	no_argument , NULL, 0x4A4A4A}},
+	    {{"subdivision-multiplier",	required_argument, NULL , 0x534D}},/* SM */
+#if RSB_WANT_BOUNDED_BOXES
+	    {{"bounded-box",	required_argument, NULL , 0x4242}},/* BB */
+#endif /* RSB_WANT_BOUNDED_BOXES */
+	    {{"max-nnz-samples",	required_argument, NULL, 0x73}},	/* s */
+	    {{"no-leaf-multivec",	no_argument, NULL , 0x6e6c6d6d}},/* nlmm */
+	    {{"with-leaf-multivec",	no_argument, NULL , 0x636c6d6d}},/* wlmm */
+	    {{"setenv",	required_argument, NULL, 0x7365}},/* se */
+	    {{"unsetenv", required_argument, NULL, 0x757365}},/* use */
+	    {{"sort-after-load",	no_argument, NULL, 0x7373}},/* ss */
+	    {{"sort-filenames-list",	no_argument, NULL, 0x73666e6c}},/* sfnl */
+	    {{"no-sort-filenames-list",	no_argument, NULL, 0x6e73666e}},/* nsfn */
+	    {{"skip-loading-symmetric-matrices",	 no_argument, NULL, 0x736c736d}},/* slsm */
+	    {{"skip-loading-unsymmetric-matrices",no_argument, NULL, 0x736c756d}},/* slum */
+	    {{"skip-loading-hermitian-matrices",no_argument, NULL, 0x736c686d}},/* slhm */
+	    {{"skip-loading-not-unsymmetric-matrices",no_argument, NULL, 0x736c6e75}},/* slnu */
+	    {{"skip-loading-if-more-nnz-matrices",required_argument, NULL, 0x736c6d6}},/* slmn */
+	    {{"skip-loading-if-less-nnz-matrices",required_argument, NULL, 0x736c6e6e}},/* slnn */
+	    {{"skip-loading-if-more-filesize-kb-matrices",required_argument, NULL, 0x736c6d73}},/* slms */
+#ifdef RSB_HAVE_REGEX_H
+	    {{"skip-loading-if-matching-regex",required_argument, NULL, 0x736c6d72}},/* slmr */
+#endif /* RSB_HAVE_REGEX_H */
+	    {{"skip-loading-if-matching-substr",required_argument, NULL, 0x736c7373}},/* slss */
+	    {{"times",		required_argument, NULL, 0x74}},/* t */
+	    {{"transpose-as",	required_argument, NULL, 0x5040}},   /* do transpose the operation */
+	    {{"transpose",	no_argument, NULL, 0x5050}},   /* do transpose the operation */
+	    {{"also-transpose",	no_argument, NULL, 0x4150}},  /* N,T: do transpose the operation after no transposition */
+	    {{"all-transposes",	no_argument, NULL, 0x616c6c74}},  /* N,T,C */
+	    {{"type",		required_argument, NULL, 0x54}},/* T */
+	    {{"types",		required_argument, NULL, 0x54}},/* T */
+	    {{"update",		no_argument, NULL, 0x55}},	/* U */
+	    {{"as-unsymmetric",		no_argument, NULL, 0x5555}},	/* UU: TODO: to insert such a test in as default, in order to quantify the benefit of symmetry */
+	    {{"as-symmetric",		no_argument, NULL, 0x5353}},	/* SS */
+	    {{"expand-symmetry",		no_argument, NULL, 0x4553}},	/* ES */
+	    {{"as-hermitian",		no_argument, NULL, 0x4853}},	/* HS */
+	    {{"only-lower-triangle",		no_argument, NULL, 0x4F4C54}},	/* OLT */
+   	    {{"only-upper-triangle",		no_argument, NULL, 0x4F4554}},	/* OUT */
+	    {{"verbose",	no_argument , NULL, 0x56}},/* V */
+	    {{"less-verbose",	no_argument , NULL, 0x6c56}},/* lV */
+	    {{"want-io-only",	no_argument , NULL, 0x4949}},/* --want-io-only */
+	    {{"want-nonzeroes-distplot",	no_argument, NULL, 0x776E68}},/* wnh */
+	    {{"want-accuracy-test",	no_argument, NULL, 0x776174}},/* wat */
+	    {{"want-getdiag-bench",	no_argument , NULL, 0x774446}},/* wde */  /* FIXME: obsolete ? */
+	    {{"want-getrow-bench",	no_argument , NULL, 0x777246}},/* wre */  /* FIXME: obsolete ? */
+#ifdef RSB_WANT_PERFORMANCE_COUNTERS
+	    {{"want-perf-counters",	no_argument , NULL, 0x707763}},/* wpc */
+#endif
+	    {{"want-print-per-subm-stats",	no_argument , NULL, 0x77707373}},/* wpss */
+	    {{"want-only-accuracy-test",	no_argument, NULL, 0x776F6174}},/* woat */
+	    {{"want-autotune",	optional_argument, NULL, 0x7772740a}},/* wrt */
+	    {{"want-no-autotune",	no_argument, NULL, 0x776e7274}},/* wnrt */
+	    {{"want-no-ones-fill",	no_argument, NULL, 0x776e6f66}},/* wnof */
+#if RSB_HAVE_METIS
+	    {{"want-metis-reordering",	no_argument, NULL, 0x776d6272 }},/* wmbr */
+#endif
+	    {{"want-mkl-autotune",	optional_argument, NULL, 0x776d6174}},/* wmat */
+	    {{"want-mkl-one-based-indexing",	no_argument, NULL, 0x776d6f62 }},/* wmob */
+	    {{"want-unordered-coo-test",	no_argument, NULL, 0x775563}},/* */
+	    {{"with-flags",	required_argument, NULL, 0x71}},/* q */
+	    {{"write-as-binary",	required_argument, NULL, 0x77 }}, /* w */
+	    {{"write-as-csr",	required_argument, NULL,  0x63777273 }}, /* wcsr */
+	    {{"write-performance-record",	optional_argument, NULL, 0x77707266 }}, /* write performance record file  */
+	    {{"performance-record-name-append",	required_argument, NULL, 0x77707261 }}, /* ...append  */
+	    {{"performance-record-name-prepend",	required_argument, NULL, 0x77707270 }}, /* ...prepend  */
+	    {{"write-no-performance-record",	no_argument, NULL, 0x776e7072 }}, /* write no performance record */
+	    {{"discard-read-zeros",	no_argument, NULL,  0x64697a65 }}, /* dize */
+	    {{"z-sorted-coo",	no_argument, NULL , 0x7A}},/* z */
+	    {{0,no_argument,0,0}}	};
+
+	const int rsb_options_count = sizeof(rsb_options)/sizeof(rsb_option_t);
+	rsb_option_t options[rsb_options_count];
 	rsb_nnz_idx_t nnz = 0;/* was 0 */
 	int c;
 	int opt_index = 0;
@@ -8110,37 +9757,42 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	rsb_int ntypecodes = 0,typecodesi;
 	const rsb_int maxtypes = 2*RSB_IMPLEMENTED_TYPES;
 	rsb_type_t typecodes[maxtypes+1] ;
+	char * typess = NULL; /* types specification string */
 
 	rsb_blk_idx_t br = 1;
 	rsb_blk_idx_t bc = 1;
 	char * bcs = NULL, *brs = NULL, *cns = NULL, *mhs = NULL;
+	const char *tcrprs = NULL; // thread count rpr string
+	rsb_char_t fnrprs[RSB_MAX_FILENAME_LENGTH]; //  file  name  rpr string
 	rsb_blk_idx_t * brv = NULL;
 	rsb_blk_idx_t * bcv = NULL;
 	int brl = 0;
 	int bcl = 0;
 	rsb_thread_t ca_[1] = {1};
 	rsb_thread_t * ca = ca_;
-	rsb_thread_t cn = 1, ci = 0, cc = ca[ci];
+	rsb_thread_t cn = 1, cc = ca[0];
 
 	int times = 100;	/* the default number of times to perform mat_stats */
 	rsb_coo_idx_t nrA = 0, ncA = 0, ndA = 0;
 	int filenamen = 0, filenamei = 0;
+	int want_filenamelist_sort = 1;
 #define RSB_RSBENCH_STATIC_FILENAMEA 1
 #if RSB_RSBENCH_STATIC_FILENAMEA
-#define RSB_RSBENCH_MAX_MTXFILES 256
-	const rsb_char_t *filenamea[RSB_RSBENCH_MAX_MTXFILES];
+	rsb_char_t *filenamea[RSB_RSBENCH_MAX_MTXFILES];
 #else
-	const rsb_char_t **filenamea = NULL;
+	rsb_char_t **filenamea = NULL;
 #endif
 	const rsb_char_t *filename = NULL;
 	const rsb_char_t *filename_old = NULL;
 	const rsb_char_t *usfnbuf = NULL;
-	rsb_char_t*fprfn = NULL, *cprfn = NULL, *apprfn = NULL, *ppprfn = NULL; /* final/checkpoint      performance file name , append/prepend */
+	rsb_char_t *fprfn = NULL, *cprfn = NULL, *apprfn = NULL, *ppprfn = NULL; /* final/checkpoint      performance file name , append/prepend */
 	rsb_char_t fprfnb[RSB_MAX_FILENAME_LENGTH], cprfnb[RSB_MAX_FILENAME_LENGTH];/* final/checkpoint      performance file name buffers */
-	rsb_char_t fnbuf[RSB_MAX_FILENAME_LENGTH];
-	rsb_char_t*fnbufp[1]={&(fnbuf[0])};
-	rsb_char_t * dump_graph_file=NULL;
+	rsb_char_t mtrfpf[RSB_MAX_FILENAME_LENGTH];/* matrix tuning rendering file prefix */
+	rsb_char_t fnbuf[RSB_MAX_FILENAME_LENGTH] = {RSB_NUL, /* ... */ }; /* matrix file name buffer */
+	rsb_char_t *fnbufp[1]={&(fnbuf[0])};
+	rsb_char_t *dump_graph_file=NULL;
 	rsb_flags_t flags_o = RSB_FLAG_NOFLAGS|RSB_FLAG_OWN_PARTITIONING_ARRAYS;
+	rsb_flags_t flags_s = RSB_FLAG_NOFLAGS; /* sorting flags */
 /*	RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_DISCARD_ZEROS)	;	*/ /* FIXME : EXPERIMENTAL (watch nnz count on a multi blocking run ...) */
 	rsb_flags_t flagsa[128] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	rsb_flags_t r_flags = RSB_FLAG_NOFLAGS; /* recycling flags */
@@ -8166,6 +9818,7 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	rsb_bool_t should_recycle_matrix = RSB_BOOL_FALSE; /* reuse the matrix across measurements */
 	rsb_bool_t should_recycle_io = RSB_BOOL_TRUE;/* reuse the input arrays */
 	rsb_bool_t g_allow_any_tr_comb = RSB_BOOL_FALSE; /* allow any transposition combination */
+	rsb_bool_t g_fill_va_with_ones = RSB_BOOL_TRUE;
 	
 	int g_estimate_fillin = 0;
 	int want_percentage = 0;
@@ -8186,9 +9839,14 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	rsb_nnz_idx_t want_generated_spacing = 0;
 	rsb_bool_t want_only_star_scan = RSB_BOOL_FALSE;
 	rsb_blk_idx_t nrhs = 1, nrhsn = 1, nrhsi = 1, nrhsl = 1;
+	rsb_blk_idx_t asfii = 0, asfin = 1;
+	rsb_blk_idx_t asiii = 0, asiin = 1;
+	rsb_blk_idx_t accii = 0, accin = 1;
+	rsb_blk_idx_t areci = 0, arecn = 1;
+	rsb_int_t diagin = 1, diagii = 0;
 	const char*nrhss = NULL;
 	rsb_blk_idx_t *nrhsa = NULL;
-	const size_t outnri = 0, rhsnri = 0; /* Could be ndA for order == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER and nrhs otherwise; this way is auto. */;
+	const size_t outnri = 0, rhsnri = 0; /* Could be ndA for order == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER and nrhs otherwise; this way is auto. */
 	rsb_nnz_idx_t n_dumpres = 0;
 	rsb_nnz_idx_t n_dumprhs = 0;
 	rsb_bool_t ignore_failed_fio = RSB_BOOL_TRUE; /* FIXME 20140912 experimental */
@@ -8203,11 +9861,13 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	rsb_time_t totatt = RSB_TIME_ZERO; /* total ancillary tests time */ /* FIXME: is this complete ? */
 	rsb_time_t totct = RSB_TIME_ZERO; /* total conversions time */ /* FIXME: is this complete ? */
 	rsb_time_t tottt = RSB_TIME_ZERO; /* total tuning time */
-	rsb_time_t totht = RSB_TIME_ZERO; /* total checks time */ /* FIXME: is this complete ? */
+	rsb_time_t totht = RSB_TIME_ZERO, ht = RSB_TIME_ZERO; /* total checks time */ /* FIXME: is this complete ? */
 	rsb_time_t maxtprt = RSB_TIME_ZERO; /* max total program run time */
 	const rsb_time_t totprt = - rsb_time(); /* total program run time */
 	rsb_bool_t want_as_unsymmetric = RSB_BOOL_FALSE;
 	rsb_bool_t want_as_symmetric = RSB_BOOL_FALSE;
+	rsb_bool_t want_expand_symmetry = RSB_BOOL_FALSE;
+	rsb_bool_t want_as_hermitian = RSB_BOOL_FALSE;
 	rsb_bool_t want_only_lowtri = RSB_BOOL_FALSE;
 	rsb_bool_t want_only_upptri = RSB_BOOL_FALSE;
 	rsb_bool_t want_sort_after_load = RSB_BOOL_FALSE;
@@ -8225,18 +9885,20 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	rsb_bool_t want_getdiag_bench = 0;	/* FIXME-EXPERIMENTAL */
 	rsb_bool_t want_getrow_bench = 0;	/* FIXME-EXPERIMENTAL */
 	rsb_coo_idx_t mib = 0; /* MKL index base (FIXME: declared here and not within RSB_WANT_MKL because CSR copy made even with no MKL) */
+#if RSB_WANT_ARMPL
+	rsb_bool_t want_armpl_bench = RSB_BOOL_FALSE;
+#endif /* RSB_WANT_ARMPL */
 	rsb_time_t totmt = RSB_TIME_ZERO; /* total mkl/competitors (tuning) time */
 	rsb_bool_t want_perf_dump = RSB_BOOL_FALSE;
 	void*rspr = NULL; /* rsb sampled performance record structure pointer */
 
-	rsb_coo_idx_t incX = 1, incY = 1;
-	rsb_blk_idx_t incXn = 1, incXi = 1;
-	rsb_blk_idx_t incYn = 1, incYi = 1;
-	rsb_blk_idx_t *incXa = NULL, *incYa = NULL;
-	rsb_coo_idx_t ldX = 0, ldY = 0;
-	rsb_bool_t want_incX = RSB_BOOL_FALSE,want_incY = RSB_BOOL_FALSE;
-	rsb_bool_t want_verbose = RSB_BOOL_FALSE;
+	const rsb_coo_idx_t incX = 1, incY = 1;
+	const rsb_blk_idx_t incXn = 1, incYn = 1;
+	const rsb_blk_idx_t incXi = 0, incYi = 0;
+	const rsb_blk_idx_t *const incXa = (const rsb_blk_idx_t *const)&incX, *const incYa = (const rsb_blk_idx_t *const)&incY;
+	rsb_int_t want_verbose = 0;
 	rsb_int_t want_verbose_tuning = 0;
+	rsb_bool_t want_mbw = RSB_BOOL_FALSE;
 	rsb_bool_t want_transpose = RSB_BOOL_FALSE;
 	#if 1
 	const int max_io = 10;
@@ -8252,7 +9914,7 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	#else /* 1 */
 	struct rsb_initopts *iop = RSB_NULL_INIT_OPTIONS;
 	#endif /* 1 */
-	rsb_bool_t should_use_alternate_sort = RSB_BOOL_FALSE;
+	rsb_int_t should_use_alternate_sort = 0;
 	rsb_bool_t reverse_odd_rows = RSB_BOOL_FALSE;
 	rsb_bool_t zsort_for_coo = RSB_BOOL_FALSE;
 #ifdef RSB_WANT_OSKI_BENCHMARKING 
@@ -8273,7 +9935,7 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	setenv("OSKI_LUA_PATH",OSKI_LUA_PATH,0/* if 0, will not override. if 1, it would. */);
 	#endif /* RSB_HAVE_SETENV */
 #endif /* RSB_WANT_OSKI_BENCHMARKING */
-	rsb_time_t tinf = rsb__timer_granularity();
+	const rsb_time_t tinf = rsb__timer_granularity(); /* After rsb_lib_init one may use RSB_CACHED_TIMER_GRANULARITY; */
 	rsb_aligned_t pone[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 	rsb_bool_t want_likwid = RSB_BOOL_FALSE;
 	rsb_time_t want_autotuner = RSB_NEGATED_EXAGGERATED_TUNER_TIMES, want_mkl_autotuner = RSB_NEGATED_EXAGGERATED_TUNER_TIMES;
@@ -8290,7 +9952,16 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	rsb_bool_t want_wmbr = RSB_BOOL_FALSE;
 #endif
 	rsb_bool_t want_recursive = RSB_BOOL_TRUE;
+	struct rsb_mbw_et_t mbet, *mbetp = NULL;
+	rsb_real_t mtx_sample_rate = 100.0;
 
+	{
+		int roi;
+		for(roi=0;roi<rsb_options_count;++roi)
+			options[roi] = rsb_options[roi].ro;
+	}
+
+	RSB_DEBUG_ASSERT( fnbuf[0]==RSB_NUL );
 	io.keys = io_keys;
 	io.values = io_values;
 	io.n_pairs = 0;
@@ -8300,51 +9971,31 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 		RSB_PERR_GOTO(err,"Error while initializing the library.");
 	}
 
+	optind = 0; /* FIXME: NEW 20160708 */
     	for (;;)
 	{
-		c = rsb_getopt_long(argc,argv,RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS"b:w:BGht:f:r:c:vpn:MNS:Bk:KU" /* Flawfinder: ignore */
+		c = rsb__getopt_long(argc,argv,RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS"b:w:BGht:f:r:c:vpn:MNS:Bk:KU" /* Flawfinder: ignore */
 		"s:e"
 		"o:O:"
 		, options, &opt_index);
 		if (c == -1)break;
 
 		RSB_DO_FLAG_ADD(flags_o,rsb__sample_program_options_get_flags(c,optarg));
+		RSB_DO_FLAG_ADD(flags_s,flags_o & RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING);
 
 		switch (c)
 		{
 			case 0x62:	/* b */
 			b_r_filename = optarg;
 			break;
-			case  0xb1bb0:
-#if 0
-				incX = rsb__util_atoi(optarg);
-				if(incX<1){errval = RSB_ERR_BADARGS;goto err;}
-				if(incX>1)RSBENCH_STDOUT("# setting incX=%d\n",incX);
-				want_incX = RSB_BOOL_TRUE;
-#else
-			if(RSB_SOME_ERROR(rsb__util_get_bx_array(optarg,&incXn,&incXa)))
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
-#endif
-			break;
 			case  0x6970:
 				RSBENCH_STDOUT("# WARNING: in place assembly is an UNFINISHED, EXPERIMENTAL feature\n");
 				want_in_place_assembly = RSB_BOOL_TRUE;
 			break;
-			case  0xb1bb1:
-#if 0
-				incY = rsb__util_atoi(optarg);
-				if(incY<1){errval = RSB_ERR_BADARGS;goto err;}
-				if(incY>1)RSBENCH_STDOUT("# setting incY=%d\n",incY);
-				want_incY = RSB_BOOL_TRUE;
-#else
-			if(RSB_SOME_ERROR(rsb__util_get_bx_array(optarg,&incYn,&incYa)))
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
-#endif
-			break;
 			case 0x6c:
 			case 0x6c64: /* lower-dense */
 			{
-				should_generate_dense = - rsb__util_atoi(optarg); // FIXME ! PROBLEMS
+				should_generate_dense = - rsb__util_atoi_km10(optarg); // FIXME ! PROBLEMS
 			}
 			break;
 			case 0x6c696b77:
@@ -8355,41 +10006,43 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			break;
 			case 0x6c6c:
 			{
-				should_generate_lband = rsb__util_atoi(optarg); // FIXME ! PROBLEMS
+				should_generate_lband = rsb__util_atoi_km10(optarg); // FIXME ! PROBLEMS
 				if(should_generate_uband==-1)should_generate_uband=0;
 			}
 			break;
 			case 0x7575:
 			{
-				should_generate_uband = rsb__util_atoi(optarg); // FIXME ! PROBLEMS
+				should_generate_uband = rsb__util_atoi_km10(optarg); // FIXME ! PROBLEMS
 				if(should_generate_lband==-1)should_generate_lband=0;
-			}
-			break;
-			case 0x6464: /* gen-diag */
-			{
-				should_generate_uband = 0;
-				should_generate_lband = 0;
-				should_generate_dense = rsb__util_atoi(optarg); // FIXME ! PROBLEMS
 			}
 			break;
 			case 0xbabb2:
 			{
-				want_generated_spacing = rsb__util_atoi(optarg);
+				want_generated_spacing = rsb__util_atoi_km10(optarg);
 			}
 			break;
 			case 0x6e697270:
 			want_only_star_scan = RSB_BOOL_TRUE;
 			break;
+			case 0x6964:
+				RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_UNIT_DIAG_IMPLICIT);
+			break;
+			case 0x6464: /* gen-diag */
+				should_generate_uband = 0;
+				should_generate_lband = 0;
 			case 0x64: /* dense */
 			{
-				/* should_generate_dense = rsb__util_atoi(optarg); */  // FIXME ! PROBLEMS
-				int sargs = sscanf(optarg,"%dx%d",&should_generate_dense,&should_generate_dense_nc);
+				const char*p= optarg, *xp="x";
+				should_generate_dense = rsb__util_atoi_km10(optarg);
+				while(*p && *p != *xp)
+					++p;
+				if(*p == *xp)
+					should_generate_dense_nc = rsb__util_atoi_km10(p+1);
 				if( should_generate_dense_nc == 0)
 					should_generate_dense_nc = should_generate_dense;
-				/* RSBENCH_STDOUT("# Requested generation of a %d by %d matrix\n",should_generate_dense,should_generate_dense_nc); */
 			}
 			break;
-			/* FIXME : please note that specifying two or more times -r or -c will cause memory leaks */
+			/* note that specifying multiple times -r (or -c) will overwrite old setting */
 			case 0x72:/* r */
 			brs=optarg;
 			break;
@@ -8410,35 +10063,60 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			case 0x51: /* Q (do not ask me why) */
 			g_all_flags = 1;
 			break;
+			case 0x616c6274: /* albt */
+				RSBENCH_STDOUT("# EXPERIMENTAL --all-blas-types option implies types: " RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS "\n");
+				typess="B"; // RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS
+			break;
+			case 0x616c626f: /* albo */
+			RSBENCH_STDOUT("# EXPERIMENTAL --all-blas-opts option implies: --types : --inc : --alpha : --beta : :\n");
+			RSBENCH_STDOUT("# EXPERIMENTAL --types :\n"); // 0x54
+			typess=":";
+			break;
+			case 0x616c666f: /* alfo */
+			/* FIXME: need formal bond with these options */
+			RSBENCH_STDOUT("# EXPERIMENTAL --all-formats option implies: --also-implicit-diagonal --also-symmetries --also-short-idx --also-coo-csr --also-recursive:\n");
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-implicit-diagonal\n"); // 0x6964: /* id */
+			diagin=2;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-symmetries\n"); // 0x61736875: /* ashu */
+			asfin=3;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-short-idx\n"); // 0x616c6c69: /* alli */
+			asiin=2;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-coo-csr\n"); // 0x616363: /* acc */
+			accin=2;
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-recursive\n"); // 0x61726563: /* arec */
+			arecn=2;
+			break;
 			break;
 			case 0x44044: /* D */
 			dumpout = 1;
 			break;
 			case 0x5040: /*  */
-			transAo = rsb__do_transposition_from_char(*optarg);	/* */
+				transAo = rsb__do_transposition_from_char(*optarg);	/* */
+				tn = 1;
+				RSBENCH_STDOUT("# Requested user-specified transposition: %c\n",(char)transAo );
 			break;
 			case 0x4150:
-			tn = 2;
+				RSBENCH_STDOUT("# Requested no transposition and transposition.\n");
+				tn = 2;
 			break;
 			case 0x616c6c74:
-			tn = 3;
+				RSBENCH_STDOUT("# Requested all transposes: no transposition, transposition and conjugate transposition.\n");
+				tn = 3;
 			break;
 			case 0x5050: /*  */
-			transAo = rsb__do_transpose_transposition(transAo);
+				tn = 1;
+				RSBENCH_STDOUT("# Requested transposition.\n");
+				transAo = rsb__do_transpose_transposition(transAo);
 			break;
 			case 0x5051: /*  */
-			transAo = RSB_TRANSPOSITION_N;
+				RSBENCH_STDOUT("# Requested no transposition.\n");
+				tn = 1;
+				transAo = RSB_TRANSPOSITION_N;
 			break;
 			case 0x6e726873: /*  */
-#if 0
-			nrhs = rsb__util_atoi(optarg);
-			/* if(nrhs>1){ RSB_ERROR("Sorry, nrhs > 1 still unsupported!\n"); goto err; } */
-#else
 			nrhss = optarg;
-			if(RSB_SOME_ERROR(rsb__util_get_bx_array(nrhss,&nrhsn,&nrhsa)))
+			if(RSB_SOME_ERROR(rsb__util_get_bx_array(nrhss,&nrhsn,&nrhsa)) || nrhsn<1)
 				{RSB_ERROR(RSB_ERRM_ES);goto err;}
-#endif
-
 			break;
 			case 0x5454: /*  */
 			want_transpose = !want_transpose;
@@ -8450,23 +10128,23 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			dumpout_internals = 1;
 			break;
 			case 0x6d656578: /* meex */
-			merge_experimental = rsb__util_atoi(optarg);
-			RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				merge_experimental = rsb__util_atoi(optarg);
+				RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
 			break;
 			case 0x73706578: /* spex */
-			split_experimental = rsb__util_atoi(optarg);
-			RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				split_experimental = rsb__util_atoi(optarg);
+				RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
 			break;
 			case 0x6d736578: /* msex */
-			merge_experimental = split_experimental = rsb__util_atoi(optarg);
-			RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
-			RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				merge_experimental = split_experimental = rsb__util_atoi(optarg);
+				RSB_ASSIGN_IF_ZERO(merge_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+				RSB_ASSIGN_IF_ZERO(split_experimental,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
 			break;
 			case 0x4444 : /* DD */
 			do_perform_ddc = RSB_BOOL_TRUE;
 			break;
 			case 0x444444 : /* DDD */
-			n_dumprhs = n_dumpres = rsb__util_atoi(optarg);
+			n_dumprhs = n_dumpres = rsb__util_atoi_km10(optarg);
 			break;
 			case 0x6563686f: /* echo */
 			{
@@ -8486,6 +10164,14 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			case 0x4343: /* */
 			want_inner_flush = RSB_BOOL_TRUE;
 			break;
+			case 0x6364: /* */
+			{
+				if( chdir(optarg) ) // unistd.h
+					RSB_WARN("change dir to %s failed!\n", optarg);
+				else
+					RSBENCH_STDOUT("# chdir to %s succeeded\n", optarg);
+			}
+			break;
 			case 0x434E: /* */
 			want_inner_flush = RSB_BOOL_FALSE;
 			break;
@@ -8497,6 +10183,12 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			break;
 			case 0x776e720a: /*  */
 			want_recursive = RSB_BOOL_FALSE;
+			break;
+			case 0x776e6d62: /* wnmb */
+			want_mbw = RSB_BOOL_FALSE;
+			break;
+			case 0x776d62: /* wmb */
+			want_mbw = RSB_BOOL_TRUE;
 			break;
 			case 0x4D: /* M */
 			g_estimate_matrix_construction_time=1;
@@ -8524,7 +10216,7 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			usfnbuf = optarg;
 			break;
 			case 0x4A4A:
-			repeat_construction = rsb__util_atoi(optarg);
+			repeat_construction = rsb__util_atoi_km10(optarg);
 			if(repeat_construction<1)
 			{
 				RSB_ERROR("Constructor repetition times should be a positive number!\n");goto err;
@@ -8534,7 +10226,7 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			should_use_cb_method = rsb__util_atoi(optarg);
 			break;
 			case 0x4153: /* AS */
-			should_use_alternate_sort = RSB_BOOL_TRUE;
+			should_use_alternate_sort = rsb__util_atoi(optarg);
 			break;
 			case 0x534D: /* SM */
 			subdivision_multiplier = rsb__util_atof(optarg);
@@ -8575,15 +10267,38 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			break;
 			case 0x73: /* s */
 			/* FIXME : BROKEN! */
-			max_nnzs = rsb__util_atoi_km10(optarg); // former rsb__util_atonnz
+			max_nnzs = rsb__util_atoi_km10(optarg); // or revive rsb__util_atonnz
 			if(*optarg && optarg[rsb__util_strlen(optarg)-1]==0x25)want_percentage=1;/* 0x25 == % */
 			break;
 			case 0x53: /* S */
-			nnzn = rsb__util_atoi_km10(optarg); // former rsb__util_atonnz
+			nnzn = rsb__util_atoi_km10(optarg); // or revive rsb__util_atonnz
 			if(nnzn<1){RSB_ERROR(RSB_ERRM_ES);goto err;}
 			break;
+#ifdef RSB_HAVE_SETENV
+			case 0x7365: /* se */
+			rsb__setenv(optarg);
+			break;
+			case 0x757365: /* use */
+			if(optarg)
+			{
+				RSBENCH_STDOUT("# Calling unsetenv() with argument %s\n",optarg);
+				unsetenv(optarg);
+			}
+			break;
+#else /* RSB_HAVE_SETENV */
+			case 0x7365: /* se */
+			case 0x757365: /* use */
+			RSBENCH_STDERR("setenv/unsetenv not found on your machine ! Skipping --setenv/--unsetenv !");
+			break;
+#endif /* RSB_HAVE_SETENV */
 			case 0x7373: /* ss */
 			want_sort_after_load = RSB_BOOL_TRUE;
+			break;
+			case 0x73666e6c: /* sfnl */
+			want_filenamelist_sort = 1;
+			break;
+			case 0x6e73666e: /* nsfn */
+			want_filenamelist_sort = 0;
 			break;
 			case 0x736c736d: /* slsm */
 			want_slsm = RSB_BOOL_TRUE;
@@ -8621,57 +10336,78 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			guess_blocking_test = 1;
 			break;
 			case 0x54: /* T */
-			{
-				const char*toa = optarg;
-				ntypecodes=0; /* this neutralizes former -T ... option */
-				/* if( *optarg == 0x3A || *optarg == 0x2A ) */ /* : or * aka colon or asterisk */
-				if( ( ! isalpha(*optarg) ) || ( strstr(optarg,"all") != NULL ) )
-					toa = RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS ;
-				for(;*toa;++toa)
-				if(isalpha(*toa))
-				{
-					if(ntypecodes<maxtypes)
-						typecodes[ntypecodes++]=typecode=toupper(*toa);
-					else
-					{
-						RSB_ERROR("Up to %d types supported! P.s.: Use a punctuation symbol to ask for all supported types.\n",maxtypes);
-						goto err;
-					}
-				}
-				typecodes[ntypecodes] = RSB_NUL;
-			}
+			typess=optarg;
 			break;
 			case 0x56: /* V */
-			want_verbose = RSB_BOOL_TRUE;
+			want_verbose++;
 			want_verbose_tuning ++;
+			break;
+			case 0x6c56: /* lV */
+			if(want_verbose_tuning >  0)
+				want_verbose_tuning --;
+			if(want_verbose_tuning == 0)
+				want_verbose--;
 			break;
 			case 0x4949: /* II */
 			want_io_only = RSB_BOOL_TRUE;
 			break;
+			case 0x46: /* F */
+			/* F handled by rsb__sample_program_options_get_flags() */
+			break;
 			case 0x66: /* f */
 			filename = optarg;
 #if RSB_RSBENCH_STATIC_FILENAMEA
-#define RSB_RSBENCH_ADDF(FILENAME)	if(filenamen<RSB_RSBENCH_MAX_MTXFILES)filenamea[filenamen++] = (FILENAME); else {errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("Please increase RSB_RSBENCH_MAX_MTXFILES (%d) and recompile !!\n",RSB_RSBENCH_MAX_MTXFILES);goto err;}
+/* #define RSB_RSBENCH_ADDF(FILENAME)	if(filenamen<RSB_RSBENCH_MAX_MTXFILES)filenamea[filenamen++] = (FILENAME); else {errval = RSB_ERR_INTERNAL_ERROR;RSB_ERROR("Please increase RSB_RSBENCH_MAX_MTXFILES (%d) and recompile !!\n",RSB_RSBENCH_MAX_MTXFILES);goto err;} */
+#define RSB_RSBENCH_ADDF(FILENAME, FAF)	if ( RSB_ERR_NO_ERROR != ( errval = rsb__adddir(&filenamea[0], &filenamen, (FILENAME), FAF) ) ){if(errval == RSB_ERR_LIMITS ){RSB_ERROR("Please increase RSB_RSBENCH_MAX_MTXFILES (%d) and recompile !!\n",RSB_RSBENCH_MAX_MTXFILES);}errval = RSB_ERR_INTERNAL_ERROR;goto err;}
 #else
  /* FIXME: for some reason, this seems to break e.g.  ./rsbench -oa -Ob --nrhs 1,2 -f pd.mtx -f A.mtx.
     Of course this is wrong also w.r.t. rsb_calloc/rsb_lib_init, but that is not a problem.
     Using calloc / realloc does not solve the problem.  */
-#define RSB_RSBENCH_ADDF(FILENAME)		if(filenamen==0) \
+#define RSB_RSBENCH_ADDF(FILENAME,RSB_FAF_DEFAULTS)		if(filenamen==0) \
 				filenamea = rsb__calloc(sizeof(filenamea)*(filenamen+1)); \
 			else \
 				filenamea = rsb__do_realloc(filenamea, sizeof(filenamea)*(filenamen+1), sizeof(filenamea)); \
 			filenamea[filenamen++] = (FILENAME);
 #endif
-			RSB_RSBENCH_ADDF(filename) /* FIXME */
+			RSB_RSBENCH_ADDF(filename,RSB_FAF_DEFAULTS) /* FIXME */
+			break;
+			case 0x6d747873: /* mtxs **/
+				mtx_sample_rate = rsb__util_atof(optarg);
+				RSBENCH_STDOUT("# Using only %lg %% of the matrix nonzeroes\n",mtx_sample_rate);
+				if( mtx_sample_rate > 100 || mtx_sample_rate < 1 )
+					RSB_PERR_GOTO(err,"--matrix-sample-pcnt: want arg between 1 and 100!");
+			break;
+			case 0x626e6368: /* bnch */
+			RSBENCH_STDOUT("# --bench option implies -qH -R --write-performance-record --want-mkl-autotune --mkl-benchmark --types : --split-experimental %d --merge-experimental %d --also-transpose --sort-filenames-list --want-memory-benchmark\n",RSB_CONST_DEF_MS_AT_AUTO_STEPS,RSB_CONST_DEF_MS_AT_AUTO_STEPS);
+			want_filenamelist_sort = 1; /* 0x73666e6c: sfnl */
+			want_perf_dump = RSB_BOOL_TRUE; // 0x77707266
+			want_mkl_autotuner = 1.0;
+			want_mkl_autotuner = RSB_MAX(1.0,want_mkl_autotuner); // 0x776d6174
+			RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_QUAD_PARTITIONING); // -R
+#if RSB_USE_MKL
+			if(rsb__getenv_int_t("RSB_WANT_USE_MKL",1)==0)
+#endif /* RSB_USE_MKL */
+				RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_USE_HALFWORD_INDICES); // 0x71 = -qH
+			merge_experimental = split_experimental = RSB_CONST_DEF_MS_AT_AUTO_STEPS; /* msex */
+			want_mbw = RSB_BOOL_TRUE; /* 0x776d62: wmb */
+			tn = 2; /* 0x4150 */
+			typess=":"; /* 0x54 */
+			optarg = NULL; goto lab_0x7772740a; // 0x7772740a
 			break;
 			case 0x4B: /* K */
 			want_convert = RSB_BOOL_TRUE; /* FIXME: ignoring argument */
 			break;
 			case 0x55: /* U */
-			want_update = RSB_BOOL_TRUE; /* FIXME: ignoring argument */
+			want_update = RSB_BOOL_TRUE;
+			break;
+			case 0x4853: /* HS */
+			want_as_hermitian = RSB_BOOL_TRUE;
 			break;
 			case 0x5353: /* SS */
 			want_as_symmetric = RSB_BOOL_TRUE;
+			break;
+			case 0x4553: /* ES */
+			want_expand_symmetry = RSB_BOOL_TRUE;
 			break;
 			case 0x5555: /* UU */
 			want_as_unsymmetric = RSB_BOOL_TRUE;
@@ -8684,6 +10420,20 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			break;
 			case 0x6363:
 			/* this flag activates all interfaced libraries (if any) */
+#if RSB_WANT_ARMPL
+			want_armpl_bench = RSB_BOOL_TRUE;
+			RSB_STDOUT("# Using ARMPL.\n");
+			{
+				//void armplversion(armpl_int_t *major, armpl_int_t *minor, armpl_int_t *patch, const char **tag);
+				armplinfo();
+			}
+#endif /* RSB_WANT_ARMPL */
+			break;
+			case 0x776e6d6c:
+			/* this flag deactivates all interfaced libraries (if any) */
+#if RSB_WANT_ARMPL
+			want_armpl_bench = RSB_BOOL_FALSE;
+#endif /* RSB_WANT_ARMPL */
 			break;
 			case 0x6B: /* ncA */
 			want_column_expand = rsb__util_atoi(optarg);
@@ -8700,6 +10450,26 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			case 0x774446:	/* wde */
 			want_getdiag_bench = 1;
 			break;
+			case 0x776264:	/* wbd */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-implicit-diagonal\n");
+			diagin=2;
+			break;
+			case 0x61736875: /* ashu */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-symmetries\n");
+			asfin=3;
+			break;
+			case 0x616c6c69: /* alli */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-short-idx\n");
+			asiin=2;
+			break;
+			case 0x616363: /* acc */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-coo-csr\n");
+			accin=2;
+			break;
+			case 0x61726563: /* arec */
+			RSBENCH_STDOUT("# EXPERIMENTAL --also-recursive\n");
+			arecn=2;
+			break;
 			case 0x776E68:	/* wnh */
 			want_nonzeroes_distplot = 1;
 			break;
@@ -8714,27 +10484,32 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			case 0x77707373:	/* wpss */
 			want_print_per_subm_stats = RSB_BOOL_TRUE;
 			break;
-			case 0x776F6174:	/* woac */
+			case 0x776F6174:	/* woat */
 			want_accuracy_test = 2;
 			break;
+			case 0x776e6f66:	/* wnof */
+				g_fill_va_with_ones = RSB_BOOL_FALSE;
+			break;
 			case 0x776e7274:	/* wnrt */
+			RSBENCH_STDOUT("# Requesting no autotuning via --want-no-autotune\n");
 			want_autotuner = RSB_TIME_ZERO;
-			just_enter_tuning = 0;
 			wai=wat=0;
 			want_autotuner = merge_experimental = split_experimental = RSB_NEGATED_EXAGGERATED_TUNER_TIMES;
+			just_enter_tuning = 0;
 			break;
 			case 0x7772740a:	/* wrt */
-			/* want_autotuner = rsb__util_atof(optarg); */
+lab_0x7772740a:		/* want_autotuner = rsb__util_atof(optarg); */
 			{
+				const char *optarg_ = optarg ? optarg : "";
 				char wavv = 0x0;
-				int sargs = sscanf(optarg,"%lfs%dx%dt%c%c",&want_autotuner,&wai,&wat,&wav,&wavv);
+				int sargs = sscanf(optarg_,"%lfs%dx%dt%c%c",&want_autotuner,&wai,&wat,&wav,&wavv);
 
-				if(!*optarg)
+				if(!*optarg_)
 					sargs = 0;
-				RSBENCH_STDOUT(" Passed %d arguments via autotuning string \"%s\" (an empty string requests defaults)\n",sargs,optarg);
+				RSBENCH_STDOUT("# Passed %d arguments via autotuning string \"%s\" (an empty string requests defaults)\n",sargs,optarg_);
 				if(sargs < 0)
 				{
-					RSBENCH_STDOUT("Wrong autotuning string detected!\n");
+					RSBENCH_STDOUT("  Wrong autotuning string detected!\n");
 					rsb_test_help_and_exit(argv[0],options, 0);
 					exit(0);
 				}
@@ -8776,13 +10551,13 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			break;
 #endif
 			case 0x776d6174:	/* wmat */
-			sscanf(optarg,"%lf",&want_mkl_autotuner);
+			sscanf(optarg?optarg:"","%lf",&want_mkl_autotuner);
 			want_mkl_autotuner = RSB_MAX(1.0,want_mkl_autotuner); /* FIXME: actual value is unimportant as long as it is positive ! */
 			break;
 			case 0x776d6f62:	/* wmob */
 			mib = 1;
 			break;
-			case 0x776174:	/* wac */
+			case 0x776174:	/* wat */
 			want_accuracy_test = 1;
 			break;
 			case 0x767646:	/* wae */
@@ -8798,10 +10573,13 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			csr_w_filename = optarg;
 			break;
 			case 0x77707266:
-			fprfn = optarg;
+			fprfn = optarg ? optarg : "";
 			want_perf_dump = RSB_BOOL_TRUE;
-			if(optarg && !*optarg)
+			if(fprfn && !*fprfn)
 				fprfn = NULL;
+			else
+				RSBENCH_STDOUT("# performance record file set to: %s\n", fprfn);
+				/* and tuning matrix renderings as well */
 			break;
 			case 0x776e7072:
 			fprfn = NULL;
@@ -8818,7 +10596,7 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			break;
 			case 0x68: /* h */
 			/* should use rsb_test_help_and_exit */
-			RSBENCH_STDERR(
+			RSBENCH_STDOUT(
 				"%s "RSB_INFOMSG_SAK".\n"
 				"You can use it to perform sparse matrix - unitary vector multiplication, "
 				"specifying the blocking parameters, the times to perform multiplication.\n"
@@ -8851,16 +10629,54 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	    	}
 	}
 
+	if(typess)
+	{
+		const char*toa = typess;
+		ntypecodes=0; /* this neutralizes former -T ... option */
+		/* if( *typess == 0x3A || *typess == 0x2A ) */ /* : or * aka colon or asterisk */
+		if( ( ! isalpha(*typess) ) || ( strstr(typess,"all") != NULL ) )
+			toa = RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS ;
+		if( strstr(typess,"B") == typess )
+			toa = RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS;
+		for(;*toa;++toa)
+		if(isalpha(*toa))
+		{
+			if(ntypecodes<maxtypes)
+				typecodes[ntypecodes++]=typecode=toupper(*toa);
+			else
+			{
+				RSB_ERROR("Up to %d types supported! P.s.: Use a punctuation symbol to ask for all supported types.\n",maxtypes);
+				goto err;
+			}
+		}
+		typecodes[ntypecodes] = RSB_NUL;
+	}
+
 	if( (!RSB_DO_FLAG_HAS(flags_o,RSB_FLAG_QUAD_PARTITIONING)) && want_recursive != RSB_BOOL_FALSE )
 	{
 		RSB_WARN("Assuming a recursive matrix structure is requested...\n");
 		RSB_DO_FLAG_ADD(flags_o,RSB_FLAG_QUAD_PARTITIONING);
 	}
+	fnrprs[0]=RSB_NUL;
 	for (c = optind; c < argc; c++)                                                     
 	{
-		RSB_RSBENCH_ADDF(argv[c])
+		if( c == optind && optind == argc - 1 ) /* if only one and first */
+			rsb__mtxfn_bncp(fnrprs,rsb__basename(argv[c]),0);
+		RSB_RSBENCH_ADDF(argv[c],RSB_FAF_DEFAULTS)
 	}
-	if(want_verbose == RSB_BOOL_TRUE)
+	if(filenamen>0 && want_filenamelist_sort == 1)
+	{
+		RSBENCH_STDOUT("# Sorting matrices list (use --no-sort-filenames-list to prevent this)\n");
+		qsort(filenamea, filenamen, sizeof(char *), rsb__cmpstringp);
+	}
+	if( /* want_verbose > 0 && */ filenamen )
+	{
+		RSBENCH_STDOUT("# Using matrices:");
+		for ( filenamei = 0; filenamei < filenamen ; ++filenamei )
+			RSBENCH_STDOUT(" %s",rsb__basename(filenamea[filenamei]));
+		RSBENCH_STDOUT("\n");
+	}
+	if(want_verbose > 0)
 	{
 		rsb_char_t cbuf[RSB_MAX_COMPILE_COMMAND_LENGTH];
 		rsb__echo_timeandlabel(" beginning run at ","\n",&st);
@@ -8871,14 +10687,59 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 		else
 			RSBENCH_STDOUT("# compiled with: %s\n",cbuf);
 	}
+	if(cn == 1)
+		tcrprs = cns;
+	if(cns)
+	{
+		ca = NULL;
+		cn = 0;
+
+		RSB_DEBUG_ASSERT( sizeof(int) == sizeof(rsb_blk_idx_t )  );
+		RSB_DEBUG_ASSERT( sizeof(int) == sizeof(rsb_thread_t)  );
+
+		if(cns && *cns==0x3A/*colon*/)
+			errval=rsb__util_get_tn_array(cns,&cn,&ca);
+		else
+			errval=rsb__util_get_bx_array(cns,&cn,&ca);
+		if(RSB_SOME_ERROR(errval))
+			{RSB_ERROR(RSB_ERRM_ES);goto err;}
+		if(cn == 1)
+			tcrprs = cns;
+	}
+	else
+	{
+#if RSB_WANT_OMP_RECURSIVE_KERNELS
+		cn = 1;
+		ca_[0] = RSB__GET_MAX_THREADS();
+		RSBENCH_STDOUT("# User did not specify threads; assuming %d. Environment provides max %d threads; this build supports max %d.\n", cn, ca_[0], RSB_CONST_MAX_SUPPORTED_THREADS  );
+		if( RSB_CONST_MAX_SUPPORTED_THREADS  < ca_[0] )
+		{
+			RSBENCH_STDOUT("# Warning: environment provides more threads than supported by this configuration -- expect trouble !\n");
+		}
+		RSBENCH_STDOUT("# User did not specify threads; assuming %d. Environment provides max %d threads; this build supports max %d.\n", cn, ca_[0], RSB_CONST_MAX_SUPPORTED_THREADS  );
+#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
+		tcrprs = rsb__getenv("OMP_NUM_THREADS");
+	}
 	printf("# average timer granularity: %2.3lg s\n",tinf);
 	if(want_perf_dump)
 	{
 		if(!fprfn)
 		{
-			rsb__impcdstr(fprfnb,"rsbench_pr",".rpr",ppprfn,apprfn);
+			rsb_bool_t with_mkl = RSB_BOOL_FALSE;
+			rsb__impcdstr(fprfnb,"rsbench_pr",ppprfn,apprfn,with_mkl,tcrprs,fnrprs,".rpr");
 			fprfn = fprfnb;
 		}
+
+		if(fprfn)
+		{
+			const size_t sl = strlen(fprfn);
+
+			strcpy(mtrfpf,fprfn);
+			if( sl >=4 && strcmp(".rpr",mtrfpf+sl-4) == 0 )
+				mtrfpf[sl-4]=RSB_NUL;
+			strcat(mtrfpf,"-tuning-");
+		}
+
 		if(!cprfn)
 			rsb__sprintf(cprfnb,"%s.tmp",fprfn),
 			cprfn = cprfnb;
@@ -8891,8 +10752,6 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	RSBENCH_STDOUT("# will flush cache memory: %s between each operation measurement series, and %s between each operation.\n", want_outer_flush?"":"NOT", want_inner_flush?"":"NOT");
 	RSBENCH_STDOUT("# will %s any zero encountered in the matrix.\n", ( RSB_DO_FLAG_HAS(flags_o,RSB_FLAG_DISCARD_ZEROS) )?"discard":"keep");
 	if( nrhsa == NULL ) nrhsa = &nrhs;
-	if( incXa == NULL ) incXa = &incX;
-	if( incYa == NULL ) incYa = &incY;
 	if(want_likwid == RSB_BOOL_TRUE){RSB_LIKWID_MARKER_INIT;}
 
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE
@@ -8906,9 +10765,9 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	}
 
 	io.n_pairs=0;
-	if(should_use_alternate_sort)
+	if(should_use_alternate_sort!=0)
 	{
-		io.values[io.n_pairs]=&should_use_cb_method;
+		io.values[io.n_pairs]=&should_use_alternate_sort;
 		io.keys[io.n_pairs]=RSB_IO_WANT_SORT_METHOD;
 		io.n_pairs++;
 	}
@@ -8945,9 +10804,45 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 		io.n_pairs++;
 	}
 
+#if RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE
+	{
+		static rsb_int_t one=1; // static: needs to survive context leave
+		io.values[io.n_pairs]=&one;
+		io.keys[io.n_pairs]=RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE;
+		io.n_pairs++;
+	}
+#endif /* RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE */
+
+	if(want_verbose >= 2)
+	{
+		static FILE *sp = NULL;
+		sp = RSB_DEFAULT_STREAM;
+		io.values[io.n_pairs]=&sp;
+		io.keys[io.n_pairs]=RSB_IO_WANT_VERBOSE_EXIT;
+		io.n_pairs++;
+	}
+
+	if(want_verbose > 1)
+	{
+		static rsb_int_t one=1; // static: needs to survive context leave
+		io.values[io.n_pairs]=&one;
+		io.keys[io.n_pairs]=RSB_IO_WANT_VERBOSE_TUNING;
+		io.n_pairs++;
+	}
+
+#if RSB_HAVE_STREAMS
+	if(want_verbose >= 2)
+	{
+		static FILE *sp = NULL;
+		sp = RSB_DEFAULT_STREAM;
+		io.values[io.n_pairs]=&sp;
+		io.keys[io.n_pairs]=RSB_IO_WANT_VERBOSE_INIT;
+		io.n_pairs++;
+	}
+#endif /* RSB_HAVE_STREAMS */
+
 #ifdef RSB_HAVE_UNISTD_H
 {
-	extern char **environ;
 	char **me = NULL;
 	rsb_int_t rpevc = 0; /* RSB_ prefixed environment variables count */
 
@@ -8965,57 +10860,131 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 }
 #endif /* RSB_HAVE_UNISTD_H */
 	
-	RSB_TM_GETENV_STDOUT("LD_LIBRARY_PATH");
-	RSB_TM_GETENV_STDOUT("HOSTNAME");
+#define RSB_TM_GETENV_STDOUT(VAR)						\
+	if( rsb__getenv(VAR) )							\
+		RSB_STDOUT("# env: export " VAR "=%s\n",rsb__getenv(VAR));	\
+	else									\
+		RSB_STDOUT("# env: " VAR " is not set\n");
+
+	if(want_verbose >= -2)
+	{
+		RSB_TM_GETENV_STDOUT("PATH");
+		RSB_TM_GETENV_STDOUT("LD_LIBRARY_PATH");
+		RSB_TM_GETENV_STDOUT("HOSTNAME");
 #if defined(RSB_WANT_OMP_RECURSIVE_KERNELS) && (RSB_WANT_OMP_RECURSIVE_KERNELS>0)
-	RSB_TM_GETENV_STDOUT("KMP_AFFINITY");
-	RSB_TM_GETENV_STDOUT("OMP_AFFINITY_FORMAT");
-	RSB_TM_GETENV_STDOUT("OMP_ALLOCATOR");
-	RSB_TM_GETENV_STDOUT("OMP_CANCELLATION");
-	RSB_TM_GETENV_STDOUT("OMP_DEBUG");
-	RSB_TM_GETENV_STDOUT("OMP_DEFAULT_DEVICE");
-	RSB_TM_GETENV_STDOUT("OMP_DISPLAY_ENV");
-	RSB_TM_GETENV_STDOUT("OMP_DISPLAY_AFFINITY");
-	RSB_TM_GETENV_STDOUT("OMP_DYNAMIC");
-	RSB_TM_GETENV_STDOUT("OMP_MAX_ACTIVE_LEVELS");
-	RSB_TM_GETENV_STDOUT("OMP_MAX_TASK_PRIORITY");
-	RSB_TM_GETENV_STDOUT("OMP_NESTED");
-	RSB_TM_GETENV_STDOUT("OMP_NUM_THREADS");
-	RSB_TM_GETENV_STDOUT("OMP_PLACES");
-	RSB_TM_GETENV_STDOUT("OMP_PROC_BIND");
-	RSB_TM_GETENV_STDOUT("OMP_SCHEDULE");
-	RSB_TM_GETENV_STDOUT("OMP_STACKSIZE");
-	RSB_TM_GETENV_STDOUT("OMP_TARGET_OFFLOAD");
-	RSB_TM_GETENV_STDOUT("OMP_THREAD_LIMIT");
-	RSB_TM_GETENV_STDOUT("OMP_TOOL");
-	RSB_TM_GETENV_STDOUT("OMP_TOOL_LIBRARIES");
-	RSB_TM_GETENV_STDOUT("OMP_WAIT_POLICY");
-	RSB_TM_GETENV_STDOUT("SLURM_CLUSTER_NAME");
-	RSB_TM_GETENV_STDOUT("SLURM_CPUS_ON_NODE");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_CPUS_PER_NODE");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_ID");
-	RSB_TM_GETENV_STDOUT("SLURM_JOBID");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_NAME");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_NUM_NODES");
-	RSB_TM_GETENV_STDOUT("SLURM_JOB_PARTITION");
-	RSB_TM_GETENV_STDOUT("SLURM_NPROCS");
-	RSB_TM_GETENV_STDOUT("SLURM_NTASKS");
-	RSB_TM_GETENV_STDOUT("SLURM_STEP_TASKS_PER_NODE");
-	RSB_TM_GETENV_STDOUT("SLURM_TASKS_PER_NODE");
+		RSB_TM_GETENV_STDOUT("KMP_AFFINITY");
+		RSB_TM_GETENV_STDOUT("OMP_AFFINITY_FORMAT");
+		RSB_TM_GETENV_STDOUT("OMP_ALLOCATOR");
+		RSB_TM_GETENV_STDOUT("OMP_CANCELLATION");
+		RSB_TM_GETENV_STDOUT("OMP_DEBUG");
+		RSB_TM_GETENV_STDOUT("OMP_DEFAULT_DEVICE");
+		RSB_TM_GETENV_STDOUT("OMP_DISPLAY_ENV");
+		RSB_TM_GETENV_STDOUT("OMP_DISPLAY_AFFINITY");
+		RSB_TM_GETENV_STDOUT("OMP_DYNAMIC");
+		RSB_TM_GETENV_STDOUT("OMP_MAX_ACTIVE_LEVELS");
+		RSB_TM_GETENV_STDOUT("OMP_MAX_TASK_PRIORITY");
+		RSB_TM_GETENV_STDOUT("OMP_NESTED");
+		RSB_TM_GETENV_STDOUT("OMP_NUM_THREADS");
+		RSB_TM_GETENV_STDOUT("OMP_PLACES");
+		RSB_TM_GETENV_STDOUT("OMP_PROC_BIND");
+		RSB_TM_GETENV_STDOUT("OMP_SCHEDULE");
+		RSB_TM_GETENV_STDOUT("OMP_STACKSIZE");
+		RSB_TM_GETENV_STDOUT("OMP_TARGET_OFFLOAD");
+		RSB_TM_GETENV_STDOUT("OMP_THREAD_LIMIT");
+		RSB_TM_GETENV_STDOUT("OMP_TOOL");
+		RSB_TM_GETENV_STDOUT("OMP_TOOL_LIBRARIES");
+		RSB_TM_GETENV_STDOUT("OMP_WAIT_POLICY");
 	//	tcrprs = rsb__set_num_threads() ;
 #else
-	RSB_STDOUT("# serial build: ignoring environment variables: KMP_AFFINITY OMP_PROC_BIND OMP_NUM_THREADS\n");
+		RSB_STDOUT("# serial build: ignoring environment variables: KMP_AFFINITY OMP_PROC_BIND OMP_NUM_THREADS\n");
 #endif
+		RSB_TM_GETENV_STDOUT("RSB_WANT_RSBPP");
+		{
+#if RSB_USE_LIBRSBPP
+			const int wrp = rsb__getenv_int_t("RSB_WANT_RSBPP",1);
+			if(wrp==0)
+				RSBENCH_STDOUT("# NOT using kernels from librsbpp (opted off via environment variable).\n");
+			else
+				RSBENCH_STDOUT("#     using kernels from librsbpp (default).\n");
+#else
+			const int wrp = rsb__getenv_int_t("RSB_WANT_RSBPP",0);
+			if(wrp!=0)
+			{
+				RSBENCH_STDOUT("Error: RSB_WANT_RSBPP environment variable set but librsbpp configured out!\n");
+				goto err;
+			}
+#endif /* RSB_USE_LIBRSBPP */
+		}
+		RSB_TM_GETENV_STDOUT("SLURM_CLUSTER_NAME");
+		RSB_TM_GETENV_STDOUT("SLURM_CPUS_ON_NODE");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_CPUS_PER_NODE");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_ID");
+		RSB_TM_GETENV_STDOUT("SLURM_JOBID");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_NAME");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_NUM_NODES");
+		RSB_TM_GETENV_STDOUT("SLURM_JOB_PARTITION");
+		RSB_TM_GETENV_STDOUT("SLURM_NPROCS");
+		RSB_TM_GETENV_STDOUT("SLURM_NTASKS");
+		RSB_TM_GETENV_STDOUT("SLURM_STEP_TASKS_PER_NODE");
+		RSB_TM_GETENV_STDOUT("SLURM_TASKS_PER_NODE");
+		if(1)
+		{
+			rsb_char_t hn[RSB_MAX_HOSTNAME_LEN];
+			rsb__strcpy_hostname(hn);
+			if(hn[0])
+				RSBENCH_STDOUT("# detected hostname: %s\n",hn);
+		}
 
-	if( want_verbose != RSB_BOOL_FALSE )
-		RSBENCH_STDOUT("# user specified a verbosity level of %d (each --verbose occurrence counts +1)\n",want_verbose_tuning );
-	else
-		RSBENCH_STDOUT("# user did not specify any verbosity level (each --verbose occurrence counts +1)\n");
+		if( want_verbose >= 0 )
+			RSBENCH_STDOUT("# user specified a verbosity level of %d (each --verbose occurrence counts +1)\n",want_verbose_tuning );
+		else
+			RSBENCH_STDOUT("# user did not specify any verbosity level (each --verbose occurrence counts +1)\n");
+	}
 
 	if((errval = rsb_lib_reinit(iop))!=RSB_ERR_NO_ERROR)
 	{
 		RSB_PERR_GOTO(err,"Error while reinitializing the library.");
 	}
+
+	if ( want_mbw == RSB_BOOL_TRUE ) 
+	{
+		rsb_time_t dt = RSB_TIME_ZERO;
+		dt = - rsb_time();
+		if((errval = rsb__memory_benchmark(&mbet))!=RSB_ERR_NO_ERROR)
+		{
+			RSB_ERROR("Error while performing bandwidth benchmark!");
+			goto err;
+		}
+		else
+			mbetp = &mbet; // FIXME: need option to turn this feature on/off
+		dt += rsb_time();
+		if( want_verbose >= 1 )
+			RSB_STDOUT("# Memory benchmark took %.3lfs\n",dt);
+	}
+
+#ifdef RSB_HAVE_UNISTD_H
+{
+	/* special environmental variables set just for the sake of being saved in .rpr files */
+#ifdef RSB_CC
+	setenv("RSB_CC",RSB_CC,1);
+#endif /* RSB_CC */
+#ifdef RSB_CFLAGS
+	setenv("RSB_CFLAGS",RSB_CFLAGS,1);
+#endif /* RSB_CFLAGS */
+#ifdef RSB_DETECTED_MEM_HIERARCHY_INFO
+	setenv("RSB_DETECTED_MEM_HIERARCHY_INFO",RSB_DETECTED_MEM_HIERARCHY_INFO,1);
+#endif /* RSB_DETECTED_MEM_HIERARCHY_INFO */
+	{
+		rsb_char_t buf[RSB_MAX_LINE_LENGTH];
+		rsb_char_t usmhib[RSB_MAX_LINE_LENGTH];
+		buf[0]=RSB_NUL;
+		strcat(buf,rsb__get_mem_hierarchy_info_string(usmhib));
+		//rsb_lib_get_opt(RSB_IO_WANT_MEMORY_HIERARCHY_INFO_STRING,buf);//FIXME
+		setenv("RSB_IO_WANT_MEMORY_HIERARCHY_INFO_STRING",&buf[0],1);
+	}
+}
+#endif
+
 #if RSB_WANT_PERFORMANCE_COUNTERS_IN_RSBENCH 
 	if((errval = rsb_perf_counters_init())!=RSB_ERR_NO_ERROR)
 	{
@@ -9024,11 +10993,11 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 	}
 #endif
 
-	if( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( split_experimental ) )
+	if( RSB__APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB__APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB__APPROPRIATE_AT_TIME_SPEC( split_experimental ) )
 	{
 		RSB_STDOUT("# auto-tuning oriented output implies  times==0 iterations and sort-after-load.\n");
 		times = 0;
-		/* if(want_verbose) */
+		/* if(want_verbose>0) */
 		want_impatiently_soon_pre_results = 1;
 		want_sort_after_load = RSB_BOOL_TRUE;
 	}
@@ -9044,56 +11013,38 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 
 	if( 0 == filenamen )
 #if RSB_RSBENCH_STATIC_FILENAMEA
-	       	filenamea[0] = fnbufp[0];
+	       	filenamea[0] = &(fnbuf[0]);
 #else
 	       	filenamea = &fnbufp;
 #endif
 	filenamen = RSB_MAX(1,filenamen);
 
-	if(cns)
-	{
-		ca = NULL;
-		cn = 0;
-		if(RSB_SOME_ERROR(rsb__util_get_bx_array(cns,&cn,&ca)))
-			{RSB_ERROR(RSB_ERRM_ES);goto err;}
-	}
-	else
-	{
-#if RSB_WANT_OMP_RECURSIVE_KERNELS
-		/* #define rsb_get_max_threads omp_get_max_threads */
-		cn = 1;
-		ca_[0] = omp_get_max_threads ();
-		RSBENCH_STDOUT("# User did not specify threads; assuming %d.\n", cn );
-#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
-	}
-
-
 
 	if(want_perf_dump) 
-		rsb__pr_init(&rspr, NULL, filenamen, cn, incXn, incYn, nrhsn, ntypecodes, tn);
+		rsb__pr_init(&rspr, NULL, filenamen, cn, incXn, incYn, nrhsn, ntypecodes, tn, mbetp );
 
 	for(     filenamei=0;     filenamei<filenamen+want_impatiently_soon_pre_results  ;++filenamei     )
 	{
-		if( filenamea && ( filenamea[filenamei] != filename_old) && filename_old && want_impatiently_soon_pre_results && want_perf_dump && filenamei>0 && filenamen>1) 
+		if( /*filenamea &&*/ ( filenamea[filenamei] != filename_old) && filename_old && want_impatiently_soon_pre_results && want_perf_dump && filenamei>0 && filenamen>1) 
 		{
 			int filenameif = filenamei-1;
 			RSBENCH_STDOUT("# ====== BEGIN Impatient results record for matrix %d/%d: %s.\n",filenamei,filenamen,rsb__basename(filename_old));
-			errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL);
+			errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL, NULL);
 			RSBENCH_STDOUT("# ======  END  Impatient results record for matrix %d/%d: %s.\n",filenamei,filenamen,rsb__basename(filename_old));
 			if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
 			if( filenameif > 0 && filenameif < filenamen-1) /* not after first and not at last */
 				RSBENCH_STDOUT("# ====== BEGIN Impatient summary record for the %d/%d matrices so far.\n", filenameif+1,filenamen),
-				errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL),
+				errval = rsb__pr_dump_inner(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, NULL,&filenameif, NULL, NULL, NULL, NULL, NULL, NULL, NULL, RSB_FLAG_NOFLAGS, RSB_FLAG_NOFLAGS, NULL, NULL),
 				RSBENCH_STDOUT("# ======  END  Impatient summary record for the %d/%d matrices so far.\n", filenameif+1,filenamen);
 			if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
-			errval = rsb__pr_save(cprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE );
+			errval = rsb__pr_save(cprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE);
 			if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
 		}
 
 		if( filenamei >= filenamen )
 			continue; /* temporary: only for the want_impatiently_soon_pre_results trick */
 
-		if(filenamea)
+		if(filenamea[filenamei])
 		{
 			filename = filenamea[filenamei];
 		}
@@ -9103,21 +11054,46 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			RSBENCH_STDOUT("# multi-file benchmarking (file %d/%d) -- now using %s\n",filenamei+1,filenamen,rsb__basename(filename));
 		}
 
-	for(     incXi=0;     incXi<incXn     ;++incXi     )
+
+	for(areci=0;areci<arecn;++areci)
 	{
-	for(     incYi=0;     incYi<incYn     ;++incYi     )
+	for(accii=0;accii<accin;++accii)
 	{
-	for(     nrhsi=0;     nrhsi<nrhsn     ;++nrhsi     )
+	for(asiii=0;asiii<asiin;++asiii)
+	{
+	for(asfii=0;asfii<asfin;++asfii)
+	{
+	for(diagii=0;diagii<diagin;++diagii)
 	{
 	for(typecodesi=0;typecodesi<ntypecodes;++typecodesi)
 	{
 	rsb_flags_t flags = flags_o;
 	rsb_thread_t cl; /* cores number last (overrides cn for this typecode cycle) */
 	typecode = typecodes[typecodesi];
-
+	if(areci==0 && arecn > 1)
+		RSB_DO_FLAG_DEL(flags,RSB_FLAG_QUAD_PARTITIONING);
+	if(areci==1 && arecn > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_QUAD_PARTITIONING);
+	if(accii==0 && accin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_USE_HALFWORD_INDICES);
+	if(accii==1 && accin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_USE_FULLWORD_INDICES);
+	if(asiii==0 && asiin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_WANT_BCSS_STORAGE);
+	if(asiii==1 && asiin > 1)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_WANT_COO_STORAGE);
+	if(asfii==0 && asfin > 1)
+		want_as_unsymmetric = RSB_BOOL_TRUE, want_as_symmetric = RSB_BOOL_FALSE, want_as_hermitian = RSB_BOOL_FALSE;
+	if(asfii==1)
+		want_as_unsymmetric = RSB_BOOL_FALSE, want_as_symmetric = RSB_BOOL_TRUE, want_as_hermitian = RSB_BOOL_FALSE;
+	if(asfii==2)
+		want_as_unsymmetric = RSB_BOOL_FALSE, want_as_symmetric = RSB_BOOL_FALSE, want_as_hermitian = RSB_BOOL_TRUE;
+	if(diagii>0)
+		RSB_DO_FLAG_XOR(flags,RSB_FLAG_UNIT_DIAG_IMPLICIT);
 	if(ntypecodes>1)
 	{
-		RSBENCH_STDOUT("# multi-type benchmarking (%s) -- now using typecode %c (last was %c).\n",typecodes,typecode,typecode_old);
+		if(want_verbose >= -2)
+			RSBENCH_STDOUT("# multi-type benchmarking (%s) -- now using typecode %c (last was %c).\n",typecodes,typecode,typecode_old);
 		if( RSB_MATRIX_UNSUPPORTED_TYPE ( typecode ) )
 		{
 			RSBENCH_STDOUT("# Skipping unsupported type \"%c\" -- please choose from \"%s\".\n",typecode,RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS );
@@ -9125,38 +11101,22 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 		}
 	}
 
-	nrhs = nrhsa[nrhsi];
-	if( nrhsn > 1 && nrhss )
+	if(want_verbose >= -2)
 	{
-		RSBENCH_STDOUT("# multi-nrhs benchmarking (%s) -- now using nrhs %d.\n",nrhss,nrhs);
+		RSBENCH_STDOUT("# Cache block size total %ld bytes, per-thread %ld bytes\n",rsb__get_lastlevel_c_size(),rsb__get_lastlevel_c_size_per_thread()); /* as used in rsb__allocate_recursive_sparse_matrix_from_row_major_coo */
+ 		RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
+		RSBENCH_MEM_ALLOC_INFO("")
+		RSBENCH_STDOUT(".\n");
 	}
-	incX = incXa[incXi];
-	incY = incYa[incYi];
-	if(incXn>1)
-	{
-		RSBENCH_STDOUT("# multi-incX benchmarking (%d/%d) -- now using incX=%d.\n",incXi+1,incXn,incX);
-	}
-	if(incYn>1)
-	{
-		RSBENCH_STDOUT("# multi-incY benchmarking (%d/%d) -- now using incY=%d.\n",incYi+1,incYn,incY);
-	}
-
-	if( want_only_star_scan )
-		if( RSB_MIN(incXi,1) + RSB_MIN(incYi,1) + RSB_MIN(nrhsi,1) > 1 ) /* two or more exceed index one */
-		{
-			RSBENCH_STDOUT("# Skipping a case with incX=%d incY=%d nrhs=%d.\n",incX,incY,nrhs);
-			goto frv;
-		}
- 	RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
-	/* rsb__getrusage(); */ /* FIXME: new (20140727) */
-#ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
-	RSBENCH_STDOUT("( allocated_memory:%zd allocations_count:%zd)",rsb_global_session_handle.allocated_memory,rsb_global_session_handle.allocations_count);
-#endif
-	RSBENCH_STDOUT(".\n"); /* FIXME: this takes too much space here ! */
 
 	if(cns)
 	{
-		cc = ca[ci];
+		cc = ca[0];
+		if( cc == 0 )
+			RSBENCH_STDOUT("# Using auto threads\n");
+		else
+			RSBENCH_STDOUT("# Using %d threads\n",(int)cc);
+		RSB_DEBUG_ASSERT( cc == 0 || RSB_IS_VALID_THREAD_COUNT ( cc ) );
 	}
 	cl=cn;
 	if(bcs)
@@ -9167,7 +11127,6 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 			{RSB_ERROR(RSB_ERRM_ES);goto err;}
 
 
-
 #ifdef RSB_WANT_OSKI_BENCHMARKING 
 	/* FIXME : note that this option is not compatible with g_sort_only .. */
         oski_Init();
@@ -9176,7 +11135,7 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 
 	if(g_sort_only)RSB_DO_FLAG_ADD(flags,RSB_FLAG_SORT_INPUT);
 
-	if(typecode==-1)
+	if( RSB_MATRIX_UNSUPPORTED_TYPE ( typecode ) )
 	{
 		RSBENCH_STDERR("error : please recompile with double precision floating point numbers supported! \n");
 		return RSB_ERR_GENERIC_ERROR;
@@ -9207,39 +11166,40 @@ int rsb__main_block_partitioned_mat_stats(const int argc, rsb_char_t * const arg
 		
 		if(((should_generate_lband>-1) || (should_generate_uband>-1)) && should_generate_dense>0)
 		{
-			rsb__sprintf(fnbuf,"banded-%dx%d-%d+%d-%dnz-spaced-%d",dim*spacing,dim*spacing,should_generate_lband,should_generate_uband,RSB_NNZ_OF_BANDED(dim,should_generate_lband,should_generate_uband),spacing);
+			rsb__sprintf(fnbuf,"banded-%zdx%zd-%zd+%zd-%zdnz-spaced-%zd",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)should_generate_lband,(rsb_printf_int_t)should_generate_uband,(rsb_printf_int_t)(RSB_NNZ_OF_BANDED(dim,should_generate_lband,should_generate_uband)),(rsb_printf_int_t)spacing);
 		}
 		else
 		{
 		if(want_generated_spacing>0)
 		{
 			if(should_generate_dense>0)
-				rsb__sprintf(fnbuf,"dense-%dx%d-%dnz",dim*spacing,should_generate_dense_nc*spacing/*dim*spacing*/,dim*dim);
+				rsb__sprintf(fnbuf,"dense-%zdx%zd-%zdnz",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(should_generate_dense_nc*spacing)/*dim*spacing*/,(rsb_printf_int_t)(dim*dim));
 			else
-				rsb__sprintf(fnbuf,"lower-%dx%d-%dnz-spaced-%d",dim*spacing,dim*spacing,(dim*(dim-1))/2+dim,spacing);
+				rsb__sprintf(fnbuf,"lower-%zdx%zd-%zdnz-spaced-%zd",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)((dim*(dim-1))/2+dim),(rsb_printf_int_t)spacing);
 		}
 		else
 		{
 			if(should_generate_dense>0)
-				rsb__sprintf(fnbuf,"dense-%dx%d-%dnz",dim*spacing,should_generate_dense_nc*spacing/*dim*spacing*/,dim*should_generate_dense_nc);
+				rsb__sprintf(fnbuf,"dense-%zdx%zd-%zdnz",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(should_generate_dense_nc*spacing/*dim*spacing*/),(rsb_printf_int_t)(dim*should_generate_dense_nc));
 			else
-				rsb__sprintf(fnbuf,"lower-%dx%d-%dnz",dim*spacing,dim*spacing,(dim*(dim-1))/2+dim);
+				rsb__sprintf(fnbuf,"lower-%zdx%zd-%zdnz",(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)(dim*spacing),(rsb_printf_int_t)((dim*(dim-1))/2+dim));
 		}
 		}
-		if(want_incX)
-				rsb__sprintf(fnbuf+strlen(fnbuf),"-incX-%d",incX);
-		if(want_incY)
-				rsb__sprintf(fnbuf+strlen(fnbuf),"-incY-%d",incY);
 /*		rsb__sprintf(fnbuf,"dense-%dx%d-%dnz",dim,dim,dim*dim);*/
 /*		rsb__sprintf(fnbuf,"dense-%dx%d",dim,dim);*/
 		filename=&(fnbuf[0]);
+		// RSB_RSBENCH_ADDF(filename,RSB_FAF_CHKDUP|RSB_FAF_CHKREC|RSB_FAF_VRBADD); /* FIXME */
 	}
 
 	if(usfnbuf)
 		filename=usfnbuf;
 
 	/* CONDITIONALLY, READING A MATRIX FROM FILE */
-if(filename || b_r_filename)
+if(!(filename || b_r_filename))
+{
+	RSBENCH_STDOUT("%s (mat_stats) : Please specify a matrix filename (with -f)\n",argv[0]);
+}
+else
 {
 
 	rsb_blk_idx_t M_b=0;/* was 0 */
@@ -9282,7 +11242,7 @@ if(filename || b_r_filename)
 	{
 		rsb_bool_t is_symmetric = RSB_BOOL_FALSE;
 		rsb_bool_t is_hermitian = RSB_BOOL_FALSE;
-		size_t fsz = rsb__sys_filesize(filename);
+		const size_t fsz = rsb__sys_filesize(filename);
 
 		frt = - rsb_time();
 
@@ -9331,21 +11291,21 @@ if(filename || b_r_filename)
 		}
 		if( want_slmn > 0 && want_slmn <  nnz )
 		{
-			RSB_STDOUT("# skipping loading matrix %s, having %d > %d allowed nonzeroes.\n",filename,nnz,want_slmn);
+			RSB_STDOUT("# skipping loading matrix %s, having %zd > %zd allowed nonzeroes.\n",filename,(rsb_printf_int_t)nnz,(rsb_printf_int_t)want_slmn);
 			goto nfnm;
 		}
 		if( want_slms > 0 && want_slms <= fsz / 1024 )
 		{
-			RSB_STDOUT("# skipping loading matrix %s, having %zd>=%d allowed filesize (KiB).\n",filename,fsz,want_slms);
+			RSB_STDOUT("# skipping loading matrix %s, having %zd>=%zd allowed filesize (KiB).\n",filename,(size_t)fsz,(size_t)want_slms);
 			goto nfnm;
 		}
 		if( want_slnn > 0 && want_slnn >  nnz )
 		{
-			RSB_STDOUT("# skipping loading matrix %s, having %d < %d allowed nonzeroes.\n",filename,nnz,want_slnn);
+			RSB_STDOUT("# skipping loading matrix %s, having %zd < %zd allowed nonzeroes.\n",filename,(rsb_printf_int_t)nnz,(rsb_printf_int_t)want_slnn);
 			goto nfnm;
 		}
 	
-		RSB_STDOUT("# reading %s (%zd bytes / %zd "RSB_MEGABYTE_SYM" / %zd nnz / %zd rows / %zd columns / %zd MiB COO) as type %c...\n",rsb__basename(filename),fsz,RSB_DIV(fsz,RSB_MEGABYTE),(size_t)nnz,(size_t)nrA,(size_t)ncA,RSB_DIV(RSB_UTIL_COO_OCCUPATION(nrA,ncA,nnz,typecode),RSB_MEGABYTE),typecode);
+		RSB_STDOUT("# reading %s (%zd bytes / %zd "RSB_MEGABYTE_SYM" / %zd nnz / %zd rows / %zd columns / %zd MiB COO) as type %c...\n",rsb__basename(filename),fsz,RSB_DIV(fsz,RSB_MEGABYTE),(size_t)nnz,(size_t)nrA,(size_t)ncA,(size_t)RSB_DIV(RSB_UTIL_COO_OCCUPATION(nrA,ncA,nnz,typecode),RSB_MEGABYTE),typecode);
 
 		if( ( nrA == ncA ) && ( nrA > 1 ) && ( want_only_lowtri || want_only_upptri ) )
 			nnz += nrA;	/* the loading routine shall allocate nnz+nrA */
@@ -9376,10 +11336,77 @@ if(filename || b_r_filename)
 				(((double)rsb__sys_filesize(filename))/(frt*RSB_INT_MILLION))
 			);
 
+			if( mtx_sample_rate < 100.0 && nnz > 0 )
+			{
+				const rsb_nnz_idx_t snnz = RSB_MAX( (mtx_sample_rate * ( nnz / 100.0 )), 1);
+				const rsb_real_t isf = 100.0 / mtx_sample_rate;
+				rsb_coo_idx_t dnzi, snzi;
+				struct rsb_coo_mtx_t coo = {IA,JA,0,0,nnz,VA,typecode};
+
+				if( snnz < 0 || snnz > nnz )
+				{
+					errval = RSB_ERR_BADARGS;
+					RSB_PERR_GOTO(err,RSB_ERRM_BADARGS);
+				}
+
+				for( snzi=0, dnzi=0 ; snzi < nnz; (++dnzi) , snzi = dnzi*isf )
+				{
+					RSB_COO_MEMCPY(VA,IA,JA,VA,IA,JA,dnzi,snzi,1,RSB_SIZEOF(typecode));
+				}
+				RSB_COO_MEMCPY(VA,IA,JA,VA,IA,JA,snnz-1,nnz-1,1,RSB_SIZEOF(typecode));
+
+				RSBENCH_STDOUT("# Matrix sampling: using only %zd nonzeroes out of read %zd.\n",(rsb_printf_int_t)snnz,(rsb_printf_int_t)nnz);
+				if( NULL == rsb__reallocate_coo_matrix_t(&coo, snnz) )
+				{
+					errval = RSB_ERR_ENOMEM;
+					RSB_PERR_GOTO(err,RSB_ERRM_ENOMEM);
+				}
+				VA = coo.VA;
+				IA = coo.IA;
+				JA = coo.JA;
+				nnz = snnz;
+			}
+
+			if ( g_fill_va_with_ones )
+			if(RSB_SOME_ERROR(errval = rsb__fill_with_ones(VA,typecode,nnz,1)))
+			{
+				RSB_PERR_GOTO(err,rsb__get_errstr_ptr(errval));
+			}
+
+			if ( is_symmetric || is_hermitian )
+			if ( want_expand_symmetry )
+			{
+				// Note: might want to move this to internals, e.g. matrix ctor
+				struct rsb_coo_mtx_t coo = {IA,JA,0,0,nnz,VA,typecode};
+
+				if( RSB_NNZ_MUL_OVERFLOW(nnz,2) )
+				{
+					errval = RSB_ERR_INTERNAL_ERROR;
+					RSB_PERR_GOTO(err,RSB_ERRM_ES);
+				}
+
+				if( NULL == rsb__reallocate_coo_matrix_t(&coo, nnz*2) )
+				{
+					errval = RSB_ERR_ENOMEM;
+					RSB_PERR_GOTO(err,RSB_ERRM_ENOMEM);
+				}
+
+				VA = coo.VA;
+				IA = coo.IA;
+				JA = coo.JA;
+				RSB_COO_MEMCPY(VA,IA,JA,VA,JA,IA,nnz,0,nnz,RSB_SIZEOF(typecode)); // transposed copy
+				nnz *= 2;
+				RSBENCH_STDOUT("# Expanded symmetry to %zd nnz (to be cleansed of diagonal duplicates). Deleting and symmetry / hermitianness flags.\n",(size_t)nnz);
+				RSB_DO_FLAG_DEL(flags,RSB_FLAG_SYMMETRIC);
+				RSB_DO_FLAG_DEL(flags,RSB_FLAG_HERMITIAN);
+				is_symmetric = RSB_BOOL_FALSE;
+				is_hermitian = RSB_BOOL_FALSE;
+			}
+
 			if (want_io_only)
 			{
 				/*  */
-				goto err;
+				goto rret;
 			}
 
 			if(want_transpose)
@@ -9392,34 +11419,44 @@ if(filename || b_r_filename)
 			if( nrA==ncA && nrA>1 && ( want_only_lowtri || want_only_upptri ) )
 			{
 				rsb_nnz_idx_t discarded = 0;
-				/*
-				rsb__util_coo_array_set_sequence(IA+nnz,nrA,0,1);
-				rsb__util_coo_array_set_sequence(JA+nnz,nrA,0,1);
-				 */
-				RSB_FCOO_ISET(IA+nnz,0,nrA);
-				RSB_FCOO_ISET(JA+nnz,0,nrA);
+				struct rsb_coo_mtx_t coo = {IA,JA,0,0,nnz,VA,typecode};
+
+				if( NULL == rsb__reallocate_coo_matrix_t(&coo, nnz+nrA) )
+				{
+					errval = RSB_ERR_ENOMEM;
+					RSB_PERR_GOTO(err,RSB_ERRM_ENOMEM);
+				}
+
+				VA = coo.VA;
+				IA = coo.IA;
+				JA = coo.JA;
+
+				RSBENCH_STDOUT("# excluding a triangle and forcibly adding diagonal elements (duplicates will be removed)\n");
+				RSB_FCOO_ISET(IA+nnz,0,nrA); // rsb__util_coo_array_set_sequence(IA+nnz,nrA,0,1); // may want to use this instead
+				RSB_FCOO_ISET(JA+nnz,0,nrA); // rsb__util_coo_array_set_sequence(JA+nnz,nrA,0,1); // may want to use this instead
 				rsb__fill_with_ones(((rsb_byte_t*)VA)+RSB_SIZEOF(typecode)*nnz,typecode,nrA,1);
-				nnz += nrA;	/* nnz+nrA this number has been overwritten as nnz */
+				nnz += nrA;
+
 				if( want_only_lowtri )
 				{
 					RSB_DO_FLAG_ADD(flags,RSB_FLAG_LOWER_TRIANGULAR);
 					errval = rsb__weed_out_non_lowtri(VA,IA,JA,nnz,typecode,NULL,&discarded);
-					RSBENCH_STDOUT("# discarding %d non lower elements of %d.\n",discarded,nnz);
+					RSBENCH_STDOUT("# discarded %zd non lower elements of %zd.\n",(rsb_printf_int_t)discarded,(rsb_printf_int_t)nnz);
 					nnz-=discarded;
 				}
 				if( want_only_upptri )
 				{
 					RSB_DO_FLAG_ADD(flags,RSB_FLAG_UPPER_TRIANGULAR);
 					errval = rsb__weed_out_non_upptri(VA,IA,JA,nnz,typecode,NULL,&discarded);
-					RSBENCH_STDOUT("# discarding %d non upper elements of %d.\n",discarded,nnz);
+					RSBENCH_STDOUT("# discarded %zd non upper elements of %zd.\n",(rsb_printf_int_t)discarded,(rsb_printf_int_t)nnz);
 					nnz-=discarded;
 				}
 
 				if(RSB_SOME_ERROR(errval))
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
+					RSB_PERR_GOTO(err,RSB_ERRM_ES);
 			}
 
-			if(RSB_SOME_ERROR(rsb__util_mm_info_matrix_f(filename,NULL,NULL,NULL,NULL,&is_symmetric,&is_hermitian,NULL,&is_lower,&is_upper,&is_vector) ))
+			if(RSB_SOME_ERROR(rsb__util_mm_info_matrix_f(filename,NULL,NULL,NULL,NULL,NULL,NULL,NULL,&is_lower,&is_upper,&is_vector) ))
 			{
 				RSBENCH_STDERR(RSB_ERRMSG_PROIFAMM ": %s ..\n",filename);
 				goto err;
@@ -9439,7 +11476,7 @@ if(filename || b_r_filename)
 				is_symmetric = RSB_BOOL_FALSE;
 				is_hermitian = RSB_BOOL_FALSE;
 			}
-			if(want_as_symmetric)
+			if(want_as_symmetric || want_as_hermitian)
 			{
 				is_symmetric = RSB_BOOL_TRUE;
 				is_hermitian = RSB_BOOL_TRUE;
@@ -9481,16 +11518,19 @@ if(filename || b_r_filename)
 			{
 				rsb_time_t dt = RSB_TIME_ZERO, ct = RSB_TIME_ZERO;
 				dt = - rsb_time();
-				if((errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS))!=RSB_ERR_NO_ERROR)
+				if((errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,flags_s))!=RSB_ERR_NO_ERROR)
 				{ RSB_ERROR(RSB_ERRM_ES); goto err; }
 				dt += rsb_time();
-				ct = - rsb_time();
-				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,nnz,typecode,NULL,RSB_FLAG_NOFLAGS)))
-					{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+				RSBENCH_STDOUT("#pre-sorting (%zd elements) took %lg s\n",(size_t)nnz,dt);
+				dt = -rsb_time();
+				nnz = rsb__weed_out_duplicates (IA,JA,VA,nnz,typecode,RSB_FLAG_SORTED_INPUT);
+				dt += rsb_time();
+				ct = -rsb_time();
+				if(RSB_SOME_ERROR(rsb__util_is_sorted_coo_as_row_major(IA,JA,nnz,typecode,NULL,RSB_FLAG_NOFLAGS)))
+				{errval = RSB_ERR_INTERNAL_ERROR;RSB_PERR_GOTO(err,RSB_ERRM_ES);}
 				ct += rsb_time();
-				RSBENCH_STDOUT("#pre-sorting took %lg s (+ %lg s check)\n",dt,ct);
+				RSBENCH_STDOUT("#weeding duplicates (to %zd elements) took %lg s (and check, %lg s )\n",(size_t)nnz,dt,ct);
 				RSB_DO_FLAG_ADD(flags,RSB_FLAG_SORTED_INPUT);
-
 			}
 #if RSB_HAVE_METIS
 			if(want_wmbr)
@@ -9512,7 +11552,7 @@ if(filename || b_r_filename)
 					RSB_CONDITIONAL_FREE(perm);
 					RSB_CONDITIONAL_FREE(vwgt);
 				}
-				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,RSB_FLAG_NOFLAGS);
+				errval = rsb__util_sort_row_major_parallel(VA,IA,JA,nnz,nrA,ncA,typecode,flags_s);
 				errval = rsb__do_switch_fullword_array_to_compressed(IA,nnz,nrA);
 				RSBENCH_STDOUT("Calling METIS_NodeND\n");
 				/*errval = */ METIS_NodeND(&nrA,IA,JA,vwgt,NULL,perm,iperm); /* Scotch wrapper crashes on vwgt=NULL. and is void */
@@ -9541,12 +11581,17 @@ if(filename || b_r_filename)
 		rsb_nnz_idx_t dim = RSB_FABS(should_generate_dense),spacing=1;
 		if(want_generated_spacing>1)
 			spacing = want_generated_spacing;
+		if( should_generate_dense_nc !=0 && RSB_FABS(should_generate_dense_nc) < dim )
+			dim = RSB_FABS(should_generate_dense_nc);
 		dim *= spacing;
 
 		if(((should_generate_lband>-1) || (should_generate_uband>-1)) && should_generate_dense>0)
 		{
-			rsb_nnz_idx_t lbw=should_generate_lband,ubw=should_generate_uband;
+			const rsb_nnz_idx_t lbw = should_generate_lband , ubw = should_generate_uband;
 			nrA = ncA = dim;
+			if( should_generate_dense_nc !=0 && RSB_FABS(should_generate_dense_nc) < dim )
+				ncA = RSB_FABS(should_generate_dense_nc);
+			RSBENCH_STDOUT("# Generating a diagonally populated matrix of %zd x %zd\n",(rsb_printf_int_t)nrA,(rsb_printf_int_t)ncA);
 			errval = rsb__generate_blocked_banded_coo(dim/spacing,spacing,lbw,ubw,&IA,&JA,&VA,&nnz,typecode);
 			if(RSB_SOME_ERROR(errval))
 			{RSB_ERROR(RSB_ERRM_ES);goto err;}
@@ -9579,11 +11624,13 @@ if(filename || b_r_filename)
 
 		if(want_as_symmetric)
 			RSB_DO_FLAG_ADD(flags,RSB_FLAG_SYMMETRIC);
+		if(want_as_hermitian)
+			RSB_DO_FLAG_ADD(flags,RSB_FLAG_HERMITIAN);
 	} /* should_generate_dense */
 have_va_ia_ja:
-	RSB_DEBUG_ASSERT( VA != NULL );
-	RSB_DEBUG_ASSERT( IA != NULL );
-	RSB_DEBUG_ASSERT( JA != NULL );
+	RSB_DEBUG_ASSERT( ! ( VA == NULL && !b_r_filename ) );
+	RSB_DEBUG_ASSERT( ! ( IA == NULL && !b_r_filename ) );
+	RSB_DEBUG_ASSERT( ! ( JA == NULL && !b_r_filename ) );
 	r_flags = flags;
 
 	/* CONDITIONALLY, PROCESSING THE INPUT */
@@ -9625,11 +11672,11 @@ have_va_ia_ja:
 		rsb_nnz_idx_t cs=0;
 		rsb_bool_t po = RSB_BOOL_TRUE;
 		const int histres=100;
-		const rsb_char_t*pmsg="\n\nplot \"-\" using 1:2 title \"cumulative %s population (nnz)\"\n";
+		const rsb_char_t*const pmsg="\n\nplot \"-\" using 1:2 title \"cumulative %s population (nnz)\"\n";
 		RSBENCH_STDOUT("set xtics rotate\n");
 		RSBENCH_STDOUT("set term postscript eps color\n");
 		RSBENCH_STDOUT("set output \"%s-distplot.eps\"\n", rsb__basename(filename));
-		RSBENCH_STDOUT("set multiplot layout 1,2 title \"%s (%d x %d, %d nnz)\"\n", rsb__basename(filename),nrA,ncA,nnz);
+		RSBENCH_STDOUT("set multiplot layout 1,2 title \"%s (%zd x %zd, %zd nnz)\"\n", rsb__basename(filename),(rsb_printf_int_t)nrA,(rsb_printf_int_t)ncA,(rsb_printf_int_t)nnz);
 
 		ndA = RSB_MAX(nrA,ncA);
 
@@ -9649,7 +11696,7 @@ have_va_ia_ja:
 		median_m=i; 
 
 		RSB_STDOUT(pmsg,"rows");
-		if(po) for(i=0;i<nrA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%d %d\n",i,cs);}
+		if(po) for(i=0;i<nrA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%ld %ld\n",(long int)i,(long int)cs);}
 		RSB_STDOUT("e\n");
 
 		mm=ncA<histres?1:ncA/histres;
@@ -9674,7 +11721,7 @@ have_va_ia_ja:
 
 		cs=0;
 		RSB_STDOUT(pmsg,"columns");
-		if(po) for(i=0;i<ncA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%d %d\n",i,cs);}
+		if(po) for(i=0;i<ncA;++i){ cs+=idxv[i]; if(i%mm==0)RSB_STDOUT("%ld %ld\n",(long int)i,(long int)cs);}
 		RSB_STDOUT("e\n");
 
 		for(i=0;i<ncA;++i)
@@ -9683,11 +11730,11 @@ have_va_ia_ja:
 
 		RSBENCH_STDOUT("unset multiplot\n");
 		RSBENCH_STDOUT("#%%:NNZ_PER_ROW_STDDEV:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
-		RSBENCH_STDOUT("\t%10.0d\n",stdd_m);
+		RSBENCH_STDOUT("\t%10.0zd\n",(rsb_printf_int_t)stdd_m);
 		RSBENCH_STDOUT("#%%:ROWS_MEDIAN:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
 		RSBENCH_STDOUT("\t%10.0g\n",((double)median_m/(double)nrA));
 		RSBENCH_STDOUT("#%%:NNZ_PER_COL_STDDEV:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
-		RSBENCH_STDOUT("\t%10.0d\n",stdd_k);
+		RSBENCH_STDOUT("\t%10.0zd\n",(rsb_printf_int_t)stdd_k);
 		RSBENCH_STDOUT("#%%:COLS_MEDIAN:");/* RSBENCH_STDOUT_MATRIX_ESSENTIALS_RSBENCH(); */
 		RSBENCH_STDOUT("\t%10.0g\n",((double)median_k/(double)ncA));
 nohists:
@@ -9699,7 +11746,7 @@ nohists:
 	/* CONDITIONALLY, PERFORMING SOME TEST ON THE INPUT */
 	if(want_accuracy_test>=1)
 	{
-		struct rsb_coo_matrix_t coo;
+		struct rsb_coo_mtx_t coo;
 		rsb__fill_coo_struct(&coo,VA,IA,JA,nrA,ncA,nnz,typecode);
 		RSB_DO_ERROR_CUMULATE(errval,rsb__do_spmv_accuracy_test(&coo,ca,cn,flags));
 		if(RSB_SOME_ERROR(errval))
@@ -9715,9 +11762,9 @@ nohists:
 
 		if( (flags & RSB_FLAG_QUAD_PARTITIONING) && g_all_flags==1)
 		{
-			int /*ci=0,*/hi=0,oi=0;
+			int hi=0,oi=0;
 			fn=0;
-			for(ci=0;ci<3;++ci)
+			for(rsb_thread_t ci=0;ci<3;++ci)
 /*			for(di=0;di<2;++di)*/
 			for(oi=0;oi<2;++oi)
 			for(hi=0;hi<2;++hi)
@@ -9757,7 +11804,7 @@ nohists:
 		}
 
 		if(!want_perf_dump)
-		if(!( RSB__APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB__APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB__APPROPRIATE_AT_TIME_SPEC( split_experimental ) )) /* otherwise pr__set.. cannot distinguish samples */
+		if(!( RSB_MKL_APPROPRIATE_AT_TIME_SPEC( want_autotuner ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( merge_experimental ) || RSB_MKL_APPROPRIATE_AT_TIME_SPEC( split_experimental ) )) /* otherwise pr__set.. cannot distinguish samples */
 		if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
 		{
 			/* adds a no-recursion flag case */
@@ -9772,8 +11819,41 @@ nohists:
 			++fn;	/* add ours */
 		}
 
+	for(     nrhsi=0;     nrhsi<nrhsn     ;++nrhsi     )
+	{
+	nrhs = nrhsa[nrhsi];
+	if(nrhs<1)
+	{
+		RSBENCH_STDOUT("# WARNING: Skipping non-positive nrhs (%zd): is this a mistake ?\n",(rsb_printf_int_t)nrhs );
+		continue;
+	}
+	if( nrhsn > 1 && nrhss )
+	{
+		RSBENCH_STDOUT("# multi-nrhs benchmarking (%s) -- now using nrhs %zd.\n",nrhss,(rsb_printf_int_t)nrhs);
+	}
+	if(incX<1)
+	{
+		RSBENCH_STDOUT("# WARNING: Skipping non-positive incX (%d): is this a mistake ?\n",(int)incX );
+		continue;
+	}
+	if(incY<1)
+	{
+		RSBENCH_STDOUT("# WARNING: Skipping non-positive incY (%d): is this a mistake ?\n",(int)incY );
+		continue;
+	}
+	if( want_only_star_scan )
+	if( RSB_MIN(incXi,1) + RSB_MIN(incYi,1) + RSB_MIN(nrhsi,1) > 1 ) /* two or more exceed index one */
+	{
+		RSBENCH_STDOUT("# Skipping a case with incX=%zd incY=%zd nrhs=%zd.\n",(rsb_printf_int_t)incX,(rsb_printf_int_t)incY,(rsb_printf_int_t)nrhs);
+		goto frv;
+	}
+
+
+
 		for(ti=0;ti<tn;++ti)
 		{
+
+
 
 		transA = transAo;
 		if(ti>0)
@@ -9781,9 +11861,9 @@ nohists:
 		if(ti==2)
 			transA = RSB_TRANSPOSITION_C;
 		if(!  (
-			( RSB_IS_MATRIX_TYPE_COMPLEX(typecode) && (ti!=0) && ( flags & RSB_FLAG_SOME_SYMMETRY ) )  ||
+			( RSB_IS_MATRIX_TYPE_COMPLEX(typecode) && (ti!=0) && ( flags & RSB_FLAG_ANY_SYMMETRY ) )  ||
 		       ((!RSB_IS_MATRIX_TYPE_COMPLEX(typecode))&& (ti!=0) && ( flags & RSB_FLAG_SYMMETRIC) )  ||
-		       ((!RSB_IS_MATRIX_TYPE_COMPLEX(typecode))&& (ti==2) &&!( flags & RSB_FLAG_SOME_SYMMETRY) )  ||
+		       ((!RSB_IS_MATRIX_TYPE_COMPLEX(typecode))&& (ti==2) &&!( flags & RSB_FLAG_ANY_SYMMETRY) )  ||
 			g_allow_any_tr_comb
 		))
 		if(tn>1)
@@ -9795,14 +11875,19 @@ nohists:
 			RSBENCH_STDOUT("# symmetric matrix --- skipping transposed benchmarking\n");
 			continue;
 		}
+		if(want_verbose > 0)
+		{
+			RSBENCH_STDOUT("# will use input matrix flags: ");
+			rsb__dump_flags(flags,"",", ","\n");
+		}
 		for(fi=0;fi<fn;++fi)
 		for(brvi=-1;brvi<brl;++brvi)
 		for(bcvi=-1;bcvi<bcl;++bcvi)
 #ifndef  RSB_COORDINATE_TYPE_H
 		if(!(flagsa[fi] & RSB_FLAG_USE_HALFWORD_INDICES_CSR))
 #endif /* RSB_COORDINATE_TYPE_H */
-		for(ci=0;ci<cn;++ci)	/* here just for should_recycle_matrix */
-		if(!(ca[ci]>1 && !(RSB_DO_FLAG_HAS(flagsa[fi],RSB_FLAG_QUAD_PARTITIONING)))) /* no need for more than one core without recursion */
+		for(rsb_thread_t ci=0;ci<cn;++ci)	/* here just for should_recycle_matrix */
+		if(!(cn > 1 && ca[ci]>1 && !(RSB_DO_FLAG_HAS(flagsa[fi],RSB_FLAG_QUAD_PARTITIONING)))) /* no need for more than one core without recursion */
 		{
 			cc = ca[ci];
 			should_recycle_matrix=(ci>0)?RSB_BOOL_TRUE:RSB_BOOL_FALSE;
@@ -9812,6 +11897,12 @@ nohists:
 				RSB_ERROR("failed setting %d threads!\n",cc);
 				errval = RSB_ERR_INTERNAL_ERROR;
 				goto err;
+			}
+			else
+			{
+				const rsb_thread_t rtn = rsb__set_num_threads(RSB_THREADS_GET);
+				RSBENCH_STDOUT("# Using %ld threads\n",(long)rtn );
+				RSB_DEBUG_ASSERT( RSB_CONST_MAX_SUPPORTED_THREADS >= rtn );
 			}
 			flags=flagsa[fi];
 			if(cn>1 && !RSB_DO_FLAG_HAS(flags,RSB_FLAG_QUAD_PARTITIONING))
@@ -9837,18 +11928,15 @@ nohists:
 			*/
 						if( br!=1 || bc!=1 || !rsb__util_are_flags_suitable_for_optimized_1x1_constructor(flags) )
 #endif /* RSB_WANT_EXPERIMENTAL_NO_EXTRA_CSR_ALLOCATIONS */
-#if RSB_WANT_RSB_AS_ONLY_ALLOWED_FORMAT
-			if(0)
-#endif /* RSB_WANT_RSB_AS_ONLY_ALLOWED_FORMAT */
+			if(1) /* only in mat_stats */
 			{
 				p_r = rsb__util_get_partitioning_array(br,nrA,&M_b,flags);
 				p_c = rsb__util_get_partitioning_array(bc,ncA,&K_b,flags);
 
 				if((! p_r) || (! p_c))
 				{
-					RSB_ERROR(RSB_ERRM_ES);
 					errval = RSB_ERR_ENOMEM;
-					goto erri;
+					RSB_PERR_GOTO(erri,RSB_ERRM_ES);
 				}
 			}
 
@@ -9894,7 +11982,6 @@ nohists:
 #endif /* 0 */
 		if( until_confidence && ( until_confidence > 100 || until_confidence < 1) ) 
 		{RSBENCH_STDERR("given percentage = %zd ?\n",(rsb_printf_int_t)until_confidence ); {RSB_ERROR(RSB_ERRM_ES);goto err;} ;}
-				{RSB_ERROR(RSB_ERRM_ES);goto err;}
 
 			if(g_estimate_fillin)
 			{
@@ -9909,8 +11996,7 @@ nohists:
 				if(!nnzs || !element_count || !block_count)
 				{
 					errval = RSB_ERR_ENOMEM;
-					RSB_ERROR(RSB_ERRM_ES);
-					goto erri;
+					RSB_PERR_GOTO(erri,RSB_ERRM_ES);
 				}
 
 				for(i=1;i<=nnzn;++i) nnzs[i-1]=(max_nnzs/nnzn) * i;/* ach, integer arithmetics ! */
@@ -9920,15 +12006,13 @@ nohists:
 				errval = rsb__compute_partial_fillin_for_nnz_fractions(IA, JA, nnzs, nnzn, &pinfo, element_count, block_count);
 				if(RSB_SOME_ERROR(errval))
 				{
-					RSB_ERROR(RSB_ERRM_ES);
-					goto erri;
+					RSB_PERR_GOTO(erri,RSB_ERRM_ES);
 				}
 
 				errval = rsb__compute_partial_fillin_for_nnz_fractions(IA, JA, &nnz, 1, &pinfo, &total_element_count, &total_block_count);
 				if(RSB_SOME_ERROR(errval))
 				{
-					RSB_ERROR(RSB_ERRM_ES);
-					goto erri;
+					RSB_PERR_GOTO(erri,RSB_ERRM_ES);
 				}
 				fillin = ((double)total_element_count)/((double)nnz);
 	
@@ -9975,20 +12059,23 @@ nohists:
 			if(brl==0 || bcl==0) break;
 		} /* ci : core (count) index */
 
-			if(want_verbose == RSB_BOOL_TRUE)
+			if(want_verbose > 0)
 			{
             			RSBENCH_STDOUT("%%constructor:matrix	SORT[%d]	SCAN[%d]	SHUFFLE[%d]	INSERT[%d]\n",
 					ca[0],ca[0],ca[0],ca[0]);
 			}
 		} /* ti (transposition index) */
+	}	/* nrhsi */
 	}
-	else
+
+	if(want_verbose >= -2)
 	{
-		RSBENCH_STDOUT("%s (mat_stats) : Please specify a matrix filename (with -f)\n",argv[0]);
+ 		RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
+		RSBENCH_STDOUT(".\n"); /* FIXME: this takes too much space here ! */
 	}
- 	RSBENCH_STDOUT("# so far, program took %.3lfs of wall clock time; ancillary tests %.3lfs; I/O %.3lfs; checks %.3lfs; conversions %.3lfs; rsb/mkl tuning %.3lfs/%.3lfs ",totprt + rsb_time(),totatt,totiot,totht,totct,tottt,totmt);
-	RSBENCH_STDOUT(".\n"); /* FIXME: this takes too much space here ! */
-	rsb__getrusage();
+
+	if(want_verbose >= 0)
+		rsb__getrusage();
 done:
 	RSB_CONDITIONAL_FREE(nnzs);
 	RSB_CONDITIONAL_FREE(element_count );
@@ -10008,9 +12095,11 @@ frv:
 		RSBENCH_MAY_SQUIT(ret,{}) /* early end of program */
 		RSBENCH_MAY_TQUIT(ret,{}) /* early end of program */
 	}	/* typecodesi */
-	}	/* nrhsi */
-	}	/* incXi */
-	}	/* incYi */
+	}	/* diagi */
+	}	/* asfii */
+	}	/* asiii */
+	}	/* accii */
+	}	/* areci */
 nfnm:	RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS;
 	}	/* filenamei */
 	RSBENCH_STDOUT("# benchmarking terminated --- finalizing run.\n");
@@ -10038,29 +12127,40 @@ rret:
 	if(want_perf_dump) 
 	{
 		RSBENCH_STDOUT("# ====== BEGIN Total summary record.\n");
-		errval = rsb__pr_dump(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL );
+		errval = rsb__pr_dump(rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, NULL );
 		RSBENCH_STDOUT("# ======  END  Total summary record.\n");
-		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
-		errval = rsb__pr_save(fprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE );
-		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(err,RSB_ERRM_ES);
+		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(tret,RSB_ERRM_ES);
+		errval = rsb__pr_save(fprfn, rspr, filenamea, ca, incXa, incYa, nrhsa, typecodes, NULL, RSB_BOOL_TRUE);
+		if(RSB_SOME_ERROR(errval)) RSB_PERR_GOTO(tret,RSB_ERRM_ES);
 		RSBENCH_STDOUT("# Removing the temporary record file %s.\n",cprfn);
 		remove(cprfn);
 	}
 	if( ca  != ca_ ) {RSB_CONDITIONAL_FREE(ca);}
-#if !RSB_RSBENCH_STATIC_FILENAMEA
+#if RSB_RSBENCH_STATIC_FILENAMEA
+	{
+		rsb_int_t filenamei;
+		for ( filenamei = 0; filenamei < filenamen ; ++filenamei )
+	       		if( filenamea[filenamei] != fnbufp[0] )
+				free(filenamea[filenamei]); /* allocated in rsb__strdup */
+	}
+#else
 	/* if(filenamea!=&fnbufp)RSB_CONDITIONAL_FREE(filenamea); */
 	if(filenamea!=&fnbufp)free(filenamea); /* FIXME */
 #endif
-	if(nrhsa!=(&nrhs))RSB_CONDITIONAL_FREE(nrhsa); /* FIXME: they get allocated (and thus shall be deallocated) before init */
-	if(incXa!=(&incX))RSB_CONDITIONAL_FREE(incXa);
- 	if(incYa!=(&incY))RSB_CONDITIONAL_FREE(incYa); 
+	if(nrhsa!=(&nrhs))RSB_CONDITIONAL_FREE(nrhsa); /* if same, nrhsa only points to incx */
 	if(want_likwid == RSB_BOOL_TRUE){RSB_LIKWID_MARKER_EXIT;} /* FIXME: and other cases ? */
-	if(want_verbose == RSB_BOOL_TRUE)
+	RSBENCH_MEM_ALLOC_INFO("\n");
+	if(want_verbose > 0)
 		rsb__echo_timeandlabel(" terminating run at ","\n",&st);
+	rsb__mbw_es_free(mbetp);
 	rsb__pr_free(rspr);
+tret:
 	if(RSB_SOME_ERROR(rsb_lib_exit(RSB_NULL_EXIT_OPTIONS)))
 		return RSB_ERR_GENERIC_ERROR;
 	return errval;
+#else /* RSB_HAVE_GETOPT_H */
+	return RSB_ERR_NO_ERROR;
+#endif /* RSB_HAVE_GETOPT_H */
 }
 
 

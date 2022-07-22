@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2019 Michele Martone
 
 This file is part of librsb.
 
@@ -32,15 +32,15 @@ If not, see <http://www.gnu.org/licenses/>.
 
 #include "rsb_internals.h"
 
-rsb_nnz_idx_t rsb_weed_out_duplicates(rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, void *VA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_flags_t flags);
-rsb_nnz_idx_t rsb_check_for_zeros(const void * RSB_RESTRICT VA, rsb_nnz_idx_t nnz, rsb_type_t typecode);
-rsb_nnz_idx_t rsb_check_for_nonzeros(const void * RSB_RESTRICT VA, rsb_nnz_idx_t nnz, rsb_type_t typecode);
-rsb_err_t rsb_util_compact_nonzeros(void *RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp, rsb_flags_t flags);
-rsb_err_t rsb_util_compact_marked_coo_array( rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, void *RSB_RESTRICT VA, rsb_nnz_idx_t nnz, size_t el_size, rsb_coo_idx_t fd, rsb_nnz_idx_t * movedp, rsb_nnz_idx_t * movesp);
+rsb_nnz_idx_t rsb__weed_out_duplicates(rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, void *VA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_flags_t flags);
+rsb_nnz_idx_t rsb__check_for_zeros(const void * RSB_RESTRICT VA, rsb_nnz_idx_t nnz, rsb_type_t typecode);
+rsb_nnz_idx_t rsb__check_for_nonzeros(const void * RSB_RESTRICT VA, rsb_nnz_idx_t nnz, rsb_type_t typecode);
+rsb_err_t rsb__util_compact_nonzeros(void *RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp, rsb_flags_t flags);
+rsb_err_t rsb__util_compact_marked_coo_array( rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, void *RSB_RESTRICT VA, rsb_nnz_idx_t nnz, size_t el_size, rsb_coo_idx_t fd, rsb_nnz_idx_t * movedp, rsb_nnz_idx_t * movesp);
 rsb_err_t rsb__weed_out_non_lowtri(void *RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp );
 rsb_err_t rsb__weed_out_non_upptri(void *RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp );
-rsb_err_t rsb_weed_out_diagonal(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp );
-rsb_err_t rsb_do_util_compact_out_of_range(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t roff, rsb_coo_idx_t  coff, rsb_coo_idx_t Mdim, rsb_coo_idx_t mdim, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp );
+rsb_err_t rsb__weed_out_diagonal(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp );
+rsb_err_t rsb__do_util_compact_out_of_range(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t roff, rsb_coo_idx_t  coff, rsb_coo_idx_t Mdim, rsb_coo_idx_t mdim, rsb_type_t typecode, rsb_nnz_idx_t *RSB_RESTRICT gapp, rsb_nnz_idx_t * RSB_RESTRICT discardedp );
 
 #endif /* RSB_COO_H_INCLUDED */
 /* @endcond */

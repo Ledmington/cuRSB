@@ -1,6 +1,6 @@
-/*
+/*                                                                                                                            
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2019 Michele Martone
 
 This file is part of librsb.
 
@@ -32,9 +32,9 @@ If not, see <http://www.gnu.org/licenses/>.
 
 #include "rsb_common.h"
 
-rsb_err_t rsb__util_sort_row_major_inner(void * RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, const rsb_nnz_idx_t nnz, const rsb_coo_idx_t m, const rsb_coo_idx_t k, const  rsb_type_t typecode , const rsb_flags_t flags /*, void * WA, size_t wb */);
-rsb_err_t rsb__util_sort_row_major_parallel(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t m, rsb_coo_idx_t k,  rsb_type_t typecode, rsb_flags_t flags);
-rsb_err_t rsb_util_sort_row_major_bucket_based_parallel(void * RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, const rsb_nnz_idx_t nnz, const rsb_coo_idx_t m, const rsb_coo_idx_t k, const  rsb_type_t typecode , const rsb_flags_t flags /*, void * WA, size_t wb */);
+rsb_err_t rsb__util_sort_row_major_inner(void * RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, const rsb_nnz_idx_t nnz, const rsb_coo_idx_t nr, const rsb_coo_idx_t nc, const  rsb_type_t typecode , const rsb_flags_t flags /*, void * WA, size_t wb */);
+rsb_err_t rsb__util_sort_row_major_parallel(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t nr, rsb_coo_idx_t nc,  rsb_type_t typecode, rsb_flags_t flags);
+rsb_err_t rsb__util_sort_row_major_bucket_based_parallel(void * RSB_RESTRICT VA, rsb_coo_idx_t * RSB_RESTRICT IA, rsb_coo_idx_t * RSB_RESTRICT JA, const rsb_nnz_idx_t nnz, const rsb_coo_idx_t nr, const rsb_coo_idx_t nc, const  rsb_type_t typecode , const rsb_flags_t flags /*, void * WA, size_t wb */);
 
 #endif /* RSB_PSORT_H_INCLUDED */
 /* @endcond */

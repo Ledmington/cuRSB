@@ -1,5 +1,10 @@
 subdir=scripts
 
 EXTRA_DIST= \
-	$(srcdir)/*.sh \
-	$(srcdir)/*.awk
+	*.sh \
+	*.m4 \
+	*.gpi *.dat *.log \
+	*.m4 \
+	*.slurm \
+	*.cocci \
+	*.awk

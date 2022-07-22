@@ -10,7 +10,7 @@
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 

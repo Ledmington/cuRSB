@@ -21,9 +21,14 @@ If not, see <http://www.gnu.org/licenses/>.
 */
 /* @cond INNERDOC */
 /**
+ * \internal
  * @file
  * @author Michele Martone
- * @brief  Sparse BLAS interface internals
+ * @brief
+ * 
+ * Sparse BLAS extras (and internals).
+ * \internal
+ * 
  * */
 /*
  * TODO: support for blas_field_type, blas_base_type, blas_sort_type, ...
@@ -53,7 +58,7 @@ RSB_INTERNALS_COMMON_HEAD_DECLS
 #define RSB_SPB_AT_OP(MTXAP,RNT,HINT,NRHS,ORDER,ALPHAP,BETAP,LHS,RHS,LDC,LDB,OPTYPE) 	\
 	if((MTXAP) && (HINT) == RSB_SPB_THR_STR_AUTO_NEXTOP /* ... next operation */ ) \
 	{		\
-		/* errval = */ rsb__tune_spxx(&(MTXAP), NULL, &ornt, RSB_SPBLAS_DEF_TUNING_ROUNDS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_AT_OP_SAMPLES_MIN, RSB_CONST_AT_OP_SAMPLES_MAX, 0, trans, ALPHAP, NULL, NRHS, ORDER, NULL, LDB, BETAP, NULL, LDC, OPTYPE, NULL, NULL, NULL, RSB_AUT0_TUNING_SILENT, NULL, NULL, NULL, NULL); \
+		/* errval = */ rsb__tune_spxx(&(MTXAP), NULL, &(RNT), RSB_SPBLAS_DEF_TUNING_ROUNDS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_DEF_MS_AT_AUTO_STEPS,RSB_CONST_AT_OP_SAMPLES_MIN, RSB_CONST_AT_OP_SAMPLES_MAX, 0, trans, ALPHAP, NULL, NRHS, ORDER, NULL, LDB, BETAP, NULL, LDC, OPTYPE, NULL, NULL, NULL, RSB_AUT0_TUNING_SILENT, NULL, NULL, NULL, NULL, NULL); \
 		if(RHS == NULL || LHS == NULL) { brv = RSB_BLAS_NO_ERROR; goto err; /* wanted just tuning */ } \
 		(HINT) = RSB_SPB_THREADS_DEFAULT; \
 	}
@@ -80,8 +85,8 @@ static int rsb_compar_vbr_blas_sparse_matrix_t(const void * ap, const void * bp)
 	/**
 	 \ingroup gr_internals
 	 */
-	blas_sparse_matrix ha = ((struct rsb_blas_sparse_matrix_t*)ap)->handle;
-	blas_sparse_matrix hb = ((struct rsb_blas_sparse_matrix_t*)bp)->handle;
+	const blas_sparse_matrix ha = ((struct rsb_blas_sparse_matrix_t*)ap)->handle;
+	const blas_sparse_matrix hb = ((struct rsb_blas_sparse_matrix_t*)bp)->handle;
 
         return
                  ( ha >  hb ) ? 1 :
@@ -97,6 +102,9 @@ static struct rsb_blas_sparse_matrix_t * rsb__BLAS_matrix_retrieve(blas_sparse_m
 	 shall retrieve the internal data structure associated to the handle
 	 */
 	struct rsb_blas_sparse_matrix_t key;
+
+	if ( handle == blas_invalid_handle )
+		return NULL;
 
 	key.handle = handle;
 	return bsearch(&key,rsb_blas_handles.bsms,rsb_blas_handles.n,sizeof(struct rsb_blas_sparse_matrix_t),rsb_compar_vbr_blas_sparse_matrix_t);
@@ -141,6 +149,9 @@ rsb_err_t rsb__BLAS_is_type_supported(rsb_char_t c)
 #endif /* RSB_NUMERICAL_TYPE_FLOAT */
 		errval = RSB_ERR_NO_ERROR;
 		break;
+#ifdef RSB_NUMERICAL_TYPE_INT
+		case('i'): case('I'): /* NOTE: BLAS-unsupported, but for e.g. rsb_mtx_alloc_from_coo_begin is OK */
+#endif /* RSB_NUMERICAL_TYPE_INT */
 		default:
 		break;
 	};
@@ -181,7 +192,17 @@ rsb_err_t rsb__BLAS_handles_free(void)
 	if(rsb_blas_handles.bsms==NULL)
 		;
 	else
-		rsb__free(rsb_blas_handles.bsms);
+	{
+		size_t i;
+		const size_t n = rsb_blas_handles.n;
+
+		for(i=0;i<n;++i)
+		{
+			const blas_sparse_matrix handle = rsb_blas_handles.bsms[n-i-1].handle;
+			rsb__BLAS_Xusds( handle );
+		}
+		RSB_CONDITIONAL_FREE(rsb_blas_handles.bsms);
+	}
 	RSB_DO_ERR_RETURN(errval)
 }
 
@@ -289,10 +310,10 @@ blas_sparse_matrix rsb__BLAS_new_matrix_begin(rsb_coo_idx_t m, rsb_coo_idx_t k, 
 		nnzest=1+RSB_MAX(m,k);
 	}
 
-	RSB_DEBUG_ASSERT(nnzest>0);
-
 	if(!RSB_ARE_VALID_MATRIX_INIT_PARS(m,k,nnzest?nnzest:1,typecode))
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+
+	RSB_DEBUG_ASSERT(nnzest>0);
 
 	if(br<0 || bc<0)
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
@@ -310,7 +331,7 @@ blas_sparse_matrix rsb__BLAS_new_matrix_begin(rsb_coo_idx_t m, rsb_coo_idx_t k, 
 
 	RSB_BZERO_P(bsm); // should be already blanked, unless cycling in the descriptors array
 
-	if(rbp && cbp)
+	if( rbp && cbp && br && bc )
 	{
 		bsm->rbp = rsb__clone_area_with_extra(rbp,sizeof(rsb_coo_idx_t)*(br),sizeof(rsb_coo_idx_t),0);
 		bsm->cbp = rsb__clone_area_with_extra(cbp,sizeof(rsb_coo_idx_t)*(bc),sizeof(rsb_coo_idx_t),0);
@@ -321,6 +342,12 @@ blas_sparse_matrix rsb__BLAS_new_matrix_begin(rsb_coo_idx_t m, rsb_coo_idx_t k, 
 		rsb__do_prefix_sum_coo_idx_t(bsm->cbp,bc+1);
 	}
 
+	if(br==0)
+		br = 1;
+
+	if(bc==0)
+		bc = 1;
+
 	bsm->symmetry=blas_general;
 	bsm->diag_type=blas_non_unit_diag;
 	bsm->mtxAp=NULL;
@@ -329,14 +356,8 @@ blas_sparse_matrix rsb__BLAS_new_matrix_begin(rsb_coo_idx_t m, rsb_coo_idx_t k, 
 	bsm->coomatrix.nc=k;
 	bsm->coomatrix.typecode=typecode;
 	bsm->nnzin=0;
-	if(br==0)
-		bsm->k=1;
-	else
-		bsm->k=br;
-	if(bc==0)
-		bsm->l=1;
-	else
-		bsm->l=bc;
+	bsm->k=br;
+	bsm->l=bc;
 	bsm->handle=handle;
 	bsm->type=blas_new_handle;
 	bsm->dupstra = blas_rsb_duplicates_sum;
@@ -360,6 +381,10 @@ blas_sparse_matrix rsb__BLAS_new_matrix_begin(rsb_coo_idx_t m, rsb_coo_idx_t k, 
 		case('s'): case('S'):
 #endif /* RSB_NUMERICAL_TYPE_FLOAT */
 		bsm->fprecision = blas_single_precision;break;
+#ifdef RSB_NUMERICAL_TYPE_INT
+		case('i'): case('I'): /* for e.g. rsb_mtx_alloc_from_coo_begin */
+#endif /* RSB_NUMERICAL_TYPE_INT */
+		bsm->fprecision = 'I';break; /* FIXME; may foresee 'blas_int_precision' extension */
 		default:
 		RSB_PERR_GOTO(errr,RSB_ERRM_ES)
 	       	break;
@@ -432,7 +457,7 @@ static blas_sparse_matrix rsb__BLAS_new_matrix_insert_block(struct rsb_blas_spar
 	 \ingroup gr_internals
 	 No check is performed on the block size arrays.
 	 */
-	int ii = 0, jj = 0, ob = 0;
+	rsb_coo_idx_t ii = 0, jj = 0, ob = 0;
 	int rb = 0, cb = 0, roff = 0, coff = 0;
 	size_t nnz = 0,es = 0;
 	rsb_blas_int_t retval = RSB_BLAS_INVALID_VAL;
@@ -486,12 +511,12 @@ static blas_sparse_matrix rsb__BLAS_new_matrix_insert_block(struct rsb_blas_spar
 	{
 		for (jj=0; jj<cb; jj++)
 		{
-			int nzoff=bsm->nnzin+ii*cb+jj;
-			const char*eval=((const char*)val)+es*(ii*row_stride+jj*col_stride);
+			const rsb_nnz_idx_t nzoff=bsm->nnzin+ii*cb+jj;
+			const rsb_byte_t*eval=((const rsb_byte_t*)val)+es*(ii*row_stride+jj*col_stride);
 			bsm->coomatrix.IA[nzoff]=roff+ii;
 			bsm->coomatrix.JA[nzoff]=coff+jj;
 			if(!RSB_IS_ELEMENT_ZERO(eval,bsm->coomatrix.typecode))
- 		 		rsb__memcpy(((char*)bsm->coomatrix.VA)+es*nzoff,eval,es);
+ 		 		rsb__memcpy(((rsb_byte_t*)bsm->coomatrix.VA)+es*nzoff,eval,es);
 		}
 	}
 	bsm->nnzin += nnz;
@@ -517,7 +542,7 @@ static blas_sparse_matrix rsb__BLAS_new_matrix_insert_row(struct rsb_blas_sparse
 	if(bsm->nnzin+nnz > bsm->coomatrix.nnz)
 		if(rsb__BLAS_new_matrix_expand_store(bsm,RSB_MAX(bsm->nnzin+nnz,2*bsm->coomatrix.nnz))==RSB_BLAS_INVALID_VAL)
 			RSB_PERR_GOTO(err,RSB_ERRM_ES)
-  	rsb_numerical_memcpy(bsm->coomatrix.typecode,bsm->coomatrix.VA,bsm->nnzin,val,0,nnz);
+  	rsb__numerical_memcpy(bsm->coomatrix.typecode,bsm->coomatrix.VA,bsm->nnzin,val,0,nnz);
 	for(k=0;k<nnz;++k)
 		bsm->coomatrix.IA[bsm->nnzin+k] = i-ob,
 		bsm->coomatrix.JA[bsm->nnzin+k] = jndx[k]-ob;
@@ -547,7 +572,7 @@ static blas_sparse_matrix rsb__BLAS_new_matrix_insert_col(struct rsb_blas_sparse
 
 	ob=bsm->off;
 
-  	rsb_numerical_memcpy(bsm->coomatrix.typecode,bsm->coomatrix.VA,bsm->nnzin,val,0,nnz);
+  	rsb__numerical_memcpy(bsm->coomatrix.typecode,bsm->coomatrix.VA,bsm->nnzin,val,0,nnz);
 	for(k=0;k<nnz;++k)
 		bsm->coomatrix.IA[bsm->nnzin+k]=indx[k]-ob,
 		bsm->coomatrix.JA[bsm->nnzin+k]=j-ob;
@@ -564,8 +589,8 @@ static blas_sparse_matrix rsb__BLAS_new_matrix_insert_clique(struct rsb_blas_spa
 	 \ingroup gr_internals
 	 append coo data
 	*/
+	const size_t nnz = k*l;
 	int i = 0, j = 0, ob = 0;
-	size_t nnz = k*l;
 	rsb_blas_int_t retval = RSB_BLAS_INVALID_VAL;
 
 	RSB_DEBUG_ASSERT(bsm);
@@ -588,7 +613,7 @@ static blas_sparse_matrix rsb__BLAS_new_matrix_insert_clique(struct rsb_blas_spa
 		{
 			bsm->coomatrix.IA[bsm->nnzin+i*l+j] = indx[i]-ob,
 			bsm->coomatrix.JA[bsm->nnzin+i*l+j] = jndx[j]-ob;
- 		 	rsb_numerical_memcpy(bsm->coomatrix.typecode,bsm->coomatrix.VA,(bsm->nnzin+(i*l+j)),val,(i*row_stride+j*col_stride),1); /* FIXME: this is just one element */
+ 		 	rsb__numerical_memcpy(bsm->coomatrix.typecode,bsm->coomatrix.VA,(bsm->nnzin+(i*l+j)),val,(i*row_stride+j*col_stride),1); /* FIXME: this is just one element */
 		}
 	}
 	bsm->nnzin += nnz;
@@ -628,7 +653,7 @@ static rsb_blas_int_t rsb__BLAS_new_matrix_insert_entries( struct rsb_blas_spars
 		}
 
 	ob = bsm->off;
-  	rsb_numerical_memcpy(bsm->coomatrix.typecode,bsm->coomatrix.VA,bsm->nnzin,val,0,nnz);
+  	rsb__numerical_memcpy(bsm->coomatrix.typecode,bsm->coomatrix.VA,bsm->nnzin,val,0,nnz);
 	for(k=0;k<nnz;++k)
 		bsm->coomatrix.IA[bsm->nnzin+k]=indx[k]-ob,
 		bsm->coomatrix.JA[bsm->nnzin+k]=jndx[k]-ob;
@@ -664,6 +689,9 @@ static rsb_flags_t rsb__BLAS_new_matrix_finish_flags(struct rsb_blas_sparse_matr
 		break;
 		case(blas_upper_triangular):
 			RSB_DO_FLAG_ADD(flags,RSB_FLAG_UPPER_TRIANGULAR);
+		break;
+		case(blas_triangular):
+			RSB_DO_FLAG_ADD(flags,RSB_FLAG_TRIANGULAR);
 		break;
 		case(blas_general):
 			RSB_DO_FLAG_ADD(flags,RSB_FLAG_NOFLAGS);
@@ -702,8 +730,24 @@ static rsb_flags_t rsb__BLAS_new_matrix_finish_flags(struct rsb_blas_sparse_matr
 	switch(bsm->fmt_hint)
 	{
 #if RSB_WANT_SPARSE_BLAS_EXTENSIONS
-		case(blas_rsb_rep_coo ): RSB_DO_FLAG_ADD(flags,RSB_FLAG_DEFAULT_COO_MATRIX_FLAGS); break;
-		case(blas_rsb_rep_csr ): RSB_DO_FLAG_ADD(flags,RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS); break;
+		case(blas_rsb_rep_coo ): RSB_DO_FLAG_ADD(flags,RSB_FLAG_DEFAULT_COO_MATRIX_FLAGS); 
+ break;
+		case(blas_rsb_rep_csr ): 
+			RSB_DO_FLAG_ADD(flags,RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS); 
+#if !RSB_OLD_COO_CRITERIA
+			
+			if (bsm->nnzin > bsm->coomatrix.nr)
+			{
+				/* Need enough nnz (nnz>nr) for csr to fit in coo arrays. 
+				   FIXME: if duplicates within these nnzin (which may be <nnz) may break this condition.
+ 				*/
+				RSB_DO_FLAG_ADD(flags,RSB_FLAG_DEFAULT_COO_MATRIX_FLAGS); 
+				RSB_DO_FLAG_DEL(flags,RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS); 
+			}
+#endif
+		break;
+		case(blas_rsb_rep_rec ): RSB_DO_FLAG_ADD(flags,RSB_FLAG_QUAD_PARTITIONING); break;
+		case(blas_rsb_rep_hwi ): RSB_DO_FLAG_ADD(flags,RSB_FLAG_USE_HALFWORD_INDICES); break;
 #endif /* RSB_WANT_SPARSE_BLAS_EXTENSIONS */
 		case(blas_rsb_rep_rsb ):
 		default:
@@ -778,12 +822,13 @@ static rsb_blas_int_t rsb__BLAS_autotune( struct rsb_blas_sparse_matrix_t * bsm,
 		if( RSB_BLAS_IS_ATPNAME_ANY(pname) )
 		{
 			rsb_err_t errval = RSB_ERR_NO_ERROR;
-			int nont = 0, tont = 0, mnt = rsb__set_num_threads(RSB_THREADS_GET_MAX);
+			int nont = 0, tont = 0;
+			const rsb_int_t mnt = rsb__set_num_threads(RSB_THREADS_GET_MAX);
 			struct rsb_mtx_t * mtxOp = bsm->mtxAp;
 
 			if( bsm->opt_mvt_hint == RSB_SPB_THREADS_AUTO )
 			{
-				rsb__do_tune_spmm(NULL,NULL,&tont,2*mnt,10.0/mnt,RSB_TRANSPOSITION_T,NULL,mtxOp,1,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER,NULL,0,NULL,NULL,0);
+				errval = rsb__do_tune_spmm(NULL,NULL,&tont,2*mnt,10.0/mnt,RSB_TRANSPOSITION_T,NULL,mtxOp,1,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER,NULL,0,NULL,NULL,0);
 				if( RSB_SOME_ERROR(errval))
 					goto err;
 				bsm->opt_mvt_hint = tont;
@@ -791,7 +836,7 @@ static rsb_blas_int_t rsb__BLAS_autotune( struct rsb_blas_sparse_matrix_t * bsm,
 
 			if( bsm->opt_mvn_hint == RSB_SPB_THREADS_AUTO )
 			{
-				rsb__do_tune_spmm(NULL,NULL,&nont,2*mnt,10.0/mnt,RSB_TRANSPOSITION_N,NULL,mtxOp,1,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER,NULL,0,NULL,NULL,0);
+				errval = rsb__do_tune_spmm(NULL,NULL,&nont,2*mnt,10.0/mnt,RSB_TRANSPOSITION_N,NULL,mtxOp,1,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER,NULL,0,NULL,NULL,0);
 				if( RSB_SOME_ERROR(errval)) 
 					goto err;
 				bsm->opt_mvn_hint = nont;
@@ -800,13 +845,13 @@ static rsb_blas_int_t rsb__BLAS_autotune( struct rsb_blas_sparse_matrix_t * bsm,
 #if RSB_TUNING_NEW_STYLE
 			if( bsm->opt_mvt_hint == RSB_SPB_THR_STR_AUTO )
 			{
-				errval = rsb__tune_spxx(&mtxOp, NULL, &tont, RSB_SPBLAS_DEF_TUNING_ROUNDS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_AT_OP_SAMPLES_MIN, RSB_CONST_AT_OP_SAMPLES_MAX, 0, RSB_TRANSPOSITION_T, NULL, NULL, 1, RSB_FLAG_WANT_COLUMN_MAJOR_ORDER, NULL, 0, NULL, NULL, 0, rsb_op_spmv, NULL, NULL, NULL, RSB_AUT0_TUNING_SILENT, NULL, NULL, NULL, NULL);
+				errval = rsb__tune_spxx(&mtxOp, NULL, &tont, RSB_SPBLAS_DEF_TUNING_ROUNDS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_AT_OP_SAMPLES_MIN, RSB_CONST_AT_OP_SAMPLES_MAX, 0, RSB_TRANSPOSITION_T, NULL, NULL, 1, RSB_FLAG_WANT_COLUMN_MAJOR_ORDER, NULL, 0, NULL, NULL, 0, rsb_op_spmv, NULL, NULL, NULL, RSB_AUT0_TUNING_SILENT, NULL, NULL, NULL, NULL, NULL);
 				bsm->opt_mvt_hint = tont;
 			}
 
 			if( bsm->opt_mvn_hint == RSB_SPB_THR_STR_AUTO )
 			{
-				errval = rsb__tune_spxx(&mtxOp, NULL, &nont, RSB_SPBLAS_DEF_TUNING_ROUNDS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_AT_OP_SAMPLES_MIN, RSB_CONST_AT_OP_SAMPLES_MAX, 0, RSB_TRANSPOSITION_N, NULL, NULL, 1, RSB_FLAG_WANT_COLUMN_MAJOR_ORDER, NULL, 0, NULL, NULL, 0, rsb_op_spmv, NULL, NULL, NULL, RSB_AUT0_TUNING_SILENT, NULL, NULL, NULL, NULL);
+				errval = rsb__tune_spxx(&mtxOp, NULL, &nont, RSB_SPBLAS_DEF_TUNING_ROUNDS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_DEF_MS_AT_AUTO_STEPS, RSB_CONST_AT_OP_SAMPLES_MIN, RSB_CONST_AT_OP_SAMPLES_MAX, 0, RSB_TRANSPOSITION_N, NULL, NULL, 1, RSB_FLAG_WANT_COLUMN_MAJOR_ORDER, NULL, 0, NULL, NULL, 0, rsb_op_spmv, NULL, NULL, NULL, RSB_AUT0_TUNING_SILENT, NULL, NULL, NULL, NULL, NULL);
 				bsm->opt_mvn_hint = nont;
 			}
 
@@ -866,8 +911,8 @@ static blas_sparse_matrix rsb__BLAS_new_matrix_finish(struct rsb_blas_sparse_mat
 	}
 #if RSB_ALLOW_STDOUT
 	if(0)
-		RSB_STDOUT("sparse blas allocated (%d x %d) @ %p with flags 0x%x (coo:%d, csr:%d), storage: %x\n",
-			bsm->mtxAp->nr, bsm->mtxAp->nc, bsm->mtxAp, bsm->mtxAp->flags,
+		RSB_STDOUT("sparse blas allocated (%zd x %zd) @ %p with flags 0x%x (coo:%d, csr:%d), storage: %x\n",
+			(rsb_printf_int_t)bsm->mtxAp->nr, (rsb_printf_int_t)bsm->mtxAp->nc, (void*)bsm->mtxAp, bsm->mtxAp->flags,
 			RSB_DO_FLAG_HAS(bsm->mtxAp->flags,RSB_FLAG_WANT_COO_STORAGE),
 			RSB_DO_FLAG_HAS(bsm->mtxAp->flags,RSB_FLAG_WANT_BCSS_STORAGE),
 			bsm->mtxAp->matrix_storage
@@ -1017,6 +1062,8 @@ rsb_blas_int_t rsb__BLAS_Xuscr_insert_col( blas_sparse_matrix A, rsb_blas_int_t 
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	if( bsm->type != blas_open_handle)
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	if( RSB_INVALID_COO_INDEX(j) || RSB_INVALID_NNZ_INDEX(nz) )
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 
 	retval = rsb__BLAS_new_matrix_insert_col(bsm, j, nz, val, indx );
 err:
@@ -1034,6 +1081,8 @@ rsb_blas_int_t rsb__BLAS_Xuscr_insert_row( blas_sparse_matrix A, rsb_blas_int_t 
 	if( (bsm = rsb__BLAS_matrix_retrieve(A) ) == NULL )
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 	if( bsm->type != blas_open_handle)
+		RSB_PERR_GOTO(err,RSB_ERRM_ES)
+	if( RSB_INVALID_COO_INDEX(i) || RSB_INVALID_NNZ_INDEX(nz) )
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 
 	retval = rsb__BLAS_new_matrix_insert_row(bsm, i, nz, val, jndx );
@@ -1170,6 +1219,8 @@ rsb_blas_int_t rsb__BLAS_usgp( blas_sparse_matrix A, rsb_blas_int_t pname )
 		case (blas_rsb_rep_csr) :
 		case (blas_rsb_rep_coo) :
 		case (blas_rsb_rep_rsb) :
+		case (blas_rsb_rep_hwi) :
+		case (blas_rsb_rep_rec) :
 		retcode = bsm->fmt_hint;
 		break;
 #endif /* RSB_WANT_SPARSE_BLAS_EXTENSIONS */
@@ -1267,8 +1318,8 @@ rsb_blas_int_t rsb__BLAS_ussp( blas_sparse_matrix A, rsb_blas_int_t pname )
 	if( ( bsm == NULL ) || bsm->type != blas_open_handle )
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
 
-       switch (pname)
-       {       
+	switch (pname)
+	{	
 		/* Extension properties are ones influencing assembly. */
 #if RSB_WANT_SPARSE_BLAS_EXTENSIONS
 		case (blas_rsb_duplicates_ovw) :
@@ -1279,12 +1330,14 @@ rsb_blas_int_t rsb__BLAS_ussp( blas_sparse_matrix A, rsb_blas_int_t pname )
 		case (blas_rsb_rep_csr) :
 		case (blas_rsb_rep_coo) :
 		case (blas_rsb_rep_rsb) :
+		case (blas_rsb_rep_hwi) :
+		case (blas_rsb_rep_rec) :
 			bsm->fmt_hint = pname;
 			goto ok;
 		break;
 		default: RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS;
 #endif /* RSB_WANT_SPARSE_BLAS_EXTENSIONS */
-       }
+	}
 
 	if( bsm->nnzin != 0 )
 	{
@@ -1322,7 +1375,7 @@ rsb_blas_int_t rsb__BLAS_ussp( blas_sparse_matrix A, rsb_blas_int_t pname )
 			return RSB_BLAS_ERROR_UNIMPLEMENTED;
 		break;
 #endif
-		case (blas_triangular) : return RSB_BLAS_ERROR_WRONG_USGP_ARG;		/* TODO */ break;
+		case (blas_triangular) : bsm->symmetry=blas_triangular; break;
 		case (blas_lower_triangular) : bsm->symmetry=blas_lower_triangular; break;
 		case (blas_upper_triangular) : bsm->symmetry=blas_upper_triangular; break;
 		case (blas_symmetric)       : return RSB_BLAS_ERROR_WRONG_USGP_ARG;	/* TODO */ break;
@@ -1364,7 +1417,7 @@ rsb_blas_int_t rsb__BLAS_Xusds( blas_sparse_matrix A )
 	/*
 	 * Destroys the given matrix
 	 * */
-	rsb_blas_int_t res = ( rsb__BLAS_matrix_destroy(A) == RSB_BLAS_INVALID_VAL ) ? RSB_BLAS_ERROR : RSB_BLAS_NO_ERROR;
+	const rsb_blas_int_t res = ( rsb__BLAS_matrix_destroy(A) == RSB_BLAS_INVALID_VAL ) ? RSB_BLAS_ERROR : RSB_BLAS_NO_ERROR;
 
 	return res;
 }
@@ -1413,7 +1466,7 @@ rsb_trans_t rsb__blas_trans_to_rsb_trans(enum blas_trans_type trans)
 	return rtrans;
 }
 
-rsb_order_t rsb_blas_order_to_rsb_order(enum blas_order_type order)
+rsb_order_t rsb__blas_order_to_rsb_order(enum blas_order_type order)
 {
 	/**
 	 \ingroup gr_internals
@@ -1451,7 +1504,7 @@ int rsb__BLAS_Xusget_diag(blas_sparse_matrix A,void * d)
 	 \rsb_spblasl2e_usget_diag_msg
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	struct rsb_mtx_t * mtxAp = rsb__BLAS_inner_matrix_retrieve(A);
+	const struct rsb_mtx_t * mtxAp = rsb__BLAS_inner_matrix_retrieve(A);
 
 	errval = rsb__do_matrix_compute(mtxAp, d, RSB_EXTF_DIAG);
 	return RSB_ERROR_TO_BLAS_ERROR(errval);
@@ -1464,9 +1517,8 @@ int rsb__BLAS_Xusget_rows_sparse(blas_sparse_matrix A,void *  VA, rsb_blas_int_t
 	 \rsb_spblasl2e_usget_rows_sparse_msg
 	 */
         rsb_err_t errval = RSB_ERR_NO_ERROR;
-	struct rsb_blas_sparse_matrix_t * bsm = NULL;
+	const struct rsb_blas_sparse_matrix_t * bsm = rsb__BLAS_matrix_retrieve(A);
 
-	bsm = rsb__BLAS_matrix_retrieve(A);
 	if(!bsm || !bsm->mtxAp)
 	{
 		errval = RSB_ERR_BADARGS;
@@ -1485,15 +1537,15 @@ int rsb__BLAS_Xusget_matrix_nnz(blas_sparse_matrix A, rsb_blas_int_t * nnzAp)
 	 \ingroup gr_internals
 	 \rsb_spblasl2e_usget_matrix_nnz_msg
 	 */
-	struct rsb_mtx_t * mtxAp = NULL;
+	const struct rsb_mtx_t * mtxAp = rsb__BLAS_inner_matrix_retrieve(A);
 
-	mtxAp = rsb__BLAS_inner_matrix_retrieve(A);
 	if(!mtxAp)
 		return RSB_ERROR_TO_BLAS_ERROR(RSB_ERR_BADARGS);
 	*nnzAp = mtxAp->nnz;
 	return RSB_BLAS_NO_ERROR;
 }
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__BLAS_Xusget_rows_sums(blas_sparse_matrix A, void * rs, enum blas_trans_type trans)
 {
 	/**
@@ -1504,13 +1556,14 @@ int rsb__BLAS_Xusget_rows_sums(blas_sparse_matrix A, void * rs, enum blas_trans_
 
 	return RSB_ERROR_TO_BLAS_ERROR(errval);
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 int rsb__BLAS_Xusget_infinity_norm(blas_sparse_matrix A, void * in, enum blas_trans_type trans)
 {
 	/**
 	 \ingroup gr_internals
 	 */
-	struct rsb_mtx_t * mtxAp = rsb__BLAS_inner_matrix_retrieve(A);
+	const struct rsb_mtx_t * mtxAp = rsb__BLAS_inner_matrix_retrieve(A);
 	/* rsb_err_t errval = rsb__do_matrix_norm(mtxAp,in,RSB_EXTF_NORM_INF); */
 
 	rsb_err_t errval = rsb__do_matrix_norm(mtxAp,in,RSB_EXTF_NORM_INF);
@@ -1573,27 +1626,25 @@ int rsb__BLAS_Xusmm(enum blas_trans_type transA, const void * alphap, blas_spars
 	 	Multiplies by multivector, accumulating in a multivector and scaling it.
 	*/
 	//const struct rsb_mtx_t *mtxAp = rsb__BLAS_inner_matrix_retrieve(A);
-	rsb_trans_t trans = rsb__blas_trans_to_rsb_trans(transA);
+	const rsb_trans_t trans = rsb__blas_trans_to_rsb_trans(transA);
 	int brv = RSB_BLAS_ERROR;
 	struct rsb_blas_sparse_matrix_t * bsm = rsb__BLAS_matrix_retrieve(A);
-	rsb_order_t rorder = rsb_blas_order_to_rsb_order(order);
+	rsb_order_t rorder = rsb__blas_order_to_rsb_order(order);
 
 	if(bsm)
 	{
 #if RSB_BLAS_WANT_EXPERIMENTAL_TUNING
-	rsb_int rnt = 0;
-	rsb_thread_t ornt = rsb_get_num_threads();
-	if((bsm->opt_mvn_hint) == RSB_SPB_THR_STR_AUTO_NEXTOP )
-		ornt = -ornt; /* want threads tuning */
-	RSB_SPB_AT_OP(bsm->mtxAp,rnt,bsm->opt_mvn_hint,nrhs,rorder,alphap,betap,c,b,ldc,ldb,rsb_op_spmv)
-	rnt = ( transA == blas_no_trans ) ?  bsm->opt_mvn_hint : bsm->opt_mvt_hint;
-	RSB_SPB_THREADS_PUSH
+		rsb_thread_t ornt = rsb_get_num_threads();
+		if((bsm->opt_mvn_hint) == RSB_SPB_THR_STR_AUTO_NEXTOP )
+			ornt = -ornt; /* want threads tuning */
+		RSB_SPB_AT_OP(bsm->mtxAp,ornt,bsm->opt_mvn_hint,nrhs,rorder,alphap,betap,c,b,ldc,ldb,rsb_op_spmv)
+		RSB_SPB_THREADS_PUSH
 #endif /* RSB_BLAS_WANT_EXPERIMENTAL_TUNING */
-	if(!bsm->mtxAp)
-	       	goto err;
-	brv = RSB_ERROR_TO_BLAS_ERROR(rsb__do_spmm_general(bsm->mtxAp,b,c,alphap,betap,1,1,trans,RSB_OP_FLAG_DEFAULT,rorder,nrhs,ldb,ldc));
+		if(!bsm->mtxAp)
+			goto err;
+		brv = RSB_ERROR_TO_BLAS_ERROR(rsb__do_spmm_general(bsm->mtxAp,b,c,alphap,betap,1,1,trans,RSB_OP_FLAG_DEFAULT,rorder,nrhs,ldb,ldc));
 #if RSB_BLAS_WANT_EXPERIMENTAL_TUNING
-	RSB_SPB_THREADS_POP
+		RSB_SPB_THREADS_POP
 #endif /* RSB_BLAS_WANT_EXPERIMENTAL_TUNING */
 	}
 err:
@@ -1609,26 +1660,24 @@ int rsb__BLAS_Xusmv(enum blas_trans_type transA, const void * alphap, blas_spars
 		\f$y \leftarrow \alpha A^H x + \beta y\f$
 	*/
 	//const struct rsb_mtx_t *mtxAp = rsb__BLAS_inner_matrix_retrieve(A);
-	rsb_trans_t trans = rsb__blas_trans_to_rsb_trans(transA);
+	const rsb_trans_t trans = rsb__blas_trans_to_rsb_trans(transA);
 	int brv = RSB_BLAS_ERROR;
 	struct rsb_blas_sparse_matrix_t * bsm = rsb__BLAS_matrix_retrieve(A);
 
 	if(bsm)
 	{
 #if RSB_BLAS_WANT_EXPERIMENTAL_TUNING
-	rsb_int rnt = 0;
-	rsb_thread_t ornt = rsb_get_num_threads();
-	if((bsm->opt_mvn_hint) == RSB_SPB_THR_STR_AUTO_NEXTOP )
-		ornt = -ornt; /* want threads tuning */
-	RSB_SPB_AT_OP(bsm->mtxAp,rnt,bsm->opt_mvn_hint,1,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER,alphap,betap,Yp,Xp,0,0,rsb_op_spmv)
-	rnt = ( transA == blas_no_trans ) ?  bsm->opt_mvn_hint : bsm->opt_mvt_hint;
-	RSB_SPB_THREADS_PUSH
+		rsb_thread_t ornt = rsb_get_num_threads();
+		if((bsm->opt_mvn_hint) == RSB_SPB_THR_STR_AUTO_NEXTOP )
+			ornt = -ornt; /* want threads tuning */
+		RSB_SPB_AT_OP(bsm->mtxAp,ornt,bsm->opt_mvn_hint,1,RSB_FLAG_WANT_COLUMN_MAJOR_ORDER,alphap,betap,Yp,Xp,0,0,rsb_op_spmv)
+		RSB_SPB_THREADS_PUSH
 #endif /* RSB_BLAS_WANT_EXPERIMENTAL_TUNING */
-	if(!bsm->mtxAp)
-	       	goto err;
-	brv = RSB_ERROR_TO_BLAS_ERROR(rsb__do_spmv_general(trans,alphap,bsm->mtxAp,Xp,incX,betap,Yp,incY,RSB_OP_FLAG_DEFAULT RSB_DEFAULT_OUTER_NRHS_SPMV_ARGS));
+		if(!bsm->mtxAp)
+			goto err;
+		brv = RSB_ERROR_TO_BLAS_ERROR(rsb__do_spmv_general(trans,alphap,bsm->mtxAp,Xp,incX,betap,Yp,incY,RSB_OP_FLAG_DEFAULT RSB_DEFAULT_OUTER_NRHS_SPMV_ARGS));
 #if RSB_BLAS_WANT_EXPERIMENTAL_TUNING
-	RSB_SPB_THREADS_POP
+		RSB_SPB_THREADS_POP
 #endif /* RSB_BLAS_WANT_EXPERIMENTAL_TUNING */
 	}
 err:
@@ -1644,12 +1693,10 @@ int rsb__BLAS_Xussv(enum blas_trans_type transT, void * alpha, blas_sparse_matri
 		 \f$x \leftarrow \alpha T^{-H}x\f$
 	*/
 	const struct rsb_mtx_t *mtxAp = rsb__BLAS_inner_matrix_retrieve(T);
-	rsb_trans_t trans = rsb__blas_trans_to_rsb_trans(transT);
+	const rsb_trans_t trans = rsb__blas_trans_to_rsb_trans(transT);
 
 	return RSB_ERROR_TO_BLAS_ERROR(rsb__do_spsv(trans,alpha,mtxAp,x,incx,x,incx));
 }
-
-/* @endcond */
 
 static rsb_flags_t rsb__flags_from_props(rsb_bool_t is_hermitian, rsb_bool_t is_symmetric, rsb_bool_t is_lower, rsb_bool_t is_upper, rsb_type_t typecode)
 {
@@ -1657,8 +1704,8 @@ static rsb_flags_t rsb__flags_from_props(rsb_bool_t is_hermitian, rsb_bool_t is_
 
 	if(!RSB_IS_MATRIX_TYPE_COMPLEX(typecode) && ( is_hermitian == RSB_BOOL_TRUE ) )
 	{
-			is_hermitian = RSB_BOOL_FALSE;
-			is_symmetric = RSB_BOOL_TRUE;
+		is_hermitian = RSB_BOOL_FALSE;
+		is_symmetric = RSB_BOOL_TRUE;
 	}
 	if(is_hermitian == RSB_BOOL_TRUE && !RSB_EXPERIMENTAL_EXPAND_SYMMETRIC_MATRICES_BY_DEFAULT)
 	{
@@ -1713,15 +1760,16 @@ static rsb_blas_int_t rsb__mtx_flags_usgp( blas_sparse_matrix A, rsb_flags_t fla
 }
 
 /* The following shall be documented. */
-blas_sparse_matrix rsb_load_spblas_matrix_file_as_matrix_market(const rsb_char_t * filename, rsb_type_t typecode )
+blas_sparse_matrix rsb__load_spblas_matrix_file_as_matrix_market(const rsb_char_t * filename, rsb_type_t typecode )
 {
 	/**
+	 	\ingroup gr_internals
 	 	Loads a BLAS Sparse matrix from a Matrix Market file.
 		This is a \librsb extension.
 
 		Sets either blas_upper_triangular, blas_lower_triangular, blas_upper_hermitian, blas_lower_hermitian, blas_upper_symmetric or blas_lower_symmetric property according to the loaded file.
 	 */
-	struct rsb_coo_matrix_t coo;
+	struct rsb_coo_mtx_t coo;
 	blas_sparse_matrix A = blas_invalid_handle /*RSB_BLAS_INVALID_VAL*/;
 	rsb_bool_t is_symmetric = /*RSB_BOOL_MAYBE*/RSB_BOOL_FALSE;
 	rsb_bool_t is_hermitian = /*RSB_BOOL_MAYBE*/RSB_BOOL_FALSE;
@@ -1769,4 +1817,4 @@ ok:
 	return A; 
 }
 
-
+/* @endcond */

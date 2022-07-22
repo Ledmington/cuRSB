@@ -3,12 +3,12 @@
  @file
  @brief
 
- Performance info gathering code. (OBSOLETE)
+ Former performance info gathering code; now obsoleted and used as test.
  */
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -38,13 +38,13 @@ If not, see <http://www.gnu.org/licenses/>.
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- But for block compressed sparse stripes format.
+ For block coordinates format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -80,7 +80,7 @@ extern "C" {
 #include <clapack.h>
 #endif /* RSB_HAVE_CLAPACK_H */
 #include <math.h>
-rsb_err_t rsb_fit_hyp(double x[], double y[], size_t nb_loop, double * a, double * b, double *c, double c_s)
+rsb_err_t rsb__fit_hyp(double x[], double y[], size_t nb_loop, double * a, double * b, double *c, double c_s)
 {
 #if !(RSB_HAVE_CLAPACK && RSB_HAVE_CBLAS)
 	return RSB_ERR_UNSUPPORTED_OPERATION;
@@ -211,10 +211,12 @@ rsb_err_t rsb_fit_hyp(double x[], double y[], size_t nb_loop, double * a, double
 #if 
 		cblas_dgemm(CblasColMajor,CblasTrans,CblasNoTrans,3,3,n,1.0,G,n,G1,n,0.0,GG,3);
 		errval =  clapack_dgetrf(CblasColMajor,3,3,GG,3,ipivot);
-		if(RSB_SOME_ERROR(errval)) goto err;
+		if(RSB_SOME_ERROR(errval))
+			RSB_PERR_GOTO(err,RSB_ERRM_ES);
 		cblas_dgemv(CblasColMajor,CblasTrans,n,3,1.0,G,n,dy,1,0.0,ddy,1);
 		errval =  clapack_dgetrs(CblasColMajor,CblasNoTrans,3,1,GG,3,ipivot,ddy,3);
-		if(RSB_SOME_ERROR(errval)) goto err;
+		if(RSB_SOME_ERROR(errval))
+			RSB_PERR_GOTO(err,RSB_ERRM_ES);
 #else /* (RSB_HAVE_CLAPACK && RSB_HAVE_CBLAS) */
 #endif /* (RSB_HAVE_CLAPACK && RSB_HAVE_CBLAS) */
 	
@@ -308,7 +310,8 @@ rsb_err_t rsb_fit_hyp(double x[], double y[], size_t nb_loop, double * a, double
 	}
 
 	return RSB_ERR_NO_ERROR;
-	err:
+err:
+	RSB_ERROR(RSB_ERRM_ES);
 	RSB_DO_ERR_RETURN(errval)
 #endif /* RSB_HAVE_CLAPACK && RSB_HAVE_CBLAS */
 }
@@ -317,15 +320,9 @@ rsb_err_t rsb__do_referencebenchmark(void)
 {
 	/*!
 	 * \ingroup gr_bench
-	 * A complete benchmark program.
-	 * Will benchmark all supported matrix operations over all supported types
-	 * over all supported matrix partitionings.
-	 *
-	 * Moreover, it WILL perform analysis of performance data and results dumput.
+	 * Benchmark/test all supported matrix operations over all supported types.
          *
 	 * \return \rsb_errval_inp_param_msg
-         *
-	 * FIXME : UNFINISHED: should process and dump this info in a header file.
 	 */
 	struct rsb_global_reference_performance_info_t grpi;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -339,9 +336,10 @@ rsb_err_t rsb__do_referencebenchmark(void)
 	size_t kernels_n = RSB_ROWS_UNROLL_ARRAY_LENGTH*RSB_COLUMNS_UNROLL_ARRAY_LENGTH*RSB_IMPLEMENTED_MOPS*RSB_IMPLEMENTED_TYPES;
 	rsb_int ti=0;	/* type index */
 	int fbw,bwi;
+	const rsb_time_t mrbt = rsb__getenv_real_t("RSB_BENCHMARK_MIN_SECONDS", RSB_BENCHMARK_MIN_SECONDS);
 	RSB_BZERO_P(&grpi);
 
-	/* if((errval = rsb_lib_init(RSB_NULL_INIT_OPTIONS))){goto err;} we skip this to enable calling this from within our library (FIXME) */
+	/* if((errval = rsb_lib_init(RSB_NULL_INIT_OPTIONS))) RSB_PERR_GOTO(err,RSB_ERRM_ES); we skip this to enable calling this from within our library */
 
 	if(RSB_FITTING_SAMPLES<2)
 	{	
@@ -355,7 +353,7 @@ rsb_err_t rsb__do_referencebenchmark(void)
 	}
 	
 	tot_secs = -rsb_time();
-	pred_secs *= RSB_ROWS_UNROLL_ARRAY_LENGTH * RSB_COLUMNS_UNROLL_ARRAY_LENGTH * RSB_FITTING_SAMPLES * RSB_IMPLEMENTED_META_MOPS *  RSB_IMPLEMENTED_TYPES * RSB_BENCHMARK_MIN_SECONDS;
+	pred_secs *= RSB_ROWS_UNROLL_ARRAY_LENGTH * RSB_COLUMNS_UNROLL_ARRAY_LENGTH * RSB_FITTING_SAMPLES * RSB_IMPLEMENTED_META_MOPS *  RSB_IMPLEMENTED_TYPES * mrbt;
 	RSB_STDERR("#reference benchmarking of %zd kernels (no transposed, no symmetric, and so on) should take at least %lg seconds..\n",kernels_n,pred_secs);
 
 	/* double type benchmarking */
@@ -380,7 +378,7 @@ rsb_err_t rsb__do_referencebenchmark(void)
 				if(!mtxAp)
 				{
 					RSB_STDERR(RSB_ERRM_IE);
-					{errval = RSB_ERR_GENERIC_ERROR; goto err;}
+					{errval = RSB_ERR_GENERIC_ERROR; RSB_PERR_GOTO(err,RSB_ERRM_ES); }
 				}
 
 				{
@@ -393,17 +391,15 @@ rsb_err_t rsb__do_referencebenchmark(void)
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uaua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uaua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uaua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uaua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation spmv_uaua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -422,11 +418,12 @@ rsb__do_benchmark_double_spmv_uaua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_spmv_uaua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_spmv_uaua;}
 					++moi;
 
 					erri_double_spmv_uaua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -442,17 +439,15 @@ rsb__do_benchmark_double_spmv_uaua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uauz;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uauz;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uauz;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uauz;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation spmv_uauz */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -471,11 +466,12 @@ rsb__do_benchmark_double_spmv_uauz(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_spmv_uauz;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_spmv_uauz;}
 					++moi;
 
 					erri_double_spmv_uauz:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -493,17 +489,15 @@ rsb__do_benchmark_double_spmv_uauz(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uxua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uxua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uxua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_uxua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation spmv_uxua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -522,11 +516,12 @@ rsb__do_benchmark_double_spmv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_spmv_uxua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_spmv_uxua;}
 					++moi;
 
 					erri_double_spmv_uxua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -542,17 +537,15 @@ rsb__do_benchmark_double_spmv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_unua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_unua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_unua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_unua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation spmv_unua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -571,11 +564,12 @@ rsb__do_benchmark_double_spmv_unua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_spmv_unua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_spmv_unua;}
 					++moi;
 
 					erri_double_spmv_unua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -595,13 +589,13 @@ rsb__do_benchmark_double_spmv_unua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_sasa;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_sasa;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_sasa;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_sasa;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation spmv_sasa */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -620,11 +614,12 @@ rsb__do_benchmark_double_spmv_sasa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_spmv_sasa;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_spmv_sasa;}
 					++moi;
 
 					erri_double_spmv_sasa:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -640,17 +635,15 @@ rsb__do_benchmark_double_spmv_sasa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spsv_uxua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spsv_uxua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spsv_uxua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spsv_uxua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation spsv_uxua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -669,11 +662,12 @@ rsb__do_benchmark_double_spsv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_spsv_uxua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_spsv_uxua;}
 					++moi;
 
 					erri_double_spsv_uxua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -695,13 +689,13 @@ rsb__do_benchmark_double_spsv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_sxsa;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spmv_sxsa;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_sxsa;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spmv_sxsa;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation spmv_sxsa */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -720,11 +714,12 @@ rsb__do_benchmark_double_spmv_sxsa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_spmv_sxsa;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_spmv_sxsa;}
 					++moi;
 
 					erri_double_spmv_sxsa:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -746,13 +741,13 @@ rsb__do_benchmark_double_spmv_sxsa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spsv_sxsx;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_spsv_sxsx;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spsv_sxsx;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_spsv_sxsx;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation spsv_sxsx */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -771,11 +766,12 @@ rsb__do_benchmark_double_spsv_sxsx(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_spsv_sxsx;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_spsv_sxsx;}
 					++moi;
 
 					erri_double_spsv_sxsx:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -789,13 +785,13 @@ rsb__do_benchmark_double_spsv_sxsx(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 
 					
 					row_sums = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!row_sums) {errval = RSB_ERR_ENOMEM;goto erri_double_infty_norm;}
-					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {errval = RSB_ERR_ENOMEM;goto erri_double_infty_norm;}
+					if(!row_sums) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_infty_norm;}
+					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_infty_norm;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation infty_norm */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -814,11 +810,12 @@ rsb__do_benchmark_double_infty_norm(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_infty_norm;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_infty_norm;}
 					++moi;
 
 					erri_double_infty_norm:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(row_sums);
@@ -831,13 +828,13 @@ rsb__do_benchmark_double_infty_norm(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[
 
 					
 					row_sums = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!row_sums) {errval = RSB_ERR_ENOMEM;goto erri_double_rowssums;}
-					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {errval = RSB_ERR_ENOMEM;goto erri_double_rowssums;}
+					if(!row_sums) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_rowssums;}
+					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_rowssums;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation rowssums */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -856,11 +853,12 @@ rsb__do_benchmark_double_rowssums(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_rowssums;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_rowssums;}
 					++moi;
 
 					erri_double_rowssums:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(row_sums);
@@ -872,13 +870,13 @@ rsb__do_benchmark_double_rowssums(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 
 					
 					double * scale_factors = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!scale_factors) {errval = RSB_ERR_ENOMEM;goto erri_double_scale;}
-					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {errval = RSB_ERR_ENOMEM;goto erri_double_scale;}
+					if(!scale_factors) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_scale;}
+					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_scale;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation scale */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -897,11 +895,12 @@ rsb__do_benchmark_double_scale(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][c
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_scale;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_scale;}
 					++moi;
 
 					erri_double_scale:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(scale_factors);
@@ -916,7 +915,7 @@ rsb__do_benchmark_double_scale(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][c
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double library implementation for operation mat_stats */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 0;/* meta-op : we already measured matrix creation time  */
@@ -938,11 +937,12 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_mat_stats;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_mat_stats;}
 					++moi;
 
 					erri_double_mat_stats:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 				}
@@ -990,7 +990,7 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 				if(!mtxAp)
 				{
 					RSB_STDERR(RSB_ERRM_IE);
-					{errval = RSB_ERR_GENERIC_ERROR; goto err;}
+					{errval = RSB_ERR_GENERIC_ERROR; RSB_PERR_GOTO(err,RSB_ERRM_ES); }
 				}
 
 				{
@@ -1003,17 +1003,15 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uaua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uaua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uaua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uaua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation spmv_uaua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1032,11 +1030,12 @@ rsb__do_benchmark_float_spmv_uaua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_spmv_uaua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_spmv_uaua;}
 					++moi;
 
 					erri_float_spmv_uaua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1052,17 +1051,15 @@ rsb__do_benchmark_float_spmv_uaua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uauz;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uauz;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uauz;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uauz;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation spmv_uauz */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1081,11 +1078,12 @@ rsb__do_benchmark_float_spmv_uauz(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_spmv_uauz;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_spmv_uauz;}
 					++moi;
 
 					erri_float_spmv_uauz:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1103,17 +1101,15 @@ rsb__do_benchmark_float_spmv_uauz(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uxua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uxua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uxua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_uxua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation spmv_uxua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1132,11 +1128,12 @@ rsb__do_benchmark_float_spmv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_spmv_uxua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_spmv_uxua;}
 					++moi;
 
 					erri_float_spmv_uxua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1152,17 +1149,15 @@ rsb__do_benchmark_float_spmv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_unua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_unua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_unua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_unua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation spmv_unua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1181,11 +1176,12 @@ rsb__do_benchmark_float_spmv_unua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_spmv_unua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_spmv_unua;}
 					++moi;
 
 					erri_float_spmv_unua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1205,13 +1201,13 @@ rsb__do_benchmark_float_spmv_unua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_sasa;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_sasa;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_sasa;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_sasa;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation spmv_sasa */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1230,11 +1226,12 @@ rsb__do_benchmark_float_spmv_sasa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_spmv_sasa;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_spmv_sasa;}
 					++moi;
 
 					erri_float_spmv_sasa:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1250,17 +1247,15 @@ rsb__do_benchmark_float_spmv_sasa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spsv_uxua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spsv_uxua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spsv_uxua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spsv_uxua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation spsv_uxua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1279,11 +1274,12 @@ rsb__do_benchmark_float_spsv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_spsv_uxua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_spsv_uxua;}
 					++moi;
 
 					erri_float_spsv_uxua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1305,13 +1301,13 @@ rsb__do_benchmark_float_spsv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_sxsa;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spmv_sxsa;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_sxsa;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spmv_sxsa;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation spmv_sxsa */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1330,11 +1326,12 @@ rsb__do_benchmark_float_spmv_sxsa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_spmv_sxsa;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_spmv_sxsa;}
 					++moi;
 
 					erri_float_spmv_sxsa:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1356,13 +1353,13 @@ rsb__do_benchmark_float_spmv_sxsa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spsv_sxsx;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_spsv_sxsx;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spsv_sxsx;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_spsv_sxsx;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation spsv_sxsx */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1381,11 +1378,12 @@ rsb__do_benchmark_float_spsv_sxsx(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_spsv_sxsx;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_spsv_sxsx;}
 					++moi;
 
 					erri_float_spsv_sxsx:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1399,13 +1397,13 @@ rsb__do_benchmark_float_spsv_sxsx(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri
 
 					
 					row_sums = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!row_sums) {errval = RSB_ERR_ENOMEM;goto erri_float_infty_norm;}
-					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {errval = RSB_ERR_ENOMEM;goto erri_float_infty_norm;}
+					if(!row_sums) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_infty_norm;}
+					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_infty_norm;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation infty_norm */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1424,11 +1422,12 @@ rsb__do_benchmark_float_infty_norm(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_infty_norm;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_infty_norm;}
 					++moi;
 
 					erri_float_infty_norm:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(row_sums);
@@ -1441,13 +1440,13 @@ rsb__do_benchmark_float_infty_norm(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[r
 
 					
 					row_sums = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!row_sums) {errval = RSB_ERR_ENOMEM;goto erri_float_rowssums;}
-					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {errval = RSB_ERR_ENOMEM;goto erri_float_rowssums;}
+					if(!row_sums) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_rowssums;}
+					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_rowssums;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation rowssums */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1466,11 +1465,12 @@ rsb__do_benchmark_float_rowssums(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri]
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_rowssums;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_rowssums;}
 					++moi;
 
 					erri_float_rowssums:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(row_sums);
@@ -1482,13 +1482,13 @@ rsb__do_benchmark_float_rowssums(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri]
 
 					
 					float * scale_factors = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!scale_factors) {errval = RSB_ERR_ENOMEM;goto erri_float_scale;}
-					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {errval = RSB_ERR_ENOMEM;goto erri_float_scale;}
+					if(!scale_factors) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_scale;}
+					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_scale;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation scale */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1507,11 +1507,12 @@ rsb__do_benchmark_float_scale(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_scale;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_scale;}
 					++moi;
 
 					erri_float_scale:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(scale_factors);
@@ -1526,7 +1527,7 @@ rsb__do_benchmark_float_scale(&(grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float library implementation for operation mat_stats */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 0;/* meta-op : we already measured matrix creation time  */
@@ -1548,11 +1549,12 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_mat_stats;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_mat_stats;}
 					++moi;
 
 					erri_float_mat_stats:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 				}
@@ -1600,7 +1602,7 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 				if(!mtxAp)
 				{
 					RSB_STDERR(RSB_ERRM_IE);
-					{errval = RSB_ERR_GENERIC_ERROR; goto err;}
+					{errval = RSB_ERR_GENERIC_ERROR; RSB_PERR_GOTO(err,RSB_ERRM_ES); }
 				}
 
 				{
@@ -1613,17 +1615,15 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uaua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uaua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uaua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uaua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation spmv_uaua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1642,11 +1642,12 @@ rsb__do_benchmark_float_complex_spmv_uaua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_spmv_uaua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_spmv_uaua;}
 					++moi;
 
 					erri_float_complex_spmv_uaua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1662,17 +1663,15 @@ rsb__do_benchmark_float_complex_spmv_uaua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uauz;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uauz;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uauz;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uauz;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation spmv_uauz */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1691,11 +1690,12 @@ rsb__do_benchmark_float_complex_spmv_uauz(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_spmv_uauz;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_spmv_uauz;}
 					++moi;
 
 					erri_float_complex_spmv_uauz:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1713,17 +1713,15 @@ rsb__do_benchmark_float_complex_spmv_uauz(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uxua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uxua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uxua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_uxua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation spmv_uxua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1742,11 +1740,12 @@ rsb__do_benchmark_float_complex_spmv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_spmv_uxua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_spmv_uxua;}
 					++moi;
 
 					erri_float_complex_spmv_uxua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1762,17 +1761,15 @@ rsb__do_benchmark_float_complex_spmv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_unua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_unua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_unua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_unua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation spmv_unua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1791,11 +1788,12 @@ rsb__do_benchmark_float_complex_spmv_unua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_spmv_unua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_spmv_unua;}
 					++moi;
 
 					erri_float_complex_spmv_unua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1815,13 +1813,13 @@ rsb__do_benchmark_float_complex_spmv_unua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_sasa;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_sasa;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_sasa;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_sasa;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation spmv_sasa */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1840,11 +1838,12 @@ rsb__do_benchmark_float_complex_spmv_sasa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_spmv_sasa;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_spmv_sasa;}
 					++moi;
 
 					erri_float_complex_spmv_sasa:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1860,17 +1859,15 @@ rsb__do_benchmark_float_complex_spmv_sasa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spsv_uxua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spsv_uxua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spsv_uxua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spsv_uxua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation spsv_uxua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1889,11 +1886,12 @@ rsb__do_benchmark_float_complex_spsv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_spsv_uxua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_spsv_uxua;}
 					++moi;
 
 					erri_float_complex_spsv_uxua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1915,13 +1913,13 @@ rsb__do_benchmark_float_complex_spsv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_sxsa;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_sxsa;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_sxsa;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spmv_sxsa;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation spmv_sxsa */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1940,11 +1938,12 @@ rsb__do_benchmark_float_complex_spmv_sxsa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_spmv_sxsa;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_spmv_sxsa;}
 					++moi;
 
 					erri_float_complex_spmv_sxsa:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -1966,13 +1965,13 @@ rsb__do_benchmark_float_complex_spmv_sxsa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spsv_sxsx;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_float_complex_spsv_sxsx;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spsv_sxsx;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_spsv_sxsx;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation spsv_sxsx */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -1991,11 +1990,12 @@ rsb__do_benchmark_float_complex_spsv_sxsx(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_spsv_sxsx;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_spsv_sxsx;}
 					++moi;
 
 					erri_float_complex_spsv_sxsx:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -2009,13 +2009,13 @@ rsb__do_benchmark_float_complex_spsv_sxsx(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 
 					
 					row_sums = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!row_sums) {errval = RSB_ERR_ENOMEM;goto erri_float_complex_infty_norm;}
-					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {errval = RSB_ERR_ENOMEM;goto erri_float_complex_infty_norm;}
+					if(!row_sums) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_infty_norm;}
+					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_infty_norm;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation infty_norm */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2034,11 +2034,12 @@ rsb__do_benchmark_float_complex_infty_norm(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_infty_norm;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_infty_norm;}
 					++moi;
 
 					erri_float_complex_infty_norm:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(row_sums);
@@ -2051,13 +2052,13 @@ rsb__do_benchmark_float_complex_infty_norm(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 
 					
 					row_sums = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!row_sums) {errval = RSB_ERR_ENOMEM;goto erri_float_complex_rowssums;}
-					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {errval = RSB_ERR_ENOMEM;goto erri_float_complex_rowssums;}
+					if(!row_sums) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_rowssums;}
+					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_rowssums;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation rowssums */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2076,11 +2077,12 @@ rsb__do_benchmark_float_complex_rowssums(&(grpi.gpi[ti].pipmo[moi].pipfs[si].sec
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_rowssums;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_rowssums;}
 					++moi;
 
 					erri_float_complex_rowssums:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(row_sums);
@@ -2092,13 +2094,13 @@ rsb__do_benchmark_float_complex_rowssums(&(grpi.gpi[ti].pipmo[moi].pipfs[si].sec
 
 					
 					float complex * scale_factors = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!scale_factors) {errval = RSB_ERR_ENOMEM;goto erri_float_complex_scale;}
-					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {errval = RSB_ERR_ENOMEM;goto erri_float_complex_scale;}
+					if(!scale_factors) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_scale;}
+					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_float_complex_scale;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation scale */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2117,11 +2119,12 @@ rsb__do_benchmark_float_complex_scale(&(grpi.gpi[ti].pipmo[moi].pipfs[si].second
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_scale;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_scale;}
 					++moi;
 
 					erri_float_complex_scale:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(scale_factors);
@@ -2136,7 +2139,7 @@ rsb__do_benchmark_float_complex_scale(&(grpi.gpi[ti].pipmo[moi].pipfs[si].second
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our float complex library implementation for operation mat_stats */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 0;/* meta-op : we already measured matrix creation time  */
@@ -2158,11 +2161,12 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_float_complex_mat_stats;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_float_complex_mat_stats;}
 					++moi;
 
 					erri_float_complex_mat_stats:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 				}
@@ -2210,7 +2214,7 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 				if(!mtxAp)
 				{
 					RSB_STDERR(RSB_ERRM_IE);
-					{errval = RSB_ERR_GENERIC_ERROR; goto err;}
+					{errval = RSB_ERR_GENERIC_ERROR; RSB_PERR_GOTO(err,RSB_ERRM_ES); }
 				}
 
 				{
@@ -2223,17 +2227,15 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uaua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uaua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uaua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uaua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation spmv_uaua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2252,11 +2254,12 @@ rsb__do_benchmark_double_complex_spmv_uaua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_spmv_uaua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_spmv_uaua;}
 					++moi;
 
 					erri_double_complex_spmv_uaua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -2272,17 +2275,15 @@ rsb__do_benchmark_double_complex_spmv_uaua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uauz;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uauz;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uauz;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uauz;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation spmv_uauz */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2301,11 +2302,12 @@ rsb__do_benchmark_double_complex_spmv_uauz(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_spmv_uauz;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_spmv_uauz;}
 					++moi;
 
 					erri_double_complex_spmv_uauz:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -2323,17 +2325,15 @@ rsb__do_benchmark_double_complex_spmv_uauz(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uxua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uxua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uxua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_uxua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation spmv_uxua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2352,11 +2352,12 @@ rsb__do_benchmark_double_complex_spmv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_spmv_uxua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_spmv_uxua;}
 					++moi;
 
 					erri_double_complex_spmv_uxua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -2372,17 +2373,15 @@ rsb__do_benchmark_double_complex_spmv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_unua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_unua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_unua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_unua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation spmv_unua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2401,11 +2400,12 @@ rsb__do_benchmark_double_complex_spmv_unua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_spmv_unua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_spmv_unua;}
 					++moi;
 
 					erri_double_complex_spmv_unua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -2425,13 +2425,13 @@ rsb__do_benchmark_double_complex_spmv_unua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_sasa;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_sasa;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_sasa;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_sasa;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation spmv_sasa */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2450,11 +2450,12 @@ rsb__do_benchmark_double_complex_spmv_sasa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_spmv_sasa;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_spmv_sasa;}
 					++moi;
 
 					erri_double_complex_spmv_sasa:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -2470,17 +2471,15 @@ rsb__do_benchmark_double_complex_spmv_sasa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 					rsb_coo_idx_t nrhs=4;
 					rsb_coo_idx_t bstride = cols+bc;
 					rsb_coo_idx_t cstride = rows+br;
-					rsb_coo_idx_t incx=1,incy=1;
-					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spsv_uxua;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spsv_uxua;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spsv_uxua;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spsv_uxua;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation spsv_uxua */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2499,11 +2498,12 @@ rsb__do_benchmark_double_complex_spsv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_spsv_uxua;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_spsv_uxua;}
 					++moi;
 
 					erri_double_complex_spsv_uxua:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -2525,13 +2525,13 @@ rsb__do_benchmark_double_complex_spsv_uxua(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_sxsa;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_sxsa;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_sxsa;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spmv_sxsa;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation spmv_sxsa */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2550,11 +2550,12 @@ rsb__do_benchmark_double_complex_spmv_sxsa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_spmv_sxsa;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_spmv_sxsa;}
 					++moi;
 
 					erri_double_complex_spmv_sxsa:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -2576,13 +2577,13 @@ rsb__do_benchmark_double_complex_spmv_sxsa(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 					incx=1,incy=1;	/* this is just a pacifier for "unused variable"-like warnings */
 					rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
 					out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
-					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spsv_sxsx;}
-					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){errval = RSB_ERR_ENOMEM;goto erri_double_complex_spsv_sxsx;}
+					if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spsv_sxsx;}
+					if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,1)){RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_spsv_sxsx;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation spsv_sxsx */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2601,11 +2602,12 @@ rsb__do_benchmark_double_complex_spsv_sxsx(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_spsv_sxsx;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_spsv_sxsx;}
 					++moi;
 
 					erri_double_complex_spsv_sxsx:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(out);
@@ -2619,13 +2621,13 @@ rsb__do_benchmark_double_complex_spsv_sxsx(&(grpi.gpi[ti].pipmo[moi].pipfs[si].s
 
 					
 					row_sums = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!row_sums) {errval = RSB_ERR_ENOMEM;goto erri_double_complex_infty_norm;}
-					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {errval = RSB_ERR_ENOMEM;goto erri_double_complex_infty_norm;}
+					if(!row_sums) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_infty_norm;}
+					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_infty_norm;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation infty_norm */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2644,11 +2646,12 @@ rsb__do_benchmark_double_complex_infty_norm(&(grpi.gpi[ti].pipmo[moi].pipfs[si].
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_infty_norm;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_infty_norm;}
 					++moi;
 
 					erri_double_complex_infty_norm:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(row_sums);
@@ -2661,13 +2664,13 @@ rsb__do_benchmark_double_complex_infty_norm(&(grpi.gpi[ti].pipmo[moi].pipfs[si].
 
 					
 					row_sums = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!row_sums) {errval = RSB_ERR_ENOMEM;goto erri_double_complex_rowssums;}
-					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {errval = RSB_ERR_ENOMEM;goto erri_double_complex_rowssums;}
+					if(!row_sums) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_rowssums;}
+					if(rsb__fill_with_ones(row_sums,mtxAp->typecode,cols,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_rowssums;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation rowssums */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2686,11 +2689,12 @@ rsb__do_benchmark_double_complex_rowssums(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_rowssums;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_rowssums;}
 					++moi;
 
 					erri_double_complex_rowssums:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(row_sums);
@@ -2702,13 +2706,13 @@ rsb__do_benchmark_double_complex_rowssums(&(grpi.gpi[ti].pipmo[moi].pipfs[si].se
 
 					
 					double complex * scale_factors = rsb__malloc(mtxAp->el_size*(rows+br));
-					if(!scale_factors) {errval = RSB_ERR_ENOMEM;goto erri_double_complex_scale;}
-					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {errval = RSB_ERR_ENOMEM;goto erri_double_complex_scale;}
+					if(!scale_factors) {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_scale;}
+					if(rsb__fill_with_ones(scale_factors,mtxAp->typecode,rows,1))     {RSB_ERROR(RSB_ERRM_ES);errval = RSB_ERR_ENOMEM;goto erri_double_complex_scale;}
 
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation scale */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 
@@ -2727,11 +2731,12 @@ rsb__do_benchmark_double_complex_scale(&(grpi.gpi[ti].pipmo[moi].pipfs[si].secon
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_scale;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_scale;}
 					++moi;
 
 					erri_double_complex_scale:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 					RSB_CONDITIONAL_FREE(scale_factors);
@@ -2746,7 +2751,7 @@ rsb__do_benchmark_double_complex_scale(&(grpi.gpi[ti].pipmo[moi].pipfs[si].secon
 					grpi.gpi[ti].pipmo[moi].blocks_per_row[si]=bw*bc; /* FIXME : TEMPORARY !!  */
 
 					/* we benchmark our double complex library implementation for operation mat_stats */
-					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+					grpi.gpi[ti].pipmo[moi].pipfs[si].seconds[ri][ci] = mrbt; /* min seconds */
 					grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 					errval = 0;/* meta-op : we already measured matrix creation time  */
@@ -2768,11 +2773,12 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 						grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci] /
 						grpi.gpi[ti].pipmo[moi].pipfs[si].fillin[ri][ci];
 
-					if(RSB_SOME_ERROR(errval)){goto erri_double_complex_mat_stats;}
+					if(RSB_SOME_ERROR(errval)){RSB_ERROR(RSB_ERRM_ES);goto erri_double_complex_mat_stats;}
 					++moi;
 
 					erri_double_complex_mat_stats:
-					if(RSB_SOME_ERROR(errval))goto err;
+					if(RSB_SOME_ERROR(errval))
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 					RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 				}
@@ -2806,7 +2812,6 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 #if RSB_WANT_PERFORMANCE_FILE
 	rsb__save_global_reference_performance_info(&grpi);
 #endif /* RSB_WANT_PERFORMANCE_FILE */
-	return RSB_ERR_NO_ERROR;	/* FIXME : temporary */
 
 	ti=0;	/* type index */
 	for(ti=0;ti<RSB_IMPLEMENTED_TYPES	;++ti)
@@ -2834,22 +2839,32 @@ grpi.gpi[ti].pipmo[moi].pipfs[si].m_flops[ri][ci]=((double)rsb__do_get_matrix_nn
 				/*
 				 * FIXME : make this fitting analysis offline respect our benchmark!
 				 */
-				errval = rsb_fit_hyp(
+				errval = rsb__fit_hyp(
 						x, y, 3, 
 						&(grpi.gpi[ti].pipmo[moi].alpha[ri][ci]),
 						&(grpi.gpi[ti].pipmo[moi].beta [ri][ci]),
 						&(grpi.gpi[ti].pipmo[moi].gamma[ri][ci]), (double)bc
 						/* FIXME : is this right ?*/
 					);
-				if(RSB_SOME_ERROR(errval))goto err;
+				if(RSB_SOME_ERROR(errval))
+				{
+					if(errval==RSB_ERR_UNSUPPORTED_OPERATION)
+						; /* not a problem: this model is obsolete */
+						/* RSB_ERROR(RSB_ERRM_UNSUPPORTED_OPERATION); */
+					else
+						RSB_PERR_GOTO(err,RSB_ERRM_ES);
+				}
+
 			}
 		}
 	}
 
-	if( rsb_lib_exit(RSB_NULL_EXIT_OPTIONS) )
-		return RSB_ERR_INTERNAL_ERROR;
-
-	return RSB_ERR_NO_ERROR;
+	errval = rsb_lib_exit(RSB_NULL_EXIT_OPTIONS);
+	if( RSB_SOME_ERROR(errval) )
+	{
+		errval = RSB_ERR_INTERNAL_ERROR;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+	}
 err:
 	RSB_DO_ERR_RETURN(errval)
 }

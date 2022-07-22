@@ -42,6 +42,8 @@ RSB_M4_MEMBER(`LC',WANT_MATRIX_STORAGE)dnl
 /**
  * No linked lists formats compiled in.
  */
+#include "rsb_internals.h"
+RSB_EMPTY_FILE_FILLER 
 ',`dnl
 dnl
 dnl

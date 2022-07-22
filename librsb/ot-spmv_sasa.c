@@ -1,1 +1,1 @@
-static int f(){return 0;}
+int f_spmv_sasa(void){return 0;}

@@ -72,7 +72,7 @@ ifelse(type,`float complex',`REAL(KIND(1.e0))')`'dnl
 ifelse(type,`double complex',`REAL(KIND(1.d0))')`'dnl
 ')`'dnl
 dnl
-ifelse(type,`int',`INTEGER')`'dnl
+ifelse(type,`int',`INTEGER(KIND=RSB_BLAS_IDX_KIND)')`'dnl lda,ldb,nrhs,...
 dnl FIXME : and, for other, non canonical types ? FIXME 
 dnl
 popdef(`type')`'dnl
@@ -327,7 +327,7 @@ dnl
 define(`RSB_M4_SBLAS_SUBROUTINE_INFO_DECLARATION',`dnl
 pushdef(`id',$1)`'dnl
 dnl RSB_M4_PSBLAS_SUBROUTINE_INFO_DECLARATION($@)`'dnl
-          INTEGER, INTENT(OUT) ::id
+          INTEGER(KIND=RSB_BLAS_IST_KIND), INTENT(OUT) ::id
 dnl
 popdef(`id')`'dnl
 ')dnl
@@ -368,8 +368,8 @@ dnl
 define(`RSB_M4_C_TYPE_TO_FORTRAN_TYPE',`dnl
 pushdef(`type',$1)`'dnl
 ifelse(type,`blas_sparse_matrix',`INTEGER',`dnl
-ifelse(type,`rsb_blas_int_t',`INTEGER',`dnl
-ifelse(type,`rsb_blas_int_t*',`INTEGER',`dnl
+ifelse(type,`rsb_blas_int_t',`INTEGER(KIND=RSB_BLAS_IDX_KIND)',`dnl
+ifelse(type,`rsb_blas_int_t*',`INTEGER(KIND=RSB_BLAS_IDX_KIND)',`dnl
 ifelse(type,`enum blas_trans_type',`INTEGER',`dnl
 ifelse(type,`enum`'blas_trans_type',`INTEGER',`dnl
 ifelse(type,`enum blas_trans_type ',`INTEGER',`dnl

@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -43,27 +43,26 @@ rsb_err_t rsb__vectors_reinit(void *rhs, void *out, rsb_type_t typecode, rsb_nnz
 
 void * rsb__calloc_vector(rsb_nnz_idx_t n, rsb_type_t typecode)
 {
-       	size_t so = RSB_SIZEOF(typecode);
+	const size_t so = RSB_SIZEOF(typecode);
 	return rsb__calloc(so*n);
 }
 
 void * rsb__malloc_vector(rsb_nnz_idx_t n, rsb_type_t typecode)
 {
-       	size_t so = RSB_SIZEOF(typecode);
+	const size_t so = RSB_SIZEOF(typecode);
 	return rsb__malloc(so*n);
 }
 
 void * rsb__realloc_vector(void* p, rsb_nnz_idx_t n, rsb_type_t typecode)
 {
-       	size_t so = RSB_SIZEOF(typecode);
+	const size_t so = RSB_SIZEOF(typecode);
 	return rsb__realloc(p,so*n);
 }
 
-rsb_err_t rsb__init_rsb_struct_from_coo(struct rsb_mtx_t *mtxAp, const struct rsb_coo_matrix_t *coop)
+rsb_err_t rsb__init_rsb_struct_from_coo(struct rsb_mtx_t *mtxAp, const struct rsb_coo_mtx_t *coop)
 {
-	/* FIXME: UNFINISHED  */
-	/* FIXME: static, local, new, and thus no error checking! */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	const rsb_err_t errval = RSB_ERR_NO_ERROR;
+
 	rsb__init_struct(mtxAp);
 	mtxAp->bpntr=coop->IA;
 	mtxAp->bindx=coop->JA;
@@ -80,21 +79,22 @@ rsb_err_t rsb__init_rsb_struct_from_coo(struct rsb_mtx_t *mtxAp, const struct rs
 	mtxAp->coff=0;
 	mtxAp->broff=0;
 	mtxAp->bcoff=0;
+
 	return errval;
 }
 
-rsb_err_t rsb__do_spmv_fullword_coo(const struct rsb_coo_matrix_t*coop, rsb_flags_t flags, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA)
+rsb_err_t rsb__do_spmv_fullword_coo(const struct rsb_coo_mtx_t*coop, rsb_flags_t flags, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA)
 {
 	/* FIXME: UNFINISHED  */
 	struct rsb_mtx_t mtxA;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	RSB_DO_ERROR_CUMULATE(errval,rsb__init_rsb_struct_from_coo(&mtxA,coop));
+	rsb__init_rsb_struct_from_coo(&mtxA,coop);
 	if(RSB_SOME_ERROR(errval)) goto err;
 	flags = RSB_FLAG_DEFAULT_COO_MATRIX_FLAGS|RSB_DO_FLAG_FILTEROUT((flags),RSB_DO_FLAGS_EXTRACT_STORAGE(flags));
 	if((errval = rsb__do_set_init_storage_flags(&mtxA,flags))!=RSB_ERR_NO_ERROR)
 		goto err;
 	RSB_DO_FLAG_ADD(mtxA.flags,RSB_DO_FLAG_FILTERONLY(flags,RSB_FLAGS_RSB_AGNOSTIC));
-	RSB_DO_ERROR_CUMULATE(errval,rsb_do_spmv_non_recursive(&mtxA,x,y,alphap,betap,incx,incy,transA RSB_DEFAULT_INNER_NRHS_SPMV_ARGS	) );
+	RSB_DO_ERROR_CUMULATE(errval,rsb__do_spmv_non_recursive(&mtxA,x,y,alphap,betap,incx,incy,transA RSB_DEFAULT_INNER_NRHS_SPMV_ARGS	) );
 err:
 	return errval;
 }
@@ -102,8 +102,7 @@ err:
 static rsb_err_t rsb_do_check_normwise_backward_error(const struct rsb_mtx_t*mtxAp, const void *X, const void *AX, const void * B, rsb_trans_t transA)
 {
 	/* normwise backward error in the infinity norm */
-	/* FIXME: UNFINISHED  */
-	/* FIXME: this won't work for integer, of course  */
+	/* Note: this won't work for integer, obviously.  */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_aligned_t Xinorm[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 	rsb_aligned_t Binorm[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
@@ -114,32 +113,42 @@ static rsb_err_t rsb_do_check_normwise_backward_error(const struct rsb_mtx_t*mtx
 	rsb_type_t typecode = mtxAp->typecode;
 	rsb_coo_idx_t tm = RSB_MTX_TRANSPOSED_ROWS(mtxAp,transA);
 	rsb_coo_idx_t tk = RSB_MTX_TRANSPOSED_COLS(mtxAp,transA);
+
 	RSB_NUMERICAL_TYPE_SET_ELEMENT_FROM_DOUBLE(eps,RSB_NORMWISE_BACKWARD_ERROR_TOLERANCE,typecode);
-	if(RSB_SOME_ERROR(errval = rsb__do_matrix_norm(mtxAp,Ainorm,RSB_EXTF_NORM_INF))){goto err;};
-	if(RSB_SOME_ERROR(errval = rsb__vector_sum_of_abs(Xinorm,X,typecode,tk))){goto err;}
-	if(RSB_SOME_ERROR(errval = rsb__vector_sum_of_abs(Binorm,B,typecode,tm))){goto err;}
-	if(RSB_SOME_ERROR(errval = rsb__vector_mult(Ainorm,Xinorm,denominator,typecode,1))){goto err;};;
-	if(RSB_SOME_ERROR(errval = rsb__util_vector_add(denominator,Binorm,typecode,1))){goto err;};;
-	if(RSB_SOME_ERROR(errval = rsb__vector_sum_of_abs_diffs(err,AX,B,typecode,tk))){goto err;};
-	if(RSB_SOME_ERROR(errval = rsb__util_vector_div(err,denominator,typecode,1))){goto err;};;
-	// checking if 
+	if(RSB_SOME_ERROR(errval = rsb__do_matrix_norm(mtxAp,Ainorm,RSB_EXTF_NORM_INF))){RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+	if(RSB_SOME_ERROR(errval = rsb__vector_sum_of_abs(Xinorm,X,typecode,tk))){RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+	if(RSB_SOME_ERROR(errval = rsb__vector_sum_of_abs(Binorm,B,typecode,tm))){RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+	if(RSB_SOME_ERROR(errval = rsb__vector_mult(Ainorm,Xinorm,denominator,typecode,1))){RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+	if(RSB_SOME_ERROR(errval = rsb__util_vector_add(denominator,Binorm,typecode,1))){RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+	if(RSB_IS_ELEMENT_ZERO(denominator,typecode))
+	{
+		errval = RSB__ERR_ZERO_INF_NORM;
+#if RSB_OUT_ERR_VERBOSITY>=3
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+#else /* RSB_OUT_ERR_VERBOSITY */
+		goto err;
+#endif /* RSB_OUT_ERR_VERBOSITY */
+	}
+	if(RSB_SOME_ERROR(errval = rsb__vector_sum_of_abs_diffs(err,AX,B,typecode,tk))){RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+	if(RSB_SOME_ERROR(errval = rsb__util_vector_div(err,denominator,typecode,1))){RSB_PERR_GOTO(err,RSB_ERRM_ES);}
+
 	if(!RSB_IS_ELEMENT_LESS_THAN(err,eps,typecode))
 	{
 		errval = RSB_ERR_INTERNAL_ERROR;
 		if(RSB_WANT_VERBOSE_ACCURACY_TESTS)
-		RSB_ERROR("error is %lg, more than %lg!\n",*(double*)(&err[0]),*(double*)(&eps[0]));
+			RSB_ERROR("error is %lg, more than %lg!\n",*(double*)(&err[0]),*(double*)(&eps[0])); /* consider using rsb__debug_print_value */
 		goto err;
 	}
 	else
 	{
 		if(RSB_WANT_VERBOSE_ACCURACY_TESTS)
-		RSB_STDOUT("error is %lg, less than %lg.\n",*(double*)(&err[0]),*(double*)(&eps[0]));
+			RSB_STDOUT("error is %lg, less than %lg.\n",*(double*)(&err[0]),*(double*)(&eps[0]));
 	}
 err:
 	return errval;
 }
 
-rsb_err_t rsb__do_spmv_accuracy_test(const struct rsb_coo_matrix_t*coop, rsb_thread_t * ca, rsb_thread_t cn, rsb_flags_t flags)
+rsb_err_t rsb__do_spmv_accuracy_test(const struct rsb_coo_mtx_t*coop, rsb_thread_t * ca, rsb_thread_t cn, rsb_flags_t flags)
 {
 	/* FIXME: UNFINISHED  */
 	/* this is mostly a debug function */
@@ -200,7 +209,7 @@ rsb_err_t rsb__do_spmv_accuracy_test(const struct rsb_coo_matrix_t*coop, rsb_thr
 		{
 			/* input not cleaned up? */
 			if(RSB_WANT_VERBOSE_ACCURACY_TESTS)
-			RSB_STDOUT("%d vs %d nnz ? input not cleaned up?\n",mtxAp->nnz,coop->nnz);
+				RSB_STDOUT("%ld vs %ld nnz ? input not cleaned up?\n",(long int)mtxAp->nnz,(long int)coop->nnz);
 			errval = RSB_ERR_BADARGS;
 			goto ierr;
 		}
@@ -212,16 +221,23 @@ rsb_err_t rsb__do_spmv_accuracy_test(const struct rsb_coo_matrix_t*coop, rsb_thr
 		//rsb__debug_print_vector(ysum,1,coop->typecode,1);
 		if(!RSB_SOME_ERROR(rsb__do_are_same(ysum,zsum,1,coop->typecode,1,1)))
 		{
-			/* same result (no numerical error at all). no further check needed. */
+			/* same result (no numerical error at all). no further check really needed. */
 			if(RSB_WANT_VERBOSE_ACCURACY_TESTS)
-			RSB_STDOUT("Identical values.\n");
+				RSB_STDOUT("Bitwise identical values.\n");
+			errval = rsb_do_check_normwise_backward_error(mtxAp,X,Y,Z,transA);
+			if(errval==RSB__ERR_ZERO_INF_NORM)
+				errval = RSB_ERR_NO_ERROR; /* ok, happens */
+			if(RSB_SOME_ERROR(errval))
+				RSB_PERR_GOTO(ierr,RSB_ERRM_ES);
 		}
 		else
 		{
 			if(RSB_WANT_VERBOSE_ACCURACY_TESTS)
-			RSB_STDOUT("Non identical values. Checking backward error.\n");
+				RSB_STDOUT("Non-identical values. Checking backward error.\n");
 			errval = rsb_do_check_normwise_backward_error(mtxAp,X,Y,Z,transA);
-			if(RSB_SOME_ERROR(errval)){goto ierr;}
+			if(errval==RSB__ERR_ZERO_INF_NORM)
+				RSB_PERR_GOTO(ierr,"Error: Null infinite norm and different spmv results !?\n");
+			if(RSB_SOME_ERROR(errval)){RSB_PERR_GOTO(ierr,RSB_ERRM_ES);}
 		}
 ierr:
 		RSB_MTX_FREE(mtxAp);

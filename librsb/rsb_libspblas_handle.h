@@ -53,13 +53,16 @@ extern "C" {
 #define RSB_BLAS_DIAG_CHAR(DIAG) ((DIAG)==blas_non_unit_diag?'E':'I')
 #define RSB_BLAS_INVALID_VAL -1
 
-#define RSB_SPB_INTERFACE_PREAMBLE RSB_INTERFACE_PREAMBLE
+#define RSB_WMSG_INIT	"Are you sure to have initialized the library? Seems not! Expect a crash..." /* TODO: move out of here */
+#define RSB_CHECK_LIB_INIT_CHECK	if(!rsb__do_was_initialized()) RSB_WARN(RSB_WMSG_INIT "\n"); /* TODO: this shall become an error */
+#define RSB_SPB_INTERFACE_PREAMBLE RSB_INTERFACE_PREAMBLE RSB_CHECK_LIB_INIT_CHECK
 #define RSB_SPB_INTERFACE_RETURN(EXP) { int istat = EXP; RSB_INTERFACE_ENDCMD RSB_DO_ERR_MANIFEST_INTERFACE(RSB_BLAS_ERROR_TO_RSB_ERROR(istat)) return istat; }
 #define RSB_SPB_INTERFACE_RETURN_HDL(EXP) { int handle = EXP; RSB_INTERFACE_ENDCMD RSB_DO_ERR_MANIFEST_INTERFACE(RSB_BLAS_HANDLE_TO_RSB_ERROR(handle)) return handle; }
 #define RSB_SPB_INTERFACE_RETURN_VOID() { RSB_INTERFACE_ENDCMD return; }
 #define RSB_SPB_INTERFACE_RETURN_EXP(EXP) { RSB_INTERFACE_ENDCMD return (EXP); }
 
 /*typedef rsb_blas_sparse_matrix_handle_t blas_sparse_matrix;*/
+typedef int rsb_blas_pname_t; /* here and in generated code */
 
 /*!
  * \ingroup rsb_doc_sparse_blas
@@ -69,12 +72,12 @@ extern "C" {
 struct rsb_blas_sparse_matrix_t
 {
 	struct rsb_mtx_t * mtxAp;
-	struct rsb_coo_matrix_t coomatrix;
+	struct rsb_coo_mtx_t coomatrix;
 	rsb_nnz_idx_t nnzin;
 	blas_sparse_matrix handle;
 	/* rsb_blas_int_t prop ;*/
 	int k, l, off;
-	int*rbp,*cbp;
+	rsb_blas_int_t *rbp,*cbp;
 	enum blas_handle_type   type;
 	enum blas_diag_type diag_type;
 	enum blas_symmetry_type symmetry;
@@ -130,7 +133,7 @@ rsb_blas_int_t rsb__BLAS_ussp( blas_sparse_matrix A, rsb_blas_int_t pname );
 rsb_blas_int_t rsb__BLAS_Xusds( blas_sparse_matrix A );
 rsb_trans_t rsb__blas_trans_to_rsb_trans(enum blas_trans_type trans);
 rsb_trans_t rsb__do_psblas_trans_to_rsb_trans(const char trans);
-rsb_order_t rsb_blas_order_to_rsb_order(enum blas_order_type order);
+rsb_order_t rsb__blas_order_to_rsb_order(enum blas_order_type order);
 blas_sparse_matrix rsb__BLAS_new_matrix_begin(rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnzest, rsb_type_t typecode, rsb_coo_idx_t br, rsb_coo_idx_t bc, const rsb_coo_idx_t*rbp, const rsb_coo_idx_t*cbp);
 rsb_err_t rsb__BLAS_handles_free(void);
 
@@ -139,7 +142,9 @@ int rsb__BLAS_Xusget_diag(blas_sparse_matrix A,void * d);
 int rsb__BLAS_Xusget_rows_sparse(blas_sparse_matrix A,void *  VA, rsb_blas_int_t * IA, rsb_blas_int_t * JA, rsb_blas_int_t * nnz, rsb_blas_int_t fr, rsb_blas_int_t lr);
 int rsb__BLAS_Xusget_matrix_nnz(blas_sparse_matrix A, rsb_blas_int_t * nnz);
 int rsb__BLAS_Xusget_infinity_norm(blas_sparse_matrix A, void * in, enum blas_trans_type trans);
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__BLAS_Xusget_rows_sums(blas_sparse_matrix A, void * rs, enum blas_trans_type trans);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 int rsb__BLAS_Xusset_elements(blas_sparse_matrix A,const rsb_blas_int_t * ia, const rsb_blas_int_t *ja, const void *  va, rsb_blas_int_t nnz);
 int rsb__BLAS_Xusset_element(blas_sparse_matrix A,rsb_blas_int_t i, rsb_blas_int_t j, const void * v);
 int rsb__BLAS_Xusget_element(blas_sparse_matrix A,rsb_blas_int_t i, rsb_blas_int_t j, void * v);
@@ -148,7 +153,7 @@ int rsb__BLAS_Xusmm(enum blas_trans_type transA, const void * alphap, blas_spars
 int rsb__BLAS_Xussv(enum blas_trans_type transT, void * alpha, blas_sparse_matrix T, void * x, rsb_blas_int_t incx);
 void blas_usgp_f_( blas_sparse_matrix*A, rsb_blas_int_t * pname, rsb_blas_int_t * istat );
 void blas_ussp_f_( blas_sparse_matrix*A, rsb_blas_int_t * pname, rsb_blas_int_t * istat );
-/* blas_sparse_matrix rsb_load_spblas_matrix_file_as_matrix_market(const rsb_char_t * filename, rsb_type_t typecode ); now in rsb_libspblas.h */
+blas_sparse_matrix rsb__load_spblas_matrix_file_as_matrix_market(const rsb_char_t * filename, rsb_type_t typecode );
 rsb_blas_int_t rsb__BLAS_Xusget_rows_nnz( blas_sparse_matrix A, rsb_blas_int_t fr, rsb_blas_int_t lr, rsb_blas_int_t * nnzp);
 blas_sparse_matrix rsb__BLAS_handle_free(blas_sparse_matrix handle);
 

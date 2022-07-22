@@ -8,7 +8,7 @@
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -42,7 +42,8 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 	rsb_nnz_idx_t ops=0; 
 	rsb_coo_idx_t ai,aj;
 	rsb_coo_idx_t al,bl,cl;
-	rsb_coo_idx_t bi,bj;
+	rsb_coo_idx_t bj;
+	//rsb_coo_idx_t bi;
 
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
@@ -53,7 +54,7 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		rsb_nnz_idx_t arb;
+		//rsb_nnz_idx_t arb;
 		rsb_nnz_idx_t marker;
 
 		//assert(cblocks==PA[ai]);	// this is true on the serial execution of this loop
@@ -61,7 +62,7 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 		marker=cblocks+1;
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		arb=ARP[ai+1]-ARP[ai];
+		//arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -70,7 +71,8 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				bi=aj; bj=BJA[bl];
+				//bi=aj;
+				bj=BJA[bl];
 				if(p[bj]<marker)
 					p[bj]=marker,
 					(JA)[cblocks++]=bj,
@@ -101,7 +103,7 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		rsb_nnz_idx_t arb;
+		//rsb_nnz_idx_t arb;
 		rsb_nnz_idx_t marker;
 
 		//assert(cblocks==PA[ai]);	// this is true on the serial execution of this loop
@@ -109,7 +111,7 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 		marker=cblocks+1;
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		arb=ARP[ai+1]-ARP[ai];
+		//arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -118,7 +120,8 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				bi=aj; bj=BJA[bl];
+				//bi=aj;
+				bj=BJA[bl];
 				if(p[bj]<marker)
 					p[bj]=marker,
 					(JA)[cblocks++]=bj,
@@ -149,7 +152,7 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		rsb_nnz_idx_t arb;
+		//rsb_nnz_idx_t arb;
 		rsb_nnz_idx_t marker;
 
 		//assert(cblocks==PA[ai]);	// this is true on the serial execution of this loop
@@ -157,7 +160,7 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 		marker=cblocks+1;
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		arb=ARP[ai+1]-ARP[ai];
+		//arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -166,7 +169,8 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				bi=aj; bj=BJA[bl];
+				//bi=aj;
+				bj=BJA[bl];
 				if(p[bj]<marker)
 					p[bj]=marker,
 					(JA)[cblocks++]=bj,
@@ -197,7 +201,7 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		rsb_nnz_idx_t arb;
+		//rsb_nnz_idx_t arb;
 		rsb_nnz_idx_t marker;
 
 		//assert(cblocks==PA[ai]);	// this is true on the serial execution of this loop
@@ -205,7 +209,7 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 		marker=cblocks+1;
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		arb=ARP[ai+1]-ARP[ai];
+		//arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -214,7 +218,8 @@ rsb_err_t rsb__do_util_csr_csr_sparse_mul_serial(rsb_nnz_idx_t * PA, rsb_coo_idx
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				bi=aj; bj=BJA[bl];
+				//bi=aj;
+				bj=BJA[bl];
 				if(p[bj]<marker)
 					p[bj]=marker,
 					(JA)[cblocks++]=bj,
@@ -246,7 +251,8 @@ rsb_err_t rsb__do_util_csr_csr_dense_mul_serial(rsb_coo_idx_t ldc, rsb_coo_idx_t
 	rsb_nnz_idx_t ops=0; 
 	rsb_coo_idx_t ai,aj;
 	rsb_coo_idx_t al,bl;
-	rsb_coo_idx_t bi,bj;
+	//rsb_coo_idx_t bi;
+	rsb_coo_idx_t bj;
 
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE 
 	if( typecode == RSB_NUMERICAL_TYPE_DOUBLE  )
@@ -257,11 +263,11 @@ rsb_err_t rsb__do_util_csr_csr_dense_mul_serial(rsb_coo_idx_t ldc, rsb_coo_idx_t
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		rsb_nnz_idx_t arb;
+		//rsb_nnz_idx_t arb;
 
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		arb=ARP[ai+1]-ARP[ai];
+		//arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -270,7 +276,8 @@ rsb_err_t rsb__do_util_csr_csr_dense_mul_serial(rsb_coo_idx_t ldc, rsb_coo_idx_t
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				bi=aj; bj=BJA[bl];
+				//bi=aj;
+				bj=BJA[bl];
 
 				RSB_BLOCK_X_MAJOR_REFERENCE(cVA,ldc,ai,bj,isccolmajor)+=aVA[al]*bVA[bl];
 			}
@@ -292,11 +299,11 @@ rsb_err_t rsb__do_util_csr_csr_dense_mul_serial(rsb_coo_idx_t ldc, rsb_coo_idx_t
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		rsb_nnz_idx_t arb;
+		//rsb_nnz_idx_t arb;
 
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		arb=ARP[ai+1]-ARP[ai];
+		//arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -305,7 +312,8 @@ rsb_err_t rsb__do_util_csr_csr_dense_mul_serial(rsb_coo_idx_t ldc, rsb_coo_idx_t
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				bi=aj; bj=BJA[bl];
+				//bi=aj;
+				bj=BJA[bl];
 
 				RSB_BLOCK_X_MAJOR_REFERENCE(cVA,ldc,ai,bj,isccolmajor)+=aVA[al]*bVA[bl];
 			}
@@ -327,11 +335,11 @@ rsb_err_t rsb__do_util_csr_csr_dense_mul_serial(rsb_coo_idx_t ldc, rsb_coo_idx_t
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		rsb_nnz_idx_t arb;
+		//rsb_nnz_idx_t arb;
 
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		arb=ARP[ai+1]-ARP[ai];
+		//arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -340,7 +348,8 @@ rsb_err_t rsb__do_util_csr_csr_dense_mul_serial(rsb_coo_idx_t ldc, rsb_coo_idx_t
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				bi=aj; bj=BJA[bl];
+				//bi=aj;
+				bj=BJA[bl];
 
 				RSB_BLOCK_X_MAJOR_REFERENCE(cVA,ldc,ai,bj,isccolmajor)+=aVA[al]*bVA[bl];
 			}
@@ -362,11 +371,11 @@ rsb_err_t rsb__do_util_csr_csr_dense_mul_serial(rsb_coo_idx_t ldc, rsb_coo_idx_t
 	{
 		rsb_nnz_idx_t aro;
 		rsb_nnz_idx_t are;
-		rsb_nnz_idx_t arb;
+		//rsb_nnz_idx_t arb;
 
 		aro=ARP[ai];
 		are=ARP[ai+1];
-		arb=ARP[ai+1]-ARP[ai];
+		//arb=ARP[ai+1]-ARP[ai];
 		/* we start row ai of target matrix C */
 		for(al=aro;al<are;++al)
 		{
@@ -375,7 +384,8 @@ rsb_err_t rsb__do_util_csr_csr_dense_mul_serial(rsb_coo_idx_t ldc, rsb_coo_idx_t
 /*			rsb_nnz_idx_t bcb=BRP[aj+1] - BRP[aj];*/
 			for(bl=bro;bl<bre;++bl)
 			{
-				bi=aj; bj=BJA[bl];
+				//bi=aj;
+				bj=BJA[bl];
 
 				RSB_BLOCK_X_MAJOR_REFERENCE(cVA,ldc,ai,bj,isccolmajor)+=aVA[al]*bVA[bl];
 			}

@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -23,15 +23,18 @@ If not, see <http://www.gnu.org/licenses/>.
  \ingroup rsb_doc_examples
  @file
  @author Michele Martone
- @brief This is a first "hello RSB" example program using 
-        a Sparse BLAS interface.
+
+ @brief A first C "hello RSB" example program using
+        a Sparse BLAS interface and <rsb.h>.
+	Uses #BLAS_duscr_begin(), #BLAS_ussp(), #BLAS_usgp(),
+	#BLAS_duscr_insert_entries(), #BLAS_duscr_end(),
+	#BLAS_dusget_element(),#BLAS_dusmv(),#BLAS_usds().
 
  \include hello-spblas.c
 */
 #include <rsb.h>	/* for rsb_lib_init */
 #include <blas_sparse.h>	/* Sparse BLAS on the top of librsb */
 #include <stdio.h>	/* printf */
-#include <stdlib.h>	// EXIT_SUCCESS
 
 int main(const int argc, char * const argv[])
 {
@@ -61,17 +64,25 @@ int main(const int argc, char * const argv[])
 	const int  nr = 3;	/* number of A's rows */
 	const int  nc = 3;	/* number of A's columns */
 	/* A's nonzero elements row indices (coordinates): */
-	int   IA[] = { 0, 1, 2, 2 };
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+	const int64_t IA[] = { 0, 1, 2, 2 };
+#else /* RSB_WANT_LONG_IDX_TYPE */
+	const int   IA[] = { 0, 1, 2, 2 };
+#endif /* RSB_WANT_LONG_IDX_TYPE */
 	/* A's nonzero elements column indices (coordinates): */
-	int   JA[] = { 0, 1, 0, 2 };
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+	const int64_t JA[] = { 0, 1, 0, 2 };
+#else /* RSB_WANT_LONG_IDX_TYPE */
+	const int   JA[] = { 0, 1, 0, 2 };
+#endif /* RSB_WANT_LONG_IDX_TYPE */
 	/* A's nonzero values (matrix coefficients): */
 	double VA[] = { 11.0, 22.0, 13.0, 33.0  };
        	/* the X vector's array: */
 	double X[] = { 0.0, 0.0, 0.0 };
        	/* the B vector's array: */
-	double B[] = { -1.0, -2.0, -2.0 };
+	const double B[] = { -1.0, -2.0, -2.0 };
        	/* the (known) result array: */
-	double AB[] = { 11.0+26.0, 44.0, 66.0+13.0 };
+	const double AB[] = { 11.0+26.0, 44.0, 66.0+13.0 };
 	/* rsb error variable: */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	int i;

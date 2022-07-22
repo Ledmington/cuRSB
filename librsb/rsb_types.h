@@ -2,7 +2,7 @@
 
 /** @file
     @brief
-    Macros and constants, which are type specific.
+    Macros and constants, which are type specific and used by rsb.h.
     \n
     Here reside declarations related to supported matrix numerical types, and other declarations
     according to the build time options.
@@ -10,15 +10,16 @@
     If you wish to use this library with different matrix numerical types, you shall regenerate
      the library source code accordingly; see the README file how to do this.
     \n
-    Only a small part of these declarations is needed to the user (see \ref matrix_type_symbols_section).
+    Only a those declarations which are documented are meant to be part of the API.
     \n
-    Therefore, only the declarations which are commented are actually meant to be used in functions;
-    please regard the remaining ones as internal.
+    The rest is meant as internals.
+    \n
+    See also \ref matrix_type_symbols_section.
   */
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -50,28 +51,20 @@ If not, see <http://www.gnu.org/licenses/>.
 extern "C" {
 #endif /* __cplusplus */
 
-
-#ifndef __cplusplus
-/* complex.h is ISO C99 */
-#include <complex.h>
-#endif /* __cplusplus */
 /* 
-   Each one of the following symbols is assigned to a type which is supported
-   by an option set at library code generation time.
+   Each of the following symbols corresponds to a type opted in or out at code generation time.
    Other types may be enabled by regenerating the whole library code.
-   To enable types, please read the documentation.
  */
 
 /* Miscellaneous version strings.
-  Adopting a naming scheme similar to that of png.h.
  */
-#define RSB_LIBRSB_VER_STRING		"1.2.0"	/*!< \brief Library version string. */
-#define RSB_HEADER_VERSION_STRING		"librsb version 1.2.0.11 - 202201181812"	/*!< \brief Library header version string. */
+#define RSB_LIBRSB_VER_STRING		"1.3.0"	/*!< \brief Library version string. */
+#define RSB_HEADER_VERSION_STRING		"librsb version 1.3.0.0 - 202202241108"	/*!< \brief Library header version string. */
 #define RSB_LIBRSB_VER_MAJOR		1	/*!< \brief Major version. */
-#define RSB_LIBRSB_VER_MINOR		2	/*!< \brief Minor version. */
+#define RSB_LIBRSB_VER_MINOR		3	/*!< \brief Minor version. */
 #define RSB_LIBRSB_VER_PATCH		0	/*!< \brief Patch version. */
-#define RSB_LIBRSB_VER		10201	/*!< \brief Version number. */
-#define RSB_LIBRSB_VER_DATE		202201181812	/*!< \brief Version release date. */
+#define RSB_LIBRSB_VER		10300	/*!< \brief Version number. */
+#define RSB_LIBRSB_VER_DATE		202202241108	/*!< \brief Version release date. */
 
 #define RSB_HAVE_TYPE_DOUBLE  1 /*!< \brief Type double is supported, so RSB_HAVE_TYPE_DOUBLE  is defined .*/
 #define RSB_HAVE_TYPE_FLOAT  1 /*!< \brief Type float is supported, so RSB_HAVE_TYPE_FLOAT  is defined .*/
@@ -84,7 +77,9 @@ extern "C" {
 #define RSB_DEFAULT_POSSIBLY_INTEGER_TYPE_STRING "double" /*!< \brief A string specifying the name of the default possibly integer type.*/
 #define RSB_DEFAULT_SYMMETRY RSB_SYMMETRY_U	/*!< \brief The default symmetry flag. */
 #define RSB_DEFAULT_TRANSPOSITION RSB_TRANSPOSITION_N	/*!< \brief The default transposition flag (no transposition). */
-#define RSB_ROWS_TRANSPOSITIONS_ARRAY	{RSB_TRANSPOSITION_N, RSB_TRANSPOSITION_T, RSB_TRANSPOSITION_C, RSB_INVALID_TRANS } /*!< \brief An array with transposition constants. */
+#define RSB_HAVE_ANY_COMPLEX_TYPE 1	/*!< \brief Defined to 1 if any complex type has been configured in. Currently: (float complex,double complex). */
+#define RSB_ROWS_TRANSPOSITIONS_ARRAY	{RSB_TRANSPOSITION_N, RSB_TRANSPOSITION_T, RSB_TRANSPOSITION_C,  RSB_TRANSPOSITION_INVALID} /*!< \brief An array with transposition constants. */
+#define RSB_TRANSPOSITIONS_ARRAY_LENGTH 3 /* valid transpositions in RSB_ROWS_TRANSPOSITIONS_ARRAY */
 
 /*!  This preprocessor index can be used to address the double-related arrays.  */
 #define RSB_TYPE_INDEX_DOUBLE  0
@@ -97,11 +92,9 @@ extern "C" {
 
 /* @cond INNERDOC  */
 /*
-   Each one of the following symbols is assigned to an operation which is supported
-   by an option set at library code generation time.
+   Each of the following symbols corresponds to an operation opted in or out at code generation time.
    \n
    Other operations may be enabled by regenerating the whole library code.
-   To enable operations, please read the documentation.
  */
 #define RSB_HAVE_OPTYPE_SPMV_UAUA  1
 #define RSB_HAVE_OPTYPE_SPMV_UAUZ  1
@@ -138,17 +131,17 @@ extern "C" {
 #define  RSB_COORDINATE_TYPE_H 0x02 /*!< \brief Character code for type rsb_half_idx_t.*/
 /* @endcond */
 /**
- \name Values for valid matrix transposition flags.
+ \name Values for matrix transposition flags (rsb_trans_t).
  \anchor matrix_transposition_flags_section
- The Hermitian flag will act as simple transposed, for non complex types.
+ Note that for non complex types, the Hermitian flag will act as simple transposed.
  */
 #define  RSB_TRANSPOSITION_N 0x4E /*!< \brief N: Non transposed flag, valid for \ref rsb_trans_t typed variables. */
 #define  RSB_TRANSPOSITION_T 0x54 /*!< \brief T: Transposed flag value, valid for \ref rsb_trans_t valued variables. */
 #define  RSB_TRANSPOSITION_C 0x43 /*!< \brief C: Conjugated transpose flag, valid for \ref rsb_trans_t typed variables. */
+#define  RSB_TRANSPOSITION_INVALID 0x3F /*!< \brief ?: Transposition type flag value guaranteed to be invalid. Useful for tests. Valid as char. */
 /* @cond INNERDOC  */
-#define  RSB_TRANSPOSITION_INVALID 0x3F /*!< \brief ?: Transposition type flag value guaranteed to be invalid. Useful for tests. (undocumented in 1.2.0.10) */
 /**
- \name Values for valid matrix symmetry flags.
+ \name Values for matrix symmetry flags (rsb_flags_t).
  \anchor matrix_symmetry_flags_section
  */
 #define  RSB_SYMMETRY_U 0x00 /*  */
@@ -156,12 +149,12 @@ extern "C" {
 #define  RSB_SYMMETRY_H RSB_FLAG_HERMITIAN /*  */
 /* @endcond */
 /**
-\name Values for inner diagonal specification values.
+\name Values for diagonal specification flags (rsb_flags_t).
  \anchor matrix_diagonal_flags_section
  */
 /* @cond INNERDOC  */
-#define  RSB_DIAGONAL_E 0x01 /*  */ /*!< \brief */
-#define  RSB_DIAGONAL_I 0x02 /*  */ /*!< \brief */
+#define  RSB_DIAGONAL_E 0x01 /* Explicit e (default, implicit) */ /*!< \brief */
+#define  RSB_DIAGONAL_I 0x02 /* Implicit i */ /*!< \brief */
 /* @endcond */
 /* @cond INNERDOC  */
 /**
@@ -179,17 +172,23 @@ extern "C" {
 /* @endcond */
 
 /**
- \name Valid symbol values for matrix numerical type specification -- type codes -- (type \see #rsb_type_t).
+ \name Supported matrix numerical types.
+ \anchor matrix_supported_numerical_types_section
+ */
+#define RSB_MATRIX_TYPES_LIST_CXX		double,float,std::complex<float>,std::complex<double> /*!< \brief list of C++ types configured in this \librsb build, usable in \c <rsb.hpp> (since RSB_LIBRSB_VER>=10300) */
+
+/**
+ \name Valid symbol values for matrix numerical type specification (type codes).
  \anchor matrix_type_symbols_section
  */
 #define RSB_NUMERICAL_TYPE_SAME_TYPE  1 /*!< \brief a bogus type flag for specifying no type conversion */
-#define  RSB_NUMERICAL_TYPE_DOUBLE  'D' /*!< \brief Character code for type double. */
+#define  RSB_NUMERICAL_TYPE_DOUBLE  'D' /*!< \brief Character code for type double. See \ref rsb_type_t . */
 #define RSB_NUMERICAL_TYPE_SAME_TYPE  1 /*!< \brief a bogus type flag for specifying no type conversion */
-#define  RSB_NUMERICAL_TYPE_FLOAT  'S' /*!< \brief Character code for type float. */
+#define  RSB_NUMERICAL_TYPE_FLOAT  'S' /*!< \brief Character code for type float. See \ref rsb_type_t . */
 #define RSB_NUMERICAL_TYPE_SAME_TYPE  1 /*!< \brief a bogus type flag for specifying no type conversion */
-#define  RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  'C' /*!< \brief Character code for type float complex. */
+#define  RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  'C' /*!< \brief Character code for type float complex. See \ref rsb_type_t . */
 #define RSB_NUMERICAL_TYPE_SAME_TYPE  1 /*!< \brief a bogus type flag for specifying no type conversion */
-#define  RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  'Z' /*!< \brief Character code for type double complex. */
+#define  RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  'Z' /*!< \brief Character code for type double complex. See \ref rsb_type_t . */
 
 #define  RSB_NUMERICAL_TYPE_FORTRAN_SAME_TYPE  1 /*!< \brief a bogus type flag for specifying no type conversion */
 #define  RSB_NUMERICAL_TYPE_FORTRAN_INT  ICHAR('I') /*!< \brief Character code for type int, to be used (only) from Fortran. */
@@ -211,7 +210,7 @@ extern "C" {
 		(TRANSC) == ('t') ? (RSB_TRANSPOSITION_T) : 		\
 		(TRANSC) == ('C') ? (RSB_TRANSPOSITION_C) : 		\
 		(TRANSC) == ('c') ? (RSB_TRANSPOSITION_C) : 		\
-		'?'												\
+		'?'	\
 ) /*!< \brief Get the right transposition flag out of either n, c, t chars. */
 
 
@@ -225,6 +224,7 @@ extern "C" {
  \name Values for other numerical type related macros.
 */
 #define  RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS "D S C Z "
+#define  RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS "S D C Z "
 
 /* a bogus type for pattern input (TODO : should also implement ANY, just for matrix input) */
 #define RSB_NUMERICAL_TYPE_PATTERN  0
@@ -240,7 +240,7 @@ extern "C" {
 
 #if 1
  
-#define RSB_ROWS_TRANSPOSITIONS_ARRAY_AS_CHAR	{'n', 't', 'c', RSB_TRANSPOSITION_INVALID }
+#define RSB_ROWS_TRANSPOSITIONS_ARRAY_AS_CHAR	{'n', 't', 'c', '?' }
 
 
 #define  RSB_TRANSPOSITIONS_PREPROCESSOR_SYMBOLS "n t c "
@@ -250,9 +250,12 @@ extern "C" {
 		(TRANSA) == (RSB_TRANSPOSITION_N) ? ('N') : 		\
 		(TRANSA) == (RSB_TRANSPOSITION_T) ? ('T') : 		\
 		(TRANSA) == (RSB_TRANSPOSITION_C) ? ('C') : 		\
-		'?'												\
+		'?'	\
 )
 
+#define RSB__ORDER_AS_SINGLE_CHAR(ORDER) ( ((ORDER) == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER) ?  'C' : 'R' )
+#define RSB__ORDER_AS_STRING(ORDER) ( ((ORDER) == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER) ?  "cols" : "rows" )
+#define RSB__ORDER_AS_LANG_CHAR(ORDER) ( ((ORDER) == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER) ?  'F' : 'C' )
 
 #define RSB_NUMERICAL_TYPE_STRING(CSP,TYPE) \
 		{ \
@@ -524,6 +527,15 @@ extern "C" {
 		0												\
 )
 
+#define RSB_IS_MATRIX_TYPE_BLAS_TYPE(TYPE) 										\
+(/*float,double,float complex,double complex*/														\
+		(TYPE) == (RSB_NUMERICAL_TYPE_FLOAT ) ? 1 : 		\
+		(TYPE) == (RSB_NUMERICAL_TYPE_DOUBLE ) ? 1 : 		\
+		(TYPE) == (RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ) ? 1 : 		\
+		(TYPE) == (RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ) ? 1 : 		\
+		0												\
+)
+
 #define RSB_IS_ELEMENT_LESS_THAN(SRC,CMPSRC,TYPE) \
 ( 			( (TYPE)==RSB_NUMERICAL_TYPE_DOUBLE  && (*(double*)(SRC))<(*(double*)(CMPSRC)) ) || \
 			( (TYPE)==RSB_NUMERICAL_TYPE_FLOAT  && (*(float*)(SRC))<(*(float*)(CMPSRC)) ) || \
@@ -535,7 +547,7 @@ extern "C" {
 /** use RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE to oversize your arrays safely */
 #define RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE	 1 
 /** use RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE_EXTRA to oversize your arrays safely */
-#define RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE_EXTRA	 (1-1) 
+#define RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE_EXTRA	 (1-1)
 #define RSB_CONST_MATRIX_IMPLEMENTATION_CODE_STRING_MAX_LENGTH (2*1024)	/** chars to reserve for a matrix implementation code */
 
 /* Section dedicated to implemented operations on matrices. */
@@ -558,6 +570,17 @@ extern "C" {
 #define RSB_MATRIX_TYPE_CODES_ARRAY	{ RSB_NUMERICAL_TYPE_DOUBLE ,RSB_NUMERICAL_TYPE_FLOAT ,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX , }
 #define RSB_MATRIX_SPBLAS_TYPE_CODES_ARRAY	{ RSB_NUMERICAL_TYPE_FLOAT ,RSB_NUMERICAL_TYPE_DOUBLE ,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX , }
 
+/* Trick to exercise lightweight Sparse BLAS Fortran wrappers */
+#define RSB__BLAS_CALL_TF_(TYPECODE,CALL,ISTAT,...)	( \
+	( TYPECODE==RSB_NUMERICAL_TYPE_FLOAT  ) ? RSB__BLAS_CALL_F(s,CALL,__VA_ARGS__,&ISTAT),ISTAT : ( \
+	( TYPECODE==RSB_NUMERICAL_TYPE_DOUBLE  ) ? RSB__BLAS_CALL_F(d,CALL,__VA_ARGS__,&ISTAT),ISTAT : ( \
+	( TYPECODE==RSB_NUMERICAL_TYPE_FLOAT_COMPLEX  ) ? RSB__BLAS_CALL_F(c,CALL,__VA_ARGS__,&ISTAT),ISTAT : ( \
+	( TYPECODE==RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX  ) ? RSB__BLAS_CALL_F(z,CALL,__VA_ARGS__,&ISTAT),ISTAT : ( \
+	RSB_BLAS_ERROR \
+	)))) )
+
+#define RSB__FORTRAN_APPEND_UNDERSCORE 1
+
 #define RSB_M4_MATRIX_META_OPS_STRING	"spmv_uaua,spmv_uauz,spmv_uxua,spmv_unua,spmv_sasa,spsv_uxua,spmv_sxsa,spsv_sxsx,infty_norm,rowssums,scale"
 #define RSB_M4_MATRIX_TYPES_STRING		"double,float,float complex,double complex"
 #define RSB_M4_WANT_COLUMN_UNLOOP_FACTORS_STRING		"1"
@@ -570,6 +593,55 @@ extern "C" {
 	((MATRIX_STORAGE)==RSB_MATRIX_STORAGE_BCOR) || \
 	((MATRIX_STORAGE)==RSB_MATRIX_STORAGE_BCSR) || \
 	0 ) ? RSB_BOOL_TRUE:RSB_BOOL_FALSE )
+
+/**
+ \name Short internal M4 macros check
+ */
+#define  RSB__M4_CHECK()              \
+	\
+        assert(0==0);      \
+        assert(1==1);      \
+        assert(1==1);      \
+        assert(0==0);      \
+	\
+        assert(0==0);      \
+        assert(1==1);      \
+        assert(1==1);      \
+        assert(1==1);      \
+	\
+        assert(0==0);      \
+        assert(0==0);      \
+        assert(0==0);      \
+        assert(1==1);      \
+	\
+        assert(1==1);      \
+        assert(1==1);      \
+        assert(0==0);      \
+        assert(1==1);      \
+	\
+        assert(1==1);      \
+        assert(0==0);      \
+	\
+        assert(1==1);      \
+        assert(1==1);      \
+        assert(0==0);      \
+        assert(0==0);      \
+	\
+        assert(1==1);      \
+        assert(1==1);      \
+        assert(0==0);      \
+        assert(0==0);      \
+	\
+        assert(2==2);      \
+        assert(2==2);      \
+        assert(2==2);      \
+	\
+        assert(0==0);      \
+        assert(0==0);      \
+        assert(0==0);      \
+        ;   
+
+#define RSB_HAVE_IHI 1 /* is rsb-librsb-internals.h installed ? */
 
 #ifdef __cplusplus
 }

@@ -1,5 +1,5 @@
 /*                                                                                                                            
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2019 Michele Martone
 
 This file is part of librsb.
 
@@ -41,12 +41,14 @@ typedef char MM_typecode[];
 char *rsb__mm_typecode_to_str(MM_typecode matcode);
 
 int rsb__mm_read_banner(FILE *f, FILE * ngzfd, MM_typecode *matcode);
-int rsb__mm_read_mtx_crd_size(FILE *f, FILE * ngzfd, int *M, int *N, int *nz);
-int rsb__mm_read_mtx_array_size(FILE *f, FILE * ngzfd, int *M, int *N);
+int rsb__mm_read_mtx_crd_size(FILE *f, FILE * ngzfd, rsb_coo_idx_t *M, rsb_coo_idx_t *N, rsb_coo_idx_t *nz);
+int rsb__mm_read_mtx_array_size(FILE *f, FILE *ngzfd, rsb_coo_idx_t*M, rsb_coo_idx_t*N);
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__mm_write_banner(FILE *f, MM_typecode matcode);
 int rsb__mm_write_mtx_crd_size(FILE *f, int M, int N, int nz);
 int rsb__mm_write_mtx_array_size(FILE *f, int M, int N);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 
 /********************* MM_typecode query fucntions ***************************/
@@ -106,6 +108,7 @@ int rsb__mm_is_valid(MM_typecode matcode);		/* too complex for a macro */
 #define MM_UNSUPPORTED_TYPE		15
 #define MM_LINE_TOO_LONG		16
 #define MM_COULD_NOT_WRITE_FILE	17
+#define MM_LIKELY_GZIPPED_FILE		18
 
 
 /******************** Matrix Market internal definitions ********************
@@ -141,10 +144,12 @@ int rsb__mm_is_valid(MM_typecode matcode);		/* too complex for a macro */
 
 /*  high level routines */
 
-int rsb_mm_write_mtx_crd(char fname[], int M, int N, int nz, int IA[], int JA[],
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+int rsb__mm_write_mtx_crd(char fname[], int M, int N, int nz, int IA[], int JA[],
 		 double VA[], MM_typecode matcode);
-int rsb_mm_read_mtx_crd_data(FILE *f, int M, int N, int nz, rsb_coo_idx_t IA[], rsb_coo_idx_t JA[],
+int rsb__mm_read_mtx_crd_data(FILE *f, int M, int N, int nz, rsb_coo_idx_t IA[], rsb_coo_idx_t JA[],
 		double VA[], MM_typecode matcode);
 int rsb__mm_read_mtx_crd_entry(FILE *f, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, double *real, double *img, MM_typecode matcode);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 #endif /* MM_IO_H_INCLUDED */
 /* @endcond */

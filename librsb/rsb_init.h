@@ -35,7 +35,9 @@ If not, see <http://www.gnu.org/licenses/>.
 
 rsb_err_t rsb__init_mem_hierarchy_info(void);
 rsb_err_t rsb__set_mem_hierarchy_info(const rsb_char_t * mhi);
+#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__dump_mem_hierarchy_info(void);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 rsb_err_t rsb__init_check_for_constants_correctness(void);
 rsb_err_t rsb__init_check_for_system_constants_correctness(void);
 const rsb_char_t * rsb__init_get_mem_hierarchy_info_string(rsb_bool_t verbose);

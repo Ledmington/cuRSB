@@ -9,7 +9,7 @@
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -44,12 +44,12 @@ extern "C" {
 #endif /* __cplusplus */
 
 
-
-
 #include "rsb.h"
 #include "rsb_common.h"
 #include "rsb_internals.h"
 
+
+#if RSB_OBSOLETE_QUARANTINE
 
 
 rsb_err_t rsb__do_mergesort_CSR(
@@ -321,6 +321,9 @@ const rsb_coo_idx_t * restrict bileft, const rsb_coo_idx_t * restrict biright, r
 		rsb_nnz_idx_t right_length )
 
 ;
+
+#endif /* RSB_OBSOLETE_QUARANTINE */
+
 #ifdef __cplusplus
 }
 #endif  /* __cplusplus */

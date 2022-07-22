@@ -119,7 +119,7 @@ rsb_err_t rsb_blas_failure_tester(const rsb_char_t*tds)
 		else
 			nc = nr;/* square matrix */
 		nm = RSB_MAX(nr,nc);
-		RSB_INFO("Create a %d x %d matrix...\n",nr,nc);
+		RSB_INFO("Create a %zd x %zd matrix...\n",(rsb_printf_int_t)nr,(rsb_printf_int_t)nc);
 
 		if(RSB_SOME_ERROR(errval = rsb__generate_blocked_banded_coo(nr,1,lbw,ubw,&IA,&JA,&VA,&nnz,typecode)))
 		{
@@ -241,7 +241,7 @@ nmdca:
 		       	RSB_FREE_PARANOID(VA);
 	rsb__limiter_info(&ls);
 	RSB_ALLOC_INFO();
-	rsb__do_check_leak();
+	errval = rsb__do_check_leak();
 	RSB_INFO("BASIC FAILURE BASED TEST: END\n");
 #endif /* RSB_WANT_FAILURE_TESTER */
 	return errval;

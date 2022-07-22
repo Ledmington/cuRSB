@@ -40,12 +40,13 @@ struct rsb_mtx_t * rsb__do_matrix_sum(rsb_type_t typecode, rsb_trans_t transA, c
 	 * \todo: unfinished
 	 * TODO: overflows are possible; need checks.
 	 * TODO: need a specialized approach for symmetric matrices (e.g.: sum of two symmetric ones is symmetric)!
+	 * TODO: what about RSB_NUMERICAL_TYPE_SAME_TYPE ?
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 #if RSB_SPSUM_VERBOSITY
 	rsb_nnz_idx_t rnz=0,an,bn,cn;
 #endif /* RSB_SPSUM_VERBOSITY */
-	struct rsb_coo_matrix_t cooa,coob,cooc;
+	struct rsb_coo_mtx_t cooa,coob,cooc;
 	struct rsb_mtx_t * mtxCp = NULL;
 	rsb_flags_t flags = RSB_FLAG_DEFAULT_RSB_MATRIX_FLAGS|RSB_FLAG_DISCARD_ZEROS|RSB_FLAG_SORTED_INPUT;
 	rsb_coo_idx_t tam,tak,tbm,tbk;
@@ -66,13 +67,7 @@ struct rsb_mtx_t * rsb__do_matrix_sum(rsb_type_t typecode, rsb_trans_t transA, c
 	tbm = RSB_MTX_TRANSPOSED_ROWS(mtxBp,transB);
 	tbk = RSB_MTX_TRANSPOSED_COLS(mtxBp,transB);
 
-	if( tam != tbm )
-	{
-		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_ES)
-	}
-
-	if( tak != tbk )
+	if( ( tam != tbm ) || ( tak != tbk ) )
 	{
 		errval = RSB_ERR_BADARGS;
 		RSB_PERR_GOTO(err,RSB_ERRM_ES)
@@ -94,23 +89,23 @@ struct rsb_mtx_t * rsb__do_matrix_sum(rsb_type_t typecode, rsb_trans_t transA, c
 	cooc.typecode = typecode;
 	if(rsb__callocate_coo_matrix_t(&cooc)!=&cooc) { RSB_PERR_GOTO(err,RSB_ERRM_ES); }
 
-	/* ...->flags&RSB_FLAG_SOME_SYMMETRY is added filtering to avoid expansion */
-	RSB_DO_ERROR_CUMULATE(errval,rsb__clone_coo(mtxAp,transA,alphap,typecode,&cooa,flags|(mtxAp->flags&(RSB_FLAG_SOME_SYMMETRY))));
+	/* ...->flags&RSB_FLAG_ANY_SYMMETRY is added filtering to avoid expansion */
+	RSB_DO_ERROR_CUMULATE(errval,rsb__clone_coo(mtxAp,transA,alphap,typecode,&cooa,flags|(mtxAp->flags&(RSB_FLAG_ANY_SYMMETRY))));
 	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES); }
 
-	RSB_DO_ERROR_CUMULATE(errval,rsb__clone_coo(mtxBp,transB, betap,typecode,&coob,flags|(mtxBp->flags&(RSB_FLAG_SOME_SYMMETRY))));
+	RSB_DO_ERROR_CUMULATE(errval,rsb__clone_coo(mtxBp,transB, betap,typecode,&coob,flags|(mtxBp->flags&(RSB_FLAG_ANY_SYMMETRY))));
 	if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES); }
-	
+
 	if(RSB_DOES_TRANSPOSE(transA))
 	{
-	        errval = rsb__util_sort_row_major_inner(cooa.VA,cooa.IA,cooa.JA,cooa.nnz,cooa.nr,cooa.nc,typecode,RSB_FLAG_WANT_ROW_MAJOR_ORDER);
-	        if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES); }
+		errval = rsb__util_sort_row_major_inner(cooa.VA,cooa.IA,cooa.JA,cooa.nnz,cooa.nr,cooa.nc,typecode,RSB_FLAG_WANT_ROW_MAJOR_ORDER);
+		if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES); }
 	}
-	
+
 	if(RSB_DOES_TRANSPOSE(transB))
 	{
-	        errval = rsb__util_sort_row_major_inner(coob.VA,coob.IA,coob.JA,coob.nnz,coob.nr,coob.nc,typecode,RSB_FLAG_WANT_ROW_MAJOR_ORDER);
-	        if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES); }
+		errval = rsb__util_sort_row_major_inner(coob.VA,coob.IA,coob.JA,coob.nnz,coob.nr,coob.nc,typecode,RSB_FLAG_WANT_ROW_MAJOR_ORDER);
+		if(RSB_SOME_ERROR(errval)){ RSB_PERR_GOTO(err,RSB_ERRM_ES); }
 	}
 
 	RSB_COO_MEMCPY(cooc.VA,cooc.IA,cooc.JA,cooa.VA,cooa.IA,cooa.JA,0       ,0,cooa.nnz,RSB_SIZEOF(typecode));

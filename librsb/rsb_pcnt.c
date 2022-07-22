@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2016 Michele Martone
+Copyright (C) 2008-2019 Michele Martone
 
 This file is part of librsb.
 
@@ -22,7 +22,7 @@ If not, see <http://www.gnu.org/licenses/>.
 /* @cond INNERDOC  */
 /**
  * @file
- * @brief Perfomance counters related code.
+ * @brief Perfomance counters related code (old).
  * @author Michele Martone
  * */
 
@@ -148,6 +148,7 @@ static rsb_err_t rsb_perf_counters_call(void)
 }
 #endif
 
+#if defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS>1)
 rsb_err_t rsb_perf_counters_init(void)
 #ifndef RSB_HAVE_PAPI
 {
@@ -270,6 +271,7 @@ err:
 	/* error message printout */
 	RSB_DO_ERR_RETURN(errval)
 }
+#endif /* defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS>1) */
 
 rsb_err_t rsb_perf_counters_reset(void)
 {
@@ -351,6 +353,7 @@ err:
 }
 #endif /* RSB_HAVE_PAPI */
 
+#if defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS>1)
 rsb_err_t rsb_perf_counters_finalize(void)
 #ifndef RSB_HAVE_PAPI
 { return RSB_ERR_UNSUPPORTED_FEATURE; }
@@ -416,6 +419,7 @@ ok:
 	RSB_DO_ERR_RETURN(errval)
 }
 #endif /* RSB_HAVE_PAPI */
+#endif /* defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS>1) */
 
 rsb_err_t rsb_hc_main()		/* preliminary */
 {

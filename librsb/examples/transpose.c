@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -22,30 +22,34 @@ If not, see <http://www.gnu.org/licenses/>.
 /*!
  @file
  @author Michele Martone
- @brief A toy program showing instantiation, transposition and other
- operations on a single matrix.
+
+ @brief A toy <rsb.h>-based C program showing instantiation,
+ transposition and other operations on a single matrix.
+ Uses \ref rsb_mtx_clone(), \ref rsb_file_mtx_save(),
+  \ref rsb_file_mtx_get_dims(), \ref rsb_file_mtx_load().
+
  \ingroup rsb_doc_examples
 
  \include transpose.c
 */
 #include <rsb.h>
 #include <stdio.h>	/* printf */
-#include <stdlib.h>	// EXIT_SUCCESS
 
 int main(const int argc, char * const argv[])
 {
 	struct rsb_mtx_t *mtxAp = NULL;
-	rsb_blk_idx_t brA = RSB_DEFAULT_BLOCKING, bcA=RSB_DEFAULT_BLOCKING;
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	const rsb_blk_idx_t brA = RSB_DEFAULT_BLOCKING,
+                            bcA = RSB_DEFAULT_BLOCKING;
 	rsb_nnz_idx_t nnzA = 4;
 	rsb_coo_idx_t  nrA = 3;
 	rsb_coo_idx_t  ncA = 3;
-	rsb_coo_idx_t    IA[] = { 0, 1, 2, 0 };
-	rsb_coo_idx_t    JA[] = { 0, 1, 2, 2 };
-	RSB_DEFAULT_TYPE VA[] = { 11, 22, 33, 13 };
+	const rsb_coo_idx_t    IA[] = { 0, 1, 2, 0 };
+	const rsb_coo_idx_t    JA[] = { 0, 1, 2, 2 };
+	const RSB_DEFAULT_TYPE VA[] = { 11, 22, 33, 13 };
 	RSB_DEFAULT_TYPE XV[] = { 0,0,0,0,0,0 };
 	rsb_coo_idx_t  vl = 0;
-	rsb_type_t typecode = RSB_NUMERICAL_TYPE_DEFAULT;
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_DEFAULT;
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 	/* library initialization */
 	if(rsb_lib_init(RSB_NULL_INIT_OPTIONS)!=RSB_ERR_NO_ERROR)

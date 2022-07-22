@@ -23,9 +23,11 @@ If not, see <http://www.gnu.org/licenses/>.
  \ingroup rsb_doc_examples
  @file
  @author Michele Martone
- @brief This is a first "RSB autotuning" example program.
 
- \include autotuning.c
+ @brief C "RSB autotune" example program based on <rsb.h>.
+   uses #rsb_file_mtx_load(), rsb_spmm(), rsb_tune_spmm().
+
+ \include autotune.c
 */
 #include <rsb.h>	/* librsb header to include */
 #include <stdio.h>	/* printf() */
@@ -33,30 +35,30 @@ If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>	/* atoi() */
 /* #include "rsb_internals.h" */
 
-int tune_from_file(char * const filename, rsb_int_t wvat)
+static int tune_from_file(char * const filename, rsb_int_t wvat)
 {
 	struct rsb_mtx_t *mtxMp = NULL;
 	/* spmv specific variables */
-	const void * alphap = NULL; // in rsb_spmv, NULL alphap defaults to 1
-	const void * betap = NULL; // in rsb_spmv, NULL betap defaults to 1
-	const rsb_flags_t order = RSB_FLAG_WANT_COLUMN_MAJOR_ORDER;
+	const void * alphap = NULL; // equivalent to 1
+	const void * betap = NULL; // equivalent to 1
+	rsb_flags_t order = RSB_FLAG_WANT_COLUMN_MAJOR_ORDER;
 	const rsb_coo_idx_t nrhs = 2;  /* number of right hand sides */
-	const rsb_trans_t transA = RSB_TRANSPOSITION_N; /* transposition */
+	rsb_trans_t transA = RSB_TRANSPOSITION_N; /* transposition */
 	rsb_nnz_idx_t ldB = 0;
 	rsb_nnz_idx_t ldC = 0;
 	/* misc variables */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_time_t dt;
 	char ib[200];
-	const char*const is = "RSB_MIF_MATRIX_INFO__TO__CHAR_P";
+	const char*is = "RSB_MIF_MATRIX_INFO__TO__CHAR_P";
 	/* misc variables */
 	/* input autotuning variables */
-	const rsb_int_t oitmax = 1 /*15*/;	/* auto-tune iterations */
-	const rsb_time_t tmax = 0.1;	/* time per autotune operation */
+	rsb_int_t oitmax = 1 /*15*/;	/* auto-tune iterations */
+	rsb_time_t tmax = 0.1;	/* time per autotune operation */
 	/* output autotuning variables */
-	const rsb_flags_t flagsA = RSB_FLAG_NOFLAGS;
-	const int ione = 1;
-	const rsb_type_t typecodea [] = RSB_MATRIX_SPBLAS_TYPE_CODES_ARRAY;
+	rsb_flags_t flagsA = RSB_FLAG_NOFLAGS;
+	/* int ione = 1; */
+	rsb_type_t typecodea [] = RSB_MATRIX_TYPE_CODES_ARRAY;
 	int typecodei;
 
 	errval = rsb_lib_init(RSB_NULL_INIT_OPTIONS);
@@ -152,7 +154,7 @@ int tune_from_file(char * const filename, rsb_int_t wvat)
 
 err:
 	rsb_perror(NULL,errval);
-	if( errval != RSB_ERR_NO_ERROR )
+	if ( errval != RSB_ERR_NO_ERROR )
 		printf("Program terminating with error.\n");
 	return errval;
 }
@@ -168,8 +170,8 @@ int main(const int argc, char * const argv[])
 	rsb_coo_idx_t nrA = 500; /* number of rows */
 	rsb_coo_idx_t ncA = 500; /* number of cols */
 	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_DEFAULT;
-	const rsb_coo_idx_t rd = 1; /* every rd rows one is non empty */
-	const rsb_coo_idx_t cd = 4; /* every cd cols one is non empty */
+	const rsb_coo_idx_t rd = 1;/* every rd rows one is non empty */
+	const rsb_coo_idx_t cd = 4;/* every cd cols one is non empty */
 	rsb_nnz_idx_t nnzA = (nrA/rd)*(ncA/cd); /* nonzeroes */
 	rsb_coo_idx_t*IA = NULL;
 	rsb_coo_idx_t*JA = NULL;
@@ -179,21 +181,22 @@ int main(const int argc, char * const argv[])
 	const RSB_DEFAULT_TYPE beta = 1;
 	RSB_DEFAULT_TYPE*Cp = NULL;
 	RSB_DEFAULT_TYPE*Bp = NULL;
-	const rsb_flags_t order = RSB_FLAG_WANT_COLUMN_MAJOR_ORDER;
+	rsb_flags_t order = RSB_FLAG_WANT_COLUMN_MAJOR_ORDER;
 	const rsb_coo_idx_t nrhs = 2;  /* number of right hand sides */
-	const rsb_trans_t transA = RSB_TRANSPOSITION_N; /* transposition */
+	const rsb_trans_t transA = RSB_TRANSPOSITION_N;
 	rsb_nnz_idx_t ldB = nrA;
 	rsb_nnz_idx_t ldC = ncA;
 	/* misc variables */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	size_t so = sizeof(RSB_DEFAULT_TYPE);
-	size_t si = sizeof(rsb_coo_idx_t);
+	const size_t so = sizeof(RSB_DEFAULT_TYPE);
+	const size_t si = sizeof(rsb_coo_idx_t);
 	rsb_time_t dt,odt;
-	rsb_int_t t,tt = 100;	/* will repeat spmv tt times */
+	rsb_int_t t;
+	const rsb_int_t tt = 100;	/* will repeat spmv tt times */
 	char ib[200];
-	const char*const is = "RSB_MIF_MATRIX_INFO__TO__CHAR_P";
+	const char*is = "RSB_MIF_MATRIX_INFO__TO__CHAR_P";
 	/* misc counters */
-	rsb_coo_idx_t ci; 
+	rsb_coo_idx_t ci;
 	rsb_coo_idx_t ri;
 	rsb_coo_idx_t ni;
 	rsb_int_t nrhsi;
@@ -206,8 +209,8 @@ int main(const int argc, char * const argv[])
 	rsb_int_t tn = 0;	/* threads number */
 	/* output autotuning variables */
 	rsb_real_t sf = 0.0;	/* speedup factor obtained from auto tuning */
-	const rsb_int_t wvat = 1;/*want verbose autotuning; see documentation
-				   of RSB_IO_WANT_VERBOSE_TUNING */
+	const rsb_int_t wvat = 1; /* want verbose autotuning; see 
+		documentation of RSB_IO_WANT_VERBOSE_TUNING */
 
 	if(argc > 1 && !isdigit(argv[1][0]) )
 	{
@@ -226,7 +229,8 @@ int main(const int argc, char * const argv[])
 		ldC = ncA;
 	}
 
-	printf("Creating %d x %d matrix with %d nonzeroes.\n",nrA,ncA,nnzA);
+	printf("Creating %d x %d matrix with %d nonzeroes.\n",(int)nrA,
+		(int)ncA, (int)nnzA);
 
 	IA = calloc(nnzA, si);
 	JA = calloc(nnzA, si);
@@ -260,6 +264,11 @@ int main(const int argc, char * const argv[])
 			!= RSB_ERR_NO_ERROR) goto err;
 
 	errval = rsb_lib_set_opt(RSB_IO_WANT_VERBOSE_TUNING, &wvat );
+	if( (errval) != RSB_ERR_NO_ERROR )
+	{
+		printf("Error setting option!\n");
+		goto err;
+	}
 
 	mtxAp = rsb_mtx_alloc_from_coo_const(
 		VA,IA,JA,nnzA,typecode,nrA,ncA,bs,bs,
@@ -284,7 +293,7 @@ int main(const int argc, char * const argv[])
 	for(t=0;t<tt;++t)
 		/* 
 		   If nrhs == 1, the following is equivalent to
-		   rsb_spmv(transA,&alpha,mtxAp,Bp,1,&beta,Cp,1);
+		   rsb_spmv(transA,alphap,mtxAp,Bp,1,betap,Cp,1);
 		*/
 		rsb_spmm(transA,&alpha,mtxAp,nrhs,order,Bp,ldB,&beta,Cp,ldC);
 	dt += rsb_time();
@@ -295,7 +304,7 @@ int main(const int argc, char * const argv[])
 			oitmax*tmax);
 	dt = -rsb_time();
 	errval = rsb_tune_spmm(NULL, &sf, &tn, oitmax, tmax, transA,
-		       	&alpha, mtxAp, nrhs, order, Bp, ldB, &beta, Cp, ldC);
+			&alpha, mtxAp, nrhs, order, Bp, ldB, &beta, Cp, ldC);
 	dt += rsb_time();
 	if(errval != RSB_ERR_NO_ERROR)
 		goto err;
@@ -340,7 +349,7 @@ int main(const int argc, char * const argv[])
 
 	dt = -rsb_time();
 	errval = rsb_tune_spmm(&mtxAp, &sf, &tn, oitmax, tmax, transA,
-			&alpha,  NULL, nrhs, order, Bp, ldB, &beta, Cp, ldC);
+		&alpha,  NULL, nrhs, order, Bp, ldB, &beta, Cp, ldC);
 	dt += rsb_time();
 
 	if(errval != RSB_ERR_NO_ERROR)
@@ -374,7 +383,7 @@ int main(const int argc, char * const argv[])
 	{
 		printf("librsb timer-based profiling is not supported in "
 		"this build. If you wish to have it, re-configure librsb "
-		"with its support. So you can safely ignore the error you"
+	        "with its support. So you can safely ignore the error you"
 		" might just have seen printed out on screen.\n");
 		errval = RSB_ERR_NO_ERROR;
 	}
@@ -386,7 +395,7 @@ ret:
 	if((errval = rsb_lib_exit(RSB_NULL_EXIT_OPTIONS))
 			!=RSB_ERR_NO_ERROR)
 		goto err;
-	return EXIT_SUCCESS;;
+	return EXIT_SUCCESS;
 err:
 	rsb_perror(NULL,errval);
 	printf("Program terminating with error.\n");

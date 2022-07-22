@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2021 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -36,6 +36,8 @@ If not, see <http://www.gnu.org/licenses/>.
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
+#if 0
+// FIXME: unused. 
 static rsb_bool_t rsb_are_same_coo(
 	void * VA,
 	void * new_VA,
@@ -77,7 +79,10 @@ err:
 	RSB_CONDITIONAL_ERRPSET(errvalp,errval);
 	return RSB_BOOL_MAYBE;
 }
+#endif
 
+#if 0
+// FIXME: unused. 
 static rsb_bool_t rsb_util_is_matrix_equal_to_coo(
 	struct rsb_mtx_t * mtxCp,
 	void * VA,
@@ -142,13 +147,13 @@ err:
 	RSB_CONDITIONAL_ERRPSET(errvalp,errval);
 	return -1;
 }
+#endif
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+/* Need a bitmap testing routine, but this is insufficient. */
 int rsb__test_bitmap_driver(rsb_coo_idx_t r, rsb_coo_idx_t c)
 {
 	/**
-	 * Since we could modify our implementation of bitmap data structures over time, 
-	 * there will always be a testing need, so we place here this routine.
-	 *
 	 * It will test for the library bitmap functionalities.
 	 *
 	 * \param r	should specify the bitmap rows count
@@ -182,7 +187,7 @@ int rsb__test_bitmap_driver(rsb_coo_idx_t r, rsb_coo_idx_t c)
 	duplicates = 0;
 	do
 	{
-		/* WARNING : THERE IS NO PROOF THIS COULD TERMINATE, AS IT IS DEPENDENT ON THE PSEUDORANDOM NUMER GENERATOR */
+		/* WARNING : THERE IS NO PROOF THIS COULD TERMINATE, AS IT IS DEPENDENT ON THE PSEUDORANDOM NUMBER GENERATOR */
 		duplicates=0;
 		for(k=0;k<nnz;++k) for(i=0;i<k;++i)if(IA[i]==IA[k]) if(JA[i]==JA[k])
 		{
@@ -227,8 +232,10 @@ err:
 	RSB_CONDITIONAL_FREE(JA);
 	return -1;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
-rsb_err_t rsb__test_gen_matrix(rsb_type_t typecode, rsb_coo_idx_t ** IA, rsb_coo_idx_t ** JA, void ** VA, rsb_coo_idx_t rows, rsb_coo_idx_t cols, rsb_nnz_idx_t nnz, int allow_duplicates)
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+static rsb_err_t rsb__test_gen_matrix(rsb_type_t typecode, rsb_coo_idx_t ** IA, rsb_coo_idx_t ** JA, void ** VA, rsb_coo_idx_t rows, rsb_coo_idx_t cols, rsb_nnz_idx_t nnz, int allow_duplicates)
 {
 	/**
 	 * Generates a randomly populated matrix.
@@ -257,7 +264,9 @@ err:
 	RSB_CONDITIONAL_FREE(*VA);
 	return RSB_ERR_GENERIC_ERROR;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__test_fill_matrix_nnz(rsb_type_t typecode, rsb_nnz_idx_t nnz, void *VA )
 {
 	/**
@@ -288,6 +297,7 @@ int rsb__test_fill_matrix_nnz(rsb_type_t typecode, rsb_nnz_idx_t nnz, void *VA )
 err:
 	return -1;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_coo_idx_t rsb__rand_coo_index(rsb_coo_idx_t max_plus_one)
 {
@@ -299,6 +309,7 @@ rsb_coo_idx_t rsb__rand_coo_index(rsb_coo_idx_t max_plus_one)
 	return i;
 }
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_blk_idx_t rsb__rand_blk_index(rsb_blk_idx_t max_plus_one)
 {
 	/**
@@ -308,7 +319,9 @@ rsb_blk_idx_t rsb__rand_blk_index(rsb_blk_idx_t max_plus_one)
 	RSB_DEBUG_ASSERT(RSB_IS_VALID_BLK_INDEX(i));
 	return i;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__test_fill_matrix_coords(rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t rows, rsb_coo_idx_t cols, rsb_nnz_idx_t nnz, rsb_bool_t allow_duplicates)
 {
 	/**
@@ -346,6 +359,7 @@ rsb_err_t rsb__test_fill_matrix_coords(rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, r
 err:
 	return RSB_ERR_GENERIC_ERROR;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 int rsb__test_dump_main(const int argc,rsb_char_t *const argv[])
 {
@@ -362,7 +376,7 @@ int rsb__test_dump_main(const int argc,rsb_char_t *const argv[])
 	 * 
 	 * FIXME : this file functionality is already in test_matops.m4.
 	 **/
-	rsb_option options[] = {
+	rsb_option_t options[] = {
 	    {"block-rowsize",	required_argument, NULL, 'r'},  
 	    {"block-columns",	required_argument, NULL, 'c'},  
 	    {"type",		required_argument, NULL, 'T'},  
@@ -371,126 +385,50 @@ int rsb__test_dump_main(const int argc,rsb_char_t *const argv[])
 	    {0,0,0,0}
 	};
 
-	rsb_nnz_idx_t nnz=0;/*was -1 */
 	int c;
 	int opt_index = 0;
 
-	rsb_coo_idx_t * IA=NULL,*JA=NULL;
-	void *VA=NULL;
-
 #ifdef RSB_NUMERICAL_TYPE_DOUBLE
-	rsb_type_t typecode = RSB_NUMERICAL_TYPE_DOUBLE;	/* double precision floating point */
+	rsb_type_t typecode = RSB_NUMERICAL_TYPE_DOUBLE;
 #else
 	rsb_type_t typecode = RSB_NUMERICAL_TYPE_DEFAULT;
 #endif
 
-	rsb_blk_idx_t br=1;
-	rsb_blk_idx_t bc=1;
-
-	rsb_coo_idx_t m=0, k=0;/* was -1 */
 	const rsb_char_t * filename=NULL;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	//rsb_flags_t flags = RSB_FLAG_DEFAULT|RSB_FLAG_DEFAULT_STORAGE_FLAGS/* this second flags is NEW */;
 	rsb_flags_t flags = RSB_FLAG_DEFAULT_STORAGE_FLAGS;
-
-	if(typecode==-1)
-	{
-		
-		RSB_STDERR("error : please recompile with double precision floating point numbers supported! \n");
-		return -1;
-	}
 
     	for (;;)
 	{
-		c = rsb_getopt_long(argc, argv, RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS"T:f:r:c:", options, &opt_index);/* Flawfinder: ignore */
-		if (c == -1)break;
+		c = rsb__getopt_long(argc, argv, RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS"T:f:", options, &opt_index);/* Flawfinder: ignore */
+		if (c == -1)
+			break;
 		RSB_DO_FLAG_ADD(flags,rsb__sample_program_options_get_flags(c,optarg));
 		switch (c)
 		{
-			case 'r':
-			br = (rsb_blk_idx_t)(abs(rsb__util_atoi(optarg))%RSB_NNZ_BLK_MAX) ;
-			break;
-			case 'c':
-			bc = (rsb_blk_idx_t)(abs(rsb__util_atoi(optarg))%RSB_NNZ_BLK_MAX) ;
-			break;
 			case 'T':
-			typecode = *optarg;
+			typecode = ( *optarg == ':' ? RSB_NUMERICAL_TYPE_DEFAULT : *optarg );
 			break;
 			case 'f':
 			filename = optarg;
 			break;
-			case 'h':
-			RSB_STDERR("usage : %s [OPTIONS]\n where OPTIONS are taken from [ -f filename ] [ -r br ] [ -c bc ] [ -T TIMES ]:\n", argv[0]);
 	    	}
 	}
 
-	if(RSB_SOME_ERROR(errval = rsb_lib_init(RSB_NULL_INIT_OPTIONS)))
-		goto err;
-
+	if(!RSB_SOME_ERROR(errval = rsb_lib_init(RSB_NULL_INIT_OPTIONS)))
 	if(filename)
 	{
-		//rsb_blk_idx_t M_b=0, K_b=0;
-		//rsb_blk_idx_t i;
-		struct rsb_mtx_t * mtxAp = NULL;
-//		rsb_coo_idx_t *p_r=NULL,*p_c=NULL;
-
-		RSB_WARN("imposing RSB_FLAG_SORT_INPUT!\n");
-
-		if((rsb__util_mm_load_matrix_f(filename,&IA,&JA,&VA,&m,&k,&nnz,typecode,flags,NULL,NULL))!=0)
-		{
-			errval = RSB_ERR_GENERIC_ERROR;
-			RSB_STDERR(RSB_ERRMSG_NOTMTXMKT" : %s ..\n",filename);
-			goto err;
-		}
-
-//		p_r = rsb__util_get_partitioning_array( br, m , &M_b, flags);
-//		p_c = rsb__util_get_partitioning_array( bc, k , &K_b, flags);
-
-		/* note the last block size : it is the same, regardless congruences */
-//		if(! p_r) goto err;
-//		if(! p_c) goto err;
-
-		/* 
-		 * plain blocked
-		 * */
-		mtxAp = rsb__do_mtx_alloc_from_coo_const(VA,IA,JA,nnz,typecode,m,k,RSB_DEFAULT_ROW_BLOCKING,RSB_DEFAULT_COL_BLOCKING,flags,&errval);
-
-		if(!mtxAp)
-		{
-			errval = RSB_ERR_GENERIC_ERROR;
-//			RSB_CONDITIONAL_FREE(p_r);
-//			RSB_CONDITIONAL_FREE(p_c);
-			goto err;
-		}
-
+		struct rsb_mtx_t * mtxAp = rsb_file_mtx_load(filename, flags, typecode, &errval);
 		errval = rsb__do_file_mtx_save( mtxAp, NULL );
 		RSB_MASK_OUT_SOME_ERRORS(errval);
-
-		if( RSB_SOME_ERROR(errval) )
-		{
-			errval = RSB_ERR_GENERIC_ERROR;
-			RSB_STDERR("[!] some problem occurred!\n");
-			goto err;
-		}
-
-//		RSB_CONDITIONAL_FREE(p_r);
-//		RSB_CONDITIONAL_FREE(p_c);
 		RSB_MTX_FREE(mtxAp);
 	}
-	else
-	{
-		RSB_INFO("Please specify a matrix filename (with -f)");
-	}
-
-err:
 	RSB_MASK_OUT_SOME_ERRORS(errval);
-	RSB_CONDITIONAL_FREE(IA);
-	RSB_CONDITIONAL_FREE(JA);
-	RSB_CONDITIONAL_FREE(VA);
-	if(RSB_SOME_ERROR(rsb_lib_exit(RSB_NULL_EXIT_OPTIONS)))return -1;
+	RSB_DO_ERROR_CUMULATE(errval,rsb_lib_exit(RSB_NULL_EXIT_OPTIONS));
 	return RSB_ERR_TO_PROGRAM_ERROR(errval);
 }
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 int rsb__test_gen_and_print_matrix(rsb_type_t typecode, rsb_coo_idx_t ** IA, rsb_coo_idx_t ** JA, void ** VA, rsb_coo_idx_t rows, rsb_coo_idx_t cols, rsb_nnz_idx_t nnz)
 {
 	/**
@@ -516,21 +454,20 @@ err:
 	RSB_CONDITIONAL_FREE(*VA);
 	return -1;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_flags_t rsb__sample_program_options_get_flags(int c, const rsb_char_t * optarg)
 {
 	/**
 		\ingroup gr_internals
 		
-		This function should be used in demo programs to let the user set
-		via command line program switches the sparse matrix format flags.
+		Function for demo programs letting user set sparse matrix format flags.
 
-	 	c = rsb_getopt_long(argc, argv, ...
+	 	c = rsb__getopt_long(argc, argv, ...
 
 		\see RSB_SAMPLE_PROGRAM_OPTIONS_GET_FLAGS
 	*/
 	rsb_flags_t flags = RSB_FLAG_NOFLAGS;
-	rsb_bool_t format_chosen = RSB_BOOL_FALSE;
 
 	switch (c)
 	{
@@ -625,6 +562,10 @@ rsb_flags_t rsb__sample_program_options_get_flags(int c, const rsb_char_t * opta
 						RSB_DO_FLAG_ADD(flags,RSB_FLAG_EXPERIMENTAL_NO_MICRO_LEAVES);
 						break;
 #endif
+						case 'Z': /* Z */
+						RSB_WARN("Warning: Using experimental Z sorting flag.\n");
+						RSB_DO_FLAG_ADD(flags,RSB_FLAG_OBSOLETE_BLOCK_ASYMMETRIC_Z_SORTING); // experimental only
+						break;
 					}
 					++op;
 				}
@@ -632,7 +573,6 @@ rsb_flags_t rsb__sample_program_options_get_flags(int c, const rsb_char_t * opta
 			break;
 			case 'F': /* F */
 			/* FIXME : UNFINISHED, UNDOCUMENTED */
-			format_chosen = RSB_BOOL_TRUE;
 			{int _sf=0;
 			if(strchr(optarg,0x6F))/* o */
 				{RSB_DO_FLAG_ADD(flags,RSB_FLAG_WANT_COO_STORAGE);_sf++;}
@@ -654,13 +594,12 @@ rsb_flags_t rsb__sample_program_options_get_flags(int c, const rsb_char_t * opta
 			}
 			break;
     	}
-//	if(format_chosen == RSB_BOOL_FALSE)
-//	{
-//		RSB_DO_FLAG_ADD(flags,RSB_FLAG_DEFAULT_STORAGE);
-//	}
 err:
 	return flags;
 }
+
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+rsb_err_t rsb__oski_estimate_bcsr_fillin_from_csr(const rsb_nnz_idx_t * pntr, const rsb_coo_idx_t * indx, const rsb_coo_idx_t m, const rsb_coo_idx_t k, const rsb_nnz_idx_t nnz, rsb_fillin_t * efillinmap);
 
 rsb_err_t rsb__oski_estimate_bcsr_fill_from_coo(/*  const*/ rsb_coo_idx_t * IA, /*const*/ rsb_coo_idx_t * JA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_fillin_t * efillinmap )
 {
@@ -694,7 +633,9 @@ err:
 	
 	RSB_DO_ERR_RETURN(errval)
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__oski_estimate_bcsr_fillin_from_csr(const rsb_nnz_idx_t * pntr, const rsb_coo_idx_t * indx, const rsb_coo_idx_t m, const rsb_coo_idx_t k, const rsb_nnz_idx_t nnz, rsb_fillin_t * efillinmap)
 {
 	/*
@@ -725,7 +666,7 @@ rsb_err_t rsb__oski_estimate_bcsr_fillin_from_csr(const rsb_nnz_idx_t * pntr, co
 
 	for(ri=0;ri<RSB_ROWS_UNROLL_ARRAY_LENGTH;++ri)
 	{
-		rsb_coo_idx_t i=0,mi=0,Mi=0,j=0,bi=0;
+		rsb_coo_idx_t i=0,mi=0,/*Mi=0,*/j=0,bi=0;
 //		const rsb_int fraction=m<10000?1000:m/(100*rua[ri]);
 		const rsb_int fraction=1000/rua[ri];	/* highest the constant, the ligher the computation */
 		rsb_nnz_idx_t num_blocks[RSB_COLUMNS_UNROLL_ARRAY_LENGTH];
@@ -733,7 +674,7 @@ rsb_err_t rsb__oski_estimate_bcsr_fillin_from_csr(const rsb_nnz_idx_t * pntr, co
 		rsb_nnz_idx_t nnz_visited = 0;
 //		rsb_nnz_idx_t dr=((m/rua[ri])/fraction)*rua[ri];/* FIXME */
 		rsb_nnz_idx_t dr=fraction*rua[ri];/* FIXME */
-		Mi = RSB_MIN((m)/fraction,m-1);	/* FIXME */
+//		Mi = RSB_MIN((m)/fraction,m-1);	/* FIXME */
 
 //		dr=m;
 
@@ -819,6 +760,7 @@ err:
 #endif
 	RSB_DO_ERR_RETURN(errval)
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_err_t rsb__do_column_expand(rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, rsb_coo_idx_t * kp, rsb_int factor)
 {

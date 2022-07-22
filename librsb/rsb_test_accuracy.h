@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -35,8 +35,8 @@ rsb_err_t rsb__vectors_reinit(void *rhs, void *out, rsb_type_t typecode, rsb_nnz
 void * rsb__calloc_vector(rsb_nnz_idx_t n, rsb_type_t typecode);
 void * rsb__malloc_vector(rsb_nnz_idx_t n, rsb_type_t typecode);
 void * rsb__realloc_vector(void* p, rsb_nnz_idx_t n, rsb_type_t typecode);
-rsb_err_t rsb__do_spmv_accuracy_test(const struct rsb_coo_matrix_t*coop, rsb_thread_t * ca, rsb_thread_t cn, rsb_flags_t flags);
-rsb_err_t rsb__do_spmv_fullword_coo(const struct rsb_coo_matrix_t*coop, rsb_flags_t flags, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA);
-rsb_err_t rsb__init_rsb_struct_from_coo(struct rsb_mtx_t *mtxAp, const struct rsb_coo_matrix_t *coop);
+rsb_err_t rsb__do_spmv_accuracy_test(const struct rsb_coo_mtx_t*coop, rsb_thread_t * ca, rsb_thread_t cn, rsb_flags_t flags);
+rsb_err_t rsb__do_spmv_fullword_coo(const struct rsb_coo_mtx_t*coop, rsb_flags_t flags, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA);
+rsb_err_t rsb__init_rsb_struct_from_coo(struct rsb_mtx_t *mtxAp, const struct rsb_coo_mtx_t *coop);
 #endif /* RSB_TEST_ACCURACY_H_INCLUDED */
 /* @endcond */

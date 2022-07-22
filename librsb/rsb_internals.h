@@ -1,4 +1,5 @@
 /*
+
 Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
@@ -37,14 +38,16 @@ extern "C" {
  * Low level routines and tools for our sparse matrix formats implementations.
  *
  */
-rsb_bool_t rsb__are_coo_matrices_equal(const struct rsb_coo_matrix_t *cm1, const struct rsb_coo_matrix_t *cm2);
-rsb_bool_t rsb__are_coo_matrices_both_empty(const struct rsb_coo_matrix_t *cm1, rsb_flags_t flags1, const struct rsb_coo_matrix_t *cm2, rsb_flags_t flags2);
-rsb_bool_t rsb__are_coo_matrices_equal_or_both_empty(const struct rsb_coo_matrix_t *cm1, rsb_flags_t flags1, const struct rsb_coo_matrix_t *cm2, rsb_flags_t flags2);
-void * rsb__destroy_coo_matrix_t(struct rsb_coo_matrix_t *cmp);
-void * rsb__allocate_coo_matrix_t(struct rsb_coo_matrix_t *cmp);
-void * rsb__xallocate_coo_matrix_t(struct rsb_coo_matrix_t *cmp, rsb_bool_t want_calloc, rsb_flags_t flags);
-void * rsb__callocate_coo_matrix_t(struct rsb_coo_matrix_t *cmp);
-void * rsb__reallocate_coo_matrix_t(struct rsb_coo_matrix_t *cmp, rsb_nnz_idx_t nnnz);
+rsb_bool_t rsb__are_coo_matrices_equal(const struct rsb_coo_mtx_t *cm1, const struct rsb_coo_mtx_t *cm2);
+rsb_bool_t rsb__are_coo_matrices_both_empty(const struct rsb_coo_mtx_t *cm1, rsb_flags_t flags1, const struct rsb_coo_mtx_t *cm2, rsb_flags_t flags2);
+#if RSB_OBSOLETE_QUARANTINE_UNUSED
+rsb_bool_t rsb__are_coo_matrices_equal_or_both_empty(const struct rsb_coo_mtx_t *cm1, rsb_flags_t flags1, const struct rsb_coo_mtx_t *cm2, rsb_flags_t flags2);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+void * rsb__destroy_coo_matrix_t(struct rsb_coo_mtx_t *cmp);
+void * rsb__allocate_coo_matrix_t(struct rsb_coo_mtx_t *cmp);
+void * rsb__xallocate_coo_matrix_t(struct rsb_coo_mtx_t *cmp, rsb_bool_t want_calloc, rsb_flags_t flags);
+void * rsb__callocate_coo_matrix_t(struct rsb_coo_mtx_t *cmp);
+void * rsb__reallocate_coo_matrix_t(struct rsb_coo_mtx_t *cmp, rsb_nnz_idx_t nnnz);
 
 
 /*
@@ -56,16 +59,22 @@ int rsb__nnz_coord_compar(const void *key, const void *am);
 
 
 /* initialization, destroying */
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 void * rsb__init_options_t(struct rsb_options_t *o);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 void * rsb__init_struct(struct rsb_mtx_t *mtxAp);
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__fill_struct(struct rsb_mtx_t *mtxAp, void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_type_t typecode, rsb_flags_t flags);
-void * rsb__fill_coo_struct(struct rsb_coo_matrix_t *mtxAp, void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_type_t typecode);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+void * rsb__fill_coo_struct(struct rsb_coo_mtx_t *mtxAp, void * VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_type_t typecode);
 void * rsb__init_blank_pointers(struct rsb_mtx_t *mtxAp);
-void * rsb__transpose_coo_matrix_t(struct rsb_coo_matrix_t *cmp);
+void * rsb__transpose_coo_matrix_t(struct rsb_coo_mtx_t *cmp);
 void * rsb__do_mtx_free(struct rsb_mtx_t *mtxAp);
 size_t rsb__get_sizeof(const struct rsb_mtx_t *mtxAp );
 void * rsb__destroy_inner(struct rsb_mtx_t *mtxAp);
+#if RSB_WANT_BITMAP
 void * rsb__destroy_options_t(struct rsb_options_t *o);
+#endif /* RSB_WANT_BITMAP */
 rsb_err_t rsb__set_init_flags_and_stuff( struct rsb_mtx_t *mtxAp, struct rsb_options_t * o, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_nnz_idx_t nnz, rsb_nnz_idx_t block_count, rsb_nnz_idx_t element_count, rsb_type_t typecode, rsb_flags_t flags );
 rsb_err_t rsb__do_set_init_storage_flags(struct rsb_mtx_t *mtxAp, rsb_flags_t flags);
 
@@ -74,53 +83,78 @@ rsb_bitmap_data_t * rsb__allocate_bitmap(rsb_blk_idx_t rows, rsb_blk_idx_t cols)
 rsb_bitmap_data_t * rsb__allocate_bitvector(rsb_blk_idx_t bits);
 struct rsb_mtx_t * rsb__allocate_from_coo_sorted(const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, const rsb_nnz_idx_t nnz, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_coo_idx_t m, rsb_coo_idx_t k, struct rsb_options_t * o, rsb_type_t typecode, rsb_flags_t flags, rsb_err_t *errvalp);
 struct rsb_mtx_t * rsb__allocate_css_from_coo_sorted(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, const rsb_nnz_idx_t nnz, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_coo_idx_t m, rsb_coo_idx_t k, struct rsb_options_t * o, rsb_type_t typecode, rsb_flags_t flags, rsb_err_t *errvalp);
+#ifdef RSB_WANT_OSKI_BENCHMARKING 
 rsb_err_t rsb__allocate_csr_arrays_from_coo_sorted(const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, const rsb_nnz_idx_t nnz, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_type_t typecode, void **VAp, rsb_coo_idx_t ** indxp, rsb_nnz_idx_t ** indptrp);
 rsb_err_t rsb__allocate_csc_arrays_from_coo_sorted(const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, const rsb_nnz_idx_t nnz, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_type_t typecode, void **VAp, rsb_coo_idx_t ** indxp, rsb_nnz_idx_t ** indptrp);
+#endif /* RSB_WANT_OSKI_BENCHMARKING */
 
 /* bit handling */
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_blk_idx_t rsb__bitmap_bit_count(const rsb_bitmap_data_t *bitmap, const rsb_blk_idx_t rows, const rsb_blk_idx_t cols);
 
 /* check */
 rsb_err_t rsb__recheck_insertion(const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnz, const struct rsb_mtx_t *mtxAp, const struct rsb_options_t *o);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 const void * rsb__is_valid_options_t(const struct rsb_options_t *o, rsb_coo_idx_t m, rsb_coo_idx_t k);
 
 /* misc */
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 void* rsb__get_block_address( rsb_blk_idx_t blockrow, rsb_blk_idx_t blockcolumn, const struct rsb_mtx_t *mtxAp);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 size_t rsb__get_g_rsb_memory_count(void);/* rsb_sys.c */
 
 rsb_err_t rsb__compute_partial_fillin_for_nnz_fractions(const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA,const  rsb_nnz_idx_t * nnz, const rsb_nnz_idx_t nnzn, struct rsb_mtx_partitioning_info_t * pinfop, size_t * element_countp, size_t * block_countp);
+#if 0
 rsb_err_t rsb__compute_partial_fillin_for_nnz_fraction(const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA,const  rsb_nnz_idx_t nnz, struct rsb_mtx_partitioning_info_t * pinfop, size_t * element_countp, size_t * block_countp);
+#endif
+
+#define RSB__USE_MTX_PARTITIONING_INFO_T 0 /* rsb_mtx_partitioning_info_t is obsolete */
 
 rsb_err_t rsb__fprint_matrix_implementation_code(const struct rsb_mtx_t *mtxAp, const rsb_char_t * op, rsb_flags_t inflags, FILE*fd);
-const rsb_char_t * rsb__sprint_matrix_implementation_code(const struct rsb_mtx_t *mtxAp, const rsb_char_t * op, rsb_flags_t inflags, rsb_char_t * buf);
 const rsb_char_t * rsb__sprint_matrix_implementation_code2(const struct rsb_mtx_t *mtxAp, rsb_char_t * buf, rsb_flags_t inflags);
+rsb_err_t rsb__util_get_tn_array(const rsb_char_t* optarg, int* bxlp, rsb_blk_idx_t **bxvp);
+rsb_err_t rsb__util_get_bx_array_or_default(const rsb_char_t defsym, const rsb_char_t* defarg, const rsb_char_t* optarg, int* bxlp, rsb_blk_idx_t **bxvp);
 rsb_err_t rsb__util_get_bx_array(const rsb_char_t* optarg, int* bxlp, rsb_blk_idx_t **bxvp);
-//rsb_nnz_idx_t rsb__util_atonnz(const rsb_char_t * optarg);
-rsb_long_t rsb__util_atol(const rsb_char_t *nptr);
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+rsb_nnz_idx_t rsb__util_atonnz(const rsb_char_t * optarg);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+//rsb_long_t rsb__util_atol(const rsb_char_t *nptr);
 rsb_real_t rsb__util_atof(const rsb_char_t *nptr);
 int  rsb__util_atoi(const rsb_char_t *nptr);
 const rsb_char_t *rsb__basename(const rsb_char_t *path);
 size_t rsb__util_strlen(const rsb_char_t *s);
+#if RSB__USE_MTX_PARTITIONING_INFO_T
 rsb_err_t rsb__do_is_valid_pinfo_t(const struct rsb_mtx_partitioning_info_t * pinfop);
+#endif /* RSB__USE_MTX_PARTITIONING_INFO_T */
 rsb_err_t rsb__print_configuration_string(const char *pn, rsb_char_t * cs, rsb_bool_t wci);
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_blk_idx_t rsb__recursive_middle_block_index(rsb_blk_idx_t i);
 rsb_err_t rsb__recursive_split_point_parms_get(const struct rsb_mtx_partitioning_info_t * pinfop, rsb_coo_idx_t * moff, rsb_coo_idx_t * koff);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+#if RSB__USE_MTX_PARTITIONING_INFO_T
 rsb_err_t rsb__do_get_blocking_from_pinfo(const struct rsb_mtx_partitioning_info_t * pinfop, rsb_flags_t flags, rsb_blk_idx_t *mbp, rsb_blk_idx_t *kbp);
+#endif
 
 /* fill */
 rsb_err_t rsb__do_insert_sorted( struct rsb_mtx_t * mtxAp, const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, const rsb_nnz_idx_t nnz, const struct rsb_mtx_partitioning_info_t * pinfop);
 rsb_err_t rsb__do_account_sorted( struct rsb_mtx_t * mtxAp, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, const rsb_nnz_idx_t nnz, const struct rsb_mtx_partitioning_info_t * pinfop, rsb_nnz_idx_t * elements_per_block_row, rsb_nnz_idx_t * blocks_per_block_row);
 rsb_long_t rsb__terminal_recursive_matrix_count(const struct rsb_mtx_t *mtxAp);
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__copy_css_arrays(const void *iVA, const rsb_coo_idx_t * iINDX, const rsb_coo_idx_t * iXA, const rsb_nnz_idx_t nnz, rsb_coo_idx_t X, rsb_type_t typecode, void *oVA, rsb_coo_idx_t * oINDX, rsb_nnz_idx_t * oXA);
 rsb_long_t rsb__terminal_recursive_matrix_count_with_flags(const struct rsb_mtx_t *mtxAp, rsb_flags_t flags);
-rsb_long_t rsb__terminal_recursive_matrix_count_with_flags_but(const struct rsb_mtx_t *mtxAp, rsb_flags_t flags, rsb_flags_t nflags);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+// rsb_long_t rsb__terminal_recursive_matrix_count_with_flags_but(const struct rsb_mtx_t *mtxAp, rsb_flags_t flags, rsb_flags_t nflags);
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__recursive_middle_index(const struct rsb_mtx_partitioning_info_t * pinfop, rsb_coo_idx_t * M_bp, rsb_coo_idx_t * K_bp );
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_trans_t rsb__do_transpose_transposition(rsb_trans_t transA);
 struct rsb_mtx_t * rsb__do_get_first_submatrix(const struct rsb_mtx_t *mtxAp);
 
+#if 0
 rsb_err_t rsb_spmm_inner(const struct rsb_mtx_t * mtxAp, const void * mrhs, void *mout, rsb_int_t bstride, rsb_int_t cstride, rsb_int_t nrhs, rsb_trans_t transA);
+#endif
 rsb_long_t rsb__terminal_recursive_matrix_count_with_storage_and_flags(const struct rsb_mtx_t *mtxAp, rsb_fmt_t matrix_storage, rsb_flags_t flags);
 rsb_long_t rsb__terminal_recursive_matrix_count_with_storage_and_no_flags(const struct rsb_mtx_t *mtxAp, rsb_fmt_t matrix_storage, rsb_flags_t flags);
 rsb_err_t rsb__do_compute_terminal_nnz_min_max_avg_count(const struct rsb_mtx_t *mtxAp, rsb_nnz_idx_t * minnz, rsb_nnz_idx_t * maxnz, rsb_nnz_idx_t * avgnz);
@@ -163,7 +197,6 @@ rsb_err_t rsb__do_transpose(struct rsb_mtx_t ** mtxApp, rsb_bool_t want_conj);
 rsb_err_t rsb__do_get_elements(const struct rsb_mtx_t * mtxAp, void * VA, const rsb_coo_idx_t *IA, const rsb_coo_idx_t *JA, rsb_nnz_idx_t nnz, rsb_flags_t flags);
 rsb_err_t rsb__stropts_set(const rsb_char_t *opn, const rsb_char_t *arg);/* FIXME: in stropts.c */
 rsb_err_t rsb__do_set_initopt_as_string(const rsb_char_t *opn, const rsb_char_t *arg);
-rsb_err_t rsb__do_get_matrix_info_from_string(const struct rsb_mtx_t *mtxAp, const rsb_char_t *mis, void* info, size_t buflen);
 rsb_err_t rsb__do_lib_get_info_str(int what, rsb_char_t* sbuf, size_t buflen);
 struct rsb_mtx_t * rsb__do_mtx_alloc_from_coo_inplace(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t nnzA, rsb_type_t typecode, rsb_coo_idx_t nrA, rsb_coo_idx_t ncA, rsb_blk_idx_t brA, rsb_blk_idx_t bcA, rsb_flags_t flags, rsb_err_t * errvalp);
 struct rsb_mtx_t * rsb__do_mtx_alloc_from_coo_const(const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnzA, rsb_type_t typecode, rsb_coo_idx_t nrA, rsb_coo_idx_t ncA, rsb_blk_idx_t brA, rsb_blk_idx_t bcA, rsb_flags_t flags, rsb_err_t * errvalp);
@@ -172,6 +205,23 @@ struct rsb_mtx_t * rsb__do_mtx_alloc_from_csc_const(const void *VA, const rsb_co
 int rsb__util_atoi_km10(const rsb_char_t *nptr);
 int rsb__util_atoi_km2(const rsb_char_t *nptr);
 void rsb__cat_compver(rsb_char_t * buf);
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+rsb_err_t rsb__do_spata(const void *alphap, const struct rsb_mtx_t * mtxAp, const void * Xp, rsb_coo_idx_t incX, const void * betap, void * Yp, rsb_coo_idx_t incY);
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
+rsb_char_t *rsb__util_strcat(rsb_char_t *dest, const rsb_char_t *src);
+
+#define RSB__FLAGS_PRINTF_ARGS(FLAGS)	/* print matrix flags in human readable form  */ \
+	"( 0x%x = { rec:%d coo:%d css:%d hw:%d ic:%d fi:%d symflags:" RSB_PRINTF_FLAGS_FMT_STR " } )\n", \
+		(int)(FLAGS), \
+		(int)(RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_QUAD_PARTITIONING)), \
+		(int)(RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_WANT_COO_STORAGE)), \
+		(int)(RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_WANT_BCSS_STORAGE)), \
+		(int)(RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_USE_HALFWORD_INDICES)), \
+		(int)(RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_ASSEMBLED_IN_COO_ARRAYS)), \
+		(int)(RSB_DO_FLAG_HAS((FLAGS),RSB_FLAG_FORTRAN_INDICES_INTERFACE)), \
+		RSB_PRINTF_FLAGS_ARGS((FLAGS))  
+void rsb__debug_print_flags(rsb_flags_t flags);
+rsb_err_t rsb__print_matrix_stats(const struct rsb_mtx_t * mtxAp);
 
 #ifdef __cplusplus
 }

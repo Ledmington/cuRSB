@@ -8,7 +8,7 @@ dnl
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- But for block compressed sparse stripes format.
+ For block compressed sparse stripes format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 dnl

@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -26,6 +26,7 @@ If not, see <http://www.gnu.org/licenses/>.
  * @author Michele Martone
  * @brief
  * This standalone C 99 program produces ISO C BINDING oriented Fortran code of the rsb.h C header.
+ * FIXME/TODO: BUFLEN of 1024 is too tight, and provokes segfaults at -O3 !!
  *
  * It is easy to break this program; e.g.:
  * #define a 1 comment_begin ..
@@ -53,7 +54,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #define VERBOSE 0
 #define WANT_BINDINGS 1
 #define WANT_REAL_STAR 1
-#define WANT_C_STRINGS 0
+#define WANT_C_STRINGS 1 /* Use CHARACTER(C_CHAR) instead of TYPE(C_PTR) */
 #define WANT_PURE 0
 #define WANT_POINTERS_TO_INTEGERS 1 /* if 1, will have to invoke C_LOC(IA), ... */
 #define PRINT_FUNC_LIST 0
@@ -273,7 +274,7 @@ iss:
 #endif
 #if WANT_PTR_COMMENT
 	if(ds)
-		strcpy(ds, " ! A text string."); /* FIXME */
+		strcpy(ds, " ! C interoperable string, e.g. 'filename'//C_NULL_CHAR or C_NULL_CHAR .");
 #endif
 	return 1;
 }
@@ -309,9 +310,9 @@ const char * c2f_rettype(const char * s, size_t l, char*ds)
 	if(parse_c_type_kw(s,l,"rsb_time_t")) return C2F_DOUBLE;
 	if(parse_c_type_kw(s,l,"rsb_err_t")) goto ii;
 	if(parse_c_type_kw(s,l,"int")) goto ii;
-	if(parse_c_type_kw(s,l,"rsb_coo_idx_t")) goto ii;
+	if(parse_c_type_kw(s,l,"rsb_coo_idx_t")) goto li;
 	if(parse_c_type_kw(s,l,"rsb_blk_idx_t")) goto ii;
-	if(parse_c_type_kw(s,l,"rsb_nnz_idx_t")) goto ii;
+	if(parse_c_type_kw(s,l,"rsb_nnz_idx_t")) goto li;
 	if(parse_c_type_kw(s,l,"rsb_opt_t")) goto ii;
 #if WANT_CHAR_FOR_TYPECODE
 	if(parse_c_type_kw(s,l,"rsb_type_t")) return "INTEGER(C_SIGNED_CHAR)";
@@ -335,8 +336,16 @@ const char * c2f_rettype(const char * s, size_t l, char*ds)
 	if(parse_c_type_kw(s,l,"rsb_mif_t")) goto ii; // FIXME: skipped "enum" !
 	if(parse_c_type_kw(s,l,"rsb_elopf_t")) goto ii; // FIXME: skipped "enum" !
 	if(parse_c_type_kw(s,l,"rsb_precf_t")) goto ii;
+	if(parse_c_type_kw(s,l,"blas_base_type")) goto ii;
+	if(parse_c_type_kw(s,l,"blas_conj_type")) goto ii;
 	if(parse_c_type_kw(s,l,"size_t")) return "INTEGER(C_SIZE_T)";
 	return "(UNKNOWN TYPE)";
+li:
+#ifdef RSB_WANT_LONG_IDX_TYPE 
+	return "INTEGER(C_RSB_INT_KND_)";
+#else /* RSB_WANT_LONG_IDX_TYPE */
+	return "INTEGER(C_RSB_INT_KND_)";
+#endif /* RSB_WANT_LONG_IDX_TYPE */
 ii:
 	return "INTEGER(C_INT)";
 ip:
@@ -454,7 +463,7 @@ int c2i C2IFS
 	if(st==INITIALIZE)
 	{
 		/* PRINTF("MODULE %s\n   USE ISO_C_BINDING, ONLY: C_INT,C_SIZE_T,C_DOUBLE,C_PTR,C_NULL_PTR,C_CHAR\n\n",modname); */
-		PRINTF("MODULE %s\n   USE ISO_C_BINDING, ONLY: C_INT,C_PTR,C_NULL_PTR"
+		PRINTF("MODULE %s\n   USE ISO_C_BINDING, ONLY: C_INT,C_INT64_T,C_PTR,C_NULL_PTR"
 #if WANT_CHAR_FOR_TYPECODE
 				",C_SIGNED_CHAR"
 #endif
@@ -463,6 +472,14 @@ int c2i C2IFS
 #if 0
 		PRINTF("! MODULE constants:\n");
 #endif
+
+        	PRINTF("#ifdef RSB_WANT_LONG_IDX_TYPE\n");
+        	PRINTF("INTEGER,PARAMETER :: RSB_IDX_KIND=8\n");
+        	PRINTF("#define C_RSB_INT_KND_ C_INT64_T\n");
+        	PRINTF("#else\n");
+        	PRINTF("INTEGER,PARAMETER :: RSB_IDX_KIND=4\n");
+        	PRINTF("#define C_RSB_INT_KND_ C_INT\n");
+        	PRINTF("#endif\n");
 	}
 	else
 	if(st==FINALIZE)
@@ -1331,7 +1348,7 @@ no:
 	return n;
 }
 
-size_t parse_c_header(const char*s, size_t l, pt_t*pt)
+size_t parse_c_header(const char*s, size_t l, pt_t*pt, const int pmbe)
 {
 	size_t tl = 0,ll = 0;
 #if 0
@@ -1339,6 +1356,7 @@ size_t parse_c_header(const char*s, size_t l, pt_t*pt)
 		tl += ll;
 	//DEBUG("%d\n",tl);
 #else
+	if(pmbe)
 	CCFPAPPLY(pt,INITIALIZE,NULL,0);
 
 	if(l-tl>0)
@@ -1369,6 +1387,7 @@ size_t parse_c_header(const char*s, size_t l, pt_t*pt)
 		}
 	}
 	while(l-tl>0 && ll>0);
+	if(pmbe)
 	CCFPAPPLY(pt,FINALIZE,NULL,0);
 #endif
 	return tl;
@@ -1386,6 +1405,7 @@ int main(void)
 	ssize_t rn = -1;
 	int ret = 0;
 	pt_t pt = { c2i,NULL,0,CCTMAX,1 };
+	const int pmbe = !getenv("CH2ICFB_NH");
 
 	/* bzero(&pt,sizeof(pt)); */
 
@@ -1404,20 +1424,24 @@ int main(void)
 				rb += cs, cs *= 2;
 	}
 
-	PRINTF("!> @file.\n");
-	PRINTF("!! @brief Header file automatically generated from <rsb.h>, offering ISO-C-BINDING interfaces to <rsb.h>'s functions.\n");
-	PRINTF("!! Defines \\c MODULE \\c rsb.\n");
-	PRINTF("!! For examples of usage, see Fortran examples in \\ref rsb_doc_examples.\n");
-	PRINTF("!! The official documentation is that of <rsb.h>.\n");
-	PRINTF("!! Make sure you are using a modern Fortran compiler.\n\n");
-	/* PRINTF("!> @cond INNERDOC\n"); */
-	PRINTF("!DEC$IF .NOT. DEFINED (RSB_FORTRAN_HEADER)\n!DEC$DEFINE RSB_FORTRAN_HEADER\n\n");
-	if((pc = parse_c_header(s,sb,&pt))==sb)
+	if(pmbe)
+	{
+		PRINTF("!> @file.\n");
+		PRINTF("!! @brief Header file automatically generated from <rsb.h>, offering ISO-C-BINDING interfaces to <rsb.h>'s functions.\n");
+		PRINTF("!! Defines \\c MODULE \\c rsb.\n");
+		PRINTF("!! For examples of usage, see Fortran examples in \\ref rsb_doc_examples.\n");
+		PRINTF("!! The official documentation is that of <rsb.h>.\n");
+		PRINTF("!! Make sure you are using a modern Fortran compiler.\n\n");
+		/* PRINTF("!> @cond INNERDOC\n"); */
+		PRINTF("!DEC$IF .NOT. DEFINED (RSB_FORTRAN_HEADER)\n!DEC$DEFINE RSB_FORTRAN_HEADER\n\n");
+	}
+	if((pc = parse_c_header(s,sb,&pt,pmbe))==sb)
 	{ INFO(stderr,"header file parsed (%d chars parsed).\n",pc);ret = 0; }
 	else
 	{ INFO(stderr,"header file NOT parsed (%d chars parsed out of %d).\n",pc,sb);ret = 1; }
 	FDUMP()
-	PRINTF("\n!DEC$ENDIF\n\n");
+	if(pmbe)
+		PRINTF("\n!DEC$ENDIF\n\n");
 	/* PRINTF("!> @endcond\n"); */
 	goto err;
 err:

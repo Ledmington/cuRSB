@@ -1,6 +1,6 @@
 /*                                                                                                                            
 
-Copyright (C) 2008-2016 Michele Martone
+Copyright (C) 2008-2019 Michele Martone
 
 This file is part of librsb.
 
@@ -79,10 +79,10 @@ RSB_DEFINE_FPB_F(rsb_fpb_div,rsb__util_vector_div(p,&alpha,typecode,N),"DIV")
 rsb_err_t rsb__fp_benchmark(void)
 {
 	/**
-	 * Will benchmark the floating point units.
+	 * Benchmark the floating point units.
 	 * You should call rsb_lib_init(RSB_NULL_INIT_OPTIONS) before.
 	 *
-	 * TODO: pow, log
+	 * may add: pow, log
 	 * benchmark for ops in the L1
 	 * strided ops
 	 *
@@ -93,13 +93,14 @@ rsb_err_t rsb__fp_benchmark(void)
 //	size_t bs = rsb__get_first_level_c_size();
 	rsb_int_t cln = rsb__get_cache_levels_num(),cli;
 	rsb__times_t times,mtimes = RSB_MEMSCAN_MIN_TIMES,Mtimes = RSB_MEMSCAN_MAX_TIMES;
-	rsb_time_t mt = RSB_FPBENCH_MULTITYPE_TIME;
+	rsb_time_t mt = rsb__getenv_real_t("RSB_FPBENCH_MULTITYPE_TIME", RSB_BENCHMARK_MIN_SECONDS);
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 	for(cli=1;cli<=cln;++cli)
 	for(i=0;i<sizeof(fpba)/sizeof(rsb_fpb_fp_t);++i)
 	{
 		size_t bs = rsb__get_lnc_size(cli);
+
 		if(!bs)
 		{
 			errval = RSB_ERR_INTERNAL_ERROR;

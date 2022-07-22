@@ -3,13 +3,13 @@
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- But for block compressed sparse stripes format.
+ For block coordinates format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -47,7 +47,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -83,6 +83,12 @@ extern "C" {
 #endif /* __cplusplus */
 #include "rsb_internals.h"
 #include "rsb_lock.h"
+#if RSB_USE_LIBRSBPP
+#include "librsbpp.h"
+#endif /* RSB_USE_LIBRSBPP */
+#if RSB_USE_MKL
+#include "rsb_mkl.h"
+#endif /* RSB_USE_MKL */
 #define RSB_ENABLE_INNER_NRHS_SPMV 1
 #if RSB_ENABLE_INNER_NRHS_SPMV
 #define RSB_INNER_NRHS_SPMV_ARGS	,const rsb_int_t nrhs, /*const size_t outtot, const size_t rhstot,*/ const size_t outnri, const size_t rhsnri
@@ -97,11 +103,11 @@ extern "C" {
 #define RSB_DEFAULT_INNER_NRHS_SPMV_ARGS	,1,/*0,0,*/0,0
 #define RSB_DEFAULT_OUTER_NRHS_SPMV_ARGS	,1,0,0
 
-rsb_err_t rsb_do_spmv_non_recursive(const struct rsb_mtx_t * mtxAp, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA RSB_INNER_NRHS_SPMV_ARGS)
+rsb_err_t rsb__do_spmv_non_recursive(const struct rsb_mtx_t * mtxAp, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA RSB_INNER_NRHS_SPMV_ARGS)
 ;
-rsb_err_t rsb_do_spmv_recursive_parallel(const struct rsb_mtx_t * mtxAp, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPMV_ARGS)
+rsb_err_t rsb__do_spmv_recursive_parallel(const struct rsb_mtx_t * mtxAp, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPMV_ARGS)
 ;
-rsb_err_t rsb_do_spmv_recursive_serial(const struct rsb_mtx_t * mtxAp, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA RSB_INNER_NRHS_SPMV_ARGS)
+rsb_err_t rsb__do_spmv_recursive_serial(const struct rsb_mtx_t * mtxAp, const void * x, void * y, const void *alphap, const void * betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA RSB_INNER_NRHS_SPMV_ARGS)
 ;
 rsb_err_t rsb__do_spmv_general(rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t * mtxAp, const void * x, rsb_coo_idx_t incx, const void * betap, void * y, rsb_coo_idx_t incy, enum rsb_op_flags_t op_flags RSB_OUTER_NRHS_SPMV_ARGS)
 ;

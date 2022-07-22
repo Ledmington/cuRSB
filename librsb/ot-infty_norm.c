@@ -1,1 +1,1 @@
-static int f(){return 0;}
+int f_infty_norm(void){return 0;}

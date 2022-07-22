@@ -49,3 +49,6 @@
 \form#48:$C \leftarrow \alpha opa(A) \cdot \beta \cdot opb(B) $
 \form#49:$C$
 \form#50:$D$
+\form#51:$ \beta $
+\form#52:$ A == A^H $
+\form#53:$ A == A^T $

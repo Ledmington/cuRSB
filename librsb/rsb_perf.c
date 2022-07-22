@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -177,7 +177,7 @@ rsb_err_t rsb__perf_exit(void)
 	 */
 	if(rsb_gmpi.mb!=NULL)
 	{
-		rsb__free(rsb_gmpi.mb); /*  we'll rather need a destructor function */
+		RSB_CONDITIONAL_FREE(rsb_gmpi.mb); /*  we'll rather need a destructor function */
 	}
 
 	return RSB_ERR_NO_ERROR;
@@ -194,6 +194,7 @@ rsb_err_t rsb__print_mop_reference_performance_info_header(void)
 #endif /* RSB_ALLOW_STDOUT */
 }
 
+#if RSB_WANT_PERFORMANCE_FILE
 static rsb_err_t rsb_print_mop_maxmins(const struct rsb_mop_reference_performance_info_t *pi)
 {
 	/**
@@ -232,6 +233,7 @@ static rsb_err_t rsb_print_mop_maxmins(const struct rsb_mop_reference_performanc
 	RSB_DO_ERR_RETURN(RSB_ERR_UNSUPPORTED_FEATURE)
 #endif /* RSB_ALLOW_STDOUT */
 }
+#endif /* RSB_WANT_PERFORMANCE_FILE */
 
 rsb_err_t rsb__print_mop_reference_performance_info(const struct rsb_mop_reference_performance_info_t *pi, char *s)
 {
@@ -271,6 +273,7 @@ rsb_err_t rsb__print_mop_reference_performance_info(const struct rsb_mop_referen
 #endif /* RSB_ALLOW_STDOUT */
 }
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 static rsb_int rsb_dump_mops_performance_info(const struct rsb_mops_performance_info_t *mpi)
 {
 	/**
@@ -294,7 +297,9 @@ static rsb_int rsb_dump_mops_performance_info(const struct rsb_mops_performance_
 	return -1;
 #endif /* RSB_ALLOW_STDOUT */
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__dump_global_performance_info(const struct rsb_global_performance_info_t *gpip)
 {
 	/**
@@ -320,7 +325,9 @@ rsb_err_t rsb__dump_global_performance_info(const struct rsb_global_performance_
 	return RSB_ERR_UNSUPPORTED_FEATURE;
 #endif /* RSB_ALLOW_STDOUT */
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#if RSB_WANT_PERFORMANCE_FILE
 static rsb_int rsb_dump_reference_mop_performance_info(const struct rsb_mop_reference_performance_info_t *mpi)
 {
 	/**
@@ -355,7 +362,9 @@ static rsb_int rsb_dump_reference_mop_performance_info(const struct rsb_mop_refe
 	return -1;
 #endif /* RSB_ALLOW_STDOUT */
 }
+#endif /* RSB_WANT_PERFORMANCE_FILE */
 
+#if RSB_WANT_PERFORMANCE_FILE
 static rsb_int rsb_dump_reference_mops_performance_info(const struct rsb_mops_reference_performance_info_t *mpi)
 {
 	/**
@@ -382,6 +391,7 @@ static rsb_int rsb_dump_reference_mops_performance_info(const struct rsb_mops_re
 	return -1;
 #endif /* RSB_ALLOW_STDOUT */
 }
+#endif /* RSB_WANT_PERFORMANCE_FILE */
 
 FILE *rsb__util_fopen(const char *path, const char *mode)
 {
@@ -395,7 +405,8 @@ FILE *rsb__util_fopen(const char *path, const char *mode)
 	return fopen(path,mode);/* Flawfinder: ignore */
 }
 
-rsb_err_t rsb_save_bw_info(const struct rsb_mbw_cm_t *mi, FILE *fp)
+#if RSB_WANT_PERFORMANCE_FILE
+static rsb_err_t rsb__save_bw_info(const struct rsb_mbw_cm_t *mi, FILE *fp)
 {
 	/*!
 	  \ingroup gr_internals
@@ -425,6 +436,7 @@ err:
 	RSB_ERROR("error writing memory performance file.\n");
 	return RSB_ERR_GENERIC_ERROR;
 }
+#endif /* RSB_WANT_PERFORMANCE_FILE */
 
 #if RSB_WANT_PERFORMANCE_FILE
 rsb_err_t rsb__save_global_reference_performance_info(const struct rsb_global_reference_performance_info_t *gpip)
@@ -458,7 +470,7 @@ rsb_err_t rsb__save_global_reference_performance_info(const struct rsb_global_re
 /*	if(rsb__print_mem_hier_timings(&rsb_gmpi))
   		goto err;*/
 
-	if(RSB_SOME_ERROR(rsb_save_bw_info(&rsb_gmpi, fp)))
+	if(RSB_SOME_ERROR(rsb__save_bw_info(&rsb_gmpi, fp)))
 		goto err;
 
 	if( fclose(fp) == 0)
@@ -511,7 +523,8 @@ err:
 }
 #endif /* RSB_WANT_PERFORMANCE_FILE */
 
-rsb_err_t rsb__dump_global_reference_performance_info(const struct rsb_global_reference_performance_info_t *gpip)
+#if RSB_WANT_PERFORMANCE_FILE
+static rsb_err_t rsb__dump_global_reference_performance_info(const struct rsb_global_reference_performance_info_t *gpip)
 {
 	/**
 	  \ingroup gr_internals
@@ -537,6 +550,8 @@ rsb_err_t rsb__dump_global_reference_performance_info(const struct rsb_global_re
 	return RSB_ERR_UNSUPPORTED_FEATURE;
 #endif /* RSB_ALLOW_STDOUT */
 }
+#endif /* RSB_WANT_PERFORMANCE_FILE */
+
 
 rsb_err_t rsb__dump_current_global_reference_performance_info(void)
 {
@@ -548,11 +563,16 @@ rsb_err_t rsb__dump_current_global_reference_performance_info(void)
 	/* Warning: this is a dirty hack */
 	return rsb__dump_global_reference_performance_info(&rsb_gpi);
 #else /* RSB_WITH_FEEDBACK */
+#if RSB_WANT_PERFORMANCE_FILE
 	RSB_BZERO_P(&rsb_gpi);
 	return rsb__dump_global_reference_performance_info(&rsb_gpi);
+#else
+	return RSB_ERR_NO_ERROR;
+#endif
 #endif /* RSB_WITH_FEEDBACK */
 }
 
+#if RSB_WANT_EXPERIMENTS_CODE
 rsb_err_t rsb__dump_performance_info_line(const struct rsb_mop_performance_info_t * pi)
 {
 	/**
@@ -615,6 +635,7 @@ rsb_err_t rsb__dump_performance_info_line(const struct rsb_mop_performance_info_
 	RSB_DO_ERR_RETURN(RSB_ERR_UNSUPPORTED_FEATURE)
 #endif /* RSB_ALLOW_STDOUT */
 }
+#endif /* RSB_WANT_EXPERIMENTS_CODE */
 
 rsb_err_t rsb__dump_performance_info(const struct rsb_mop_performance_info_t * pi, const char * pid)
 {
@@ -671,6 +692,7 @@ rsb_err_t rsb_print_all_system_info(void)
 }
 #endif
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_nnz_idx_t rsb__fillin_estimation_nnz_count(
 	const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, 
 	const  rsb_nnz_idx_t nnz, rsb_type_t typecode, rsb_flags_t flags, rsb_int nprobes
@@ -716,6 +738,7 @@ rsb_nnz_idx_t rsb__fillin_estimation_nnz_count(
 ok:
 	return pnnz;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_err_t rsb__estimate_expected_raw_performance_for_blocking(
 	rsb_coo_idx_t m, rsb_coo_idx_t k,
@@ -790,6 +813,7 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__estimate_expected_fillin_for_blocking(
 	const void * VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, 
 	rsb_coo_idx_t m, rsb_coo_idx_t k,
@@ -922,7 +946,9 @@ err:
 ok:
 	RSB_DO_ERR_RETURN(errval)
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 void rsb__pinfo_init(struct rsb_mtx_partitioning_info_t * pinfop,
 	rsb_blk_idx_t M_b, rsb_blk_idx_t K_b,
 	rsb_coo_idx_t *rpntr,rsb_coo_idx_t *cpntr,
@@ -945,27 +971,21 @@ void rsb__pinfo_init(struct rsb_mtx_partitioning_info_t * pinfop,
 	pinfop->br=br;
 	pinfop->bc=bc;
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_err_t rsb__dump_system_performance_summary(void)
 {
 	/* TODO: find a better placement for this. */
 #if RSB_ALLOW_STDOUT
+#if RSB_WANT_PERFORMANCE_FILE
 	rsb_int oi, ti;
 	const char * types[] = RSB_MATRIX_TYPES_ARRAY;
 	const char * mops[] = RSB_MATRIX_OPS_ARRAY;
+#endif /* RSB_WANT_PERFORMANCE_FILE */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 #if RSB_WANT_PERFORMANCE_FILE
 	errval = rsb__read_global_reference_performance_info(&rsb_gpi);
-#else /* RSB_WANT_PERFORMANCE_FILE */
-	errval = RSB_ERR_NO_USER_CONFIGURATION;
-#endif /* RSB_WANT_PERFORMANCE_FILE */
-	if(errval == RSB_ERR_NO_USER_CONFIGURATION)
-	{
-		/* not a critical error; we can restore no error condition */
-		errval = RSB_ERR_NO_ERROR;
-		goto err;
-	}
 	if(RSB_SOME_ERROR(errval))
 		goto err;
 
@@ -981,6 +1001,15 @@ rsb_err_t rsb__dump_system_performance_summary(void)
 		if(RSB_SOME_ERROR(errval))
 			goto err;
 	}
+#else /* RSB_WANT_PERFORMANCE_FILE */
+	errval = RSB_ERR_NO_USER_CONFIGURATION;
+	if(errval == RSB_ERR_NO_USER_CONFIGURATION)
+	{
+		/* not a critical error; we can restore no error condition */
+		errval = RSB_ERR_NO_ERROR;
+		goto err;
+	}
+#endif /* RSB_WANT_PERFORMANCE_FILE */
 err:
 	RSB_DO_ERR_RETURN(errval)
 #else /* RSB_ALLOW_STDOUT */
@@ -990,33 +1019,21 @@ err:
 
 size_t rsb_spmv_memory_accessed_bytes_max(const struct rsb_mtx_t * mtxAp)
 {
-	/** 
-		NEW : EXPERIMENTAL (ONLY BCSR) (UNFINISHED)
-	*/
+	/* upper bound is pessimistic access pattern */
 	rsb_blk_idx_t columns;
 	rsb_blk_idx_t rows;
 
-	if(!mtxAp)
-	{
-		RSB_ERROR("rsb_spmv_memory_accessed_bytes_max : null matrix\n");
-		return 0;
-	}
+	RSB_DEBUG_ASSERT(mtxAp);
+
 	if(!rsb__is_bcsr_matrix(mtxAp))
-	{
-		//RSB_ERROR("rsb_spmv_memory_accessed_bytes_max: matrix is not rsb__is_bcsr_matrix!\n");
-		return 0;
-	}
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 	rsb__get_blocking_size(mtxAp, &rows, &columns);
 
 	if(rows < 0 || columns < 0)
-	{
-		RSB_ERROR(RSB_ERRM_NL);
-		return 0; /* error */
-	}
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
-	/* pessimistic , in the sense that there is a lot of accesses */
-	return 	/* FIXME : possible overflow */
+	return 	
 		mtxAp->el_size *
 			(
 			 mtxAp->element_count	/* 1 time each element */
@@ -1024,30 +1041,37 @@ size_t rsb_spmv_memory_accessed_bytes_max(const struct rsb_mtx_t * mtxAp)
 			+mtxAp->Mdim		/* the out vector, one time */
 			)
 		+
+#if RSB_WANT_DBC
 		sizeof(rsb_nnz_idx_t) * ( mtxAp->Mdim	/* bpntr */)*mtxAp->block_count
 		+
 		sizeof(rsb_nnz_idx_t) * ( mtxAp->block_count	/* bindx */)*mtxAp->block_count
+#else
+		sizeof(rsb_nnz_idx_t) * ( mtxAp->Mdim	/* bpntr */)*mtxAp->nnz
+		+
+		sizeof(rsb_nnz_idx_t) * ( mtxAp->nnz	/* bindx */)*mtxAp->nnz
+#endif
 		;
+err:
+	return 0;
 }
 
 size_t rsb_spmv_memory_accessed_bytes_min(const struct rsb_mtx_t * mtxAp)
 {
-	/** NEW : EXPERIMENTAL (ONLY BCSR) (UNFINISHED) */
+	/* lower bound is reading matrix once */
 	rsb_blk_idx_t columns;
 	rsb_blk_idx_t rows;
 
-	if(!mtxAp)
-		return 0;
+	RSB_DEBUG_ASSERT(mtxAp);
+
 	if(!rsb__is_bcsr_matrix(mtxAp))
-		return 0;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
 	rsb__get_blocking_size(mtxAp, &rows, &columns);
 
 	if(rows < 0 || columns < 0)
-		return 0; /* error */
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 
-	/* optimistic, in the sense that there are few accesses */
-	return 	/* FIXME : possible overflow */
+	return 	
 		mtxAp->el_size *
 			(
 			 mtxAp->element_count	/* 1 time each element */
@@ -1057,8 +1081,14 @@ size_t rsb_spmv_memory_accessed_bytes_min(const struct rsb_mtx_t * mtxAp)
 		+
 		sizeof(rsb_nnz_idx_t) * ( mtxAp->Mdim	/* bpntr */)
 		+
+#if RSB_WANT_DBC
 		sizeof(rsb_nnz_idx_t) * ( mtxAp->block_count	/* bindx */)
+#else
+		sizeof(rsb_nnz_idx_t) * ( mtxAp->nnz	/* bindx */)
+#endif
 		;
+err:
+	return 0;
 }
 
 size_t rsb_spmv_memory_accessed_bytes_(
@@ -1070,14 +1100,15 @@ size_t rsb_spmv_memory_accessed_bytes_(
 	size_t el_size
 )
 {
+	/* (quasi) pessimistic  */
+
 	if(mB < 0 || kB < 0)
 	{
 		RSB_ERROR("no blocking info supplied : can't estimate memory footprint.");
 		return 0; /* error */
 	}
 
-	/* (quasi) pessimistic , in the sense that there is a lot of accesses */
-	return 	/* FIXME : possible overflow */
+	return 	
 		el_size *
 			(
 			 element_count	/* 1 time each element */
@@ -1093,12 +1124,10 @@ size_t rsb_spmv_memory_accessed_bytes_(
 
 static size_t rsb_spmv_memory_accessed_bytes_leaf(const struct rsb_mtx_t * mtxAp)
 {
-	/** NEW : EXPERIMENTAL (ONLY BCSR) (UNFINISHED) */
 	rsb_blk_idx_t bcolumns;
 	rsb_blk_idx_t brows;
 	
-	if(!mtxAp)
-		return 0;
+	RSB_DEBUG_ASSERT(mtxAp);
 
 	if(!rsb__is_bcsr_matrix(mtxAp))
 		return 0;
@@ -1120,19 +1149,21 @@ static size_t rsb_spmv_memory_accessed_bytes_leaf(const struct rsb_mtx_t * mtxAp
 		+
 		sizeof(rsb_nnz_idx_t) * ( mtxAp->Mdim	/* bpntr */)
 		+
+#if RSB_WANT_DBC
 		sizeof(rsb_nnz_idx_t) * ( mtxAp->block_count	/* bindx */)
+#else
+		sizeof(rsb_nnz_idx_t) * ( mtxAp->nnz	/* bindx */)
+#endif
 		;
 }
 
 size_t rsb_spmv_memory_accessed_bytes(const struct rsb_mtx_t * mtxAp)
 {
-	/** NEW : EXPERIMENTAL (ONLY BCSR) (UNFINISHED) */
 	rsb_submatrix_idx_t i,j;
 	const struct rsb_mtx_t * submatrix;
-	size_t sum=0;
+	size_t sum = 0;
 
-	if(!mtxAp)
-		return 0;
+	RSB_DEBUG_ASSERT(mtxAp);
 
 	if(rsb__is_recursive_matrix(mtxAp->flags))
 	{
@@ -1141,22 +1172,19 @@ size_t rsb_spmv_memory_accessed_bytes(const struct rsb_mtx_t * mtxAp)
 			sum += rsb_spmv_memory_accessed_bytes(submatrix);
 	}
 	else
-	{
 		sum = rsb_spmv_memory_accessed_bytes_leaf(mtxAp);
-	}
 	
 	return sum;
 }
 
 double rsb_spmv_memory_accessed_bytes_wr_ratio(const struct rsb_mtx_t * mtxAp)
 {
-	/** NEW : EXPERIMENTAL (ONLY BCSR) (UNFINISHED) */
 	rsb_blk_idx_t columns;
 	rsb_blk_idx_t rows;
 	double rb,wb;
 
-	if(!mtxAp)
-		return 0;
+	RSB_DEBUG_ASSERT(mtxAp);
+
 	if(!rsb__is_bcsr_matrix(mtxAp))
 		return 0;
 
@@ -1166,7 +1194,7 @@ double rsb_spmv_memory_accessed_bytes_wr_ratio(const struct rsb_mtx_t * mtxAp)
 		return 0; /* error */
 
 	/* (quasi) pessimistic , in the sense that there is a lot of accesses */
-	rb=(double) 	/* FIXME : possible overflow */
+	rb=(double)
 		mtxAp->el_size *
 			(
 			 mtxAp->element_count	/* 1 time each element */
@@ -1175,7 +1203,11 @@ double rsb_spmv_memory_accessed_bytes_wr_ratio(const struct rsb_mtx_t * mtxAp)
 		+
 		sizeof(rsb_nnz_idx_t) * ( mtxAp->Mdim	/* bpntr */)
 		+
+#if RSB_WANT_DBC
 		sizeof(rsb_nnz_idx_t) * ( mtxAp->block_count	/* bindx */)
+#else
+		sizeof(rsb_nnz_idx_t) * ( mtxAp->nnz	/* bindx */)
+#endif
 		;
 	wb=(double)mtxAp->el_size*mtxAp->Mdim;		/* the out vector, one time */
 
@@ -1198,8 +1230,10 @@ rsb_err_t rsb__dump_performance_record(const char * s, const struct rsb_mtx_t * 
 	/* single line output, ideal for benchmark data to be processed later */
 	RSB_STDOUT ("%-20s	%s",s,rsb__sprint_matrix_implementation_code2(mtxAp,buf,inflags));
 	RSB_STDOUT ("	%.3lf	%lg",rsb_RMflops_ps,rsb_NMflops_ps);
-	{rsb_char_t buf[RSB_MAX_LINE_LENGTH];
-	RSB_STDOUT ("	%s",rsb__sprint_matrix_implementation_code(mtxAp,op,inflags,buf));}
+	{
+		RSB_STDOUT ("	");
+		rsb__fprint_matrix_implementation_code(mtxAp,op,inflags,stdout);
+	}
 	RSB_STDOUT ("\n");
 
 	return RSB_ERR_NO_ERROR ;

@@ -1,1 +1,1 @@
-static int f(){return 0;}
+int f_spmv_uxua(void){return 0;}

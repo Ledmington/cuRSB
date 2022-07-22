@@ -9,7 +9,7 @@ dnl
  @brief
 
  Performance kernels dispatching code, for each type, submatrix size, operation.
- But for block compressed sparse stripes format.
+ For block compressed sparse stripes format.
  */
 dnl
 include(`rsb_misc.m4')dnl

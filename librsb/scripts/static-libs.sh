@@ -44,7 +44,6 @@ RSBB_EXIT_ON_FAILED_TESTS=${RSBB_EXIT_ON_FAILED_TESTS:-1}
 RSBB_RUN_MAKE_QTESTS=${RSBB_RUN_MAKE_QTESTS:-1}
 RSBB_RUN_MAKE_QQTESTS=${RSBB_RUN_MAKE_QQTESTS:-0}
 RSBB_RUN_MAKE_JOBS=${RSBB_RUN_MAKE_JOBS:-2}
-RSBB_RUN_TEST_EXAMPLES_DIR=${RSBB_RUN_TEST_EXAMPLES_DIR:-}
 RSBB_RUN_BUILD_ARCHIVE=${RSBB_RUN_BUILD_ARCHIVE:-1}
 RSBB_RUN_MAKE_DOX=${RSBB_RUN_MAKE_DOX:-0}
 RSBB_RUN_MAKE_DOXONLY=${RSBB_RUN_MAKE_DOXONLY:-0}
@@ -57,6 +56,7 @@ RSBB_RUN_SVN_CO=${RSBB_RUN_SVN_CO:-1}
 RSBB_RUN_SVN_UP=${RSBB_RUN_SVN_UP:-1}
 RSBB_RUN_SVN_DIFF=${RSBB_RUN_SVN_DIFF:-0}
 RSBB_RUN_SVN_REVERT=${RSBB_RUN_SVN_REVERT:-0}
+RSBB_RUN_SVN_CLEANUP=${RSBB_RUN_SVN_CLEANUP:-0}
 RSBB_DIST_URL=${RSBB_DIST_URL:-/dev/null}
 RSBB_DIST_DOWNLOAD=${RSBB_DIST_DOWNLOAD:-0}
 RSBB_DIST_UNPACK=${RSBB_DIST_UNPACK:-0}
@@ -142,7 +142,8 @@ fi
 for cc in $RSBB_CC_ALTERNATIVES
 do
 export CC="${cc}"
-if test x$cc = xicc ; then export FC="ifort"; fi
+#if test x$cc = xicc ; then export FC="ifort"; fi
+if test x`basename $cc` = xicc ; then export FC=`dirname $cc`/"ifort"; fi
 for co in $RSBB_CONFIGURE_ALTERNATIVES
 #for co in  "--disable-openmp"
 do
@@ -172,7 +173,7 @@ do
 	#
 	if test "x${RSBB_DIST_UNPACK}" = x1 ; then
 		mkdir -p librsb/ || exit -1 
-		tar --transform "${RSBB_DIST_UNPACK_TARTRANSFEXP}" -C librsb -xvzf ${RSBB_DIST_UNPACK_ARCHIVE} || exit -1
+		tar --transform "${RSBB_DIST_UNPACK_TARTRANSFEXP}" -C librsb -xzf ${RSBB_DIST_UNPACK_ARCHIVE} || exit -1
 		#cp -fvRp librsb ${BD}|| exit -1 
 		#mv librsb ${BD} || exit -1 
 		mkdir -p ${BD} || exit -1 
@@ -194,6 +195,11 @@ do
 	if test "x${RSBB_RUN_SVN_REVERT}" = x1 ; then
 		$ECHO $RSBB_SVN ${RSBB_SVN_OPTIONS} info ${RSBB_URL} || exit -1
 		$ECHO $RSBB_SVN ${RSBB_SVN_OPTIONS}         revert `$RSBB_SVN ${RSBB_SVN_OPTIONS}         ls $BD` || exit -1
+	fi
+	#
+	if test "x${RSBB_RUN_SVN_CLEANUP}" = x1 ; then
+		$ECHO $RSBB_SVN ${RSBB_SVN_OPTIONS} info ${RSBB_URL} || exit -1
+		$ECHO $RSBB_SVN ${RSBB_SVN_OPTIONS}         cleanup $BD || exit -1
 	fi
 	#
 	if test "x${RSBB_RUN_SVN_UP}" = x1 ; then
@@ -306,34 +312,19 @@ do
 		$ECHO ${RSBB_MAKE} AM_CFLAGS="${CFLAGS} ${sf}" || exit -1
 	fi
 	fi
-	if test x"${RSBB_RUN_TEST_EXAMPLES_DIR}" != x ; then
-	if test -d "${RSBB_RUN_TEST_EXAMPLES_DIR}" ; then
-		rm -fR ${RSBB_RUN_TEST_EXAMPLES_DIR}/examples/ || exit
-		cp -fR ${RSBB_INSTALL_PREFIX}/share/doc/librsb/examples/ ${RSBB_RUN_TEST_EXAMPLES_DIR}/examples/ || exit
-		cd     ${RSBB_RUN_TEST_EXAMPLES_DIR}/examples/ || exit
-		./make.sh || exit
-		rm -fR ${RSBB_RUN_TEST_EXAMPLES_DIR}/examples/ || exit
-	else
-		echo "Please set RSBB_RUN_TEST_EXAMPLES_DIR to a directory path!"
-		exit;
-	fi
-	fi
 	if test x"$RSBB_RUN_MAKE_TESTRUN" = x1 ; then
 		./rsbench || exit -1
 	fi
-	if test x"$RSBB_WANT_OVERRIDE_PREFIX_WITH_SAME_DIR" = x1 ; then
 	if test x"$RSBB_WANT_LIST_FILE" = x1 ; then
 		sed 's/^prefix=.*$/prefix="\/usr\/local\/"/g' `pwd`/librsb-config > `pwd`/librsb-config-local
 		#ls -ltr 	`pwd`/librsb-config
 		#ls -ltr 	`pwd`/librsb-config-local
 		#for FN in rsbench librsb.a rsb.h rsb-spblas.h librsb-config rsb-types.h ; do
-		for FN in ${RSBB_INSTALL_PREFIX}/bin/rsbench ${RSBB_INSTALL_PREFIX}/lib/librsb.a ${RSBB_INSTALL_PREFIX}/include/{rsb.h,rsb_types.h,blas_sparse.h,rsb.F90} `pwd`/librsb-config-local ; do
+		for FN in rsbench librsb.a rsb.h rsb-spblas.h librsb-config-local rsb-types.h ; do
 			#echo "$BD/$FN" >> ${LIST}
-			echo "$FN" >> ${LIST}
-			#echo "$BT/$FN" >> ${LIST}
+			echo "$BT/$FN" >> ${LIST}
 			#echo "$BT/local/$FN" >> ${LIST}
 		done || exit -1
-	fi
 	fi
 	#$ECHO $CP rsbench rsbench-$TAG || exit -1
 	#$ECHO $CP librsbench.a librsbench-$TAG.a || exit -1

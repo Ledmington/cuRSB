@@ -45,6 +45,7 @@ else
 	#${CC} -c ${CFLAGS} --help=optimizers > O3-opts.txt
 	test -n "${MKLROOT}" && export WANT_GCC_MKL='1'
 fi
+test -z "${CXXFLAGS}" && export CXXFLAGS="${CFLAGS}"
 ./configure --prefix=`pwd`/local/librsb-optimized --enable-matrix-types=blas --with-zlib --disable-c-examples --disable-fortran-examples \
 	${WANT_GCC_MKL:+ --with-mkl="-static -rpath ${MKLROOT}/lib/intel64 -L${MKLROOT}/lib/intel64 -fopenmp -lpthread -Wl,--start-group,-lmkl_intel_lp64,-lmkl_gnu_thread,-lmkl_core,--end-group" --with-mkl-include=${MKLROOT}/include/ }	\
 	${WANT_ICC_MKL:+ --with-mkl="-static -rpath ${MKLROOT}/lib/intel64 -L${MKLROOT}/lib/intel64 -fopenmp -lpthread -Wl,--start-group,-lmkl_intel_lp64,-lmkl_intel_thread,-lmkl_core,--end-group" --with-mkl-include=${MKLROOT}/include/ }	\
@@ -55,6 +56,7 @@ if test -z "${RSB_WANT_CONFIGURE_ONLY}" ; then
 	make -j `nproc`
 	make qqtests
 	make install
+	make itests
 	make tests # needed for dist
 	make dist
 fi

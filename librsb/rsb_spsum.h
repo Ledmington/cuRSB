@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -29,7 +29,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef RSB_SPSUM_H_INCLUDED
 #define RSB_SPSUM_H_INCLUDED
-#include "rsb_internals.h"	/* rsb_coo_matrix_t */
+#include "rsb_internals.h"	/* rsb_coo_mtx_t */
 struct rsb_mtx_t * rsb__do_matrix_sum(rsb_type_t typecode, rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t * mtxAp, rsb_trans_t transB, const void *betap, const struct rsb_mtx_t * mtxBp, rsb_err_t * errvalp);
 #endif /* RSB_SPSUM_H_INCLUDED */
 /* @endcond */

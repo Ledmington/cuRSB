@@ -1,4 +1,7 @@
 %%MatrixMarket matrix array complex general
+% Test MatrixMarket file with a complex vector.
+% Note: a blank line like the following is OK.
+
 6           1
 11.000000000000000E+000 12.000000000000000E+000 
 21.000000000000000E+000 22.000000000000000E+000 

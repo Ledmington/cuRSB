@@ -6,7 +6,7 @@
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -43,13 +43,13 @@ extern "C" {
  @file
  @brief
  Performance kernels dispatching code, for each type, submatrix size, operation.
- But for block compressed sparse stripes format.
+ For block coordinates format.
  Kernels unrolled, with no loops, for only user-specified blockings.
  */
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -78,6 +78,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb_krnl_bcss_spmv_u.h"	/* uhm */
 #include "rsb_krnl_bcss_spsv_u.h"	/* uhm */
 #include "rsb_krnl_bcss_misc_u.h"	/* uhm */
+
 
 
 #define	RSB_BCSR_GET_NEXT_BLOCK_POINTER(BP,mtxAp,ROWVAR,COLVAR,BLOCKROWSPAR,BLOCKCOLSPAR,BLOCKROWVAR,BLOCKCOLUMNVAR)	\
@@ -111,7 +112,9 @@ If not, see <http://www.gnu.org/licenses/>.
 	(BP)=(mtxAp)->VA;											\
 	RSB_BCSR_GET_NEXT_BLOCK_POINTER(BP,mtxAp,ROWVAR,COLVAR,BLOCKROWSVAR,BLOCKCOLSVAR,BLOCKROWVAR,BLOCKCOLUMNVAR)
 
+#if RSB_WANT_DBC
 #define RSB_BCSR_GOT_LAST_BLOCK_POINTER(mtxAp)	( _lastk >= (mtxAp)->block_count )
+#endif
 
 
 #define RSB_BENCHMARK_MIN_SECONDS	/*0.5*/1.0
@@ -141,67 +144,67 @@ rsb_err_t rsb__do_rowssums(const struct rsb_mtx_t * mtxAp,const rsb_trans_t tran
 rsb_err_t rsb__do_scale(struct rsb_mtx_t * mtxAp,const rsb_trans_t transA,const void * scale_factors);
 
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__spmv_uaua_testing(const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const rsb_trans_t transA);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_spmv_uaua(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const rsb_trans_t transA);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__spmv_uauz_testing(const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const rsb_trans_t transA);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_spmv_uauz(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const rsb_trans_t transA);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__spmv_uxua_testing(const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const void * alphap,const rsb_trans_t transA);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_spmv_uxua(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const void * alphap,const rsb_trans_t transA);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__spmv_unua_testing(const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const rsb_trans_t transA);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_spmv_unua(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const rsb_trans_t transA);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__spmv_sasa_testing(const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,rsb_coo_idx_t incx, rsb_coo_idx_t incy,const rsb_trans_t transA);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_spmv_sasa(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,rsb_coo_idx_t incx, rsb_coo_idx_t incy,const rsb_trans_t transA);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__spsv_uxua_testing(const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const rsb_trans_t transA);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_spsv_uxua(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const rsb_trans_t transA);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__spmv_sxsa_testing(const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const void * alphap,rsb_coo_idx_t incx, rsb_coo_idx_t incy,const rsb_trans_t transA);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_spmv_sxsa(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const void * alphap,rsb_coo_idx_t incx, rsb_coo_idx_t incy,const rsb_trans_t transA);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__spsv_sxsx_testing(const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const void * alphap,rsb_coo_idx_t incx, rsb_coo_idx_t incy,const rsb_trans_t transA);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_spsv_sxsx(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const void * restrict rhs, void * restrict out,const void * alphap,rsb_coo_idx_t incx, rsb_coo_idx_t incy,const rsb_trans_t transA);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__infty_norm_testing(const struct rsb_mtx_t * mtxAp,const rsb_trans_t transA,void * row_sums);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_infty_norm(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const rsb_trans_t transA,void * row_sums);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__rowssums_testing(const struct rsb_mtx_t * mtxAp,const rsb_trans_t transA,void * row_sums);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
 rsb_err_t rsb_do_time_rowssums(double * elapsed_time, const struct rsb_mtx_t * mtxAp,const rsb_trans_t transA,void * row_sums);
 
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t rsb__scale_testing(struct rsb_mtx_t * mtxAp,const rsb_trans_t transA,const void * scale_factors);
 #endif /* RSB_WANT_KERNELS_DEBUG */
 
@@ -443,6 +446,7 @@ rsb_err_t rsb__do_scale_with_macros_vbr(struct rsb_mtx_t * mtxAp,const rsb_trans
 #endif /* 0 */
 double rsb__estimate_mflops_per_op_scale(const struct rsb_mtx_t * mtxAp);
 
+rsb_err_t rsb__do_completebenchmark(const int argc, char *const argv[]);
 rsb_err_t rsb__dump_performance_array(const char * an, const double*array);
 
 #ifdef __cplusplus

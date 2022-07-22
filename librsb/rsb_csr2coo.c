@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -38,7 +38,6 @@ void rsb__do_prefix_sum_coo_idx_t(rsb_nnz_idx_t *IA, rsb_nnz_idx_t nnz)
 rsb_err_t rsb__do_switch_fullword_array_to_compressed(rsb_nnz_idx_t *IA, rsb_nnz_idx_t nnz, rsb_nnz_idx_t m)
 {
 		/**
- 			FIXME: no test case
 			see rsb__do_switch_compressed_array_to_fullword_coo
  			FIXME: need a no-calloc version
 	 		TODO: rsb__do_switch_fullword_array_to_compressed -> rsb__idx_fia2fpa
@@ -73,7 +72,6 @@ err:
 rsb_err_t rsb__do_switch_compressed_array_to_fullword_coo(rsb_nnz_idx_t *RSB_RESTRICT IP, rsb_nnz_idx_t m, rsb_coo_idx_t off, rsb_coo_idx_t *RSB_RESTRICT TA)
 {
 		/**
- 			FIXME: no test case
 	 		Requires m+1 temporary space.
 			see rsb__do_switch_fullword_array_to_compressed
 	 		TODO: rsb__do_switch_compressed_array_to_fullword_coo -> rsb__idx_fpa2fia
@@ -85,7 +83,12 @@ rsb_err_t rsb__do_switch_compressed_array_to_fullword_coo(rsb_nnz_idx_t *RSB_RES
 		rsb_coo_idx_t * RSB_RESTRICT IA = TA;
 
 		if(!IA)
+		{
+#ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
+			#pragma omp critical (rsb__idx_fpa2fia)
+#endif
 			IA = rsb__malloc(sizeof(rsb_coo_idx_t)*(m+1));
+		}
 		if(!IA)
 		{
 			errval = RSB_ERR_ENOMEM;
@@ -100,11 +103,17 @@ rsb_err_t rsb__do_switch_compressed_array_to_fullword_coo(rsb_nnz_idx_t *RSB_RES
 		}
 err:
 		if(IA!=TA)
+		{
+#ifndef RSB_DISABLE_ALLOCATOR_WRAPPER
+			#pragma omp critical (rsb__idx_fpa2fia)
+#endif
 			RSB_CONDITIONAL_FREE(IA);
+		}
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb_do_switch_in_place_csr_to_in_place_coo(struct rsb_mtx_t * mtxAp, rsb_bool_t do_shift)
+#ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
+rsb_err_t rsb__do_switch_in_place_csr_to_in_place_coo(struct rsb_mtx_t * mtxAp, rsb_bool_t do_shift)
 {
 	/**
 		\ingroup gr_internals
@@ -143,18 +152,18 @@ rsb_err_t rsb_do_switch_in_place_csr_to_in_place_coo(struct rsb_mtx_t * mtxAp, r
 	}
 	if(do_shift)
 	{
-		// JA needs displacement of mtxAp->coff
-		rsb__util_coo_array_add(mtxAp->bindx,mtxAp->nnz,mtxAp->coff);
-		// IA needs displacement of mtxAp->coff
-		rsb__util_coo_array_add(mtxAp->bpntr,mtxAp->nnz,mtxAp->roff);
+		// IA (mtxAp->bpntr) needs displacement of mtxAp->roff
+		// JA (mtxAp->bindx) needs displacement of mtxAp->coff
+		rsb__util_coo_arrays_add(mtxAp->bpntr, mtxAp->bindx, mtxAp->roff, mtxAp->coff, mtxAp->nnz);
 	}
 	// VA is opaque to us: no processing is needed
 	RSB_CONDITIONAL_FREE(IA);
 err:
 	RSB_DO_ERR_RETURN(errval)
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
-rsb_nnz_idx_t rsb_do_count_lowtri_in_csr(const struct rsb_coo_matrix_t *csrp)
+rsb_nnz_idx_t rsb__do_count_lowtri_in_csr(const struct rsb_coo_mtx_t *csrp)
 {
 	register rsb_coo_idx_t i;
 	register rsb_nnz_idx_t lnz = 0;
@@ -169,7 +178,7 @@ rsb_nnz_idx_t rsb_do_count_lowtri_in_csr(const struct rsb_coo_matrix_t *csrp)
 	return lnz;
 }
 
-rsb_nnz_idx_t rsb__do_count_upptri_in_csr(const struct rsb_coo_matrix_t *csrp)
+rsb_nnz_idx_t rsb__do_count_upptri_in_csr(const struct rsb_coo_mtx_t *csrp)
 {
 	register rsb_coo_idx_t i;
 	register rsb_nnz_idx_t unz = 0;
@@ -184,7 +193,7 @@ rsb_nnz_idx_t rsb__do_count_upptri_in_csr(const struct rsb_coo_matrix_t *csrp)
 	return unz;
 }
 
-rsb_nnz_idx_t rsb__do_copy_lowtri_from_csr_to_coo(const struct rsb_coo_matrix_t *csrp, struct rsb_coo_matrix_t *coop)
+rsb_nnz_idx_t rsb__do_copy_lowtri_from_csr_to_coo(const struct rsb_coo_mtx_t *csrp, struct rsb_coo_mtx_t *coop)
 {
 	register rsb_coo_idx_t i;
 	register rsb_nnz_idx_t lnz = 0;
@@ -203,7 +212,7 @@ rsb_nnz_idx_t rsb__do_copy_lowtri_from_csr_to_coo(const struct rsb_coo_matrix_t 
 	return lnz;
 }
 
-rsb_nnz_idx_t rsb__do_copy_upptri_from_csr_to_coo(const struct rsb_coo_matrix_t *csrp, struct rsb_coo_matrix_t *coop)
+rsb_nnz_idx_t rsb__do_copy_upptri_from_csr_to_coo(const struct rsb_coo_mtx_t *csrp, struct rsb_coo_mtx_t *coop)
 {
 	register rsb_coo_idx_t i;
 	register rsb_nnz_idx_t unz = 0;
@@ -222,16 +231,16 @@ rsb_nnz_idx_t rsb__do_copy_upptri_from_csr_to_coo(const struct rsb_coo_matrix_t 
 	return unz;
 }
 
-rsb_nnz_idx_t rsb__do_count_tri_in_csr(const struct rsb_coo_matrix_t *csrp, rsb_nnz_idx_t *lnzp, rsb_nnz_idx_t *unzp)
+rsb_nnz_idx_t rsb__do_count_tri_in_csr(const struct rsb_coo_mtx_t *csrp, rsb_nnz_idx_t *lnzp, rsb_nnz_idx_t *unzp)
 {
 	/* FIXME: should optimize */
 	if(lnzp)
-		*lnzp = rsb_do_count_lowtri_in_csr(csrp);
+		*lnzp = rsb__do_count_lowtri_in_csr(csrp);
 	if(unzp)
 		*unzp = rsb__do_count_upptri_in_csr(csrp);
 	return (lnzp?*lnzp:0)+(unzp?*unzp:0);
 }
-rsb_nnz_idx_t rsb__do_copy_tri_from_csr_to_coo(const struct rsb_coo_matrix_t *csrp, struct rsb_coo_matrix_t *lcoop, struct rsb_coo_matrix_t *ucoop)
+rsb_nnz_idx_t rsb__do_copy_tri_from_csr_to_coo(const struct rsb_coo_mtx_t *csrp, struct rsb_coo_mtx_t *lcoop, struct rsb_coo_mtx_t *ucoop)
 {
 	/* FIXME: should optimize */
 	return rsb__do_copy_lowtri_from_csr_to_coo(csrp,lcoop)+rsb__do_copy_upptri_from_csr_to_coo(csrp,ucoop);

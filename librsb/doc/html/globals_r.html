@@ -19,7 +19,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">librsb
-   &#160;<span id="projectnumber">1.2.0.11</span>
+   &#160;<span id="projectnumber">1.3.0.1</span>
    </div>
   </td>
  </tr>
@@ -41,6 +41,14 @@ $(function() {
 <div class="textblock">Here is a list of all functions, variables, defines, enums, and typedefs with links to the files they belong to:</div>
 
 <h3><a id="index_r"></a>- r -</h3><ul>
+<li>render_test()
+: <a class="el" href="render_8cpp.html#a21c5196e9db918c20bdb5427de8bd0ae">render.cpp</a>
+</li>
+<li>rsb_blas_file_mtx_load()
+: <a class="el" href="group__rsb__doc__sparse__blas.html#ga144b8e13c62a239a3097256af7c09fcb">blas_sparse.h</a>
+, <a class="el" href="group__rsb__doc__sparse__blas.html#ga144b8e13c62a239a3097256af7c09fcb">rsb_libspblas.h</a>
+, <a class="el" href="group__rsb__doc__sparse__blas.html#ga144b8e13c62a239a3097256af7c09fcb">rsb_libspblas.c</a>
+</li>
 <li>rsb_blas_get_mtx()
 : <a class="el" href="group__rsb__doc__sparse__blas.html#gac4d8c73e5d9faa85209bcc4e885d4ff1">blas_sparse.h</a>
 , <a class="el" href="group__rsb__doc__sparse__blas.html#gac4d8c73e5d9faa85209bcc4e885d4ff1">rsb_libspblas.c</a>
@@ -69,6 +77,10 @@ $(function() {
 </li>
 <li>RSB_CONST_MAX_TUNING_ROUNDS
 : <a class="el" href="rsb__types_8h.html#aef1f5467f82116857e5003daa0f75ccd">rsb_types.h</a>
+</li>
+<li>rsb_coo_cleanup()
+: <a class="el" href="group__rsb__doc__rsb.html#gaf2b3f3b789f7bdb7cd10b42a5eaca156">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#gaf2b3f3b789f7bdb7cd10b42a5eaca156">rsb_rsb.c</a>
 </li>
 <li>rsb_coo_idx_t
 : <a class="el" href="rsb_8h.html#a4874ba61df0ff15b4395278496f83a5d">rsb.h</a>
@@ -163,6 +175,9 @@ $(function() {
 </li>
 <li>RSB_ERR_COULD_NOT_HONOUR_EXTERNALLY_ALLOCATION_FLAGS
 : <a class="el" href="rsb_8h.html#a935de71c3acc5714ad539d65288e2593">rsb.h</a>
+</li>
+<li>RSB_ERR_ELEMENT_NOT_FOUND
+: <a class="el" href="rsb_8h.html#a85cb4e3bf2cd9ea81405df82e73a7082">rsb.h</a>
 </li>
 <li>RSB_ERR_ENOMEM
 : <a class="el" href="rsb_8h.html#a538215b32e908646c979a2e446ae5467">rsb.h</a>
@@ -410,8 +425,14 @@ $(function() {
 <li>rsb_flags_t
 : <a class="el" href="rsb_8h.html#a569215d6312bf658b32d3e89cf2e0715">rsb.h</a>
 </li>
+<li>rsb_global_session_handle
+: <a class="el" href="rsb__rsb_8c.html#ad3fee7093e28030c7a54552adb6299f6">rsb_rsb.c</a>
+</li>
 <li>RSB_HALF_MAX_SIGNED
 : <a class="el" href="rsb_8h.html#ab16e9407330a11d4163be1cc586990b3">rsb.h</a>
+</li>
+<li>RSB_HAVE_ANY_COMPLEX_TYPE
+: <a class="el" href="rsb__types_8h.html#ae25329637f9f0608d950b0cf4308e5ab">rsb_types.h</a>
 </li>
 <li>RSB_HAVE_RSB_KERNELS
 : <a class="el" href="rsb__blas__sparse_8F90.html#a151b6b061725a39255ee4de3db2faf8e">rsb_blas_sparse.F90</a>
@@ -430,6 +451,9 @@ $(function() {
 </li>
 <li>RSB_HEADER_VERSION_STRING
 : <a class="el" href="rsb__types_8h.html#a8bc9584f994ecb2639ee548156562aae">rsb_types.h</a>
+</li>
+<li>RSB_INITIALIZE_CHECK_MTX_ERRP
+: <a class="el" href="rsb__rsb_8c.html#aafaf24e3548ba65ece0a9d1945b549d7">rsb_rsb.c</a>
 </li>
 <li>rsb_int_t
 : <a class="el" href="rsb_8h.html#aefcdc7de885ab34a89a0d36470e11deb">rsb.h</a>
@@ -523,24 +547,24 @@ $(function() {
 , <a class="el" href="group__rsb__doc__rsb.html#ga86db30487afe975ed18a7aa6ee0db81d">rsb_rsb.c</a>
 </li>
 <li>rsb_lib_get_opt()
-: <a class="el" href="rsb_8h.html#a96a28efc32dd050d2a74208b3ad2f227">rsb.h</a>
-, <a class="el" href="rsb__rsb_8c.html#a96a28efc32dd050d2a74208b3ad2f227">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga96a28efc32dd050d2a74208b3ad2f227">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga96a28efc32dd050d2a74208b3ad2f227">rsb_rsb.c</a>
 </li>
 <li>rsb_lib_init()
 : <a class="el" href="group__rsb__doc__rsb.html#gaf2b874d9f117ee6a6899634472b17946">rsb.h</a>
 , <a class="el" href="group__rsb__doc__rsb.html#gaf2b874d9f117ee6a6899634472b17946">rsb_rsb.c</a>
 </li>
 <li>rsb_lib_reinit()
-: <a class="el" href="group__rsb__doc__rsb.html#ga1707f8b0c28805f692146cf2fb28ae70">rsb.h</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga1707f8b0c28805f692146cf2fb28ae70">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga1707f8b0c28805f692146cf2fb28ae70">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga1707f8b0c28805f692146cf2fb28ae70">rsb.h</a>
 </li>
 <li>rsb_lib_set_opt()
-: <a class="el" href="rsb__rsb_8c.html#a2a08c5a23f3999fe8cf36440680e4a05">rsb_rsb.c</a>
-, <a class="el" href="rsb_8h.html#a2a08c5a23f3999fe8cf36440680e4a05">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga2a08c5a23f3999fe8cf36440680e4a05">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga2a08c5a23f3999fe8cf36440680e4a05">rsb_rsb.c</a>
 </li>
 <li>rsb_lib_set_opt_str()
-: <a class="el" href="group__rsb__doc__rsb.html#ga4670aa682e70f82d5039c600e426a368">rsb.h</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga4670aa682e70f82d5039c600e426a368">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga4670aa682e70f82d5039c600e426a368">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga4670aa682e70f82d5039c600e426a368">rsb.h</a>
 </li>
 <li>RSB_LIBRSB_VER
 : <a class="el" href="rsb__types_8h.html#a08fbe9d2c97a5b73bdad3dbe1402c83b">rsb_types.h</a>
@@ -559,11 +583,6 @@ $(function() {
 </li>
 <li>RSB_LIBRSB_VER_STRING
 : <a class="el" href="rsb__types_8h.html#af66941d5b1f1595c29f9c7e131d22242">rsb_types.h</a>
-</li>
-<li>rsb_load_spblas_matrix_file_as_matrix_market()
-: <a class="el" href="blas__sparse_8h.html#a7769e3aac9ffdba04f29dd1f8f57daa4">blas_sparse.h</a>
-, <a class="el" href="rsb__libspblas_8h.html#a7769e3aac9ffdba04f29dd1f8f57daa4">rsb_libspblas.h</a>
-, <a class="el" href="rsb__libspblas__handle_8c.html#a7769e3aac9ffdba04f29dd1f8f57daa4">rsb_libspblas_handle.c</a>
 </li>
 <li>RSB_MARF_EPS
 : <a class="el" href="rsb_8h.html#a2d332e6ed899c019e54ab4e540c82fd8">rsb.h</a>
@@ -588,6 +607,9 @@ $(function() {
 </li>
 <li>RSB_MARKER_NNZ_VALUE
 : <a class="el" href="rsb_8h.html#a967c5aae0dc536668ed67d810378e7fc">rsb.h</a>
+</li>
+<li>RSB_MATRIX_TYPES_LIST_CXX
+: <a class="el" href="rsb__types_8h.html#ac09093cc8bb15023eb379ea6da1fdc15">rsb_types.h</a>
 </li>
 <li>RSB_MAX_MATRIX_DIM
 : <a class="el" href="rsb_8h.html#a318a92d60883f6ade7345459074374f5">rsb.h</a>
@@ -643,31 +665,42 @@ $(function() {
 <li>RSB_MIN_MATRIX_NNZ
 : <a class="el" href="rsb_8h.html#a425f78c0a49004e45df20db728f8196d">rsb.h</a>
 </li>
+<li>rsb_mod_example1()
+: <a class="el" href="fortran__rsb__fi_8F90.html#a81bb92e0655a22d251331911eea093ba">fortran_rsb_fi.F90</a>
+</li>
+<li>rsb_mod_example2()
+: <a class="el" href="fortran__rsb__fi_8F90.html#ae69a37936a1ca7d8cf7d273b891bc57c">fortran_rsb_fi.F90</a>
+</li>
+<li>rsb_mod_example3()
+: <a class="el" href="fortran__rsb__fi_8F90.html#ab17498c86a79e053e959b9dab423b8e9">fortran_rsb_fi.F90</a>
+</li>
 <li>rsb_mtx_add_to_dense()
 : <a class="el" href="group__rsb__doc__rsb.html#gaf30a70ea183d30d216f700782fc01524">rsb.h</a>
 , <a class="el" href="group__rsb__doc__rsb.html#gaf30a70ea183d30d216f700782fc01524">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_alloc_from_coo_begin()
-: <a class="el" href="rsb_8h.html#afca80e53d47a7ec3eb116e755fe47c58">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#gafca80e53d47a7ec3eb116e755fe47c58">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#gafca80e53d47a7ec3eb116e755fe47c58">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_alloc_from_coo_const()
 : <a class="el" href="group__rsb__doc__rsb.html#ga86c1b0d0586f817ee31ca1caa3fee9be">rsb.h</a>
 , <a class="el" href="group__rsb__doc__rsb.html#ga86c1b0d0586f817ee31ca1caa3fee9be">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_alloc_from_coo_end()
-: <a class="el" href="rsb_8h.html#ab583fbefa0a66e9d30dac034480c2d86">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#gab583fbefa0a66e9d30dac034480c2d86">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#gab583fbefa0a66e9d30dac034480c2d86">rsb.h</a>
 </li>
 <li>rsb_mtx_alloc_from_coo_inplace()
-: <a class="el" href="group__rsb__doc__rsb.html#ga3b7f9a461377de348b33a873f2e1893f">rsb_rsb.c</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga3b7f9a461377de348b33a873f2e1893f">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga3b7f9a461377de348b33a873f2e1893f">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga3b7f9a461377de348b33a873f2e1893f">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_alloc_from_csc_const()
 : <a class="el" href="group__rsb__doc__rsb.html#gaebf57d9e5263f41eb6163581ffc141aa">rsb.h</a>
 , <a class="el" href="group__rsb__doc__rsb.html#gaebf57d9e5263f41eb6163581ffc141aa">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_alloc_from_csr_const()
-: <a class="el" href="group__rsb__doc__rsb.html#ga13d417f776654fd159f274e56191573e">rsb_rsb.c</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga13d417f776654fd159f274e56191573e">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga13d417f776654fd159f274e56191573e">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga13d417f776654fd159f274e56191573e">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_alloc_from_csr_inplace()
 : <a class="el" href="group__rsb__doc__rsb.html#ga60121166daf00968ba717931f04ea455">rsb.h</a>
@@ -686,8 +719,8 @@ $(function() {
 , <a class="el" href="group__rsb__doc__rsb.html#gaac3c6c033733a8101b9ccf56f8fc7112">rsb.h</a>
 </li>
 <li>rsb_mtx_get_coo_block()
-: <a class="el" href="group__rsb__doc__rsb.html#ga42a6919ecdd030d5f8abee28f4c77089">rsb.h</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga42a6919ecdd030d5f8abee28f4c77089">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga42a6919ecdd030d5f8abee28f4c77089">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga42a6919ecdd030d5f8abee28f4c77089">rsb.h</a>
 </li>
 <li>rsb_mtx_get_csr()
 : <a class="el" href="group__rsb__doc__rsb.html#ga4adca460f50bc1ad7d9ffdfda2273b87">rsb_rsb.c</a>
@@ -698,8 +731,8 @@ $(function() {
 , <a class="el" href="group__rsb__doc__rsb.html#gad9a3eacd54fb7043464006cd57866edf">rsb.h</a>
 </li>
 <li>rsb_mtx_get_info_str()
-: <a class="el" href="group__rsb__doc__rsb.html#ga2b7d51b9822f73d2fe7fcf5b9d0be1e9">rsb.h</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga2b7d51b9822f73d2fe7fcf5b9d0be1e9">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga2b7d51b9822f73d2fe7fcf5b9d0be1e9">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga2b7d51b9822f73d2fe7fcf5b9d0be1e9">rsb.h</a>
 </li>
 <li>rsb_mtx_get_norm
 : <a class="el" href="rsb_8h.html#a552fe79778c824e8d88ddfd0d9c58586">rsb.h</a>
@@ -709,8 +742,8 @@ $(function() {
 , <a class="el" href="group__rsb__doc__rsb.html#ga6a645ce89fd167d72c92cdcfbcd8ed81">rsb.h</a>
 </li>
 <li>rsb_mtx_get_prec()
-: <a class="el" href="group__rsb__doc__rsb.html#gadaee12cc24dac7f8ebc68efd3d09c819">rsb_rsb.c</a>
-, <a class="el" href="group__rsb__doc__rsb.html#gadaee12cc24dac7f8ebc68efd3d09c819">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#gadaee12cc24dac7f8ebc68efd3d09c819">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#gadaee12cc24dac7f8ebc68efd3d09c819">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_get_preconditioner
 : <a class="el" href="rsb_8h.html#a8ba1704fe1f07cb9abe856d9a1a20ea9">rsb.h</a>
@@ -731,27 +764,27 @@ $(function() {
 , <a class="el" href="group__rsb__doc__rsb.html#gad0b2352cea6b7512b466d1c51327fcf8">rsb.h</a>
 </li>
 <li>rsb_mtx_rndr()
-: <a class="el" href="group__rsb__doc__rsb.html#gab0702d7080d1699162e4201bc70cc5ee">rsb.h</a>
-, <a class="el" href="group__rsb__doc__rsb.html#gab0702d7080d1699162e4201bc70cc5ee">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#gab0702d7080d1699162e4201bc70cc5ee">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#gab0702d7080d1699162e4201bc70cc5ee">rsb.h</a>
 </li>
 <li>rsb_mtx_set_vals()
-: <a class="el" href="group__rsb__doc__rsb.html#gab8069ad6d5a67bc8a726131891e98c46">rsb.h</a>
-, <a class="el" href="group__rsb__doc__rsb.html#gab8069ad6d5a67bc8a726131891e98c46">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#gab8069ad6d5a67bc8a726131891e98c46">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#gab8069ad6d5a67bc8a726131891e98c46">rsb.h</a>
 </li>
 <li>rsb_mtx_set_values
 : <a class="el" href="rsb_8h.html#a5b622f80450cdef4f8a06742eacbb045">rsb.h</a>
 </li>
 <li>rsb_mtx_switch_to_coo()
-: <a class="el" href="group__rsb__doc__rsb.html#gadf75c148fe661486ab0d8140657b8d9a">rsb_rsb.c</a>
-, <a class="el" href="group__rsb__doc__rsb.html#gadf75c148fe661486ab0d8140657b8d9a">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#gadf75c148fe661486ab0d8140657b8d9a">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#gadf75c148fe661486ab0d8140657b8d9a">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_switch_to_csr()
 : <a class="el" href="group__rsb__doc__rsb.html#ga3c46a4942a6acb90063d721b6446e78e">rsb.h</a>
 , <a class="el" href="group__rsb__doc__rsb.html#ga3c46a4942a6acb90063d721b6446e78e">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_upd_vals()
-: <a class="el" href="group__rsb__doc__rsb.html#ga2d7533a97c97b215090d69c2d9235412">rsb_rsb.c</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga2d7533a97c97b215090d69c2d9235412">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga2d7533a97c97b215090d69c2d9235412">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga2d7533a97c97b215090d69c2d9235412">rsb_rsb.c</a>
 </li>
 <li>rsb_mtx_upd_values
 : <a class="el" href="rsb_8h.html#a40d40562867aceec2899cdddf79b3086">rsb.h</a>
@@ -764,6 +797,9 @@ $(function() {
 </li>
 <li>RSB_NULL_EXIT_OPTIONS
 : <a class="el" href="rsb_8h.html#a2234a5e51156de6c95c3f8c2951ae09f">rsb.h</a>
+</li>
+<li>RSB_NULL_IF_NUL
+: <a class="el" href="rsb__rsb_8c.html#a06844fbcfc1f5da2209ceeaf64e02b1d">rsb_rsb.c</a>
 </li>
 <li>RSB_NULL_INIT_OPTIONS
 : <a class="el" href="rsb_8h.html#add105c42e570c5c269680d437f8c51e2">rsb.h</a>
@@ -858,12 +894,12 @@ $(function() {
 : <a class="el" href="group__rsb__doc__rsb.html#ga68e662dcfb6981c1efc8eb03ef327182">rsb.h</a>
 </li>
 <li>rsb_spmm()
-: <a class="el" href="group__rsb__doc__rsb.html#ga3ec8d721b5333aae6ea9b03eb0039285">rsb.h</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga3ec8d721b5333aae6ea9b03eb0039285">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga3ec8d721b5333aae6ea9b03eb0039285">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga3ec8d721b5333aae6ea9b03eb0039285">rsb.h</a>
 </li>
 <li>rsb_spmsp()
-: <a class="el" href="group__rsb__doc__rsb.html#ga8813ccbbb1065ac76bfe22c42feafa05">rsb.h</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga8813ccbbb1065ac76bfe22c42feafa05">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga8813ccbbb1065ac76bfe22c42feafa05">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga8813ccbbb1065ac76bfe22c42feafa05">rsb.h</a>
 </li>
 <li>rsb_spmsp_to_dense()
 : <a class="el" href="group__rsb__doc__rsb.html#ga74d97612d4af70244c886b9eadd90a0e">rsb_rsb.c</a>
@@ -878,16 +914,16 @@ $(function() {
 , <a class="el" href="group__rsb__doc__rsb.html#ga30823d02e577e59da4ccff6baaeb8ea1">rsb_rsb.c</a>
 </li>
 <li>rsb_spsm()
-: <a class="el" href="group__rsb__doc__rsb.html#ga48e6f3844605fffac9f622f05afa6043">rsb_rsb.c</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga48e6f3844605fffac9f622f05afa6043">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga48e6f3844605fffac9f622f05afa6043">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga48e6f3844605fffac9f622f05afa6043">rsb_rsb.c</a>
 </li>
 <li>rsb_spsv()
 : <a class="el" href="group__rsb__doc__rsb.html#ga9b044332b720d3f8083ae792068fb04a">rsb.h</a>
 , <a class="el" href="group__rsb__doc__rsb.html#ga9b044332b720d3f8083ae792068fb04a">rsb_rsb.c</a>
 </li>
 <li>rsb_strerror_r()
-: <a class="el" href="group__rsb__doc__rsb.html#ga28710b8dade48738ea8e075aa1a3d262">rsb_rsb.c</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga28710b8dade48738ea8e075aa1a3d262">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga28710b8dade48738ea8e075aa1a3d262">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga28710b8dade48738ea8e075aa1a3d262">rsb_rsb.c</a>
 </li>
 <li>rsb_time()
 : <a class="el" href="group__rsb__doc__rsb.html#ga6677d4e20c00bdf4ebf53567246f5693">rsb_rsb.c</a>
@@ -902,19 +938,25 @@ $(function() {
 <li>RSB_TRANSPOSITION_C
 : <a class="el" href="rsb__types_8h.html#abd3aaf223656dece97dee2107e485217">rsb_types.h</a>
 </li>
+<li>RSB_TRANSPOSITION_INVALID
+: <a class="el" href="rsb__types_8h.html#acb80acf43f0058bef1fda70e15aae10e">rsb_types.h</a>
+</li>
 <li>RSB_TRANSPOSITION_N
 : <a class="el" href="rsb__types_8h.html#a9673f34330af77b1c0fd4a585e0c62cc">rsb_types.h</a>
 </li>
 <li>RSB_TRANSPOSITION_T
 : <a class="el" href="rsb__types_8h.html#a37f8cea71946de2f832bdb9d438d5edf">rsb_types.h</a>
 </li>
+<li>RSB_TRANSPOSITIONS_ARRAY_LENGTH
+: <a class="el" href="rsb__types_8h.html#af76d6cc65134e8e24a538b6bc3ca818f">rsb_types.h</a>
+</li>
 <li>rsb_tune_spmm()
-: <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_rsb.c</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb.h</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb.h</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga8c11024d248e2e686476fd9e89aa7c15">rsb_rsb.c</a>
 </li>
 <li>rsb_tune_spsm()
-: <a class="el" href="group__rsb__doc__rsb.html#ga8d7a05bbc165bd6ac20e8e23487a5871">rsb.h</a>
-, <a class="el" href="group__rsb__doc__rsb.html#ga8d7a05bbc165bd6ac20e8e23487a5871">rsb_rsb.c</a>
+: <a class="el" href="group__rsb__doc__rsb.html#ga8d7a05bbc165bd6ac20e8e23487a5871">rsb_rsb.c</a>
+, <a class="el" href="group__rsb__doc__rsb.html#ga8d7a05bbc165bd6ac20e8e23487a5871">rsb.h</a>
 </li>
 <li>RSB_TYPE_INDEX_DOUBLE
 : <a class="el" href="rsb__types_8h.html#a4abf98873753295350143ca544b79db3">rsb_types.h</a>
@@ -930,6 +972,21 @@ $(function() {
 </li>
 <li>rsb_type_t
 : <a class="el" href="rsb_8h.html#ac0f6a03345c8874f6e50f0ed033d984b">rsb.h</a>
+</li>
+<li>RSBP_DEPRECATED
+: <a class="el" href="rsb_8hpp.html#ad2d35666346056c69b47f2c2d90eff1f">rsb.hpp</a>
+</li>
+<li>RSBP_MSLVRV
+: <a class="el" href="rsb_8hpp.html#af95453eabf58e6adb4cb486def9a4356">rsb.hpp</a>
+</li>
+<li>RSBP_NODISCARD
+: <a class="el" href="rsb_8hpp.html#a557a9858cc1c52a2b8614f63860437fc">rsb.hpp</a>
+</li>
+<li>RSBP_RVT
+: <a class="el" href="rsb_8hpp.html#a398563dd2c6902b10650896c7ec8008a">rsb.hpp</a>
+</li>
+<li>RSBP_WANT_REV
+: <a class="el" href="rsb_8hpp.html#a95fd093e94225b4e6ef15124cb70c676">rsb.hpp</a>
 </li>
 </ul>
 </div><!-- contents -->

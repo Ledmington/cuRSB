@@ -19,7 +19,7 @@ dnl
 dnl 
 /** @file
     @brief
-    Macros and constants, which are type specific.
+    Macros and constants, which are type specific and used by rsb.h.
     \n
     Here reside declarations related to supported matrix numerical types, and other declarations
     according to the build time options.
@@ -27,10 +27,11 @@ dnl
     If you wish to use this library with different matrix numerical types, you shall regenerate
      the library source code accordingly; see the README file how to do this.
     \n
-    Only a small part of these declarations is needed to the user (see \ref matrix_type_symbols_section).
+    Only a those declarations which are documented are meant to be part of the API.
     \n
-    Therefore, only the declarations which are commented are actually meant to be used in functions;
-    please regard the remaining ones as internal.
+    The rest is meant as internals.
+    \n
+    See also \ref matrix_type_symbols_section.
   */
 RSB_M4_HEADER_MESSAGE()dnl
 dnl 
@@ -50,35 +51,18 @@ dnl
 extern "C" {
 #endif /* __cplusplus */
 
-dnl #include "rsb.h"
-dnl #include <stdio.h>
-
-ifelse(RSB_M4_OR(RSB_M4_MEMBER(`long double complex',WANT_TYPES),RSB_M4_MEMBER(`double complex',WANT_TYPES),RSB_M4_MEMBER(`float complex',WANT_TYPES)),1,`dnl
-dnl	
-ifelse(RSB_M4_HAVE_COMPLEX_TYPE,`()',`',`dnl
-#ifndef __cplusplus
-/* complex.h is ISO C99 */
-dnl	#ifdef RSB_HAVE_COMPLEX_H
-#include <complex.h>
-dnl	#endif
-#endif /* __cplusplus */
-')dnl
-')dnl
-dnl
 dnl	***********************************************************************
 dnl
 /* 
-   Each one of the following symbols is assigned to a type which is supported
-   by an option set at library code generation time.
+   Each of the following symbols corresponds to a type opted in or out at code generation time.
    Other types may be enabled by regenerating the whole library code.
-   To enable types, please read the documentation.
  */
 
 /* Miscellaneous version strings.
-  Adopting a naming scheme similar to that of png.h.
+dnl  Adopting a naming scheme similar to that of png.h.
  */
 `#define 'RSB_LIBRSB_VER_STRING`		'"RSB_M4_WANT_LIBRSB_VER_MAJOR.RSB_M4_WANT_LIBRSB_VER_MINOR.RSB_M4_WANT_LIBRSB_VER_PATCH`'"`'	/*!< \brief Library version string. */
-`#define 'RSB_HEADER_VERSION_STRING`		'"librsb version RSB_M4_WANT_LIBRSB_VER_MAJOR.RSB_M4_WANT_LIBRSB_VER_MINOR.RSB_M4_WANT_LIBRSB_VER_PATCH'`'RSB_M4_WANT_LIBRSB_VER_PRERS` - RSB_M4_WANT_LIBRSB_VER_DATE"`'	/*!< \brief Library header version string. */
+`#define 'RSB_HEADER_VERSION_STRING`		'"librsb version RSB_M4_WANT_LIBRSB_VER_MAJOR.RSB_M4_WANT_LIBRSB_VER_MINOR.RSB_M4_WANT_LIBRSB_VER_PATCH`'RSB_M4_WANT_LIBRSB_VER_PRERS` - 'RSB_M4_WANT_LIBRSB_VER_DATE"`'	/*!< \brief Library header version string. */
 `#define 'RSB_LIBRSB_VER_MAJOR`		'RSB_M4_WANT_LIBRSB_VER_MAJOR`'	/*!< \brief Major version. */
 `#define 'RSB_LIBRSB_VER_MINOR`		'RSB_M4_WANT_LIBRSB_VER_MINOR`'	/*!< \brief Minor version. */
 `#define 'RSB_LIBRSB_VER_PATCH`		'RSB_M4_WANT_LIBRSB_VER_PATCH`'	/*!< \brief Patch version. */
@@ -99,8 +83,14 @@ dnl
 `#define' RSB_DEFAULT_SYMMETRY RSB_M4_MATRIX_SYMMETRY_PREPROCESSOR_SYMBOL(RSB_M4_DEFAULT_SYMMETRY)	/*!< \brief The default symmetry flag. */
 `#define' RSB_DEFAULT_TRANSPOSITION RSB_M4_MATRIX_TRANSPOSITION_PREPROCESSOR_SYMBOL(RSB_M4_DEFAULT_TRANSPOSITION)	/*!< \brief The default transposition flag (no transposition). */
 dnl
+dnl
+ifelse(RSB_M4_HAVE_COMPLEX_TYPE,`()',`',`dnl
+#define RSB_HAVE_ANY_COMPLEX_TYPE 1	/*!< \brief Defined to 1 if any complex type has been configured in. Currently: 'RSB_M4_HAVE_COMPLEX_TYPE`. */
+')dnl
+dnl
 `#define RSB_ROWS_TRANSPOSITIONS_ARRAY	{'dnl
-foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`RSB_M4_MATRIX_TRANSPOSITION_PREPROCESSOR_SYMBOL(transposition), ')RSB_INVALID_TRANS } /*!< \brief An array with transposition constants. */
+foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`RSB_M4_MATRIX_TRANSPOSITION_PREPROCESSOR_SYMBOL(transposition), ') RSB_TRANSPOSITION_INVALID} /*!< \brief An array with transposition constants. */
+`#define RSB_TRANSPOSITIONS_ARRAY_LENGTH 3 /* valid transpositions in RSB_ROWS_TRANSPOSITIONS_ARRAY */'
 
 dnl
 pushdef(`counter',`0')dnl
@@ -118,11 +108,9 @@ dnl	***********************************************************************
 /* @cond INNERDOC  */
 dnl
 /*
-   Each one of the following symbols is assigned to an operation which is supported
-   by an option set at library code generation time.
+   Each of the following symbols corresponds to an operation opted in or out at code generation time.
    \n
    Other operations may be enabled by regenerating the whole library code.
-   To enable operations, please read the documentation.
  */
 dnl
 foreach(`mop',RSB_M4_MATRIX_OPS,`dnl
@@ -158,21 +146,20 @@ dnl
 /* @endcond */
 dnl
 /**
- \name Values for valid matrix transposition flags.
+ \name Values for matrix transposition flags (rsb_trans_t).
  \anchor matrix_transposition_flags_section
- The Hermitian flag will act as simple transposed, for non complex types.
+ Note that for non complex types, the Hermitian flag will act as simple transposed.
  */
 dnl
 foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`dnl
 `#define ' RSB_M4_MATRIX_TRANSPOSITION_PREPROCESSOR_SYMBOL(transposition) RSB_M4_MATRIX_TRANSPOSITION_CHARCODE(transposition)
 ')dnl
+`#define ' RSB_TRANSPOSITION_INVALID RSB_M4_MATRIX_TRANSPOSITION_CHARCODE(`RSB_M4_TRANS_INVALID')
 dnl
 /* @cond INNERDOC  */
 dnl
-#define  RSB_TRANSPOSITION_INVALID 0x3F /*!< \brief ?: Transposition type flag value guaranteed to be invalid. Useful for tests. (undocumented in 1.2.0.10) */
-dnl
 /**
- \name Values for valid matrix symmetry flags.
+ \name Values for matrix symmetry flags (rsb_flags_t).
  \anchor matrix_symmetry_flags_section
  */
 dnl
@@ -184,7 +171,7 @@ dnl
 dnl
 /**
 dnl \name Values for valid matrix symmetry flags.
-\name Values for inner diagonal specification values.
+\name Values for diagonal specification flags (rsb_flags_t).
  \anchor matrix_diagonal_flags_section
  */
 dnl
@@ -221,13 +208,20 @@ dnl
 
 dnl
 /**
- \name Valid symbol values for matrix numerical type specification -- type codes -- (type \see #rsb_type_t).
+ \name Supported matrix numerical types.
+ \anchor matrix_supported_numerical_types_section
+ */
+`#define 'RSB_MATRIX_TYPES_LIST_CXX`		'RSB_M4_MATRIX_TYPES_LIST_CXX /*!< \brief list of C++ types configured in this \librsb build, usable in \c <rsb.hpp> (since RSB_LIBRSB_VER>=10300) */
+
+dnl
+/**
+ \name Valid symbol values for matrix numerical type specification (type codes).
  \anchor matrix_type_symbols_section
  */
 dnl
 foreach(`citype',RSB_M4_MATRIX_TYPES,`dnl
 `#define' RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(SAME_TYPE) 1 /*!< \brief a bogus type flag for specifying no type conversion */
-`#define ' RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(citype) singlequote(RSB_M4_TYPE_CHARCODE(citype)) /*!< \brief Character code for type citype. */
+`#define ' RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(citype) singlequote(RSB_M4_TYPE_CHARCODE(citype)) /*!< \brief Character code for type citype. See \ref rsb_type_t . */
 ')dnl
 
 `#define ' RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(`FORTRAN_'`SAME_TYPE') 1 /*!< \brief a bogus type flag for specifying no type conversion */
@@ -246,7 +240,7 @@ foreach(`transA',RSB_M4_MATRIX_TRANSPOSITIONS,`dnl
 		(TRANSC) == (touppercase(singlequote(transA))) ? (RSB_M4_MATRIX_TRANSPOSITION_PREPROCESSOR_SYMBOL(transA)) : 		\
 		(TRANSC) == (tolowercase(singlequote(transA))) ? (RSB_M4_MATRIX_TRANSPOSITION_PREPROCESSOR_SYMBOL(transA)) : 		\
 ')dnl
-		singlequote(?)												\
+		singlequote(RSB_M4_TRANS_INVALID)	\
 ) /*!< \brief Get the right transposition flag out of either n, c, t chars. */
 
 
@@ -263,6 +257,7 @@ dnl
  \name Values for other numerical type related macros.
 */
 `#define ' RSB_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS "foreach(`type',RSB_M4_MATRIX_TYPES,`RSB_M4_TYPE_CHARCODE(type) ')"
+`#define ' RSB_BLAS_NUMERICAL_TYPE_PREPROCESSOR_SYMBOLS "foreach(`type',RSB_M4_SPBLAS_MATRIX_SUPPORTED_TYPES,`RSB_M4_TYPE_CHARCODE(type) ')"
 
 /* a bogus type for pattern input (TODO : should also implement ANY, just for matrix input) */
 `#define' RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(PATTERN) 0
@@ -284,8 +279,8 @@ ifelse(type,`float',"%.9g")dnl
 ifelse(type,`float complex',"%.9g %.9g")dnl
 ifelse(type,`double',"%.17g")dnl
 ifelse(type,`double complex',"%.17g %.17g")dnl
-ifelse(type,`long double',"%.17g")dnl
-ifelse(type,`long double complex',"%.17g %.17g")dnl
+ifelse(type,`long double',"%.17Lg")dnl
+ifelse(type,`long double complex',"%.17Lg %.17Lg")dnl
 dnl
 dnl ifelse(type,`long double',"%Lg")dnl
 dnl ifelse(type,`double',"%lg")dnl
@@ -323,7 +318,7 @@ dnl
 dnl
 dnl
 `#define RSB_ROWS_TRANSPOSITIONS_ARRAY_AS_CHAR	{'dnl
-foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`singlequote(transposition), ')RSB_TRANSPOSITION_INVALID }
+foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`singlequote(transposition), ')singlequote(RSB_M4_TRANS_INVALID) }
 
 
 `#define ' RSB_TRANSPOSITIONS_PREPROCESSOR_SYMBOLS "foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`transposition ')"
@@ -333,9 +328,12 @@ foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`singlequote(transposition)
 foreach(`transA',RSB_M4_MATRIX_TRANSPOSITIONS,`dnl
 		(TRANSA) == (RSB_M4_MATRIX_TRANSPOSITION_PREPROCESSOR_SYMBOL(transA)) ? (touppercase(singlequote(transA))) : 		\
 ')dnl
-		singlequote(?)												\
+		singlequote(RSB_M4_TRANS_INVALID)	\
 )
 
+`#define RSB__ORDER_AS_SINGLE_CHAR(ORDER) ( ((ORDER) == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER) ?  'singlequote(C)` : 'singlequote(R)` )'
+`#define RSB__ORDER_AS_STRING(ORDER) ( ((ORDER) == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER) ?  "cols" : "rows" )'
+`#define RSB__ORDER_AS_LANG_CHAR(ORDER) ( ((ORDER) == RSB_FLAG_WANT_COLUMN_MAJOR_ORDER) ?  'singlequote(F)` : 'singlequote(C)` )'
 
 #define RSB_NUMERICAL_TYPE_STRING(CSP,TYPE) \
 		{ \
@@ -346,7 +344,7 @@ foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 			case RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type)	:CSP="RSB_M4_CHOPSPACES(type)";break; 	\
 ')dnl
 			/* unsupported type */ \
-			default : CSP="?"; \
+			default : CSP="RSB_M4_TRANS_INVALID"; \
 		} \
 		}
 
@@ -547,6 +545,14 @@ foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 		0												\
 )
 
+#define RSB_IS_MATRIX_TYPE_BLAS_TYPE(TYPE) 										\
+(/*RSB_M4_SPBLAS_MATRIX_SUPPORTED_TYPES_LIST*/														\
+foreach(`type',(RSB_M4_SPBLAS_MATRIX_SUPPORTED_TYPES_LIST),`dnl
+		(TYPE) == (RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type)) ? 1 : 		\
+')dnl
+		0												\
+)
+
 #define RSB_IS_ELEMENT_LESS_THAN(SRC,CMPSRC,TYPE) \
 ( foreach(`type',RSB_M4_MATRIX_TYPES,`dnl
 			( (TYPE)==RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type) && RSB_M4_CREAL(type,*(type*)(SRC))<RSB_M4_CREAL(type,*(type*)(CMPSRC)) ) || \
@@ -562,7 +568,7 @@ dnl
 dnl
 dnl
 /** use RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE_EXTRA to oversize your arrays safely */
-`#define RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE_EXTRA	' (RSB_M4_MAX2(RSB_M4_MAXN(WANT_COLUMN_UNLOOP_FACTORS),RSB_M4_MAXN(WANT_ROW_UNLOOP_FACTORS))-1) 
+`#define RSB_MAXIMAL_CONFIGURED_BLOCK_SIZE_EXTRA	' (RSB_M4_MAXIMAL_CONFIGURED_BLOCK_SIZE-1)
 dnl
 dnl
 #define RSB_CONST_MATRIX_IMPLEMENTATION_CODE_STRING_MAX_LENGTH (2*1024)	/** chars to reserve for a matrix implementation code */
@@ -596,6 +602,15 @@ dnl
 `#define 'RSB_MATRIX_TYPE_CODES_ARRAY`	{' foreach(`type',RSB_M4_MATRIX_TYPES,`RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type),') }
 `#define 'RSB_MATRIX_SPBLAS_TYPE_CODES_ARRAY`	{' foreach(`type',RSB_M4_SPBLAS_MATRIX_SUPPORTED_TYPES,`RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type),') }
 
+/* Trick to exercise lightweight Sparse BLAS Fortran wrappers */
+`#define 'RSB__BLAS_CALL_TF_(TYPECODE,CALL,ISTAT,...)`	( \'dnl
+foreach(`type',RSB_M4_SPBLAS_MATRIX_SUPPORTED_TYPES,`
+	( TYPECODE==RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(type) ) ? RSB__BLAS_CALL_F(tolowercase(RSB_M4_TYPE_CHARCODE(type)),CALL,__VA_ARGS__,&ISTAT),ISTAT : ( \')
+	RSB_BLAS_ERROR \
+	foreach(`type',RSB_M4_SPBLAS_MATRIX_SUPPORTED_TYPES,`)') `)'
+
+`#define RSB__FORTRAN_APPEND_UNDERSCORE 'ifelse(RSB_M4_FORTRAN_CONVENTION,`xlf',`0',`1')
+
 `#define 'RSB_M4_MATRIX_META_OPS_STRING`	'"WANT_MATRIX_OPS"
 `#define 'RSB_M4_MATRIX_TYPES_STRING`		'"WANT_TYPES"
 `#define 'RSB_M4_WANT_COLUMN_UNLOOP_FACTORS_STRING`		'"RSB_M4_SPACED_LIST((WANT_COLUMN_UNLOOP_FACTORS))"
@@ -611,6 +626,65 @@ foreach(`matrix_storage',RSB_M4_MATRIX_STORAGE,`dnl
 ')dnl
 	0 ) ? RSB_BOOL_TRUE:RSB_BOOL_FALSE )
 dnl
+
+/**
+ \name Short internal M4 macros check
+ */
+dnl
+`#define ' RSB__M4_CHECK()              \
+	\
+        assert(RSB_M4_XOR(0,0)==0);      \
+        assert(RSB_M4_XOR(0,1)==1);      \
+        assert(RSB_M4_XOR(1,0)==1);      \
+        assert(RSB_M4_XOR(1,1)==0);      \
+	\
+        assert(RSB_M4_OR(0,0)==0);      \
+        assert(RSB_M4_OR(0,1)==1);      \
+        assert(RSB_M4_OR(1,0)==1);      \
+        assert(RSB_M4_OR(1,1)==1);      \
+	\
+        assert(RSB_M4_AND(0,0)==0);      \
+        assert(RSB_M4_AND(0,1)==0);      \
+        assert(RSB_M4_AND(1,0)==0);      \
+        assert(RSB_M4_AND(1,1)==1);      \
+	\
+        assert(RSB_M4_IMPLY(0,0)==1);      \
+        assert(RSB_M4_IMPLY(0,1)==1);      \
+        assert(RSB_M4_IMPLY(1,0)==0);      \
+        assert(RSB_M4_IMPLY(1,1)==1);      \
+	\
+        assert(RSB_M4_NOT(0)==1);      \
+        assert(RSB_M4_NOT(1)==0);      \
+	\
+        assert(RSB_M4_MAX2(0,1)==1);      \
+        assert(RSB_M4_MAX2(1,0)==1);      \
+        assert(RSB_M4_MIN2(0,1)==0);      \
+        assert(RSB_M4_MIN2(1,0)==0);      \
+	\
+        assert(RSB_M4_MAXN(0,1)==1);      \
+        assert(RSB_M4_MAXN(1,0)==1);      \
+        assert(RSB_M4_MINN(0,1)==0);      \
+        assert(RSB_M4_MINN(1,0)==0);      \
+	\
+        assert(RSB_M4_MAXN(0,1,2)==2);      \
+        assert(RSB_M4_MAXN(1,2,0)==2);      \
+        assert(RSB_M4_MAXN(2,0,1)==2);      \
+	\
+        assert(RSB_M4_MINN(0,1,2)==0);      \
+        assert(RSB_M4_MINN(1,2,0)==0);      \
+        assert(RSB_M4_MINN(2,0,1)==0);      \
+        ;   dnl TODO: many more: RSB_M4_MEMBER, RSB_M4_FIRST, RSB_M4_SORT
+dnl
+
+ifelse(RSB_M4_LONG_IDX,`0',`',`dnl
+#ifndef RSB_WANT_LONG_IDX_TYPE
+#define RSB_WANT_LONG_IDX_TYPE int64_t
+#else
+#error RSB_WANT_LONG_IDX_TYPE shall be defined by rsb_types.h, not elsewhere!
+#endif
+')dnl
+
+`#define RSB_HAVE_IHI' RSB_M4_WANT_IHI /* is rsb-librsb-internals.h installed ? */
 
 #ifdef __cplusplus
 }

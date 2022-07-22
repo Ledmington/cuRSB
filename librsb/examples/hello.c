@@ -1,6 +1,6 @@
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -23,13 +23,14 @@ If not, see <http://www.gnu.org/licenses/>.
  \ingroup rsb_doc_examples
  @file
  @author Michele Martone
- @brief This is a first "hello RSB" example program.
+
+ @brief A first "hello RSB" example C program based on <rsb.h>.
+   Uses #rsb_lib_set_opt(), #rsb_mtx_get_info_str().
 
  \include hello.c
 */
 #include <rsb.h>	/* librsb header to include */
 #include <stdio.h>	/* printf() */
-#include <stdlib.h>	// EXIT_SUCCESS
 
 int main(const int argc, char * const argv[])
 {
@@ -46,28 +47,28 @@ int main(const int argc, char * const argv[])
 	  - prints information obtained via #rsb_mtx_get_info_str()
 	  - multiply the matrix times a vector using #rsb_spmv()
 	  - deallocate the matrix using #rsb_mtx_free() 
-	  - finalize the library using #rsb_lib_exit(RSB_NULL_EXIT_OPTIONS) 
+	  - finalize the library using #rsb_lib_exit()
 	 
 	  In this example, we use #RSB_DEFAULT_TYPE as matrix type.
 	  This type depends on what was configured at library build time.
 	 * */
-	struct rsb_mtx_t *mtxAp = NULL;	/* matrix structure pointer */
-	const int bs = RSB_DEFAULT_BLOCKING;
-	const int brA = bs, bcA = bs;
+	const rsb_blk_idx_t bs = RSB_DEFAULT_BLOCKING;
+	const rsb_blk_idx_t brA = bs, bcA = bs;
 	const RSB_DEFAULT_TYPE one = 1;
-	rsb_type_t typecode = RSB_NUMERICAL_TYPE_DEFAULT;
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_DEFAULT;
 	const rsb_nnz_idx_t nnzA = 4;		/* matrix nonzeroes count */
 	const rsb_coo_idx_t nrA = 3;		/* matrix rows count */
 	const rsb_coo_idx_t ncA = 3;		/* matrix columns count */
 	/* nonzero row indices coordinates: */
-	rsb_coo_idx_t IA[] = {0,1,2,2};
+	const rsb_coo_idx_t IA[] = {0,1,2,2};
 	/* nonzero column indices coordinates: */
-	rsb_coo_idx_t JA[] = {0,1,2,2};
-	RSB_DEFAULT_TYPE VA[] = {11,22,32,1};/* values of nonzeroes */
+	const rsb_coo_idx_t JA[] = {0,1,2,2};
+	const RSB_DEFAULT_TYPE VA[] = {11,22,32,1};/* values of nonzeroes */
 	RSB_DEFAULT_TYPE X[] = { 0, 0, 0 };	/* X vector's array */
 	const RSB_DEFAULT_TYPE B[] = { -1, -2, -5 }; /* B vector's array */
 	char ib[200];
+	struct rsb_mtx_t *mtxAp = NULL;	/* matrix structure pointer */
+	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 	printf("Hello, RSB!\n");
 	printf("Initializing the library...\n");
@@ -83,6 +84,7 @@ int main(const int argc, char * const argv[])
 	       " RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE library option.\n");
 	{
 		rsb_int_t evi=1; 
+
 		/* Setting a single optional library parameter. */
 		errval = rsb_lib_set_opt(
 			RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE, &evi);

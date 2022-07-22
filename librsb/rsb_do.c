@@ -38,52 +38,54 @@ If not, see <http://www.gnu.org/licenses/>.
 #include <sys/utsname.h>	/* uname */
 #endif /* RSB_HAVE_SYS_UTSNAME_H */
 #include "rsb_do.h"
-extern struct rsb_session_handle_t rsb_global_session_handle;
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
-rsb_err_t rsb_do_prec_build(struct rsb_mtx_t ** mtxLpp, struct rsb_mtx_t ** mtxUpp, const struct rsb_mtx_t * mtxAp)
+static rsb_err_t rsb__do_prec_build(struct rsb_mtx_t ** mtxLpp, struct rsb_mtx_t ** mtxUpp, const struct rsb_mtx_t * mtxAp)
 {
 	/* 
 	 * FIXME: UNFINISHED, UNTESTED
 	 * */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t *L=NULL,*U=NULL;
-	struct rsb_coo_matrix_t csr,lcoo,ucoo;
+	struct rsb_coo_mtx_t csr,lcoo,ucoo;
 	rsb_flags_t flags = RSB_FLAG_DEFAULT_MATRIX_FLAGS;
 
-	csr.VA=NULL; csr.IA=NULL; csr.JA=NULL;
-	if(!mtxLpp)
-		goto err;
-	if(!mtxUpp)
-		goto err;
-	if(!mtxAp)
-		goto err;
+	csr.VA=NULL;
+	csr.IA=NULL;
+	csr.JA=NULL;
+
+	RSB_DEBUG_ASSERT(mtxAp  );
+	RSB_DEBUG_ASSERT(mtxLpp );
+	RSB_DEBUG_ASSERT(mtxUpp);
+
 	if(mtxAp->nr != mtxAp->nc)
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
 	csr.nr=mtxAp->nr;
 	csr.nc=mtxAp->nc;
 	csr.nnz = RSB_MAX(mtxAp->nnz,RSB_MAX(csr.nr,csr.nc)+1);
 	csr.typecode=mtxAp->typecode;
-	ucoo=csr; lcoo=csr;
+	ucoo=csr;
+	lcoo=csr;
 	if(rsb__allocate_coo_matrix_t(&csr)!=&csr)
 	{
 		errval = RSB_ERR_ENOMEM;
 		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 	}
 	csr.nnz=mtxAp->nnz;
-/* a reasonably efficient routine would: */
+	/* a more efficient routine would: */
 	/* build a fullword CSR clone (using a RSB-to-CSR constructor) */
 	/* perform ILU on the CSR struct */
-	/* build RSB clones for the L and U CSR parts  (using a modified CSR-to-RSB constructor, eventually building them together, in one shot) */
+	/* build RSB clones for the L and U CSR parts (using a modified CSR-to-RSB constructor; possibly building them together, in one shot) */
 	/* FIXME: TODO */
-	/* a reasonable quick hack routine would: */
+	/* a better 'quick hack' solution would: */
 	/* build a fullword CSR clone (using a RSB-to-CSR constructor) */
 	if((errval = rsb__do_get_csr(mtxAp->typecode,mtxAp,csr.VA,csr.IA,csr.JA,RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS))!=RSB_ERR_NO_ERROR)
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 	/* perform ILU on the CSR struct */
 	if((errval = rsb__prec_csr_ilu0(&csr))!=RSB_ERR_NO_ERROR)
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 	/* perform CSR to COO conversion */
 	rsb__do_count_tri_in_csr(&csr,&lcoo.nnz,&ucoo.nnz);
 
@@ -103,30 +105,29 @@ rsb_err_t rsb_do_prec_build(struct rsb_mtx_t ** mtxLpp, struct rsb_mtx_t ** mtxU
 	{
 		rsb__destroy_coo_matrix_t(&lcoo);
 		RSB_BZERO_P(&lcoo);
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 	}
 	U = rsb__do_mtx_alloc_from_coo_const(ucoo.VA,ucoo.IA,ucoo.JA,ucoo.nnz,ucoo.typecode,ucoo.nr,ucoo.nc,RSB_DEFAULT_ROW_BLOCKING,RSB_DEFAULT_COL_BLOCKING,flags|RSB_FLAG_UPPER_TRIANGULAR,&errval);
 	if(!U)
 	{
 		rsb__destroy_coo_matrix_t(&ucoo);
 		RSB_BZERO_P(&ucoo);
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 	}
 	/*RSB_ERROR(RSB_ERRM_WUF);*/
 
 	*mtxLpp=L;
 	*mtxUpp=U;
-       	rsb__destroy_coo_matrix_t(&csr);
-	rsb__destroy_coo_matrix_t(&lcoo); rsb__destroy_coo_matrix_t(&ucoo); 
-
-	return errval;
+	goto ret;
 err:
-	rsb__destroy_coo_matrix_t(&lcoo); rsb__destroy_coo_matrix_t(&ucoo); 
-	rsb__destroy_coo_matrix_t(&csr);
-	rsb__do_perror(NULL,errval);
 	RSB_MTX_FREE(L);
 	RSB_MTX_FREE(U);
+	rsb__do_perror(NULL,errval);
 	errval = RSB_ERR_BADARGS;
+ret:
+	rsb__destroy_coo_matrix_t(&lcoo);
+	rsb__destroy_coo_matrix_t(&ucoo); 
+	rsb__destroy_coo_matrix_t(&csr);
 	return errval;
 }
 
@@ -140,7 +141,7 @@ rsb_err_t rsb__do_get_preconditioner(void *opd, const struct rsb_mtx_t * mtxAp, 
 	{
 		RSB_PERR_GOTO(err,RSB_ERRM_ES);
 	}
-	errval = rsb_do_prec_build(&LU[0],&LU[1],mtxAp);
+	errval = rsb__do_prec_build(&LU[0],&LU[1],mtxAp);
 	rsb__memcpy(opd,LU,sizeof(LU));
 err:
 	return errval;
@@ -186,16 +187,16 @@ rsb_err_t rsb__do_get_rows_sparse(rsb_trans_t transA, const void * alphap, const
 	}
 #endif
 
-	if(VA == NULL && JA == NULL && IA == NULL && rnzp != NULL)
-	{
-		*rnzp = rsb__dodo_get_rows_nnz(mtxAp, frA, lrA,flags,&errval);
-		goto err;
-	}
-
 	if(!mtxAp)
 	{
 		errval = RSB_ERR_BADARGS;
 		RSB_PERR_GOTO(err,RSB_ERRM_E_MTXAP);
+	}
+
+	if(VA == NULL && JA == NULL && IA == NULL && rnzp != NULL)
+	{
+		*rnzp = rsb__dodo_get_rows_nnz(mtxAp, frA, lrA,flags,&errval);
+		goto err;
 	}
 
 	if(!rnzp)
@@ -361,8 +362,10 @@ rsb_err_t rsb__dodo_getdiag( const struct rsb_mtx_t * mtxAp, void * diagonal )
 	{
 		// FIXME: THIS IS SLOW, TEMPORARY
 		rsb_coo_idx_t i;
+#if RSB_WANT_OMP_RECURSIVE_KERNELS
 		long nt = rsb_get_num_threads();
 		const int gdc = RSB_DIVIDE_IN_CHUNKS(mtxAp->nr,nt);
+#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 		#pragma omp parallel for schedule(static,gdc) reduction(|:errval)  RSB_NTC
 		for(i=0;i<mtxAp->nr;++i)
 			RSB_DO_ERROR_CUMULATE(errval,rsb__do_get_coo_element(mtxAp,((rsb_char_t*)diagonal)+mtxAp->el_size*(i),i,i));
@@ -556,7 +559,6 @@ err:
 
 rsb_err_t rsb__do_elemental_binop(struct rsb_mtx_t * mtxAp, enum rsb_elopf_t elop_flags, const void * opp)
 {
-	// FIXME: untested
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	rsb_trans_t transA = RSB_TRANSPOSITION_N; 
 	void * topp=NULL;
@@ -570,7 +572,8 @@ rsb_err_t rsb__do_elemental_binop(struct rsb_mtx_t * mtxAp, enum rsb_elopf_t elo
 		case(RSB_ELOPF_SCALE_COLS):
 		transA = RSB_TRANSPOSITION_T; 
 		break;
-		default: RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS;
+		default:
+		RSB_NULL_STATEMENT_FOR_COMPILER_HAPPINESS
 	}
 
 	switch(elop_flags)
@@ -579,8 +582,8 @@ rsb_err_t rsb__do_elemental_binop(struct rsb_mtx_t * mtxAp, enum rsb_elopf_t elo
 		case(RSB_ELOPF_SCALE_ROWS_REAL):
 		if( RSB_IS_MATRIX_TYPE_COMPLEX(mtxAp->typecode) )
 		{
-			/* FIXME: this is inefficient */
-			rsb_type_t typecode = RSB_NUMERICAL_TYPE_REAL_TYPE(mtxAp->typecode);
+			/* Note: this is inefficient */
+			const rsb_type_t typecode = RSB_NUMERICAL_TYPE_REAL_TYPE(mtxAp->typecode);
 			if( NULL == (topp = rsb__calloc_vector(mtxAp->nr,mtxAp->typecode)) )
 			{
 				errval = RSB_ERR_ENOMEM;
@@ -621,7 +624,7 @@ rsb_nnz_idx_t rsb__dodo_get_rows_nnz(const struct rsb_mtx_t *mtxAp, rsb_blk_idx_
 
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE))
 		lr--,fr--;
-	errval = rsb_do_get_rows_nnz(mtxAp,fr,lr,&rnz);
+	errval = rsb__do_get_rows_nnz(mtxAp,fr,lr,&rnz);
 	RSB_CONDITIONAL_ERRPSET(errvalp,errval);
 	if(RSB_SOME_ERROR(errval))
 		rnz=0;
@@ -663,13 +666,12 @@ rsb_err_t rsb__do_matrix_add_to_dense(const void *alphap, const struct rsb_mtx_t
 	//  FIXME: could this be documented in two groups (mops and unfinished) at the same time ?
 	//  TODO: what about supporting transA ?
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	struct rsb_mtx_t * submatrix = NULL;
 	rsb_aligned_t pone[RSB_CONST_ENOUGH_ALIGNED_FOR_ANY_TYPE];
 
-	if(!mtxAp)
+	if(! (nr>0 && nc>0 && mtxAp) )
 	{
-		errval = RSB_ERR_BADARGS;
-		goto err;
+	       	errval = RSB_ERR_BADARGS;
+	       	goto err;
 	}
 
 	if(!alphap)
@@ -680,10 +682,14 @@ rsb_err_t rsb__do_matrix_add_to_dense(const void *alphap, const struct rsb_mtx_t
 
 	if(rsb__is_recursive_matrix(mtxAp->flags))
 	{
+
 		rsb_submatrix_idx_t smi;
-		//#pragma omp parallel for schedule(static,1) reduction(|:errval)  shared(mtxAp) RSB_NTC
-		RSB_SUBMATRIX_FOREACH_LEAF(mtxAp,submatrix,smi)
+		#pragma omp parallel for schedule(static,1) reduction(|:errval)  shared(mtxAp) RSB_NTC if(mtxAp->nnz > RSB_MIN_NNZ_FOR_PARALLEL_ADD_TO_DENSE)
+		RSB_SUBMATRIX_FOREACH_LEAF_IDX(mtxAp,smi)
+		{
+			const struct rsb_mtx_t * submatrix = (mtxAp)->all_leaf_matrices[smi].mtxlp;
 			RSB_DO_ERROR_CUMULATE(errval,rsb__do_add_submatrix_to_dense(submatrix,alphap,Bp,ldB,nr,nc,rowmajor));
+		}
 	}
 	else
 		RSB_DO_ERROR_CUMULATE(errval,rsb__do_add_submatrix_to_dense(mtxAp,alphap,Bp,ldB,nr,nc,rowmajor));
@@ -694,7 +700,7 @@ err:
 rsb_err_t rsb__do_switch_rsb_mtx_to_csr_sorted(struct rsb_mtx_t * mtxAp, void ** VAP, rsb_coo_idx_t ** IAP, rsb_coo_idx_t ** JAP, rsb_flags_t flags)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	struct rsb_coo_matrix_t coo;
+	struct rsb_coo_mtx_t coo;
 	const rsb_nnz_idx_t nnz=mtxAp?mtxAp->nnz:0;
 	const rsb_coo_idx_t m=mtxAp?mtxAp->nr:0;
 	//const rsb_coo_idx_t k=mtxAp?mtxAp->nc:0;
@@ -743,13 +749,11 @@ rsb_err_t rsb__do_get_csr(rsb_type_t typecode, const struct rsb_mtx_t *mtxAp, rs
 		RSB_PERR_GOTO(err,RSB_ERRM_ES);
        	}
 
-#define RSB_WANT_OLD_TO_CSR_SEMANTICS 0
-
-	if((mtxAp->typecode != typecode && typecode != RSB_NUMERICAL_TYPE_SAME_TYPE) || (mtxAp->flags != flags))/* FIXME: condition on cflags is unnecessarily restrictive */
+	if((mtxAp->typecode != typecode && typecode != RSB_NUMERICAL_TYPE_SAME_TYPE ) || (mtxAp->flags != flags))/* FIXME: condition on cflags is unnecessarily restrictive */
 	{
 		const rsb_flags_t flagsC = flags | (mtxAp->flags & RSB_FLAG_ALL_STRUCTURAL_FLAGS);
 		struct rsb_mtx_t * mtxCp = NULL;
-		errval = rsb__mtx_clone(&mtxCp, typecode, RSB_TRANSPOSITION_N, NULL, mtxAp, flagsC );
+		errval = rsb__mtx_clone(&mtxCp, typecode, RSB_TRANSPOSITION_N, NULL, mtxAp, flagsC);
 		if(RSB_SOME_ERROR(errval))
 			RSB_PERR_GOTO(err,RSB_ERRM_ES);
 		errval = rsb__dodo_get_csr(mtxCp,&VA,&RP,&JA);
@@ -762,12 +766,10 @@ rsb_err_t rsb__do_get_csr(rsb_type_t typecode, const struct rsb_mtx_t *mtxAp, rs
 	{
 		RSB_PERR_GOTO(err,RSB_ERRM_ES);
        	}
-//#if RSB_WANT_OLD_TO_CSR_SEMANTICS
-	/* FIXME: shall move C -> Fortran indices semantics to rsb__dodo_get_csr */
+	/* Note: would be nice to move C -> Fortran indices semantics to rsb__dodo_get_csr */
 	if(flags & RSB_FLAG_FORTRAN_INDICES_INTERFACE)
 		rsb__util_nnz_array_to_fortran_indices(RP,mtxAp->nr+1),
 		rsb__util_nnz_array_to_fortran_indices(JA,mtxAp->nnz);
-//#endif
 err:
 	return errval;
 }
@@ -820,21 +822,21 @@ rsb_err_t rsb__do_get_matrix_info(const struct rsb_mtx_t *mtxAp, enum rsb_mif_t 
 		{
 		       	civ = (mtxAp->nr);
 	                if(buflen<=0) *(rsb_coo_idx_t*)info = civ;
-		        else snprintf(cis,buflen,"%d",civ);
+		        else snprintf(cis,buflen,"%ld",(long int)civ);
 	       	}
 		break;
 		case RSB_MIF_MATRIX_COLS__TO__RSB_COO_INDEX_T:
 		{
 		       	civ = (mtxAp->nc);
 	                if(buflen<=0) *(rsb_coo_idx_t*)info = civ;
-		        else snprintf(cis,buflen,"%d",civ);
+		        else snprintf(cis,buflen,"%ld",(long int)civ);
 	       	}
 		break;
 		case RSB_MIF_MATRIX_NNZ__TO__RSB_NNZ_INDEX_T:
 		{
 		       	niv = (mtxAp->nnz);
 	                if(buflen<=0) *(rsb_nnz_idx_t*)info = niv;
-		        else snprintf(cis,buflen,"%d",niv);
+		        else snprintf(cis,buflen,"%ld",(long int)niv);
 	       	}
 		break;
 		case RSB_MIF_TOTAL_SIZE__TO__SIZE_T:
@@ -848,14 +850,14 @@ rsb_err_t rsb__do_get_matrix_info(const struct rsb_mtx_t *mtxAp, enum rsb_mif_t 
 		{
 		       	fiv = (mtxAp->flags);
 		       	if(buflen<=0) *(rsb_flags_t*)info = fiv;
-		        else snprintf(cis,buflen,"%d",fiv);
+		        else snprintf(cis,buflen,"%ld",(long int)fiv);
 	       	}
 		break;
 		case RSB_MIF_MATRIX_TYPECODE__TO__RSB_TYPE_T:
 		{
 		       	tiv = (mtxAp->typecode);
 		       	if(buflen<=0) *(rsb_type_t*)info = tiv;
-		        else snprintf(cis,buflen,"%d",tiv);
+		        else snprintf(cis,buflen,"%ld",(long int)tiv);
 	       	}
 		break;
 		case RSB_MIF_MATRIX_INFO__TO__CHAR_P:				
@@ -864,6 +866,15 @@ rsb_err_t rsb__do_get_matrix_info(const struct rsb_mtx_t *mtxAp, enum rsb_mif_t 
 		       	if(buflen<=0) { errval = RSB_ERR_BADARGS; goto err; }
 		        else snprintf(cis,buflen,RSB_PRINTF_MTX_SUMMARY_ARGS(mtxAp));
 
+#if 0
+			if(cis && *cis) /* anonymize pointer address (no address dump) */
+			{
+				char * lbp = strstr(cis,"[0x");
+				if(lbp)
+					for(lbp+=3;*lbp&&*lbp!=']';++lbp)
+						*lbp='F';
+			}
+#endif
 	       	}
 		break;
 		case RSB_MIF_LEAVES_COUNT__TO__RSB_BLK_INDEX_T:				
@@ -917,20 +928,28 @@ rsb_err_t rsb__do_matrix_norm(const struct rsb_mtx_t * mtxAp , void * np, enum r
 {
 	rsb_err_t errval = RSB_ERR_BADARGS;
 
+	if(!mtxAp)
+	{
+		errval = RSB_ERR_BADARGS;
+		RSB_PERR_GOTO(ret,RSB_ERRM_ES);
+	}
+
 	switch(flags)
 	{
 		case RSB_EXTF_NORM_ONE:
 		errval = rsb__do_infinity_norm(mtxAp,np,RSB_BOOL_FALSE,RSB_TRANSPOSITION_T);
 		break;
-		case RSB_EXTF_NORM_TWO:/* FIXME: UNTESTED ! */
+		case RSB_EXTF_NORM_TWO:
 		errval = rsb__cblas_Xnrm2(mtxAp->typecode,mtxAp->nnz,rsb__do_get_first_submatrix(mtxAp)->VA,1,np);
 		break;
 		case RSB_EXTF_NORM_INF:
 		errval = rsb__do_infinity_norm(mtxAp,np,RSB_BOOL_FALSE,RSB_TRANSPOSITION_N);
 		break;
 		default:
+		RSB_PERR_GOTO(ret,RSB_ERRM_ES);
 		break;
 	}
+ret:
 	return errval;
 }
 
@@ -958,7 +977,7 @@ rsb_err_t rsb__do_matrix_compute(const struct rsb_mtx_t * mtxAp , void * dp, enu
 		errval = rsb__do_rows_sums_inner(mtxAp,dp,RSB_BOOL_FALSE,RSB_TRANSPOSITION_T);
 		break;
 		case RSB_EXTF_ASUMS_ROW:
-		errval = rsb__do_absolute_rows_sums( mtxAp , dp);
+		errval = rsb__do_absolute_rows_sums(mtxAp,dp);
 		break;
 		case RSB_EXTF_ASUMS_COL:
 		errval = rsb__do_absolute_columns_sums(mtxAp,dp);
@@ -967,6 +986,7 @@ rsb_err_t rsb__do_matrix_compute(const struct rsb_mtx_t * mtxAp , void * dp, enu
 		errval = rsb__dodo_getdiag(mtxAp,dp);
 		break;
 		default:
+		RSB_PERR_GOTO(ret,RSB_ERRM_ES);
 		break;
 	}
 ret:
@@ -1039,16 +1059,10 @@ rsb_bool_t rsb__do_was_initialized(void)
 
 static rsb_err_t rsb__do_switch_rsb_mtx_to_coo_unsorted(struct rsb_mtx_t * mtxAp, void ** VAP, rsb_coo_idx_t ** IAP, rsb_coo_idx_t ** JAP, rsb_flags_t flags)
 {
-	struct rsb_coo_matrix_t coo;
+	struct rsb_coo_mtx_t coo;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 
 	RSB_ASSERT( RSB_DO_FLAG_HAS(mtxAp->flags, RSB_FLAG_EXTERNALLY_ALLOCATED_ARRAYS) );
-
-	if(!IAP || !JAP || !VAP)
-	{
-		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_EM);
-	}
 
 	errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_unsorted(mtxAp,&coo);
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE))
@@ -1057,33 +1071,28 @@ static rsb_err_t rsb__do_switch_rsb_mtx_to_coo_unsorted(struct rsb_mtx_t * mtxAp
 	*JAP = coo.JA;
 	*IAP = coo.IA;
 	*VAP = coo.VA;
-err:
+
 	return errval;
 }
 
 static rsb_err_t rsb__do_switch_rsb_mtx_to_coo_sorted(struct rsb_mtx_t * mtxAp, void ** VAP, rsb_coo_idx_t ** IAP, rsb_coo_idx_t ** JAP, rsb_flags_t flags)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	struct rsb_coo_matrix_t coo;
+	struct rsb_coo_mtx_t coo;
 	const rsb_nnz_idx_t nnz = mtxAp ? mtxAp-> nnz:0;
 
 	RSB_ASSERT( RSB_DO_FLAG_HAS(mtxAp->flags, RSB_FLAG_EXTERNALLY_ALLOCATED_ARRAYS) );
 
-	if(!IAP || !JAP || !VAP)
-	{
-		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err, RSB_ERRM_EM);
-	}
-
 	RSB_BZERO_P(&coo);
 	errval = rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(mtxAp, &coo);
+
 	if(RSB_SOME_ERROR(errval))
-	{
 		RSB_PERR_GOTO(err, RSB_ERRM_EM);
-	}
+
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE))
 		rsb__util_nnz_array_to_fortran_indices(coo.IA, nnz),
 		rsb__util_nnz_array_to_fortran_indices(coo.JA, nnz);
+
 	*JAP = coo.JA;
 	*IAP = coo.IA;
 	*VAP = coo.VA;
@@ -1093,21 +1102,18 @@ err:
 
 rsb_err_t rsb__do_switch_rsb_mtx_to_coo(struct rsb_mtx_t * mtxAp, void ** VAP, rsb_coo_idx_t ** IAP, rsb_coo_idx_t ** JAP, rsb_flags_t flags)
 {
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	rsb_err_t errval = RSB_ERR_BADARGS;
 
 	if(!mtxAp)
-       	{
-	       	errval = RSB_ERR_BADARGS;
 		RSB_PERR_GOTO(err, RSB_ERRM_E_MTXAP"\n");
-       	}
 
 	/* Purpose of the following is avoidance of internally allocated memory leakage. */
 	/* TODO: As an improvement, one may relax this constraint when the allocation wrapper is off. */
 	if(!RSB_DO_FLAG_HAS(mtxAp->flags, RSB_FLAG_EXTERNALLY_ALLOCATED_ARRAYS))
-       	{
-	       	errval = RSB_ERR_BADARGS;
 		RSB_PERR_GOTO(err, RSB_ERRM_IMNIP);
-       	}
+
+	if(!IAP || !JAP || !VAP)
+		RSB_PERR_GOTO(err, RSB_ERRM_EM);
 
 	if(RSB_DO_FLAG_HAS(flags, RSB_FLAG_SORTED_INPUT))
 		errval = rsb__do_switch_rsb_mtx_to_coo_sorted(mtxAp, VAP, IAP, JAP, flags);
@@ -1124,13 +1130,19 @@ struct rsb_mtx_t * rsb__do_mtx_alloc_from_coo_begin(rsb_nnz_idx_t nnzA, rsb_type
 	struct rsb_mtx_t * mtxAp = NULL;
 	blas_sparse_matrix bmtxA = RSB_BLAS_INVALID_VAL;
 
+	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_SYMMETRIC) && RSB_DO_FLAG_HAS(flags,RSB_FLAG_HERMITIAN))
+	{
+		errval = RSB_ERR_BADARGS;
+		RSB_PERR_GOTO(err,RSB_ERRM_BFSAH);
+	}
+
 	rsb__init_struct(mtxAp = rsb__calloc(sizeof(struct rsb_mtx_t)));
 	if(!mtxAp)
 	{
-		errval = RSB_ERR_BADARGS;
+		errval = RSB_ERR_ENOMEM;
 		RSB_PERR_GOTO(err,RSB_ERRM_E_MTXAP"\n");
 	}
-	mtxAp->RSB_MTX_BMF = RSB_MTX_BMV;
+	RSB_MTX_SET_HBDF(mtxAp);
 	bmtxA = mtxAp->RSB_MTX_BDF = rsb__BLAS_Xuscr_begin(nrA,ncA,typecode);
 	if( mtxAp->RSB_MTX_BDF == RSB_BLAS_INVALID_VAL )
 	{
@@ -1138,11 +1150,13 @@ struct rsb_mtx_t * rsb__do_mtx_alloc_from_coo_begin(rsb_nnz_idx_t nnzA, rsb_type
 		RSB_CONDITIONAL_FREE(mtxAp);
 		RSB_PERR_GOTO(err,RSB_ERRM_IPEWIEM);
 	}
+
 	/* FIXME : the following need an improvement  */
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_FORTRAN_INDICES_INTERFACE)) rsb__BLAS_ussp( bmtxA, blas_one_base);
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_UNIT_DIAG_IMPLICIT)) rsb__BLAS_ussp( bmtxA, blas_unit_diag );
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_LOWER_TRIANGULAR)) rsb__BLAS_ussp( bmtxA, blas_lower_triangular);
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_UPPER_TRIANGULAR)) rsb__BLAS_ussp( bmtxA, blas_upper_triangular);
+	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_TRIANGULAR)) rsb__BLAS_ussp( bmtxA, blas_triangular); /* ask for detection */
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_LOWER_SYMMETRIC)) rsb__BLAS_ussp( bmtxA, blas_lower_symmetric);
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_UPPER_SYMMETRIC)) rsb__BLAS_ussp( bmtxA, blas_upper_symmetric);
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_LOWER_HERMITIAN)) rsb__BLAS_ussp( bmtxA, blas_lower_hermitian);
@@ -1234,6 +1248,7 @@ rsb_err_t rsb__do_vec_save(const rsb_char_t * filename, rsb_type_t typecode, con
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	FILE*stream = NULL;
 	const int incX = 1;
+	// TODO: improve error handling here.
 
        	if(filename == NULL)
 		stream = stdout;
@@ -1242,9 +1257,7 @@ rsb_err_t rsb__do_vec_save(const rsb_char_t * filename, rsb_type_t typecode, con
 
 	errval = rsb__debug_print_vector_extra(Yp,yvl,typecode,incX,0x1,stream);
 
-       	if(filename == NULL)
-		;
-	else
+	if(filename != NULL && stream)
 		fclose(stream);
 
 	return errval;
@@ -1259,12 +1272,11 @@ struct rsb_mtx_t * rsb__do_mtx_alloc_from_csr_inplace (void *VA, rsb_coo_idx_t *
 	if( nnzA > 0 )
 #endif /* RSB_ALLOW_EMPTY_MATRICES */
 		errval = rsb__util_uncompress_row_pointers_array(RP,nrA,flagsA,flagsA,RP);
-
+	/* now RP is effectively IA, nnzA elements long */
 	if(RSB_SOME_ERROR(errval))
 		RSB_CONDITIONAL_ERRPSET(errvalp,errval);
 	if( RSB_DO_FLAG_HAS(flagsA,RSB_FLAG_FORTRAN_INDICES_INTERFACE))
-		rsb__util_coo_array_sub(RP,nnzA,1),
-		rsb__util_coo_array_sub(JA,nnzA,1),
+		rsb_util_coo_arrays_sub(RP,JA,1,1,nnzA),
 		RSB_DO_FLAG_DEL(flagsA,RSB_FLAG_FORTRAN_INDICES_INTERFACE);
 	RSB_DO_FLAG_ADD(flagsA,RSB_FLAG_SORTED_INPUT);
 	if(errval == RSB_ERR_NO_ERROR)
@@ -1278,6 +1290,7 @@ rsb_err_t rsb__do_file_mtx_rndr(void * pmp, const char * filename, rsb_coo_idx_t
 
 	if( pmlWidth != pmHeight )
 	{
+		/* enforce square rendering limitation of rsb_file_mtx_rndr (FIXME) */
 		errval = RSB_ERR_BADARGS;
 		goto err;
 	}

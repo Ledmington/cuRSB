@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -29,11 +29,17 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb_do.h"
 #include "rsb_common.h"
 
+#if defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS>1)
+#define RSB_WANT_PERFORMANCE_COUNTERS_IN_RSB_INIT 1
+#else
+#define RSB_WANT_PERFORMANCE_COUNTERS_IN_RSB_INIT 0
+#endif
 #if RSB_HAVE_STDINT_H
 #include <stdint.h>
 #endif /* RSB_HAVE_STDINT_H */
 
-#define RSB_WANT_PERFORMANCE_COUNTERS_IN_RSB_INIT defined(RSB_WANT_PERFORMANCE_COUNTERS) && (RSB_WANT_PERFORMANCE_COUNTERS>1)
+#define RSB__SLASH '/' /* FIXME: move to some header and differentiate from RSB_DIR_SEPARATOR */
+#define RSB__TOLERATE_LARGE_NUM_THREADS 1 /* Whatever the verbosity configuration, emit warning on too large an OMP_NUM_THREADS spec and use own limit. */
 
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
@@ -109,7 +115,7 @@ const rsb_char_t * rsb__get_mem_hierarchy_info_string(rsb_char_t *usmhib)
 	usmhib[0] = '\0';
 #if 0
 #error The memory hierarchy info string should the info in the struct!
-	const rsb_char_t * usmhi = rsb__init_get_mem_hierarchy_info_string(RSB_BOOL_FALSE);
+	const rsb_char_t * const usmhi = rsb__init_get_mem_hierarchy_info_string(RSB_BOOL_FALSE);
 	/*  e.g.: #define RSB_USER_SET_MEM_HIERARCHY_INFO "L2:4/64/512K;L1:8/64/32K;" */
 
 	usmhib[0] = '\0';
@@ -140,13 +146,14 @@ const rsb_char_t * rsb__get_mem_hierarchy_info_string(rsb_char_t *usmhib)
 	return usmhib;
 }
 
+#if RSB_OBSOLETE_QUARANTINE_UNUSED
 rsb_err_t rsb__dump_mem_hierarchy_info(void)
 {
 	/*!
 	 * \ingroup gr_internals
 	 * */
 #if RSB_ALLOW_STDOUT
-	const rsb_char_t * usmhi = rsb__init_get_mem_hierarchy_info_string(RSB_BOOL_FALSE);
+	const rsb_char_t * const usmhi = rsb__init_get_mem_hierarchy_info_string(RSB_BOOL_FALSE);
 	if(usmhi && *usmhi)
 		RSB_STDOUT("%s",usmhi);
 	return RSB_ERR_NO_ERROR;
@@ -154,6 +161,7 @@ rsb_err_t rsb__dump_mem_hierarchy_info(void)
 	return RSB_ERR_UNSUPPORTED_FEATURE;
 #endif /* RSB_ALLOW_STDOUT */
 }
+#endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
 
 rsb_err_t rsb__init_mem_hierarchy_info(void)
 {
@@ -166,12 +174,10 @@ rsb_err_t rsb__init_mem_hierarchy_info(void)
 rsb_err_t rsb__set_mem_hierarchy_info(const rsb_char_t * usmhi)
 {
 	/*!
-	 * \ingroup gr_internals
-	 *
-	 * TODO: needs some testing code.
-	 * Calling this code should be possible also after initialization.
-	 * */
-	const rsb_char_t * mhi = usmhi?usmhi:rsb__init_get_mem_hierarchy_info_string(RSB_BOOL_FALSE);
+	 Calling this code should be possible also after initialization.
+	 Sample string: "L2:4/64/512K,L1:8/64/32K"
+	 **/
+	const rsb_char_t * const mhi = usmhi?usmhi:rsb__init_get_mem_hierarchy_info_string(RSB_BOOL_FALSE);
 	const rsb_char_t * s = mhi;
 	struct rsb_memory_level_t caches[RSB_MAX_SUPPORTED_CACHE_LEVELS];	/* */
 	long memory_hierarchy_levels = 0;		/*  */
@@ -186,15 +192,12 @@ rsb_err_t rsb__set_mem_hierarchy_info(const rsb_char_t * usmhi)
 
 	rsb__memcpy(caches,rsb_global_session_handle.caches,sizeof(caches));
 
-	//RSB_INFO("rsb__init_mem_hierarchy_info:\"%s\"\n",usmhi);
-	       /*  e.g.:"L2:4/64/512K,L1:8/64/32K" */
 		memory_hierarchy_levels = 0;
 		while(*s)
 		{
 			long level = 0;
 			if(*s=='L' && s[1] && isdigit(s[1]))
 			{
-//				RSB_INFO("uhm: %s",mhi);
 				level = rsb__util_atoi(s+1);
 				memory_hierarchy_levels = RSB_MAX(level,memory_hierarchy_levels);
 				caches[level].level = level;
@@ -203,32 +206,27 @@ rsb_err_t rsb__set_mem_hierarchy_info(const rsb_char_t * usmhi)
 				if(*s!=':')goto cerr;
 				++s;
 				if(!isdigit(*s))goto cerr;
-				caches[level].associativity = rsb__util_atoi(s);
+				caches[level].associativity = rsb__util_atoi_km2(s);
 				while(isdigit(*s))++s;
-				if(toupper(*s)=='K')
-					caches[level].associativity *= 1024,++s;
-				if(toupper(*s)=='M')
-					caches[level].associativity *= 1024*1024,++s;
-				if(*s!='/')goto cerr;
+				if(toupper(*s)=='K') ++s;
+				if(toupper(*s)=='M') ++s;
+				if(toupper(*s)=='G') ++s;
+				if(*s!=RSB__SLASH)goto cerr;
 				++s;
 				if(!isdigit(*s))goto cerr;
-				caches[level].linesize = rsb__util_atoi(s);
+				caches[level].linesize = rsb__util_atoi_km2(s);
 				while(isdigit(*s))++s;
-				if(toupper(*s)=='K')
-					caches[level].linesize *= 1024,++s;
-				if(toupper(*s)=='M')
-					caches[level].linesize *= 1024*1024,++s;
-				if(*s!='/')goto cerr;
+				if(toupper(*s)=='K') ++s;
+				if(toupper(*s)=='M') ++s;
+				if(toupper(*s)=='G') ++s;
+				if(*s!=RSB__SLASH)goto cerr;
 				++s;
 				if(!isdigit(*s))goto cerr;
-				caches[level].size = rsb__util_atoi(s);
+				caches[level].size = rsb__util_atoi_km2(s);
 				while(isdigit(*s))++s;
-				if(toupper(*s)=='K')
-					caches[level].size *= 1024,++s;
-				if(toupper(*s)=='M')
-					caches[level].size *= 1024*1024,++s;
-				if(toupper(*s)=='G')
-					caches[level].size *= 1024*1024*1024,++s;
+				if(toupper(*s)=='K') ++s;
+				if(toupper(*s)=='M') ++s;
+				if(toupper(*s)=='G') ++s;
 				if(level>1)
 				{
 					if(*s!=',')
@@ -246,7 +244,7 @@ rsb_err_t rsb__set_mem_hierarchy_info(const rsb_char_t * usmhi)
 					rsb_global_session_handle.caches[2].size
 						);*/
 		goto cok;
-		/* FIXME: this code is not complete: it does not check for complete nor correct information */
+		/* FIXME: checks for completeness or correctness are missing */
 cerr:
 	RSB_ERROR("error parsing memory hierarchy string (at:%s)\n",s);
 	return RSB_ERR_NO_ERROR; /* FIXME */
@@ -276,6 +274,9 @@ rsb_err_t rsb__init_check_for_constants_correctness(void)
 #ifdef  RSB_NUMERICAL_TYPE_FLOAT_COMPLEX 
 	RSB_ASSERT(RSB_NUMERICAL_TYPE_FLOAT_COMPLEX =='C');
 #endif /* RSB_NUMERICAL_TYPE_FLOAT_COMPLEX */
+#ifdef  RSB_NUMERICAL_TYPE_INT
+	RSB_ASSERT(rsb__BLAS_is_type_supported(RSB_NUMERICAL_TYPE_INT) == RSB_ERR_UNSUPPORTED_TYPE);
+#endif /* RSB_NUMERICAL_TYPE_INT */
 
 	/* basic sanity checks */
 	RSB_ASSERT(RSB_FITTING_SAMPLES>0);
@@ -314,6 +315,13 @@ rsb_err_t rsb__init_check_for_constants_correctness(void)
 
 	RSB_ASSERT(RSB_ERR_NO_ERROR==0);
 	RSB_ASSERT(RSB_ERR_GENERIC_ERROR==-1);
+	RSB_ASSERT(!RSB_REPORTABLE_ERROR(RSB_ERR_ELEMENT_NOT_FOUND));
+	// Note that general use of RSB_DO_FLAG_FILTEROUT with errors is of limited scope:
+	RSB_ASSERT(RSB_DO_FLAG_FILTEROUT(RSB_ERR_ELEMENT_NOT_FOUND,RSB_ERR_ELEMENT_NOT_FOUND)==RSB_FLAG_NOFLAGS);
+	// In the general case RSB_DO_FLAG_FILTEROUT needs special care with error flags, like here:
+	RSB_ASSERT(RSB_ERR_CAST(RSB_DO_FLAG_FILTEROUT(RSB_ERR_CAST(RSB_ERRS_UNSUPPORTED_FEATURES),RSB_ERR_CAST(RSB_ERR_ELEMENT_NOT_FOUND)))==RSB_ERRS_UNSUPPORTED_FEATURES);
+	// The above assumes RSB_ERR_CAST application is symmetric:
+	RSB_ASSERT(RSB_ERRS_UNSUPPORTED_FEATURES==RSB_ERR_CAST(RSB_ERR_CAST(RSB_ERRS_UNSUPPORTED_FEATURES)));
 
 	RSB_ASSERT(RSB_MAX_VALUE_FOR_TYPE(short int)<RSB_MAX_VALUE_FOR_TYPE(unsigned short int));
 	/* 
@@ -338,9 +346,15 @@ rsb_err_t rsb__init_check_for_constants_correctness(void)
 	RSB_ASSERT(RSB_MAX_VALUE_FOR_TYPE(rsb_coo_idx_t)>=RSB_MAX_VALUE_FOR_TYPE(rsb_submatrix_idx_t));
 	RSB_ASSERT(RSB_MAX_VALUE_FOR_TYPE(rsb_coo_idx_t)>=RSB_MAX_VALUE_FOR_TYPE(rsb_half_idx_t));
 
+#ifdef  RSB_WANT_LONG_IDX_TYPE 
+#else  /* RSB_WANT_LONG_IDX_TYPE */
 	RSB_ASSERT(RSB_MAX_VALUE_FOR_TYPE(size_t)         >=RSB_MAX_VALUE_FOR_TYPE(rsb_coo_idx_t));
 	RSB_ASSERT(RSB_MAX_VALUE_FOR_TYPE(size_t)         >=RSB_MAX_VALUE_FOR_TYPE(rsb_nnz_idx_t));
 	RSB_ASSERT(RSB_MAX_VALUE_FOR_TYPE(size_t)         >=RSB_MAX_VALUE_FOR_TYPE(rsb_blk_idx_t));
+#endif /* RSB_WANT_LONG_IDX_TYPE */
+	RSB_ASSERT(RSB_MAX_VALUE_FOR_TYPE(rsb_blas_int_t) >=RSB_MAX_VALUE_FOR_TYPE(rsb_coo_idx_t));
+	RSB_ASSERT(RSB_MAX_VALUE_FOR_TYPE(rsb_blas_int_t) >=RSB_MAX_VALUE_FOR_TYPE(rsb_nnz_idx_t));
+	RSB_ASSERT(RSB_MAX_VALUE_FOR_TYPE(rsb_blas_int_t) >=RSB_MAX_VALUE_FOR_TYPE(rsb_blk_idx_t));
 
 	RSB_ASSERT(RSB_MAX_MATRIX_DIM>255);
 	RSB_ASSERT(RSB_MAX_MATRIX_NNZ>255);
@@ -360,20 +374,23 @@ rsb_err_t rsb__init_check_for_constants_correctness(void)
 	RSB_ASSERT(RSB_IS_SIGNED(rsb_coo_idx_t));
 	RSB_ASSERT(RSB_IS_SIGNED(rsb_nnz_idx_t));
 	{
+#ifndef NDEBUG
 		rsb_half_idx_t h = RSB_MAX_VALUE_FOR_TYPE(rsb_half_idx_t);
 		rsb_coo_idx_t c = RSB_MAX_VALUE_FOR_TYPE(rsb_coo_idx_t);
 		RSB_ASSERT(c>=h);
 		RSB_ASSERT((c-h)>=0);
+#endif /* NDEBUG */
 	}
 	
 	RSB_ASSERT(rsb__util_strlen(RSB_PERFORMANCE_BINARY_DUMP_FILE_SIGNATURE)<RSB_PERFORMANCE_BINARY_DUMP_FILE_SIGNATURE_MAX_CHARS);
+#ifndef NDEBUG
 	{
-		/* EXPERIMENTAL, FIXME */
 		rsb_int_t ti;
-		rsb_type_t types [] = RSB_MATRIX_TYPE_CODES_ARRAY;
+		const rsb_type_t types [] = RSB_MATRIX_TYPE_CODES_ARRAY;
 		for(ti=0;ti<RSB_IMPLEMENTED_TYPES	;++ti)
 			RSB_ASSERT(rsb__do_sizeof(types[ti])<=RSB_CONST_ENOUGH_BYTES_FOR_ANY_TYPE);
 	}
+#endif /* NDEBUG */
 
 	RSB_ASSERT(!RSB_MUL_OVERFLOW(         0,         0,uint64_t,uint64_t) );
 	RSB_ASSERT(!RSB_MUL_OVERFLOW(         1,         1,uint64_t,uint64_t) );
@@ -387,6 +404,7 @@ rsb_err_t rsb__init_check_for_constants_correctness(void)
 	RSB_ASSERT(!RSB_MUL_OVERFLOW(       256,       255,short unsigned int,short unsigned int) );
 	RSB_ASSERT(!RSB_MUL_OVERFLOW(       255,       256,short unsigned int,short unsigned int) );
 
+	RSB__M4_CHECK();
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -466,6 +484,17 @@ rsb_err_t rsb__do_init_inner(void)
 #if RSB_WANT_LIBRSB_TIMER
 	rsb_global_session_handle.etime = RSB_TIME_ZERO;
 #endif /* RSB_WANT_LIBRSB_TIMER */
+#ifdef RSB_WANT_CACHE_TIMER_GRANULARITY
+	rsb_global_session_handle.timer_granularity = rsb__timer_granularity(); /* for RSB_CACHED_TIMER_GRANULARITY */
+#endif /* RSB_WANT_CACHE_TIMER_GRANULARITY */
+#if RSB_WANT_OMP_RECURSIVE_KERNELS
+	if ( RSB_WANT_OMP_RECURSIVE_KERNELS != 0 )
+	{
+#ifndef _OPENMP
+#error There is something wrong with your configuration.. are you really compiling using OpenMP flags?
+#endif
+	}
+#endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 #if RSB_WANT_OMP_RECURSIVE_KERNELS
 #if 0
 	#pragma omp parallel  RSB_NTC
@@ -475,7 +504,23 @@ rsb_err_t rsb__do_init_inner(void)
 		/* the user may modify rsb_want_threads in a second moment */
 	}
 #else
+
+#if defined(RSB_WANT_RSB_NUM_THREADS) && (RSB_WANT_RSB_NUM_THREADS>0)
+		rsb_global_session_handle.rsb_g_threads = rsb__getenv_int_t("RSB_NUM_THREADS",omp_get_max_threads());
+#else
 		rsb_global_session_handle.rsb_g_threads = omp_get_max_threads();
+#endif
+
+#if RSB__TOLERATE_LARGE_NUM_THREADS
+	if(rsb_global_session_handle.rsb_g_threads>RSB_CONST_MAX_SUPPORTED_CORES)
+	{
+		RSB_WARN_CRITICAL("# Critical Warning: OpenMP Environment requires more threads (%d) than configured at build time (%d).\n# To overcome this limit, please see corresponding build-time option for ./configure.\n# Will be using the limited amount for now."
+				, (int)rsb_global_session_handle.rsb_g_threads
+				, (int)RSB_CONST_MAX_SUPPORTED_CORES
+			);
+		rsb_global_session_handle.rsb_g_threads = RSB_CONST_MAX_SUPPORTED_CORES;
+	}
+#endif /* RSB__TOLERATE_LARGE_NUM_THREADS */
 		rsb_global_session_handle.rsb_want_threads = rsb_global_session_handle.rsb_g_threads;
 #endif
 	if(rsb_global_session_handle.rsb_g_threads>RSB_CONST_MAX_SUPPORTED_CORES)
@@ -569,6 +614,45 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
+static rsb_err_t rsb__init_info(const rsb_err_t errval)
+{
+#if RSB_HAVE_STREAMS
+#define RSB__STREAM_TO_STRING(STRP) ((STRP)?((STRP)==stdout?"stdout":((STRP)==stderr?"stderr":"set   ")):"unset ")
+#define RSB__PTR_IF_SET(STRP) ((STRP)?(STRP):"unset")
+	if( rsb_global_session_handle.init_stream )
+	{
+		FILE * init_stream = rsb_global_session_handle.init_stream;
+		const char * prfx = "#";
+		RSB_FPRINTF(init_stream, "%s %s: Initializing\n", prfx, RSB_HEADER_VERSION_STRING);
+		RSB_FPRINTF(init_stream, "%s Cache block size total %ld bytes, per-thread %ld bytes\n",prfx, rsb__get_lastlevel_c_size(), rsb__get_lastlevel_c_size_per_thread());
+		RSB_FPRINTF(init_stream, "%s RSB_IO_WANT_MEMORY_HIERARCHY_INFO_STRING: %s\n", prfx, RSB__PTR_IF_SET(rsb_global_session_handle.mhis));
+		RSB_FPRINTF(init_stream, "%s min_leaf_matrix_bytes : %zd\n", prfx, rsb_global_session_handle.min_leaf_matrix_bytes);
+		RSB_FPRINTF(init_stream, "%s avg_leaf_matrix_bytes : %zd\n", prfx, rsb_global_session_handle.avg_leaf_matrix_bytes);
+		RSB_FPRINTF(init_stream, "%s rsb_g_threads: %zd\n", prfx, rsb_global_session_handle.rsb_g_threads);
+		RSB_FPRINTF(init_stream, "%s RSB_IO_WANT_EXECUTING_THREADS: %zd\n", prfx, rsb_global_session_handle.rsb_want_threads);
+#if RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE
+		RSB_FPRINTF(init_stream, "%s RSB_VERBOSE_INTERFACE: %d\n", prfx, rsb_global_session_handle.rsb_g_verbose_interface);
+#endif /* RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE */
+#if RSB_USE_LIBRSBPP
+		RSB_FPRINTF(init_stream, "%s RSB_WANT_RSBPP: %d\n", prfx, rsb_global_session_handle.use_rsbpp);
+#endif /* RSB_USE_LIBRSBPP */
+#if RSB_USE_MKL
+		RSB_FPRINTF(init_stream, "%s RSB_WANT_USE_MKL: %d\n", prfx, rsb_global_session_handle.use_mkl);
+#endif /* RSB_USE_MKL */
+		RSB_FPRINTF(init_stream, "%s RSB_IO_WANT_OUTPUT_STREAM: %s\n", prfx, RSB__STREAM_TO_STRING(rsb_global_session_handle.out_stream));
+		RSB_FPRINTF(init_stream, "%s RSB_IO_WANT_VERBOSE_ERRORS: %s\n", prfx, RSB__STREAM_TO_STRING(rsb_global_session_handle.error_stream));
+		RSB_FPRINTF(init_stream, "%s RSB_IO_WANT_VERBOSE_INIT: %s\n", prfx, RSB__STREAM_TO_STRING(rsb_global_session_handle.init_stream));
+		RSB_FPRINTF(init_stream, "%s RSB_IO_WANT_VERBOSE_EXIT: %s\n", prfx, RSB__STREAM_TO_STRING(rsb_global_session_handle.exit_stream));
+		RSB_FPRINTF(init_stream, "%s RSB_IO_WANT_SORT_METHOD: %zd\n", prfx, (size_t)rsb_global_session_handle.asm_sort_method);
+		RSB_FPRINTF(init_stream, "%s RSB_IO_WANT_SUBDIVISION_MULTIPLIER: %g\n", prfx, (double)rsb_global_session_handle.subdivision_multiplier);
+		RSB_FPRINTF(init_stream, "%s %s: Initialization %s\n", prfx, RSB_HEADER_VERSION_STRING, (errval == RSB_ERR_NO_ERROR ? "success " : "failed!") );
+	}
+#undef RSB__PTR_IF_SET
+#undef RSB__STREAM_TO_STRING
+#endif /* RSB_HAVE_STREAMS */
+	return errval;
+}
+
 rsb_err_t rsb__do_init(struct rsb_initopts * io)
 {
 	/*!
@@ -593,6 +677,35 @@ rsb_err_t rsb__do_init(struct rsb_initopts * io)
 	{
 		RSB_PERR_GOTO(err,RSB_ERRM_ES); 
 	}
+
+#if RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE
+#if RSB_ALLOW_INTERNAL_GETENVS
+	if(getenv("RSB_VERBOSE_INTERFACE"))
+	{
+		rsb_int_t v = rsb__getenv_int_t("RSB_VERBOSE_INTERFACE",0);
+		RSB_SET_TO_CASTED(rsb_global_session_handle.rsb_g_verbose_interface,&v,rsb_int_t);
+	}
+#endif /* RSB_ALLOW_INTERNAL_GETENVS*/
+#endif /* RSB_WANT_DEBUG_VERBOSE_INTERFACE_NOTICE */
+
+#if RSB_USE_LIBRSBPP
+	rsb_global_session_handle.use_rsbpp = rsb__getenv_int_t("RSB_WANT_RSBPP",1);
+#endif /* RSB_USE_LIBRSBPP */
+
+#if RSB_USE_MKL
+	rsb_global_session_handle.use_mkl = rsb__getenv_int_t("RSB_WANT_USE_MKL",1);
+#endif /* RSB_USE_MKL */
+
+#if RSB_WANT_SPMV_TRACE
+	rsb_global_session_handle.want_spmv_trace = rsb__getenv_int_t("RSB_WANT_SPMV_TRACE",0);
+#endif /* RSB_WANT_SPMV_TRACE */
+
+#ifdef RSB_HAVE_GETENV
+	rsb_global_session_handle.subdivision_multiplier = rsb__getenv_real_t("RSB_WANT_SUBDIVISION_MULTIPLIER",1.0);
+#endif /* RSB_HAVE_GETENV */
+#ifdef RSB_WANT_COO2RSB_THREADS
+	rsb_global_session_handle.coo2rsb_threads = rsb__getenv_real_t("RSB_WANT_COO2RSB_THREADS",0);
+#endif /* RSB_WANT_COO2RSB_THREADS */
 
 	errval = rsb__do_reinit(io);
 #if 0
@@ -723,6 +836,9 @@ rsb_err_t rsb__do_reinit(struct rsb_initopts * io)
 		ko++;
 		break;
 		case RSB_IO_WANT_EXECUTING_THREADS:
+		if(io->action == RSB_IO_SPECIFIER_GET && rsb_global_session_handle.rsb_want_threads==0)
+			{RSB_IF_NOT_NULL_GET_TO_CASTED(rsb_get_num_threads(),io->values[oi],rsb_int_t);}
+		else
 		//RSB_IF_NOT_NULL_SET_TO_CASTED(rsb_global_session_handle.rsb_want_threads,io->values[oi],rsb_int_t);
 		RSB_IF_NOT_NULL_GET_SET_TO_CASTED(rsb_global_session_handle.rsb_want_threads,io->values[oi],rsb_int_t,io->action,errval);
 		ko++;
@@ -787,7 +903,7 @@ rsb_err_t rsb__do_reinit(struct rsb_initopts * io)
 		break;
 		default: uo++; // we ignore further error processing here
 	}
-
+	errval = rsb__init_info(errval);
 err:
 	return errval;
 }
@@ -795,6 +911,11 @@ err:
 rsb_err_t rsb__do_exit(void)
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
+
+#if RSB_HAVE_STREAMS
+	if( rsb_global_session_handle.exit_stream )
+		rsb__printf_memory_allocation_info(rsb_global_session_handle.exit_stream);
+#endif /* RSB_HAVE_STREAMS */
 
 #if RSB_WITH_SPARSE_BLAS_INTERFACE
 	errval = rsb__BLAS_handles_free();
@@ -814,6 +935,11 @@ rsb_err_t rsb__do_exit(void)
 	errval = rsb__do_check_leak();
 	if(errval == RSB_ERR_MEMORY_LEAK)
 		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+#if RSB_HAVE_STREAMS
+	if( rsb_global_session_handle.exit_stream )
+		rsb__printf_memory_allocation_info(rsb_global_session_handle.exit_stream);
+#endif /* RSB_HAVE_STREAMS */
 
 	rsb_global_session_handle.rsb_g_initialized = RSB_BOOL_FALSE;
 err:

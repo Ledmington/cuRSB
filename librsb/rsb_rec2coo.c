@@ -1,6 +1,6 @@
-/*                                                                                                                            
+/*
 
-Copyright (C) 2008-2015 Michele Martone
+Copyright (C) 2008-2021 Michele Martone
 
 This file is part of librsb.
 
@@ -34,8 +34,7 @@ static rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_rcoo_leaf(
 	/**
 		\ingroup gr_internals
 		TODO: move somewhere else
-		TODO: flags checks
-		FIXME: UNTESTED
+		TODO: need temporary memory to pass to e.g. rsb__do_switch_compressed_array_to_fullword_coo() and thus avoid allocations.
 
 	// to free the unnecessary data:
 	// RSB_CONDITIONAL_FREE(mtxAp
@@ -115,22 +114,14 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_rcoo_parallel(struct rsb_mtx_t * mtxAp, rsb_bool_t do_shift)
+static rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_rcoo_parallel(struct rsb_mtx_t * mtxAp, rsb_bool_t do_shift)
 {
 	/**
 		\ingroup gr_internals
-		FIXME: UNTESTED
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	rsb_submatrix_idx_t n,all_leaf_matrices_n;
-
-	if(RSB_UNLIKELY(!mtxAp))
-	{
-		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_ES);
-	}
-
-	all_leaf_matrices_n = mtxAp->all_leaf_matrices_n;
+	const rsb_submatrix_idx_t all_leaf_matrices_n = mtxAp->all_leaf_matrices_n;
+	rsb_submatrix_idx_t n;
 
 	//rsb__do_print_matrix_stats(mtxAp, RSB_CONST_DUMP_RECURSION_BRIEF, NULL);
 	#pragma omp parallel for schedule(static,1) reduction(|:errval)  shared(mtxAp) RSB_NTC
@@ -140,25 +131,21 @@ rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_rcoo_parallel(str
 		RSB_DO_ERROR_CUMULATE(errval,rsb__do_switch_recursive_in_place_matrix_to_in_place_rcoo_leaf(submatrix,do_shift));
 	}
 	//rsb__do_print_matrix_stats(mtxAp, RSB_CONST_DUMP_MATRIX_MARKET , NULL);
-err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(struct rsb_mtx_t * mtxAp, struct rsb_coo_matrix_t * coop)
+rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(struct rsb_mtx_t * mtxAp, struct rsb_coo_mtx_t * coop)
 {
 	/**
 		\ingroup gr_internals
-		TODO: Move somewhere else
-		FIXME: UNTESTED,TEMPORARY, makes sense only for in place allocated
-		Rhis conversion gives you sorted coordinates.
-		On exit, the pointer matrix is deallocated
-		FIXME: error behaviour is undefined
+		 Makes sense only for in place allocated.
+		On exit, the pointer matrix is deallocated.
 		FIXME: Here it would make sense to use a recursive merge algorithm.
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t *fsm = NULL;
 	//rsb_flags_t flags;
-	struct rsb_coo_matrix_t coo;
+	struct rsb_coo_mtx_t coo;
 	int wmb = 1; /* want merge based (new: 20140727) */
 
 	RSB_BZERO_P(&coo);
@@ -186,7 +173,7 @@ rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(struct
 	RSB_BIND_COO_TO_MTX(coop,fsm);
 	RSB_CONDITIONAL_FREE(mtxAp);
 	//if((errval = rsb__util_sort_row_major_parallel(coop->VA,coop->IA,coop->JA,coop->nnz,coop->nr,coop->nc,coop->typecode,flags))!=RSB_ERR_NO_ERROR)
-	if((errval = rsb_util_sort_row_major_bucket_based_parallel(coop->VA,coop->IA,coop->JA,coop->nnz,coop->nr,coop->nc,coop->typecode,flags))!=RSB_ERR_NO_ERROR)
+	if((errval = rsb__util_sort_row_major_bucket_based_parallel(coop->VA,coop->IA,coop->JA,coop->nnz,coop->nr,coop->nc,coop->typecode,flags))!=RSB_ERR_NO_ERROR)
 		goto err;
 #else
 	if(wmb)
@@ -221,7 +208,7 @@ rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_sorted(struct
 		}
 	
 		RSB_INIT_CXX_FROM_MTX(&coo, mtxAp);
-		coo.nr = coo.nc = 0;
+		coo.nr = coo.nc = 0; // to have rsb__allocate_coo_matrix_t allocate nnz and not more
 		if(rsb__allocate_coo_matrix_t(&coo) != &coo)
 		{
 			errval = RSB_ERR_INTERNAL_ERROR;
@@ -246,7 +233,7 @@ err:
 	RSB_DO_ERR_RETURN(errval)
 }
 
-rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_unsorted(struct rsb_mtx_t * mtxAp, struct rsb_coo_matrix_t * coop)
+rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_unsorted(struct rsb_mtx_t * mtxAp, struct rsb_coo_mtx_t * coop)
 {
 	/**
 		\ingroup gr_internals
@@ -257,7 +244,7 @@ rsb_err_t rsb__do_switch_recursive_in_place_matrix_to_in_place_coo_unsorted(stru
 		FIXME: error behaviour is undefined
 	 */
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	//struct rsb_coo_matrix_t coo;
+	//struct rsb_coo_mtx_t coo;
 	struct rsb_mtx_t *fsm = NULL;
 
 	if(RSB_UNLIKELY(!mtxAp))

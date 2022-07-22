@@ -11,6 +11,58 @@ include(`rsb_krnl_bcoo_macros.m4')dnl
 dnl
 dnl
 dnl
+dnl
+define(`RSB_M4_BCXX_KERNEL_FUNCTION',`dnl
+dnl	---------------------------------
+dnl	Except for ID, expands to either RSB_M4_BCOO_KERNEL_FUNCTION or RSB_M4_BCSS_KERNEL_FUNCTION.
+dnl
+pushdef(`want_what',$1)dnl
+pushdef(`mtype',$2)dnl
+pushdef(`matrix_storage',$3)dnl	
+pushdef(`transposition',$4)dnl	
+pushdef(`k_symmetry',$5)dnl	
+pushdef(`b_rows',$6)dnl		block rows
+pushdef(`b_columns',$7)dnl	block columns
+pushdef(`unrolling',$8)dnl	
+pushdef(`mop',$9)dnl	
+pushdef(`citype',$10)dnl	
+pushdef(`k_diagonal',$11)dnl	
+pushdef(`uplo',$12)dnl	
+dnl
+ifelse(want_what,`ID',`dnl
+dnl	FIXME: seemingly broken otherwise.
+pushdef(`fid',RSB_M4_KERNEL_DIRECT_DISPATCHER_FUNCTION_NAME(mtype,matrix_storage,transposition,k_symmetry,b_rows,b_columns,unrolling,mop,citype,k_diagonal,uplo))dnl
+fid`'dnl
+popdef(`fid')dnl
+',`dnl
+dnl
+ifelse(RSB_M4_IS_FORMAT_BCOO(matrix_storage),1,`dnl
+RSB_M4_BCOO_KERNEL_FUNCTION(want_what,mtype,matrix_storage,transposition,k_symmetry,b_rows,b_columns,unrolling,mop,citype,k_diagonal,uplo)`'dnl
+')`'dnl
+dnl
+ifelse(RSB_M4_IS_FORMAT_BCSS(matrix_storage),1,`dnl
+RSB_M4_BCSS_KERNEL_FUNCTION(want_what,mtype,matrix_storage,transposition,k_symmetry,b_rows,b_columns,unrolling,mop,citype,k_diagonal,uplo)`'dnl
+')`'dnl
+dnl
+')dnl
+dnl
+popdef(`uplo')dnl
+popdef(`k_diagonal')dnl
+popdef(`citype')dnl
+popdef(`mop')dnl
+popdef(`unrolling')dnl
+popdef(`b_columns')dnl
+popdef(`b_rows')dnl
+popdef(`k_symmetry')dnl
+popdef(`transposition')dnl
+popdef(`matrix_storage')dnl
+popdef(`mtype')dnl
+popdef(`want_what')dnl
+')dnl
+dnl
+dnl
+dnl
+dnl
 dnl	RSB_M4_DIRECT_KERNEL_DISPATCH_FUNCTION_ARGS(mop)
 dnl	------------------------------------------------
 dnl
@@ -127,40 +179,44 @@ ifelse(RSB_M4_IS_IMPLEMENTED_MOP(mop),0,`dnl
 {
 	/*!
 	 * \ingroup rsb_doc_kernels
-	 * A run-time kernel dispatching function.
-	 * 
-	 * Will use the right "mop" kernel for each matrix block.
-	 * 
-	 * However, there could be some overhead in the process of dispatching
-	 * the right function kernel for each block, especially for matrices
-	 * partitioned in same-size blocks.
-	 * 
-	 * In that case, it is better to use some specialized function.
+	 * Run-time "`'mop`'" kernels dispatching function for a single sparse matrix block.
 	 *
 	 * \return \rsb_errval_inp_param_msg
 	 */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
+	rsb_err_t errval = RSB_ERR_INTERNAL_ERROR;
+dnl	rsb_err_t errval = RSB_ERR_NO_ERROR;
 dnl	register rsb_coo_idx_t baserow,basecolumn,rows,columns;
 dnl	register rsb_coo_idx_t blockrow,blockcolumn;
 dnl	register char *bp=NULL;
-	rsb_flags_t symmetry,diagonal;
+dnl	rsb_flags_t symmetry, diagonal;
 `#ifdef' RSB_M4_MATRIX_INDEX_COORDINATE_TYPE_PREPROCESSOR_SYMBOL(`rsb_half_idx_t')
-	rsb_int_t half_storage = rsb__do_is_candidate_size_for_halfword(mtxAp->Mdim,mtxAp->mdim,/*nnz*/0,mtxAp->flags)?`'dnl
+	const rsb_int_t half_storage = rsb__do_is_candidate_size_for_halfword(mtxAp->Mdim,mtxAp->mdim,/*nnz*/0,mtxAp->flags)?`'dnl
 RSB_M4_MATRIX_INDEX_COORDINATE_TYPE_PREPROCESSOR_SYMBOL(`rsb_half_idx_t'):`'dnl
 RSB_M4_MATRIX_INDEX_COORDINATE_TYPE_PREPROCESSOR_SYMBOL(`rsb_coo_idx_t');
 #else /* RSB_M4_MATRIX_INDEX_COORDINATE_TYPE_PREPROCESSOR_SYMBOL(`rsb_half_idx_t') */
-	rsb_int_t half_storage=`'dnl
+	const rsb_int_t half_storage=`'dnl
 RSB_M4_MATRIX_INDEX_COORDINATE_TYPE_PREPROCESSOR_SYMBOL(`rsb_coo_idx_t');
 #endif /* RSB_M4_MATRIX_INDEX_COORDINATE_TYPE_PREPROCESSOR_SYMBOL(`rsb_half_idx_t') */
+	const rsb_flags_t symmetry = rsb__get_symmetry_type_flag(mtxAp);
+	const rsb_flags_t diagonal = rsb__get_diagonal_type_flag(mtxAp);
+	const rsb_type_t typecode = mtxAp->`typecode';
 
-	if(!mtxAp /*|| !mtxAp->options */)
+dnl	if(!mtxAp /*|| !mtxAp->options */)
+dnl		return RSB_ERR_BADARGS;
+	if(RSB_MTX_NOT_OK(mtxAp))
 		return RSB_ERR_BADARGS;
-
-	symmetry = rsb__get_symmetry_type_flag(mtxAp);
-	diagonal = rsb__get_diagonal_type_flag(mtxAp);
-
-	if(RSB_MATRIX_UNSUPPORTED_TYPE(mtxAp->`typecode'))
-		return RSB_ERR_BADARGS;
+dnl
+ifelse(RSB_M4_IS_SPSX_KERNEL_MOP(mop),1,`dnl
+dnl	if(RSB_DO_FLAG_HAS_INTERSECTION(mtxAp->flags,RSB_FLAG_ANY_SYMMETRY))
+	if(RSB_DO_FLAG_HAS_INTERSECTION(symmetry,RSB_FLAG_ANY_SYMMETRY))
+		goto ssoerr;
+')dnl
+dnl
+ifelse(RSB_M4_IS_SPSX_KERNEL_MOP(mop),1,`dnl
+pushdef(`symmetries_here',(RSB_M4_SYMBOL_UNSYMMETRIC))dnl
+',`dnl
+pushdef(`symmetries_here',`RSB_M4_MATRIX_SYMMETRY')dnl
+')dnl
 
 dnl ifelse(mop,`spmv_uxux',`dnl
 dnl	if(RSB_IS_ELEMENT_ZERO(betap,mtxAp->`typecode') && RSB_IS_ELEMENT_ONE(alphap,mtxAp->`typecode') )
@@ -181,82 +237,128 @@ foreach(`transposition',RSB_M4_MATRIX_TRANSPOSITIONS,`dnl
 dnl //	switch(mtxAp->`flags' | RSB_M4_MATRIX_SYMMETRY_PREPROCESSOR_SYMBOL(RSB_M4_SYMBOL_SYMMETRIC))
 	switch(symmetry)
 	{
-foreach(`k_symmetry',RSB_M4_MATRIX_SYMMETRY,`dnl
+foreach(`k_symmetry',symmetries_here,`dnl
 	case(RSB_M4_MATRIX_SYMMETRY_PREPROCESSOR_SYMBOL(k_symmetry)):
 	switch(mtxAp->`matrix_storage')
 	{
 foreach(`matrix_storage',RSB_M4_MATRIX_STORAGE,`dnl
 	case(RSB_M4_MATRIX_STORAGE_PREPROCESSOR_SYMBOL(matrix_storage)):
 dnl		/* return RSB_M4_MULTI_BLOCK_KERNEL_TYPE_DISPATCH_FUNCTION(matrix_storage,unrolling,mop,identifier)(...); */
-	switch(mtxAp->`typecode')
+	switch(`typecode')
 	{
 foreach(`mtype',types,`dnl
-	case(RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)):
+	case(RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype)):`'dnl
 dnl
 ifelse(RSB_M4_IS_SPSX_KERNEL_MOP(mop),1,`dnl
+ifelse(RSB_M4_IS_NOT_UNSYMMETRIC(k_symmetry),1,`dnl
+	goto ssoerr;
+',`dnl
 	if(rsb__is_lower_triangle(mtxAp->flags))
-		errval = RSB_M4_KERNEL_SIZE_DISPATCH_FUNCTION_NAME(mtype,matrix_storage,transposition,k_symmetry,unrolling,mop,citype,k_diagonal,`l')`'dnl
-(RSB_M4_ACTUAL_ARGS_APPLY_MEMBERSHIP(RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCXX_KERNEL_SIZE_DISPATCH_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,unrolling,,,mop,citype,k_diagonal,`l'))));
+		errval = RSB_M4_BCXX_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,k_symmetry,1,1,unrolling,mop,citype,k_diagonal,`l')( RSB_M4_ACTUAL_ARGS_APPLY_MEMBERSHIP(RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCXX_KERNEL_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,1,1,unrolling,mop,citype,k_diagonal,`l'))) );
+dnl		errval = RSB_M4_KERNEL_SIZE_DISPATCH_FUNCTION_NAME(mtype,matrix_storage,transposition,k_symmetry,unrolling,mop,citype,k_diagonal,`l')`'dnl
+dnl (RSB_M4_ACTUAL_ARGS_APPLY_MEMBERSHIP(RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCXX_KERNEL_SIZE_DISPATCH_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,unrolling,,,mop,citype,k_diagonal,`l'))));
 	else
-		errval = RSB_M4_KERNEL_SIZE_DISPATCH_FUNCTION_NAME(mtype,matrix_storage,transposition,k_symmetry,unrolling,mop,citype,k_diagonal,`u')`'dnl
-(RSB_M4_ACTUAL_ARGS_APPLY_MEMBERSHIP(RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCXX_KERNEL_SIZE_DISPATCH_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,unrolling,,,mop,citype,k_diagonal,`u'))));
+		errval = RSB_M4_BCXX_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,k_symmetry,1,1,unrolling,mop,citype,k_diagonal,`u')( RSB_M4_ACTUAL_ARGS_APPLY_MEMBERSHIP(RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCXX_KERNEL_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,1,1,unrolling,mop,citype,k_diagonal,`u'))) );
+dnl		errval = RSB_M4_KERNEL_SIZE_DISPATCH_FUNCTION_NAME(mtype,matrix_storage,transposition,k_symmetry,unrolling,mop,citype,k_diagonal,`u')`'dnl
+dnl (RSB_M4_ACTUAL_ARGS_APPLY_MEMBERSHIP(RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCXX_KERNEL_SIZE_DISPATCH_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,unrolling,,,mop,citype,k_diagonal,`u'))));
+')dnl	RSB_M4_IS_SPSX_KERNEL_MOP
 dnl
 ',`dnl
 dnl
-dnl		/* FIXME: the following line could cause severe compiler warnings (e.g.: 1506-280 (W) Function argument assignment between types "const unsigned short* restrict" and "int*" is not allowed) */
-dnl
+ifelse(RSB_M4_AND(RSB_M4_IS_FORMAT_BCXX(matrix_storage),RSB_M4_IS_SPXX_KERNEL_MOP(mop)),1,`dnl skip_register_block_dispatcher
+dnl pushdef(`args',`RSB_M4_ACTUAL_ARGS_APPLY_MEMBERSHIP(RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCXX_KERNEL_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,1,1,unrolling,mop,citype,k_diagonal,`g')))')dnl
+pushdef(`args',`RSB_M4_ACTUAL_ARGS_APPLY_MEMBERSHIP(RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCXX_KERNEL_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,1,1,unrolling,mop,citype,k_diagonal,`g')))')dnl
+		errval = RSB_M4_BCXX_KERNEL_FUNCTION(`ID',mtype,matrix_storage,transposition,k_symmetry,1,1,unrolling,mop,citype,k_diagonal,`g')( args );
+popdef(`args')dnl
+',`dnl skip_register_block_dispatcher
 		errval = RSB_M4_KERNEL_SIZE_DISPATCH_FUNCTION_NAME(mtype,matrix_storage,transposition,k_symmetry,unrolling,mop,citype,k_diagonal,`g')`'dnl
 (RSB_M4_ACTUAL_ARGS_APPLY_MEMBERSHIP(RSB_M4_ARGS_TO_ACTUAL_ARGS(RSB_M4_BCXX_KERNEL_SIZE_DISPATCH_FUNCTION(`ARGS',mtype,matrix_storage,transposition,k_symmetry,unrolling,,,mop,citype,k_diagonal,`g'))));
+')dnl skip_register_block_dispatcher
+dnl
 ')dnl
 dnl
 	break;
-	')dnl
-		default:
-		RSB_ERROR("Sorry, data type \"%c\" currently not supported.\n",mtxAp->typecode);
-		errval = RSB_ERR_UNSUPPORTED_TYPE	;
-		}
+')dnl
+	default:	goto typerr;
+dnl	default:
+dnl		RSB_ERROR("Sorry, data type \"%c\" currently not supported.\n",mtxAp->typecode);
+dnl		errval = RSB_ERR_UNSUPPORTED_TYPE	;
+	}
 	break;
-	')dnl
-		default:
-		{
-		RSB_ERROR("Sorry, matrix storage \"%c\" currently not supported.\n",mtxAp->`matrix_storage');
+')dnl
+	default:	goto fmterr;
+dnl	default:
+dnl	{
+dnl		RSB_ERROR("Sorry, matrix storage \"%c\" currently not supported.\n",mtxAp->`matrix_storage');
 dnl		FIXME : SOMEWHERE SOMEONE FORGETS TO POPDEF(`matrix_storage') ...
-		errval = RSB_ERR_UNSUPPORTED_FORMAT;
-		}
+dnl		errval = RSB_ERR_UNSUPPORTED_FORMAT;
+dnl	}
 	}
 	break;
-	')dnl
-		default:
-		{
-			RSB_ERROR("Sorry, this symmetry case (0x%x) is not supported.\n",(rsb_int)symmetry);
-			errval = RSB_ERR_UNSUPPORTED_TYPE	;
-		}
+')dnl
+	default:	goto symerr;
+dnl	default:
+dnl	{
+dnl		RSB_ERROR("Sorry, this symmetry case (0x%x) is not supported.\n",(rsb_int)symmetry);
+dnl		errval = RSB_ERR_UNSUPPORTED_TYPE	;
+dnl	}
 	}
 	break;
-	')dnl
-		default:
-		{
-			RSB_ERROR("Sorry, this transposition case (0x%x) is not supported.\n",(rsb_int)transA);
-			errval = RSB_ERR_UNSUPPORTED_TYPE	;
-		}
+')dnl
+	default:	goto traerr;
+dnl	default:
+dnl	{
+dnl		RSB_ERROR("Sorry, this transposition case (0x%x) is not supported.\n",(rsb_int)transA);
+dnl		errval = RSB_ERR_UNSUPPORTED_TYPE	;
+dnl	}
 	}
 	break;
-	')dnl
-		default:
-		{
-			RSB_ERROR("Sorry, this coordinate index (0x%x) is not supported.\n",(rsb_int)half_storage);
-			errval = RSB_ERR_UNSUPPORTED_FEATURE;
-		}
+')dnl
+	default:	goto idxerr;
+dnl	default:
+dnl	{
+dnl		RSB_ERROR("Sorry, this coordinate index (0x%x) is not supported.\n",(rsb_int)half_storage);
+dnl		errval = RSB_ERR_UNSUPPORTED_FEATURE;
+dnl	}
 	}
 	break;
-	')dnl
-		default:
-		{
-			RSB_ERROR("Sorry, this diagonal type (0x%x) is not supported.\n",(rsb_int)diagonal);
-			errval = RSB_ERR_UNSUPPORTED_FEATURE;
-		}
+')dnl
+	default:	goto diaerr;
+dnl	default:
+dnl	{
+dnl		RSB_ERROR("Sorry, this diagonal type (0x%x) is not supported.\n",(rsb_int)diagonal);
+dnl			errval = RSB_ERR_UNSUPPORTED_FEATURE;
+dnl	}
 	}
-	return errval;
+dnl
+popdef(`symmetries_here')dnl
+dnl
+	goto ret;
+typerr: errval = RSB_ERR_UNSUPPORTED_TYPE;
+	RSB_ERROR("Sorry, data type \"%c\" currently not supported.\n",mtxAp->typecode);
+	goto ret;
+fmterr:	errval = RSB_ERR_UNSUPPORTED_FORMAT;
+	RSB_ERROR("Sorry, matrix storage \"%c\" currently not supported.\n",mtxAp->`matrix_storage');
+	goto ret;
+symerr:	errval = RSB__ERR_UNSUPPORTED_SYMM;
+	RSB_ERROR("Sorry, this symmetry case (0x%x) is not supported.\n",(rsb_int)symmetry);
+	goto ret;
+traerr: errval = RSB__ERR_UNSUPPORTED_TRANSA;
+	RSB_ERROR("Sorry, this transposition case (0x%x) is not supported.\n",(rsb_int)transA);
+	goto ret;
+idxerr:	errval = RSB__ERR_UNSUPPORTED_IDX_TYPE;
+	RSB_ERROR("Sorry, this coordinate index (0x%x) is not supported.\n",(rsb_int)half_storage);
+	goto ret;
+diaerr:	errval = RSB__ERR_UNSUPPORTED_DIAG;
+	RSB_ERROR("Sorry, this diagonal type (0x%x) is not supported.\n",(rsb_int)diagonal);
+dnl	goto ret;
+ifelse(RSB_M4_IS_SPSX_KERNEL_MOP(mop),1,`dnl
+	goto ret;
+ssoerr:	errval = RSB__ERR_NO_SYM_SPSV;
+	RSB_ERROR("Sorry, triangular solve of a non-unsymmetric matrix is nonsense.\n");
+')dnl
+dnl
+ret:	return errval;
 dnl	return RSB_ERR_INTERNAL_ERROR;	
 }
 ')dnl
@@ -463,13 +565,11 @@ ifdef(`ONLY_WANT_HEADERS',`;
 	 * if(time_limit >  0) will benchmark at least min_runs times and for time_limit seconds
 	 *
 	 * \return \rsb_errval_inp_param_msg
-         *
 	 */
 
-	double time_limit;
-	double elapsed_time;
+	double time_limit, elapsed_time;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	int runs=0,min_runs=0;
+	int runs = 0, min_runs;
 
         if( ! total_elapsed_time || ! m_flops)
 		return RSB_ERR_BADARGS;
@@ -481,50 +581,48 @@ ifdef(`ONLY_WANT_HEADERS',`;
 	*m_flops = RSB_TIME_ZERO;
 
 	if(time_limit <= 0 )
-	{
-		time_limit = RSB_BENCHMARK_MIN_SECONDS;
-	}
+		time_limit = rsb__getenv_real_t("RSB_BENCHMARK_MIN_SECONDS", RSB_BENCHMARK_MIN_SECONDS);
 
 	if(min_runs   <= 0 )
-	{
-		min_runs = RSB_BENCHMARK_MIN_RUNS ;	/* NOTE : this is a completely arbitrary number (FIXME) */
-	}
+		min_runs = RSB_BENCHMARK_MIN_RUNS;
 
-	//RSB_INFO("will perform min  %d runs, for %lg seconds\n",min_runs, time_limit);
-
-	// FIXME : seems like this affects performance ...
-	// *total_elapsed_time = - rsb_time();
+dnl	//RSB_INFO("will perform min  %d runs, for %lg seconds\n",min_runs, time_limit);
+dnl
+dnl	// FIXME : seems like this affects performance ...
+dnl	// *total_elapsed_time = - rsb_time();
 	*total_elapsed_time =0;
 
 	while( ( time_limit? ( *total_elapsed_time < time_limit):0 ) || ( min_runs ? ( runs < min_runs ) : 0 ) )
 	{
-		//elapsed_time = RSB_TIME_ZERO;
-		//errval = dnl
-		/* FIXME : use an even more general function here (the following is vbr-only!) */
+dnl		//elapsed_time = RSB_TIME_ZERO;
+		errval |= dnl
+dnl		/* FIXME : use an even more general function here (the following is vbr-only!) */
 RSB_M4_DIRECT_KERNEL_DISPATCH_TIMING_FUNCTION_IDENTIFIER(mop)dnl
 `'(&elapsed_time,RSB_M4_DIRECT_KERNEL_DISPATCH_BENCHMARK_FUNCTION_ACTUAL_ARGS(mop));
 dnl		errval = RSB_M4_DIRECT_KERNEL_DISPATCH_FUNCTION_IDENTIFIER(mop)dnl
 dnl (RSB_M4_DIRECT_KERNEL_DISPATCH_TIMING_FUNCTION_ACTUAL_ARGS(mop));
-
-		//*total_elapsed_time += rsb_time();
-/*		RSB_INFO("tl : %lg\n",time_limit );*/
-/*		RSB_INFO("ss : %lg\n",*total_elapsed_time );*/
-/*		RSB_INFO("sse : %lg\n",elapsed_time );*/
+dnl
+dnl		//*total_elapsed_time += rsb_time();
+dnl/*		RSB_INFO("tl : %lg\n",time_limit );*/
+dnl/*		RSB_INFO("ss : %lg\n",*total_elapsed_time );*/
+dnl/*		RSB_INFO("sse : %lg\n",elapsed_time );*/
 
 		*total_elapsed_time  +=  elapsed_time;
 		*m_flops += RSB_M4_ESTIMATE_MFLOPS_PER_MOP_FUNCTION_IDENTIFIER(mop)(mtxAp);
-		if(RSB_SOME_ERROR(errval)) return errval;
+		if(RSB_SOME_ERROR(errval)) {RSB_ERROR(""); return errval;}
 		++runs;
 	}
-	/* FIXME : get rid of this line */
-	{rsb_char_t buf[RSB_MAX_LINE_LENGTH];
-	RSB_STDERR("%s : ",rsb__sprint_matrix_implementation_code(mtxAp,"mop",RSB_FLAG_NOFLAGS,buf));}
-	RSB_STDERR("performed %d runs, %lg/%lg seconds (mop,mtype) \n",runs, *total_elapsed_time,time_limit);
+dnl	/* FIXME : get rid of this line */
+	{
+		rsb__fprint_matrix_implementation_code(mtxAp,"mop",RSB_FLAG_NOFLAGS,stderr);
+		RSB_STDERR(" : ");
+		RSB_STDERR("performed %d runs, %lg/%lg seconds (mop,mtype) \n",runs, *total_elapsed_time,time_limit);
+	}
 
-	/*
-         * FIXME : this is a candidate location for a conditional performance data printout
-         */
-
+dnl	/*
+dnl         * FIXME : this is a candidate location for a conditional performance data printout
+dnl         */
+dnl
 	return RSB_ERR_NO_ERROR;
 }
 ')dnl
@@ -576,23 +674,23 @@ RSB_M4_DEBUGINFO(``$0'')dnl
 {
 	/*!
 	 * \ingroup gr_bench
-	 * Will benchmark the "mtype" type implementation of operation "mop" 
-	 * for a single matrix, but for the whole range of different block sizes
-	 * partitionings.
+	 * Benchmark "mtype" type kernels of operation "mop" 
+	 * for a single sparse matrix block.
          * 
-         * Therefore, the VBR features of this library will be NOT used here.
-	 *
-	 * The performance information will be written in a user supplied structure.
-         *
+dnl         * Therefore, the VBR features of this library will be NOT used here.
+dnl	 *
+dnl	 * The performance information will be written in a user supplied structure.
+dnl         *
 	 * \return \rsb_errval_inp_param_msg
 	 */
-	rsb_flags_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
 	int ri=0,ci=0;
 	rsb_blk_idx_t br=0,bc=0;
 	//rsb_blk_idx_t M_b,K_b;
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t * mtxAp = NULL;
-	rsb_trans_t transA = RSB_DEFAULT_TRANSPOSITION;
+	rsb_trans_t transAa [] = RSB_ROWS_TRANSPOSITIONS_ARRAY;
+	int transi;
 ifelse(RSB_M4_IS_SPXX_TWO_VECTORS_OPERATING_KERNEL_MOP(mop),1,`dnl
 	mtype *out=NULL,*rhs=NULL;
 ')dnl
@@ -601,14 +699,11 @@ ifelse(RSB_M4_IS_ACC_WRITING_KERNEL_MOP(mop),`1',`dnl
 ')dnl
 	rsb_blk_idx_t rua[]=RSB_ROWS_UNROLL_ARRAY;
 	rsb_blk_idx_t cua[]=RSB_COLUMNS_UNROLL_ARRAY;
-ifelse(RSB_M4_IS_STRIDED_KERNEL_MOP(mop),1,`dnl
-	rsb_coo_idx_t incx=1,incy=1;
+ifelse(RSB_M4_IS_STRIDED_KERNEL_MOP(mop),`1',`dnl
+	int incyi, incxi;
+	rsb_coo_idx_t incxa[]={1,2}, incya[]={1,2};
 ',`dnl
-dnl
-dnl	incx is sometimes needed for scaling a vector, even if the op itself is strided 1
-dnl
-	rsb_coo_idx_t incx=1,incy=1;
-	incx=1,incy=1;	/* just to avoid "unused variable"-like  just to avoid "unused variable"-like warnings warnings */
+dnl	
 ')dnl
 
 	if(!VA || !IA || !JA || !mpi)
@@ -619,6 +714,21 @@ dnl
 	mpi->cols=cols;
 	mpi->nnz=nnz;
 
+ifelse(RSB_M4_IS_STRIDED_KERNEL_MOP(mop),`1',`dnl
+	for(incyi=0;incyi<sizeof(incya)/sizeof(incya[0]);++incyi)
+	for(incxi=0;incxi<sizeof(incxa)/sizeof(incxa[0]);++incxi)
+')dnl
+	for (transi=0;transi<RSB_TRANSPOSITIONS_ARRAY_LENGTH;++transi)
+	{
+	rsb_trans_t transA = transAa[transi];
+ifelse(RSB_M4_IS_STRIDED_KERNEL_MOP(mop),`1',`dnl
+	rsb_coo_idx_t incx = incxa[incxi], incy = incya[incyi];
+',`dnl
+dnl	incx is sometimes needed for scaling a vector, even if the op itself is strided 1 (and so incyi, incxi above)
+ifelse(RSB_M4_IS_SPXX_TWO_VECTORS_OPERATING_KERNEL_MOP(mop),1,`dnl
+	rsb_coo_idx_t incx=1,incy=1;
+')dnl
+')dnl
 	for(ri=0;ri<RSB_ROWS_UNROLL_ARRAY_LENGTH;++ri)
 	{
 		for(ci=0;ci<RSB_COLUMNS_UNROLL_ARRAY_LENGTH;++ci)
@@ -656,6 +766,7 @@ dnl			mtxAp = rsb_allocate_bcsr_sparse_matrix(VA, IA, JA, nnz, typecode, rows, c
 			mtxAp = rsb__do_mtx_alloc_from_coo_const(VA,IA,JA,nnz,typecode,rows,cols,br,bc,flags,&errval);
 			if(!mtxAp||RSB_SOME_ERROR(errval)) {goto erri;}
 
+ifelse(RSB_M4_MAXIMAL_CONFIGURED_BLOCK_SIZE,`1',`',`dnl
 			if( ( flags & RSB_FLAG_AUTO_BLOCKING ) != 0)
 			{
 
@@ -677,16 +788,16 @@ dnl			mtxAp = rsb_allocate_bcsr_sparse_matrix(VA, IA, JA, nnz, typecode, rows, c
 				 * we fill in performance info and quit.
 				 */
 
+')dnl
 ifelse(RSB_M4_IS_SPXX_TWO_VECTORS_OPERATING_KERNEL_MOP(mop),1,`dnl
 			bstride=cols+bc;
 			cstride = rows+br;
-			rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs);
-			out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs);
+			rhs = rsb__malloc(mtxAp->el_size*(bstride)*nrhs*incx);
+			out = rsb__malloc(mtxAp->el_size*(cstride)*nrhs*incy);
 			if(!out || rsb__fill_with_ones(out,mtxAp->typecode,cstride*nrhs,incy)){errval = RSB_ERR_ENOMEM;goto erri;}
 			if(!rhs || rsb__fill_with_ones(rhs,mtxAp->typecode,bstride*nrhs,incx)){errval = RSB_ERR_ENOMEM;goto erri;}
 			if(!out || !rhs) {errval = RSB_ERR_ENOMEM;goto erri;}
-			if(rsb__fill_with_ones(rhs,mtxAp->typecode,(cols)*nrhs,cols))     {errval = RSB_ERR_ENOMEM;goto erri;}
-			/* FIXME : are we sure this is correct ?*/
+			if(rsb__fill_with_ones(rhs,mtxAp->typecode,(cols)*nrhs,incx))     {errval = RSB_ERR_ENOMEM;goto erri;}
 			if(rsb__cblas_Xscal(mtxAp->typecode,(rows+br)*nrhs,NULL,out,incy)) {errval = RSB_ERR_ENOMEM;goto erri;}
 ')dnl
 ifelse(RSB_M4_IS_ACC_WRITING_KERNEL_MOP(mop),`1',`dnl
@@ -705,15 +816,18 @@ ifelse(mop,`negation',`dnl
 			int please_fix_RSB_M4_ARGS_TO_ACTUAL_ARGS=-1;
 ')dnl
 			
-			mpi->seconds[ri][ci] = RSB_BENCHMARK_MIN_SECONDS; /* min seconds */
+			mpi->seconds[ri][ci] = rsb__getenv_real_t("RSB_BENCHMARK_MIN_SECONDS", RSB_BENCHMARK_MIN_SECONDS); /* min seconds */
 			mpi->m_flops[ri][ci] = (double)RSB_BENCHMARK_MIN_RUNS; /* min runs */
 
 dnl			struct rsb_options_t * o = mtxAp->options;
-			RSB_M4_DIRECT_KERNEL_DISPATCH_BENCHMARK_FUNCTION_IDENTIFIER(mop,mtype)dnl
+			errval = `'dnl
+RSB_M4_DIRECT_KERNEL_DISPATCH_BENCHMARK_FUNCTION_IDENTIFIER(mop,mtype)dnl
 ( &(mpi->seconds[ri][ci]), &(mpi->m_flops[ri][ci]), RSB_M4_DIRECT_KERNEL_DISPATCH_TIMING_FUNCTION_ACTUAL_ARGS(mop,mtype));
+dnl			if(RSB_SOME_ERROR(errval))
+dnl				{RSB_PERR_GOTO(erri,"");}
 			mpi->fillin[ri][ci] = rsb__do_get_matrix_fillin(mtxAp);
 			mpi->e_mflops[ri][ci] =	mpi->m_flops[ri][ci] / mpi->fillin[ri][ci] ;/* new */
-			erri:
+	erri:
 ifelse(RSB_M4_IS_ACC_WRITING_KERNEL_MOP(mop),`1',`dnl
 			RSB_CONDITIONAL_FREE(row_sums);
 ')dnl
@@ -725,12 +839,16 @@ ifelse(mop,`scale',`dnl
 			RSB_CONDITIONAL_FREE(scale_factors);
 ')dnl
 			RSB_MTX_FREE(mtxAp);
-			if(RSB_SOME_ERROR(errval)){rsb__do_perror(NULL,errval);return errval;}
+			if(RSB_SOME_ERROR(errval))
+			{rsb__do_perror(NULL,errval);RSB_PERR_GOTO(err,"");}
 
-			if( ( flags & RSB_FLAG_AUTO_BLOCKING ) != 0)
-				return errval;/* no need for further benchmarks (FIXME : a temporary hack! ) */
+			if( RSB_DO_FLAG_HAS( flags , RSB_FLAG_AUTO_BLOCKING ) )
+				goto err;
+dnl	/* no need for further benchmarks (TODO: solve this better.. */
 		}
 	}
+	}
+err:
 	return errval;
 }
 ')dnl
@@ -827,24 +945,62 @@ RSB_M4_DEBUGINFO(``$0'')dnl
 	void *VA=NULL;
 
 	struct rsb_mop_performance_info_t * mpi = &(mspi->pipmo[0]);
-	rsb_flags_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype),flags=0;
+	const rsb_type_t typecode = RSB_M4_NUMERICAL_TYPE_PREPROCESSOR_SYMBOL(mtype);
+	rsb_flags_t flagsa [] = { RSB_FLAG_DEFAULT_CSR_MATRIX_FLAGS, RSB_FLAG_DEFAULT_COO_MATRIX_FLAGS, RSB_FLAG_USE_HALFWORD_INDICES_CSR,  RSB_FLAG_USE_HALFWORD_INDICES_COO };
+	rsb_bool_t is_symmetric = RSB_BOOL_FALSE,is_hermitian = RSB_BOOL_FALSE;
+	rsb_bool_t is_lower = RSB_BOOL_FALSE,is_upper= RSB_BOOL_FALSE;
+	int flagsi;
+	int diagi;
 
 	RSB_BZERO(mspi,sizeof(*mspi));
 
-	if((rsb__util_mm_load_matrix_f(filename,&IA,&JA,&VA,&rows,&cols,&nnz,typecode,flags,NULL,NULL))!=0)
+	if( RSB_SOME_ERROR(rsb__util_mm_info_matrix_f(filename,NULL,NULL,NULL,NULL,&is_symmetric,&is_hermitian,NULL,NULL,NULL,NULL))
+	 || RSB_SOME_ERROR(rsb__util_mm_load_matrix_f(filename,&IA,&JA,&VA,&rows,&cols,&nnz,typecode,RSB_FLAG_NOFLAGS,&is_lower,&is_upper)) )
 	{
-		RSB_STDERR(RSB_ERRMSG_NOTMTXMKT" : %s ..\n",filename);
-		goto err;
+		RSB_PERR_GOTO(err,RSB_ERRMSG_NOTMTXMKT " : %s ..\n",filename);
 	}
 	
+for (diagi=0;diagi<2;++diagi)
+for (flagsi=0;flagsi<(sizeof(flagsa)/sizeof(flagsa[0]));++flagsi)
+{
+	rsb_flags_t flags = flagsa[flagsi];
+	if ( diagi)
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_UNIT_DIAG_IMPLICIT);
+
+	if ( is_symmetric )
+		RSB_DO_FLAG_ADD(flags,RSB_FLAG_SYMMETRIC);
+	else
+	{
+		if ( is_hermitian )
+			RSB_DO_FLAG_ADD(flags,RSB_FLAG_HERMITIAN);
+		else
+		{
+			if ( is_lower )
+				RSB_DO_FLAG_ADD(flags,RSB_FLAG_LOWER);
+			if ( is_upper )
+				RSB_DO_FLAG_ADD(flags,RSB_FLAG_UPPER);
+			if ( !is_lower &&  is_upper )
+				RSB_DO_FLAG_ADD(flags,RSB_FLAG_TRIANGULAR);
+			if (  is_lower && !is_upper )
+				RSB_DO_FLAG_ADD(flags,RSB_FLAG_TRIANGULAR);
+		}
+	}
 pushdef(`mopcode',0)dnl
 foreach(`mop',RSB_M4_MATRIX_OPS,`dnl
 pushdef(`mopcode',incr(mopcode))dnl
 
-	/* we benchmark our mtype library implementation for operation mop */
+dnl	/* we benchmark our mtype library implementation for operation mop */
+ifelse(RSB_M4_IS_SPSX_KERNEL_MOP(mop),1,`dnl
+	if(!(flags & RSB_FLAG_ANY_SYMMETRY))
+	if( (flags & RSB_FLAG_TRIANGULAR ))
+	{
+')dnl
 	errval = dnl
 RSB_M4_DIRECT_KERNEL_DISPATCH_FULLRANGEBENCHMARK_FUNCTION(mop,mtype,`function_identifier')dnl
 (RSB_M4_ARGS_TO_ACTUAL_ARGS((RSB_M4_DIRECT_KERNEL_DISPATCH_FULLRANGEBENCHMARK_FUNCTION(mop,mtype,`function_args'))));
+ifelse(RSB_M4_IS_SPSX_KERNEL_MOP(mop),1,`dnl
+	}
+')dnl
 	++mpi;
 	if(RSB_SOME_ERROR(errval))goto err;
 ')dnl
@@ -860,7 +1016,7 @@ dnl		performance info dumpout
 pushdef(`mopcode',0)dnl
 foreach(`mop',RSB_M4_MATRIX_OPS,`dnl
 pushdef(`mopcode',incr(mopcode))dnl
-	/* FIXME : WE SHOULD DUMP OUT PERFORMANCE INFORMATION HERE ! */
+dnl	may dump extra performance info here
 	errval = rsb__dump_performance_info(mpi,"RSB_M4_DUMP_PERFOMANCE_INFO_RECORD_IDENTIFIER(mtype,mop)");
 	if(RSB_SOME_ERROR(errval))goto err;
 	++mpi;
@@ -871,6 +1027,7 @@ popdef(`mopcode')dnl
 ')dnl
 popdef(`mopcode')dnl
 dnl
+}
 
 	err:
 	RSB_CONDITIONAL_FREE(IA);
@@ -1074,7 +1231,7 @@ dnl	---------------------------------------------------------------------
 dnl
 define(`RSB_M4_DIRECT_KERNEL_DISPATCH_COMPLETEBENCHMARK_FUNCTION_IDENTIFIER',`dnl
 dnl
-`rsb_do_completebenchmark'dnl
+`rsb__do_completebenchmark'dnl
 dnl
 dnl
 ')dnl
@@ -1098,6 +1255,9 @@ dnl
 define(`RSB_M4_DIRECT_KERNEL_DISPATCH_COMPLETEBENCHMARK_FUNCTION',`dnl
 dnl
 ifdef(`ONLY_WANT_HEADERS',`dnl
+RSB_M4_DIRECT_KERNEL_DISPATCH_COMPLETEBENCHMARK_FUNCTION_NAME`'dnl
+RSB_M4_DIRECT_KERNEL_DISPATCH_COMPLETEBENCHMARK_FUNCTION_ARGS`'dnl
+;
 ',`
 RSB_M4_DIRECT_KERNEL_DISPATCH_COMPLETEBENCHMARK_FUNCTION_NAME`'dnl
 RSB_M4_DIRECT_KERNEL_DISPATCH_COMPLETEBENCHMARK_FUNCTION_ARGS`'dnl
@@ -1106,17 +1266,16 @@ RSB_M4_DEBUGINFO(``$0'')dnl
 	/*!
 	 * \ingroup gr_bench
 	 * A complete benchmark program.
-	 * Will benchmark all supported matrix operations over all supported types
+	 * Benchmark all supported matrix operations over all supported types
 	 * over all supported matrix partitionings for a fixed block size.
          *
 	 * \return \rsb_errval_inp_param_msg
-         *
-	 * FIXME : UNFINISHED: should process and dump this info in a header file.
+dnl	 * Originaly this info was meant to be processed and dumped in a header file.
 	 */
 	struct rsb_global_performance_info_t mspis;
 	struct rsb_mops_performance_info_t * mspi = &(mspis.gpi[0]);
 
-	rsb_option options[] = {
+	rsb_option_t options[] = {
 	    {"matrix-filename",	required_argument, NULL, 0x66},  /* f */
 	    {0,0,0,0}
 	};
@@ -1129,7 +1288,7 @@ RSB_M4_DEBUGINFO(``$0'')dnl
 
 	for (;;)
 	{
-		c = rsb_getopt_long(argc, argv, "f:" , options, &opt_index);/* Flawfinder: ignore */
+		c = rsb__getopt_long(argc, argv, "f:" , options, &opt_index);/* Flawfinder: ignore */
 		if (c == -1)break;
 		switch (c)
 		{
@@ -1254,7 +1413,7 @@ pushdef(`types',$1)dnl
 pushdef(`mop',$2)dnl
 dnl
 dnl	
-#ifdef RSB_WANT_KERNELS_DEBUG
+#if defined(RSB_WANT_KERNELS_DEBUG) && (RSB_WANT_KERNELS_DEBUG>0)
 rsb_err_t RSB_M4_PREFIX`'mop`_testing'dnl
 RSB_M4_DIRECT_KERNEL_DISPATCH_FUNCTION_ARGS(mop)dnl
 ifdef(`ONLY_WANT_HEADERS',`;
@@ -1278,8 +1437,10 @@ RSB_M4_DEBUGINFO(``$0'')dnl
 dnl	register char *bp=0;
 	register rsb_byte_t *bp=0;
 ifelse(RSB_M4_NOT(RSB_M4_IS_STRIDED_KERNEL_MOP(mop)),1,`dnl
-	rsb_coo_idx_t incx=1,incy=1;
-	incx=1,incy=1;	/* just to avoid "unused variable"-like  just to avoid "unused variable"-like warnings warnings */
+dnl	rsb_coo_idx_t incx=2,incy=2;
+	rsb_coo_idx_t incxa[]={1,2}, incya[]={1,2};
+dnl	incx=2,incy=2;
+dnl	to avoid "unused variable"-like warnings
 ')dnl
 
 	if(!mtxAp /*|| !mtxAp->options*/ )return RSB_ERR_BADARGS;
@@ -1357,7 +1518,7 @@ ifelse(RSB_M4_MEMBER(mop,`spsv_uxua',`spsv_sxsx'),1,`dnl
 /*	FIXME : UNFINISHED */
 ')dnl
 ifelse(RSB_M4_IS_STRIDED_KERNEL_MOP(mop),1,`dnl
-	dnl	rsb_coo_idx_t incx=1,incy=1;
+	dnl	rsb_coo_idx_t incx=2,incy=2;
 ')dnl
 ifelse(RSB_M4_MEMBER(mop,`spmv_sxsx',`spsv_sa',`spmv_uxux'),1,`dnl
 /*	FIXME : UNFINISHED */

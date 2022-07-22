@@ -6,7 +6,7 @@
 
 /*
 
-Copyright (C) 2008-2020 Michele Martone
+Copyright (C) 2008-2022 Michele Martone
 
 This file is part of librsb.
 
@@ -41,7 +41,8 @@ If not, see <http://www.gnu.org/licenses/>.
 #undef RSB_PS_ASSERT
 #define RSB_PS_ASSERT(e) 
 #endif /* RSB_PS_ASSERT */
-rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double(
+
+static rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double(
 		double *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
 		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
 	       	size_t wsize, rsb_flags_t flags
@@ -113,8 +114,8 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double(
 		/* merge wnnz elements from A and B in W */
 		woff=0;
 		aoff=boff=0;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
 	/*	RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+bnnz,IB[bnnz],JB[bnnz]); */
 		while(woff<wnnz && aoff<annz && boff<bnnz)
 		{
@@ -124,7 +125,7 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double(
 				RSB_COO_MOVE(VW,IW,JW,VB,IB,JB,woff,boff);
 		}
 /*		RSB_STDOUT("aoff=%d boff=%d woff=%d\n",aoff,boff,woff);*/
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,woff,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,woff,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
 		if(woff<wnnz)
 		{
 			if(aoff==annz)
@@ -133,25 +134,25 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double(
 			if(boff==bnnz)
 				RSB_COO_MEMMOVE(VW,IW,JW,VA,IA,JA,woff,aoff,wnnz-woff,el_size),aoff+=(wnnz-woff);
 		}
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,wnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,wnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
 /*		RSB_STDOUT("aoff:%d boff=%d wnnz=%d annz=%d\n",aoff,boff,wnnz,annz);*/
 		/* memmove A boff places forward */
 		bnnz-=boff;
 		annz-=aoff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
 /*		RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		RSB_COO_MEMMOVE(VA,IA,JA,VA,IA,JA,wnnz,aoff,annz,el_size);
 /*		RSB_STDOUT("PSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		VB+=boff;
 		IB+=boff;
 		JB+=boff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
 		RSB_COO_MEMMOVE(VA,IA,JA,VW,IW,JW,0,0,wnnz,el_size);
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,wnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,wnnz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE ,NULL,flags));
 		VA+=wnnz;
 		IA+=wnnz;
 		JA+=wnnz;
@@ -160,7 +161,8 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double(
 	#undef RSB_COO_MOVE
 	#undef RSB_CMP_COO_LESS_THAN
 }
-rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float(
+
+static rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float(
 		float *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
 		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
 	       	size_t wsize, rsb_flags_t flags
@@ -232,8 +234,8 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float(
 		/* merge wnnz elements from A and B in W */
 		woff=0;
 		aoff=boff=0;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
 	/*	RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+bnnz,IB[bnnz],JB[bnnz]); */
 		while(woff<wnnz && aoff<annz && boff<bnnz)
 		{
@@ -243,7 +245,7 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float(
 				RSB_COO_MOVE(VW,IW,JW,VB,IB,JB,woff,boff);
 		}
 /*		RSB_STDOUT("aoff=%d boff=%d woff=%d\n",aoff,boff,woff);*/
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,woff,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,woff,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
 		if(woff<wnnz)
 		{
 			if(aoff==annz)
@@ -252,25 +254,25 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float(
 			if(boff==bnnz)
 				RSB_COO_MEMMOVE(VW,IW,JW,VA,IA,JA,woff,aoff,wnnz-woff,el_size),aoff+=(wnnz-woff);
 		}
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,wnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,wnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
 /*		RSB_STDOUT("aoff:%d boff=%d wnnz=%d annz=%d\n",aoff,boff,wnnz,annz);*/
 		/* memmove A boff places forward */
 		bnnz-=boff;
 		annz-=aoff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
 /*		RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		RSB_COO_MEMMOVE(VA,IA,JA,VA,IA,JA,wnnz,aoff,annz,el_size);
 /*		RSB_STDOUT("PSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		VB+=boff;
 		IB+=boff;
 		JB+=boff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
 		RSB_COO_MEMMOVE(VA,IA,JA,VW,IW,JW,0,0,wnnz,el_size);
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,wnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,wnnz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT ,NULL,flags));
 		VA+=wnnz;
 		IA+=wnnz;
 		JA+=wnnz;
@@ -279,7 +281,8 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float(
 	#undef RSB_COO_MOVE
 	#undef RSB_CMP_COO_LESS_THAN
 }
-rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float_complex(
+
+static rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float_complex(
 		float complex *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
 		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
 	       	size_t wsize, rsb_flags_t flags
@@ -351,8 +354,8 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float_complex(
 		/* merge wnnz elements from A and B in W */
 		woff=0;
 		aoff=boff=0;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
 	/*	RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+bnnz,IB[bnnz],JB[bnnz]); */
 		while(woff<wnnz && aoff<annz && boff<bnnz)
 		{
@@ -362,7 +365,7 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float_complex(
 				RSB_COO_MOVE(VW,IW,JW,VB,IB,JB,woff,boff);
 		}
 /*		RSB_STDOUT("aoff=%d boff=%d woff=%d\n",aoff,boff,woff);*/
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,woff,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,woff,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
 		if(woff<wnnz)
 		{
 			if(aoff==annz)
@@ -371,25 +374,25 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float_complex(
 			if(boff==bnnz)
 				RSB_COO_MEMMOVE(VW,IW,JW,VA,IA,JA,woff,aoff,wnnz-woff,el_size),aoff+=(wnnz-woff);
 		}
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,wnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,wnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
 /*		RSB_STDOUT("aoff:%d boff=%d wnnz=%d annz=%d\n",aoff,boff,wnnz,annz);*/
 		/* memmove A boff places forward */
 		bnnz-=boff;
 		annz-=aoff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
 /*		RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		RSB_COO_MEMMOVE(VA,IA,JA,VA,IA,JA,wnnz,aoff,annz,el_size);
 /*		RSB_STDOUT("PSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		VB+=boff;
 		IB+=boff;
 		JB+=boff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
 		RSB_COO_MEMMOVE(VA,IA,JA,VW,IW,JW,0,0,wnnz,el_size);
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,wnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,wnnz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ,NULL,flags));
 		VA+=wnnz;
 		IA+=wnnz;
 		JA+=wnnz;
@@ -398,7 +401,8 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_float_complex(
 	#undef RSB_COO_MOVE
 	#undef RSB_CMP_COO_LESS_THAN
 }
-rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double_complex(
+
+static rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double_complex(
 		double complex *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_char_t * W,
 		rsb_nnz_idx_t annz, rsb_nnz_idx_t bnnz,
 	       	size_t wsize, rsb_flags_t flags
@@ -470,8 +474,8 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double_complex(
 		/* merge wnnz elements from A and B in W */
 		woff=0;
 		aoff=boff=0;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
 	/*	RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+bnnz,IB[bnnz],JB[bnnz]); */
 		while(woff<wnnz && aoff<annz && boff<bnnz)
 		{
@@ -481,7 +485,7 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double_complex(
 				RSB_COO_MOVE(VW,IW,JW,VB,IB,JB,woff,boff);
 		}
 /*		RSB_STDOUT("aoff=%d boff=%d woff=%d\n",aoff,boff,woff);*/
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,woff,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,woff,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
 		if(woff<wnnz)
 		{
 			if(aoff==annz)
@@ -490,25 +494,25 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_double_complex(
 			if(boff==bnnz)
 				RSB_COO_MEMMOVE(VW,IW,JW,VA,IA,JA,woff,aoff,wnnz-woff,el_size),aoff+=(wnnz-woff);
 		}
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VW,IW,JW,wnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IW,JW,wnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
 /*		RSB_STDOUT("aoff:%d boff=%d wnnz=%d annz=%d\n",aoff,boff,wnnz,annz);*/
 		/* memmove A boff places forward */
 		bnnz-=boff;
 		annz-=aoff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
 /*		RSB_STDOUT("SSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		RSB_COO_MEMMOVE(VA,IA,JA,VA,IA,JA,wnnz,aoff,annz,el_size);
 /*		RSB_STDOUT("PSSSsentinel:%x %d %d\n",IB+boff+bnnz,IB[boff+bnnz],JB[boff+bnnz]);*/
 		VB+=boff;
 		IB+=boff;
 		JB+=boff;
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VB,IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IB,JB,bnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
 		RSB_COO_MEMMOVE(VA,IA,JA,VW,IW,JW,0,0,wnnz,el_size);
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,wnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
-		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(VA,IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,wnnz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
+		RSB_PS_ASSERT(!rsb__util_is_sorted_coo_as_row_major(IA,JA,annz,RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ,NULL,flags));
 		VA+=wnnz;
 		IA+=wnnz;
 		JA+=wnnz;
@@ -541,5 +545,275 @@ rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place(
 			return RSB_ERR_UNSUPPORTED_TYPE;
 	}
 }
+
+rsb_err_t rsb__do_util_merge_sorted_subarrays_in_place_test(void)
+{
+	rsb_err_t errval = RSB_ERR_INTERNAL_ERROR;
+
+{
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_DOUBLE ;
+	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
+	const rsb_nnz_idx_t nnzW = 3;
+	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
+	rsb_coo_idx_t JA[] = {0,1,2,3,4,5};
+	double VA[] = {1,2,3,1,2,3};
+	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
+	const rsb_coo_idx_t JR[] = {0,1,2,3,4,5};
+	const double VR[] = {1,2,3,1,2,3};
+	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
+	const size_t wsize = sizeof(WA);
+	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+
+	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
+ 
+	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
+		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
+			errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+}
+
+{
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_DOUBLE ;
+	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
+	const rsb_nnz_idx_t nnzW = 3;
+	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
+	rsb_coo_idx_t JA[] = {3,4,5,5,0,1};
+	double VA[] = {1,2,3,1,2,3};
+	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
+	const rsb_coo_idx_t JR[] = {3,4,5,5,0,1};
+	const double VR[] = {1,2,3,1,2,3};
+	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
+	const size_t wsize = sizeof(WA);
+	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+
+	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
+ 
+	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
+		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
+			errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+}
+{
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_FLOAT ;
+	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
+	const rsb_nnz_idx_t nnzW = 3;
+	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
+	rsb_coo_idx_t JA[] = {0,1,2,3,4,5};
+	float VA[] = {1,2,3,1,2,3};
+	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
+	const rsb_coo_idx_t JR[] = {0,1,2,3,4,5};
+	const float VR[] = {1,2,3,1,2,3};
+	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
+	const size_t wsize = sizeof(WA);
+	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+
+	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
+ 
+	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
+		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
+			errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+}
+
+{
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_FLOAT ;
+	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
+	const rsb_nnz_idx_t nnzW = 3;
+	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
+	rsb_coo_idx_t JA[] = {3,4,5,5,0,1};
+	float VA[] = {1,2,3,1,2,3};
+	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
+	const rsb_coo_idx_t JR[] = {3,4,5,5,0,1};
+	const float VR[] = {1,2,3,1,2,3};
+	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
+	const size_t wsize = sizeof(WA);
+	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+
+	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
+ 
+	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
+		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
+			errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+}
+{
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ;
+	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
+	const rsb_nnz_idx_t nnzW = 3;
+	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
+	rsb_coo_idx_t JA[] = {0,1,2,3,4,5};
+	float complex VA[] = {1,2,3,1,2,3};
+	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
+	const rsb_coo_idx_t JR[] = {0,1,2,3,4,5};
+	const float complex VR[] = {1,2,3,1,2,3};
+	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
+	const size_t wsize = sizeof(WA);
+	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+
+	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
+ 
+	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
+		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
+			errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+}
+
+{
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_FLOAT_COMPLEX ;
+	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
+	const rsb_nnz_idx_t nnzW = 3;
+	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
+	rsb_coo_idx_t JA[] = {3,4,5,5,0,1};
+	float complex VA[] = {1,2,3,1,2,3};
+	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
+	const rsb_coo_idx_t JR[] = {3,4,5,5,0,1};
+	const float complex VR[] = {1,2,3,1,2,3};
+	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
+	const size_t wsize = sizeof(WA);
+	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+
+	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
+ 
+	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
+		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
+			errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+}
+{
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ;
+	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
+	const rsb_nnz_idx_t nnzW = 3;
+	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
+	rsb_coo_idx_t JA[] = {0,1,2,3,4,5};
+	double complex VA[] = {1,2,3,1,2,3};
+	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
+	const rsb_coo_idx_t JR[] = {0,1,2,3,4,5};
+	const double complex VR[] = {1,2,3,1,2,3};
+	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
+	const size_t wsize = sizeof(WA);
+	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+
+	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
+ 
+	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
+		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
+			errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+}
+
+{
+	const rsb_type_t typecode = RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX ;
+	const rsb_nnz_idx_t nnzA = 3, nnzB = 3;
+	const rsb_nnz_idx_t nnzW = 3;
+	rsb_coo_idx_t IA[] = {0,1,2,3,4,5};
+	rsb_coo_idx_t JA[] = {3,4,5,5,0,1};
+	double complex VA[] = {1,2,3,1,2,3};
+	const rsb_coo_idx_t IR[] = {0,1,2,3,4,5};
+	const rsb_coo_idx_t JR[] = {3,4,5,5,0,1};
+	const double complex VR[] = {1,2,3,1,2,3};
+	rsb_byte_t WA[2*nnzW*sizeof(IA[0])+nnzW*sizeof(VA[0])];
+	const size_t wsize = sizeof(WA);
+	rsb_flags_t flags = RSB_FLAG_WANT_ROW_MAJOR_ORDER;
+
+	errval = rsb__do_util_merge_sorted_subarrays_in_place(VA, IA, JA, (void*)WA, nnzA, nnzB, wsize, flags, typecode);
+ 
+	if(RSB_MEMCMP(IA,IR,(nnzA+nnzB)*sizeof(IA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(JA,JR,(nnzA+nnzB)*sizeof(JA[0])))
+		errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+
+	if(RSB_MEMCMP(VA,VR,(nnzA+nnzB)*sizeof(VA[0])))
+		if(RSB_SOME_ERROR(rsb__do_are_same(VA, VR, nnzA+nnzB,typecode, 1, 1)))
+			errval = RSB_ERR_INTERNAL_ERROR;
+	if(RSB_SOME_ERROR(errval))
+		RSB_PERR_GOTO(err,RSB_ERRM_ES);
+}
+err:
+	return errval;
+}
+
+
 
 /* @endcond */
