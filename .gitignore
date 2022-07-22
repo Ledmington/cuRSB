@@ -1,11 +1,11 @@
-bin/
+**/bin/
 .vscode/
-.deps/
+**/.deps/
 *.exe
 *.log
 *.o
 **/libtool
 **/*config*
 **/stamp-h1
-librsb.pc
+**/librsb.pc
 **/Makefile
