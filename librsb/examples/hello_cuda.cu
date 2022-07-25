@@ -126,6 +126,7 @@ int main(const int argc, char *const argv[])
     printf("Correctly finalized the library.\n");
     printf("Program terminating with no error.\n");
     return EXIT_SUCCESS;
+
 err:
     rsb_perror(NULL, errval);
     printf("Program terminating with error.\n");
