@@ -44,10 +44,6 @@ rsb_err_t rsbpp_csr_spmm(rsb_type_t typecode, rsb_flags_t flags, const rsb_nnz_i
 
 	if ( RSB_DO_FLAG_HAS(flags , RSB_FLAG_USE_HALFWORD_INDICES) )
 	{
-#if RSB_NUMERICAL_TYPE_INT
-		if ( typecode == RSB_NUMERICAL_TYPE_INT )
-			return rsbpp_csr_spmx<int,rsb_coo_idx_t,rsb_half_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const int*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_half_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const int*>(rhs), ldY, reinterpret_cast<int*>(out), reinterpret_cast<const int*>(alphap), incx, incy, transA, roff, coff, by_rows);
-#endif /* RSB_NUMERICAL_TYPE_INT */
 #if RSB_NUMERICAL_TYPE_DOUBLE
 		if ( typecode == RSB_NUMERICAL_TYPE_DOUBLE )
 			return rsbpp_csr_spmx<double,rsb_coo_idx_t,rsb_half_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const double*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_half_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const double*>(rhs), ldY, reinterpret_cast<double*>(out), reinterpret_cast<const double*>(alphap), incx, incy, transA, roff, coff, by_rows);
@@ -56,29 +52,17 @@ rsb_err_t rsbpp_csr_spmm(rsb_type_t typecode, rsb_flags_t flags, const rsb_nnz_i
 		if ( typecode == RSB_NUMERICAL_TYPE_FLOAT )
 			return rsbpp_csr_spmx<float,rsb_coo_idx_t,rsb_half_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const float*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_half_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const float*>(rhs), ldY, reinterpret_cast<float*>(out), reinterpret_cast<const float*>(alphap), incx, incy, transA, roff, coff, by_rows);
 #endif /* RSB_NUMERICAL_TYPE_FLOAT */
-#if RSB_NUMERICAL_TYPE_LONG_DOUBLE_COMPLEX
-		if ( typecode == RSB_NUMERICAL_TYPE_LONG_DOUBLE_COMPLEX )
-			return rsbpp_csr_spmx<std::complex<long double>,rsb_coo_idx_t,rsb_half_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const std::complex<long double>*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_half_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const std::complex<long double>*>(rhs), ldY, reinterpret_cast<std::complex<long double>*>(out), reinterpret_cast<const std::complex<long double>*>(alphap), incx, incy, transA, roff, coff, by_rows);
-#endif /* RSB_NUMERICAL_TYPE_LONG_DOUBLE_COMPLEX */
-#if RSB_NUMERICAL_TYPE_LONG_DOUBLE
-		if ( typecode == RSB_NUMERICAL_TYPE_LONG_DOUBLE )
-			return rsbpp_csr_spmx<long double,rsb_coo_idx_t,rsb_half_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const long double*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_half_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const long double*>(rhs), ldY, reinterpret_cast<long double*>(out), reinterpret_cast<const long double*>(alphap), incx, incy, transA, roff, coff, by_rows);
-#endif /* RSB_NUMERICAL_TYPE_LONG_DOUBLE */
-#if RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX
-		if ( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX )
-			return rsbpp_csr_spmx<std::complex<double>,rsb_coo_idx_t,rsb_half_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const std::complex<double>*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_half_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const std::complex<double>*>(rhs), ldY, reinterpret_cast<std::complex<double>*>(out), reinterpret_cast<const std::complex<double>*>(alphap), incx, incy, transA, roff, coff, by_rows);
-#endif /* RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX */
 #if RSB_NUMERICAL_TYPE_FLOAT_COMPLEX
 		if ( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX )
 			return rsbpp_csr_spmx<std::complex<float>,rsb_coo_idx_t,rsb_half_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const std::complex<float>*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_half_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const std::complex<float>*>(rhs), ldY, reinterpret_cast<std::complex<float>*>(out), reinterpret_cast<const std::complex<float>*>(alphap), incx, incy, transA, roff, coff, by_rows);
 #endif /* RSB_NUMERICAL_TYPE_FLOAT_COMPLEX */
+#if RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX
+		if ( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX )
+			return rsbpp_csr_spmx<std::complex<double>,rsb_coo_idx_t,rsb_half_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const std::complex<double>*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_half_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const std::complex<double>*>(rhs), ldY, reinterpret_cast<std::complex<double>*>(out), reinterpret_cast<const std::complex<double>*>(alphap), incx, incy, transA, roff, coff, by_rows);
+#endif /* RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX */
 	}
 	else
 	{
-#if RSB_NUMERICAL_TYPE_INT
-		if ( typecode == RSB_NUMERICAL_TYPE_INT )
-			return rsbpp_csr_spmx<int,rsb_coo_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const int*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_coo_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const int*>(rhs), ldY, reinterpret_cast<int*>(out), reinterpret_cast<const int*>(alphap), incx, incy, transA, roff, coff, by_rows);
-#endif /* RSB_NUMERICAL_TYPE_INT */
 #if RSB_NUMERICAL_TYPE_DOUBLE
 		if ( typecode == RSB_NUMERICAL_TYPE_DOUBLE )
 			return rsbpp_csr_spmx<double,rsb_coo_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const double*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_coo_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const double*>(rhs), ldY, reinterpret_cast<double*>(out), reinterpret_cast<const double*>(alphap), incx, incy, transA, roff, coff, by_rows);
@@ -87,22 +71,14 @@ rsb_err_t rsbpp_csr_spmm(rsb_type_t typecode, rsb_flags_t flags, const rsb_nnz_i
 		if ( typecode == RSB_NUMERICAL_TYPE_FLOAT )
 			return rsbpp_csr_spmx<float,rsb_coo_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const float*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_coo_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const float*>(rhs), ldY, reinterpret_cast<float*>(out), reinterpret_cast<const float*>(alphap), incx, incy, transA, roff, coff, by_rows);
 #endif /* RSB_NUMERICAL_TYPE_FLOAT */
-#if RSB_NUMERICAL_TYPE_LONG_DOUBLE_COMPLEX
-		if ( typecode == RSB_NUMERICAL_TYPE_LONG_DOUBLE_COMPLEX )
-			return rsbpp_csr_spmx<std::complex<long double>,rsb_coo_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const std::complex<long double>*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_coo_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const std::complex<long double>*>(rhs), ldY, reinterpret_cast<std::complex<long double>*>(out), reinterpret_cast<const std::complex<long double>*>(alphap), incx, incy, transA, roff, coff, by_rows);
-#endif /* RSB_NUMERICAL_TYPE_LONG_DOUBLE_COMPLEX */
-#if RSB_NUMERICAL_TYPE_LONG_DOUBLE
-		if ( typecode == RSB_NUMERICAL_TYPE_LONG_DOUBLE )
-			return rsbpp_csr_spmx<long double,rsb_coo_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const long double*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_coo_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const long double*>(rhs), ldY, reinterpret_cast<long double*>(out), reinterpret_cast<const long double*>(alphap), incx, incy, transA, roff, coff, by_rows);
-#endif /* RSB_NUMERICAL_TYPE_LONG_DOUBLE */
-#if RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX
-		if ( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX )
-			return rsbpp_csr_spmx<std::complex<double>,rsb_coo_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const std::complex<double>*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_coo_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const std::complex<double>*>(rhs), ldY, reinterpret_cast<std::complex<double>*>(out), reinterpret_cast<const std::complex<double>*>(alphap), incx, incy, transA, roff, coff, by_rows);
-#endif /* RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX */
 #if RSB_NUMERICAL_TYPE_FLOAT_COMPLEX
 		if ( typecode == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX )
 			return rsbpp_csr_spmx<std::complex<float>,rsb_coo_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const std::complex<float>*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_coo_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const std::complex<float>*>(rhs), ldY, reinterpret_cast<std::complex<float>*>(out), reinterpret_cast<const std::complex<float>*>(alphap), incx, incy, transA, roff, coff, by_rows);
 #endif /* RSB_NUMERICAL_TYPE_FLOAT_COMPLEX */
+#if RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX
+		if ( typecode == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX )
+			return rsbpp_csr_spmx<std::complex<double>,rsb_coo_idx_t>(flags,nnz,nr,nc, reinterpret_cast<const std::complex<double>*>(VA), reinterpret_cast<const rsb_coo_idx_t*>(IP), reinterpret_cast<const rsb_coo_idx_t*>(JA), nrhs, ldX, reinterpret_cast<const std::complex<double>*>(rhs), ldY, reinterpret_cast<std::complex<double>*>(out), reinterpret_cast<const std::complex<double>*>(alphap), incx, incy, transA, roff, coff, by_rows);
+#endif /* RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX */
 	}
 	return RSB_ERR_UNSUPPORTED_TYPE;
 }

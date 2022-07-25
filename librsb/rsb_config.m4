@@ -15,7 +15,7 @@ dnl
 dnl	---------------------------------------------------------------------------
 dnl	Generate code with m4 debug info in it.
 dnl
-define(`RSB_M4_DEBUG',`1')dnl
+define(`RSB_M4_DEBUG',`0')dnl
 dnl
 dnl	---------------------------------------------------------------------------
 dnl	If 1, enables register blocking, in kernels where this is supported (experimental).
@@ -51,12 +51,12 @@ dnl
 dnl	---------------------------------------------------------------------------
 dnl	Version strings.
 dnl
-define(`RSB_M4_WANT_LIBRSB_VER_DATE',`202204281922')dnl
+define(`RSB_M4_WANT_LIBRSB_VER_DATE',`202207221234')dnl
 define(`RSB_M4_WANT_LIBRSB_VER_MAJOR',`1')dnl
 define(`RSB_M4_WANT_LIBRSB_VER_MINOR',`3')dnl
 define(`RSB_M4_WANT_LIBRSB_LIBRSB_VER',`10300')dnl
 define(`RSB_M4_WANT_LIBRSB_VER_PATCH',`0')dnl
-define(`RSB_M4_WANT_LIBRSB_VER_PRERS',`.1')dnl
+define(`RSB_M4_WANT_LIBRSB_VER_PRERS',`.1-nightly')dnl
 dnl
 dnl	---------------------------------------------------------------------------
 define(`RSB_M4_WANT_20110206_BOUNDED_BOX_PATCH',1)dnl
