@@ -277,14 +277,8 @@ struct rsb_mtx_t
 	/*! Submatrix pointers for recursion storage */
 	struct rsb_mtx_t * sm[RSB_FOUR];
 
-/* #if RSB_STORE_IDXSA */
 	/*! Index storage amount. Temporarily here: FIXME. */
 	rsb_size_t idxsa;
-	/*
-#else */
-	/*! A structure with expectation info during construction (FIXME: this member is obsolete and will be deleted soon) */
-	/* struct rsb_expected_info_t einfo; */
-/* #endif */
 
 	/*! A pointer to an array of leaf submatrices pointers (only valid on root) */
 	struct rsb_translated_matrix_t * all_leaf_matrices;

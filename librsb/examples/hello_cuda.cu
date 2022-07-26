@@ -1,5 +1,5 @@
-#include <rsb.h> /* librsb header to include */
-#include <rsb_cuda.h>
+#include "../rsb.h" /* librsb header to include */
+#include "../rsb_cuda.h"
 #include <stdio.h> /* printf() */
 
 int main(const int argc, char *const argv[])
