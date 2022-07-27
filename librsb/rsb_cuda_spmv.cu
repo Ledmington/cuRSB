@@ -4,8 +4,6 @@
 #include "rsb_common.h"
 #include "rsb_lock.h"
 
-#define RSB_INTERFACE_RETURN_ERR(ERRVAL) RSB_INTERFACE_ENDCMD RSB_DO_ERR_RETURN_INTERFACE(ERRVAL)
-
 rsb_err_t rsb_cuda_do_spmv_recursive(const struct rsb_mtx_t *mtxAp, const void *x, void *y, const void *alphap, const void *betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPMV_ARGS)
 {
     rsb_err_t errval = RSB_ERR_NO_ERROR;

@@ -1,4 +1,3 @@
-#include "../rsb.h" /* librsb header to include */
 #include "../rsb_cuda.h"
 #include <stdio.h> /* printf() */
 
@@ -91,7 +90,7 @@ int main(const int argc, char *const argv[])
         }
     }
 
-    mtxAp = rsb_mtx_alloc_from_coo_const(
+    mtxAp = rsb_cuda_mtx_alloc_from_coo_const(
         VA, IA, JA, nnzA, typecode, nrA, ncA, brA, bcA,
         RSB_FLAG_NOFLAGS              /* default format will be chosen */
             | RSB_FLAG_DUPLICATES_SUM /* duplicates will be summed */
@@ -116,7 +115,7 @@ int main(const int argc, char *const argv[])
         goto err;
     }
     printf("Correctly performed a SPMV.\n");
-    rsb_mtx_free(mtxAp);
+    rsb_cuda_mtx_free(mtxAp);
     printf("Correctly freed the matrix.\n");
     if ((errval = rsb_lib_exit(RSB_NULL_EXIT_OPTIONS)) != RSB_ERR_NO_ERROR)
     {
