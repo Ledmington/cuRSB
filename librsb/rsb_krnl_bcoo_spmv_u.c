@@ -106,7 +106,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -141,7 +140,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -178,7 +176,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -215,7 +212,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -252,7 +248,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -289,7 +284,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -347,7 +341,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -405,7 +398,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -523,7 +515,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -581,7 +572,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -677,7 +667,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -713,7 +702,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -751,7 +739,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -789,7 +776,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -827,7 +813,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -865,7 +850,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -924,7 +908,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -983,7 +966,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1106,7 +1088,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1165,7 +1146,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1265,7 +1245,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1301,7 +1280,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1339,7 +1317,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1377,7 +1354,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1415,7 +1391,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1453,7 +1428,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1512,7 +1486,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1571,7 +1544,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1690,7 +1662,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1749,7 +1720,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1846,7 +1816,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1883,7 +1852,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1922,7 +1890,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -1961,7 +1928,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2000,7 +1966,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2039,7 +2004,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2099,7 +2063,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2159,7 +2122,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2283,7 +2245,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2343,7 +2304,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2442,7 +2402,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2477,7 +2436,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2514,7 +2472,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2551,7 +2508,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2588,7 +2544,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2625,7 +2580,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2683,7 +2637,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2741,7 +2694,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2859,7 +2811,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -2917,7 +2868,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3013,7 +2963,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3049,7 +2998,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3087,7 +3035,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3125,7 +3072,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3163,7 +3109,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3201,7 +3146,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3260,7 +3204,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3319,7 +3262,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3442,7 +3384,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3501,7 +3442,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3600,7 +3540,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3635,7 +3574,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3672,7 +3610,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3709,7 +3646,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3746,7 +3682,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3783,7 +3718,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3841,7 +3775,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -3899,7 +3832,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4017,7 +3949,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4075,7 +4006,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4171,7 +4101,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4207,7 +4136,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4245,7 +4173,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4283,7 +4210,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4321,7 +4247,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4359,7 +4284,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4418,7 +4342,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4477,7 +4400,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4600,7 +4522,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4659,7 +4580,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4758,7 +4678,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4793,7 +4712,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4830,7 +4748,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4867,7 +4784,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4904,7 +4820,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4941,7 +4856,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -4999,7 +4913,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5057,7 +4970,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5175,7 +5087,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5233,7 +5144,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5329,7 +5239,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5365,7 +5274,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5403,7 +5311,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5441,7 +5348,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5479,7 +5385,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5517,7 +5422,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5576,7 +5480,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5635,7 +5538,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5758,7 +5660,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5817,7 +5718,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5917,7 +5817,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dE_uU(const double * rest
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5951,7 +5850,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dE_uL(const double * rest
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -5988,7 +5886,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dE_uU(const double * rest
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6022,7 +5919,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dE_uL(const double * rest
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6061,7 +5957,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dE_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6102,7 +5997,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dE_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6141,7 +6035,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dE_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6182,7 +6075,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dE_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6221,7 +6113,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dE_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6262,7 +6153,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dE_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6301,7 +6191,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dE_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6342,7 +6231,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dE_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6377,7 +6265,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6409,7 +6296,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6444,7 +6330,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6476,7 +6361,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6509,7 +6393,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6543,7 +6426,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6576,7 +6458,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6610,7 +6491,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6643,7 +6523,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6677,7 +6556,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6710,7 +6588,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6744,7 +6621,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6781,7 +6657,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6817,7 +6692,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6855,7 +6729,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6893,7 +6766,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6931,7 +6803,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -6969,7 +6840,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7028,7 +6898,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7087,7 +6956,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7210,7 +7078,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7269,7 +7136,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7370,7 +7236,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7407,7 +7272,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7446,7 +7310,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7485,7 +7348,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7524,7 +7386,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7563,7 +7424,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7623,7 +7483,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7683,7 +7542,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7811,7 +7669,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7871,7 +7728,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -7974,7 +7830,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dE_uU(const double * rest
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8007,7 +7862,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dE_uL(const double * rest
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8043,7 +7897,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dE_uU(const double * rest
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8076,7 +7929,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dE_uL(const double * rest
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8114,7 +7966,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dE_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8154,7 +8005,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dE_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8192,7 +8042,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dE_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8232,7 +8081,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dE_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8270,7 +8118,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dE_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8310,7 +8157,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dE_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8348,7 +8194,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dE_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8388,7 +8233,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dE_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8422,7 +8266,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8453,7 +8296,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8487,7 +8329,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8518,7 +8359,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8550,7 +8390,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8583,7 +8422,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8615,7 +8453,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8648,7 +8485,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8680,7 +8516,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8713,7 +8548,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8745,7 +8579,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dI_uU(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -8778,7 +8611,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dI_uL(const double * rest
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11334,7 +11166,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11369,7 +11200,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11406,7 +11236,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11443,7 +11272,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11480,7 +11308,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11517,7 +11344,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11575,7 +11401,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11633,7 +11458,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11751,7 +11575,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11809,7 +11632,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11905,7 +11727,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11941,7 +11762,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -11979,7 +11799,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12017,7 +11836,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12055,7 +11873,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12093,7 +11910,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12152,7 +11968,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12211,7 +12026,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12334,7 +12148,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12393,7 +12206,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12493,7 +12305,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12529,7 +12340,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12567,7 +12377,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12605,7 +12414,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12643,7 +12451,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12681,7 +12488,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12740,7 +12546,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12799,7 +12604,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12918,7 +12722,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -12977,7 +12780,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13074,7 +12876,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13111,7 +12912,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13150,7 +12950,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13189,7 +12988,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13228,7 +13026,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13267,7 +13064,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13327,7 +13123,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13387,7 +13182,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13511,7 +13305,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13571,7 +13364,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13670,7 +13462,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13705,7 +13496,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13742,7 +13532,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13779,7 +13568,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13816,7 +13604,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13853,7 +13640,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13911,7 +13697,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -13969,7 +13754,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14087,7 +13871,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14145,7 +13928,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14241,7 +14023,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14277,7 +14058,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14315,7 +14095,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14353,7 +14132,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14391,7 +14169,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14429,7 +14206,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14488,7 +14264,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14547,7 +14322,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14670,7 +14444,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14729,7 +14502,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14828,7 +14600,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14863,7 +14634,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14900,7 +14670,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14937,7 +14706,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -14974,7 +14742,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15011,7 +14778,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15069,7 +14835,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15127,7 +14892,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15245,7 +15009,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15303,7 +15066,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15399,7 +15161,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15435,7 +15196,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15473,7 +15233,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15511,7 +15270,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15549,7 +15307,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15587,7 +15344,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15646,7 +15402,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15705,7 +15460,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15828,7 +15582,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15887,7 +15640,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -15986,7 +15738,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16021,7 +15772,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16058,7 +15808,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16095,7 +15844,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16132,7 +15880,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16169,7 +15916,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16227,7 +15973,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16285,7 +16030,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16403,7 +16147,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16461,7 +16204,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16557,7 +16299,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16593,7 +16334,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16631,7 +16371,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16669,7 +16408,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16707,7 +16445,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16745,7 +16482,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16804,7 +16540,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16863,7 +16598,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -16986,7 +16720,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17045,7 +16778,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17145,7 +16877,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dE_uU(const float * restri
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17179,7 +16910,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dE_uL(const float * restri
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17216,7 +16946,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dE_uU(const float * restri
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17250,7 +16979,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dE_uL(const float * restri
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17289,7 +17017,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dE_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17330,7 +17057,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dE_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17369,7 +17095,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dE_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17410,7 +17135,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dE_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17449,7 +17173,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dE_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17490,7 +17213,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dE_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17529,7 +17251,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dE_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17570,7 +17291,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dE_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17605,7 +17325,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17637,7 +17356,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17672,7 +17390,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17704,7 +17421,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17737,7 +17453,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17771,7 +17486,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17804,7 +17518,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17838,7 +17551,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17871,7 +17583,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17905,7 +17616,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17938,7 +17648,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -17972,7 +17681,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18009,7 +17717,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18045,7 +17752,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18083,7 +17789,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18121,7 +17826,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18159,7 +17863,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18197,7 +17900,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18256,7 +17958,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18315,7 +18016,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18438,7 +18138,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18497,7 +18196,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18598,7 +18296,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18635,7 +18332,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18674,7 +18370,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18713,7 +18408,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18752,7 +18446,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18791,7 +18484,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18851,7 +18543,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -18911,7 +18602,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19039,7 +18729,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19099,7 +18788,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19202,7 +18890,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dE_uU(const float * restri
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19235,7 +18922,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dE_uL(const float * restri
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19271,7 +18957,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dE_uU(const float * restri
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19304,7 +18989,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dE_uL(const float * restri
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19342,7 +19026,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dE_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19382,7 +19065,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dE_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19420,7 +19102,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dE_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19460,7 +19141,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dE_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19498,7 +19178,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dE_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19538,7 +19217,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dE_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19576,7 +19254,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dE_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19616,7 +19293,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dE_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19650,7 +19326,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19681,7 +19356,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19715,7 +19389,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19746,7 +19419,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19778,7 +19450,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19811,7 +19482,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19843,7 +19513,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19876,7 +19545,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19908,7 +19576,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19941,7 +19608,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -19973,7 +19639,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dI_uU(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -20006,7 +19671,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dI_uL(const float * restri
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22562,7 +22226,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22597,7 +22260,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22634,7 +22296,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22671,7 +22332,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22708,7 +22368,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22745,7 +22404,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22803,7 +22461,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22861,7 +22518,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22919,7 +22575,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -22977,7 +22632,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23035,7 +22689,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23093,7 +22746,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23151,7 +22803,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23209,7 +22860,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23267,7 +22917,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23325,7 +22974,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23383,7 +23031,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23441,7 +23088,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23477,7 +23123,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23513,7 +23158,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23551,7 +23195,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23589,7 +23232,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23627,7 +23269,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23665,7 +23306,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23724,7 +23364,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23783,7 +23422,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23842,7 +23480,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23901,7 +23538,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -23960,7 +23596,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24019,7 +23654,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24078,7 +23712,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24137,7 +23770,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24196,7 +23828,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24255,7 +23886,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24314,7 +23944,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24373,7 +24002,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_float_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24409,7 +24037,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24445,7 +24072,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24483,7 +24109,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24521,7 +24146,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24559,7 +24183,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24597,7 +24220,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24656,7 +24278,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24715,7 +24336,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24774,7 +24394,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24833,7 +24452,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24892,7 +24510,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -24951,7 +24568,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25010,7 +24626,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25069,7 +24684,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25128,7 +24742,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25187,7 +24800,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25246,7 +24858,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25305,7 +24916,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25342,7 +24952,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25379,7 +24988,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25418,7 +25026,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25457,7 +25064,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25496,7 +25102,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25535,7 +25140,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25595,7 +25199,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25655,7 +25258,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25715,7 +25317,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25775,7 +25376,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25835,7 +25435,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25895,7 +25494,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -25955,7 +25553,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26015,7 +25612,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26075,7 +25671,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26135,7 +25730,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26195,7 +25789,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26255,7 +25848,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_float_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26290,7 +25882,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26325,7 +25916,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26362,7 +25952,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26399,7 +25988,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26436,7 +26024,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26473,7 +26060,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26531,7 +26117,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26589,7 +26174,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26647,7 +26231,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26705,7 +26288,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26763,7 +26345,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26821,7 +26402,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26879,7 +26459,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26937,7 +26516,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -26995,7 +26573,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27053,7 +26630,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27111,7 +26687,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27169,7 +26744,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27205,7 +26779,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27241,7 +26814,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27279,7 +26851,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27317,7 +26888,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27355,7 +26925,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27393,7 +26962,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27452,7 +27020,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27511,7 +27078,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27570,7 +27136,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27629,7 +27194,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27688,7 +27252,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27747,7 +27310,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27806,7 +27368,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27865,7 +27426,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27924,7 +27484,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -27983,7 +27542,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28042,7 +27600,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28101,7 +27658,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_float_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28136,7 +27692,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28171,7 +27726,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28208,7 +27762,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28245,7 +27798,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28282,7 +27834,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28319,7 +27870,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28377,7 +27927,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28435,7 +27984,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28493,7 +28041,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28551,7 +28098,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28609,7 +28155,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28667,7 +28212,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28725,7 +28269,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28783,7 +28326,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28841,7 +28383,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28899,7 +28440,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -28957,7 +28497,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29015,7 +28554,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29051,7 +28589,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29087,7 +28624,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29125,7 +28661,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29163,7 +28698,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29201,7 +28735,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29239,7 +28772,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29298,7 +28830,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29357,7 +28888,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29416,7 +28946,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29475,7 +29004,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29534,7 +29062,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29593,7 +29120,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29652,7 +29178,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29711,7 +29236,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29770,7 +29294,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29829,7 +29352,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29888,7 +29410,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29947,7 +29468,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_float_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -29982,7 +29502,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30017,7 +29536,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30054,7 +29572,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30091,7 +29608,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30128,7 +29644,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30165,7 +29680,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30223,7 +29737,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30281,7 +29794,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30339,7 +29851,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30397,7 +29908,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30455,7 +29965,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30513,7 +30022,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30571,7 +30079,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30629,7 +30136,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30687,7 +30193,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30745,7 +30250,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30803,7 +30307,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30861,7 +30364,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30897,7 +30399,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30933,7 +30434,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -30971,7 +30471,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31009,7 +30508,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31047,7 +30545,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31085,7 +30582,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31144,7 +30640,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31203,7 +30698,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31262,7 +30756,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31321,7 +30814,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31380,7 +30872,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31439,7 +30930,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31498,7 +30988,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31557,7 +31046,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31616,7 +31104,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31675,7 +31162,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31734,7 +31220,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31793,7 +31278,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_float_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31829,7 +31313,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dE_uU(const float 
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31863,7 +31346,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dE_uL(const float 
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31900,7 +31382,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dE_uU(const float 
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31934,7 +31415,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dE_uL(const float 
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -31973,7 +31453,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dE_uU(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32014,7 +31493,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dE_uL(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32053,7 +31531,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dE_uU(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32094,7 +31571,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dE_uL(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32133,7 +31609,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dE_uU(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32174,7 +31649,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dE_uL(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32213,7 +31687,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dE_uU(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32254,7 +31727,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dE_uL(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32289,7 +31761,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32321,7 +31792,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32356,7 +31826,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32388,7 +31857,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32421,7 +31889,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32455,7 +31922,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32488,7 +31954,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32522,7 +31987,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32555,7 +32019,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32589,7 +32052,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32622,7 +32084,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32656,7 +32117,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32693,7 +32153,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32729,7 +32188,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32767,7 +32225,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32805,7 +32262,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32843,7 +32299,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32881,7 +32336,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32940,7 +32394,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -32999,7 +32452,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33058,7 +32510,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33117,7 +32568,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33176,7 +32626,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33235,7 +32684,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33294,7 +32742,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33353,7 +32800,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33412,7 +32858,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33471,7 +32916,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33530,7 +32974,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33589,7 +33032,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33626,7 +33068,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33663,7 +33104,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33702,7 +33142,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33741,7 +33180,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33780,7 +33218,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33819,7 +33256,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33879,7 +33315,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33939,7 +33374,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -33999,7 +33433,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34059,7 +33492,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34119,7 +33551,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34179,7 +33610,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34239,7 +33669,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34299,7 +33728,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34359,7 +33787,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34419,7 +33846,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34479,7 +33905,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34539,7 +33964,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_float_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34574,7 +33998,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dE_uU(const float 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34607,7 +34030,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dE_uL(const float 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34643,7 +34065,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dE_uU(const float 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34676,7 +34097,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dE_uL(const float 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34714,7 +34134,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dE_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34754,7 +34173,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dE_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34792,7 +34210,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dE_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34832,7 +34249,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dE_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34870,7 +34286,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dE_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34910,7 +34325,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dE_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34948,7 +34362,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dE_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -34988,7 +34401,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dE_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35022,7 +34434,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35053,7 +34464,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35087,7 +34497,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35118,7 +34527,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35150,7 +34558,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35183,7 +34590,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35215,7 +34621,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35248,7 +34653,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35280,7 +34684,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35313,7 +34716,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35345,7 +34747,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dI_uU(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -35378,7 +34779,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dI_uL(const float 
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -37934,7 +37334,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -37969,7 +37368,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38006,7 +37404,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38043,7 +37440,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38080,7 +37476,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38117,7 +37512,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38175,7 +37569,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38233,7 +37626,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38291,7 +37683,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38349,7 +37740,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38407,7 +37797,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38465,7 +37854,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38523,7 +37911,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38581,7 +37968,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38639,7 +38025,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38697,7 +38082,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38755,7 +38139,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38813,7 +38196,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38849,7 +38231,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38885,7 +38266,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38923,7 +38303,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38961,7 +38340,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -38999,7 +38377,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39037,7 +38414,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39096,7 +38472,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39155,7 +38530,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39214,7 +38588,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39273,7 +38646,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39332,7 +38704,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39391,7 +38762,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39450,7 +38820,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39509,7 +38878,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39568,7 +38936,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39627,7 +38994,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39686,7 +39052,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39745,7 +39110,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uaua_double_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39781,7 +39145,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39817,7 +39180,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39855,7 +39217,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39893,7 +39254,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39931,7 +39291,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -39969,7 +39328,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40028,7 +39386,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40087,7 +39444,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40146,7 +39502,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40205,7 +39560,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40264,7 +39618,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40323,7 +39676,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40382,7 +39734,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40441,7 +39792,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40500,7 +39850,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40559,7 +39908,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40618,7 +39966,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40677,7 +40024,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40714,7 +40060,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40751,7 +40096,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40790,7 +40134,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40829,7 +40172,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40868,7 +40210,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40907,7 +40248,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -40967,7 +40307,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41027,7 +40366,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41087,7 +40425,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41147,7 +40484,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41207,7 +40543,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41267,7 +40602,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41327,7 +40661,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41387,7 +40720,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41447,7 +40779,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41507,7 +40838,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41567,7 +40897,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41627,7 +40956,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uauz_double_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41662,7 +40990,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41697,7 +41024,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41734,7 +41060,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41771,7 +41096,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41808,7 +41132,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41845,7 +41168,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41903,7 +41225,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -41961,7 +41282,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42019,7 +41339,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42077,7 +41396,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42135,7 +41453,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42193,7 +41510,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42251,7 +41567,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42309,7 +41624,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42367,7 +41681,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42425,7 +41738,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42483,7 +41795,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42541,7 +41852,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42577,7 +41887,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42613,7 +41922,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42651,7 +41959,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42689,7 +41996,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42727,7 +42033,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42765,7 +42070,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42824,7 +42128,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42883,7 +42186,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -42942,7 +42244,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43001,7 +42302,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43060,7 +42360,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43119,7 +42418,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43178,7 +42476,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43237,7 +42534,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43296,7 +42592,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43355,7 +42650,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43414,7 +42708,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43473,7 +42766,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_uxua_double_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43508,7 +42800,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43543,7 +42834,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43580,7 +42870,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43617,7 +42906,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43654,7 +42942,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43691,7 +42978,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43749,7 +43035,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43807,7 +43092,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43865,7 +43149,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43923,7 +43206,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -43981,7 +43263,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44039,7 +43320,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44097,7 +43377,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44155,7 +43434,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44213,7 +43491,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44271,7 +43548,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44329,7 +43605,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44387,7 +43662,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44423,7 +43697,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44459,7 +43732,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44497,7 +43769,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44535,7 +43806,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44573,7 +43843,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44611,7 +43880,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44670,7 +43938,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44729,7 +43996,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44788,7 +44054,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44847,7 +44112,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44906,7 +44170,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -44965,7 +44228,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45024,7 +44286,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45083,7 +44344,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45142,7 +44402,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45201,7 +44460,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45260,7 +44518,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45319,7 +44576,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_unua_double_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45354,7 +44610,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45389,7 +44644,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45426,7 +44680,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45463,7 +44716,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45500,7 +44752,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45537,7 +44788,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45595,7 +44845,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45653,7 +44902,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45711,7 +44959,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45769,7 +45016,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45827,7 +45073,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45885,7 +45130,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -45943,7 +45187,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46001,7 +45244,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46059,7 +45301,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46117,7 +45358,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46175,7 +45415,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46233,7 +45472,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46269,7 +45507,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46305,7 +45542,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46343,7 +45579,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46381,7 +45616,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46419,7 +45653,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46457,7 +45690,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46516,7 +45748,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46575,7 +45806,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46634,7 +45864,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46693,7 +45922,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46752,7 +45980,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46811,7 +46038,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46870,7 +46096,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46929,7 +46154,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -46988,7 +46212,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47047,7 +46270,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47106,7 +46328,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47165,7 +46386,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sasa_double_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47201,7 +46421,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dE_uU(const doubl
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47235,7 +46454,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dE_uL(const doubl
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47272,7 +46490,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dE_uU(const doubl
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47306,7 +46523,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dE_uL(const doubl
 		out[ii*1]=(out[ii*1]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47345,7 +46561,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dE_uU(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47386,7 +46601,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dE_uL(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47425,7 +46639,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dE_uU(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47466,7 +46679,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dE_uL(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47505,7 +46717,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dE_uU(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47546,7 +46757,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dE_uL(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47585,7 +46795,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dE_uU(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47626,7 +46835,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dE_uL(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47661,7 +46869,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47693,7 +46900,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47728,7 +46934,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47760,7 +46965,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*1]=(out[ii*1]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47793,7 +46997,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47827,7 +47030,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47860,7 +47062,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47894,7 +47095,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47927,7 +47127,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47961,7 +47160,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -47994,7 +47192,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48028,7 +47225,6 @@ rsb_err_t rsb__BCOR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*1]=(out[ii*1]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48065,7 +47261,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48101,7 +47296,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tN_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48139,7 +47333,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48177,7 +47370,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tT_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48215,7 +47407,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48253,7 +47444,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tC_r1_c1_uu_sU_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48312,7 +47502,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48371,7 +47560,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tN_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48430,7 +47618,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48489,7 +47676,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tT_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48548,7 +47734,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48607,7 +47792,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tC_r1_c1_uu_sS_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48666,7 +47850,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48725,7 +47908,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tN_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48784,7 +47966,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48843,7 +48024,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tT_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48902,7 +48082,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48961,7 +48140,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tC_r1_c1_uu_sH_dE_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -48998,7 +48176,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49035,7 +48212,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tN_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49074,7 +48250,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49113,7 +48288,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tT_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49152,7 +48326,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49191,7 +48364,6 @@ for(     ;n<nnz;++n){	i=IA[n+0 ]; j=JA[n+0 ];
 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tC_r1_c1_uu_sU_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49251,7 +48423,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49311,7 +48482,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tN_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49371,7 +48541,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49431,7 +48600,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tT_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49491,7 +48659,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49551,7 +48718,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tC_r1_c1_uu_sS_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49611,7 +48777,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49671,7 +48836,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tN_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49731,7 +48895,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49791,7 +48954,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tT_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49851,7 +49013,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_C__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49911,7 +49072,6 @@ for(     ;n<nnz;++n){ 		i=IA[n+0 ];
 	 }
 }
 
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spmv_sxsa_double_complex_H__tC_r1_c1_uu_sH_dI_uG\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49946,7 +49106,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dE_uU(const doubl
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -49979,7 +49138,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dE_uL(const doubl
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50015,7 +49173,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dE_uU(const doubl
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		--n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50048,7 +49205,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dE_uL(const doubl
 		out[ii*incy]=((alpha)*out[ii*incy]-ax)/VA[n];
 		++n;
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50086,7 +49242,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dE_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50126,7 +49281,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dE_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50164,7 +49318,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dE_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50204,7 +49357,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dE_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50242,7 +49394,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dE_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50282,7 +49433,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dE_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50320,7 +49470,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dE_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dE_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50360,7 +49509,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dE_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dE_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50394,7 +49542,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50425,7 +49572,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50459,7 +49605,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50490,7 +49635,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]-ax);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50522,7 +49666,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50555,7 +49698,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50587,7 +49729,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50620,7 +49761,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50652,7 +49792,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50685,7 +49824,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50717,7 +49855,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dI_uU(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dI_uU\n");
 	return RSB_ERR_NO_ERROR;
 }
 
@@ -50750,7 +49887,6 @@ rsb_err_t rsb__BCOR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dI_uL(const doubl
 
 		out[ii*incy]=((alpha)*out[ii*incy]);
 	}
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCOR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dI_uL\n");
 	return RSB_ERR_NO_ERROR;
 }
 

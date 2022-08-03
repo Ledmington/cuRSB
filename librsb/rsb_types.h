@@ -59,12 +59,12 @@ extern "C" {
 /* Miscellaneous version strings.
  */
 #define RSB_LIBRSB_VER_STRING		"1.3.0"	/*!< \brief Library version string. */
-#define RSB_HEADER_VERSION_STRING		"librsb version 1.3.0.0 - 202202241108"	/*!< \brief Library header version string. */
+#define RSB_HEADER_VERSION_STRING		"librsb version 1.3.0.1-nightly - 202207221234"	/*!< \brief Library header version string. */
 #define RSB_LIBRSB_VER_MAJOR		1	/*!< \brief Major version. */
 #define RSB_LIBRSB_VER_MINOR		3	/*!< \brief Minor version. */
 #define RSB_LIBRSB_VER_PATCH		0	/*!< \brief Patch version. */
 #define RSB_LIBRSB_VER		10300	/*!< \brief Version number. */
-#define RSB_LIBRSB_VER_DATE		202202241108	/*!< \brief Version release date. */
+#define RSB_LIBRSB_VER_DATE		202207221234	/*!< \brief Version release date. */
 
 #define RSB_HAVE_TYPE_DOUBLE  1 /*!< \brief Type double is supported, so RSB_HAVE_TYPE_DOUBLE  is defined .*/
 #define RSB_HAVE_TYPE_FLOAT  1 /*!< \brief Type float is supported, so RSB_HAVE_TYPE_FLOAT  is defined .*/
@@ -641,7 +641,7 @@ extern "C" {
         assert(0==0);      \
         ;   
 
-#define RSB_HAVE_IHI 1 /* is rsb-librsb-internals.h installed ? */
+#define RSB_HAVE_IHI 0 /* is rsb-librsb-internals.h installed ? */
 
 #ifdef __cplusplus
 }

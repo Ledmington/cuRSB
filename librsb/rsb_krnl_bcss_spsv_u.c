@@ -53,7 +53,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dE_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -107,7 +106,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dE_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -161,7 +159,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dE_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -215,7 +212,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dE_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -269,7 +265,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -305,7 +300,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -343,7 +337,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -379,7 +372,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -417,7 +409,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -453,7 +444,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -491,7 +481,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -527,7 +516,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -565,7 +553,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dI_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -616,7 +603,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tN_r1_c1_uu_sU_dI_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -667,7 +653,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dI_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -718,7 +703,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tN_r1_c1_uu_sU_dI_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -769,7 +753,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -804,7 +787,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tT_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -841,7 +823,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -876,7 +857,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tT_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -913,7 +893,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -948,7 +927,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_C__tC_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -985,7 +963,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1020,7 +997,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_H__tC_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -1056,8 +1032,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dE_uU\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1109,8 +1084,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dE_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const double bb_0=rhs[(1*i*(incx))];
@@ -1162,8 +1136,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dE_uU\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1215,8 +1188,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dE_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const double bb_0=rhs[(1*i*(incx))];
@@ -1268,8 +1240,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double ax_0;
@@ -1304,8 +1275,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dE_uL\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1342,8 +1312,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double ax_0;
@@ -1378,8 +1347,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dE_uL\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1416,8 +1384,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double ax_0;
@@ -1452,8 +1419,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dE_uL\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1490,8 +1456,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dE_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double ax_0;
@@ -1526,8 +1491,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dE_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dE_uL\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1564,8 +1528,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dI_uU\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1614,8 +1577,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tN_r1_c1_uu_sU_dI_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const double bb_0=rhs[(1*i*(incx))];
@@ -1664,8 +1626,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dI_uU\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1714,8 +1675,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tN_r1_c1_uu_sU_dI_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const double bb_0=rhs[(1*i*(incx))];
@@ -1764,8 +1724,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double ax_0;
@@ -1799,8 +1758,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tT_r1_c1_uu_sU_dI_uL\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1836,8 +1794,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double ax_0;
@@ -1871,8 +1828,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tT_r1_c1_uu_sU_dI_uL\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1908,8 +1864,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double ax_0;
@@ -1943,8 +1898,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_C__tC_r1_c1_uu_sU_dI_uL\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -1980,8 +1934,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dI_uU(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double ax_0;
@@ -2015,8 +1968,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dI_uL(const double * rest
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double *a=VA;
-	const double alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_H__tC_r1_c1_uu_sU_dI_uL\n");
-
+	const double alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2053,7 +2005,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dE_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2107,7 +2058,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dE_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2161,7 +2111,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dE_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2215,7 +2164,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dE_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2269,7 +2217,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2305,7 +2252,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2343,7 +2289,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2379,7 +2324,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2417,7 +2361,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2453,7 +2396,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2491,7 +2433,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2527,7 +2468,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2565,7 +2505,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dI_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2616,7 +2555,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tN_r1_c1_uu_sU_dI_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2667,7 +2605,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dI_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2718,7 +2655,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tN_r1_c1_uu_sU_dI_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2769,7 +2705,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2804,7 +2739,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tT_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2841,7 +2775,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2876,7 +2809,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tT_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2913,7 +2845,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -2948,7 +2879,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_C__tC_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -2985,7 +2915,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3020,7 +2949,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_H__tC_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -3056,8 +2984,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dE_uU\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3109,8 +3036,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dE_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const float bb_0=rhs[(1*i*(incx))];
@@ -3162,8 +3088,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dE_uU\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3215,8 +3140,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dE_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const float bb_0=rhs[(1*i*(incx))];
@@ -3268,8 +3192,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float ax_0;
@@ -3304,8 +3227,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dE_uL\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3342,8 +3264,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float ax_0;
@@ -3378,8 +3299,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dE_uL\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3416,8 +3336,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float ax_0;
@@ -3452,8 +3371,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dE_uL\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3490,8 +3408,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dE_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float ax_0;
@@ -3526,8 +3443,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dE_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dE_uL\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3564,8 +3480,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dI_uU\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3614,8 +3529,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tN_r1_c1_uu_sU_dI_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const float bb_0=rhs[(1*i*(incx))];
@@ -3664,8 +3578,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dI_uU\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3714,8 +3627,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tN_r1_c1_uu_sU_dI_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const float bb_0=rhs[(1*i*(incx))];
@@ -3764,8 +3676,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float ax_0;
@@ -3799,8 +3710,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tT_r1_c1_uu_sU_dI_uL\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3836,8 +3746,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float ax_0;
@@ -3871,8 +3780,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tT_r1_c1_uu_sU_dI_uL\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3908,8 +3816,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float ax_0;
@@ -3943,8 +3850,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_C__tC_r1_c1_uu_sU_dI_uL\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -3980,8 +3886,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dI_uU(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float ax_0;
@@ -4015,8 +3920,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dI_uL(const float * restri
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float *a=VA;
-	const float alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_H__tC_r1_c1_uu_sU_dI_uL\n");
-
+	const float alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4053,7 +3957,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dE_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4107,7 +4010,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dE_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4161,7 +4063,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dE_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4215,7 +4116,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dE_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4269,7 +4169,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4305,7 +4204,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4343,7 +4241,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4379,7 +4276,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4417,7 +4313,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4453,7 +4348,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4491,7 +4385,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4527,7 +4420,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4565,7 +4457,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dI_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4616,7 +4507,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tN_r1_c1_uu_sU_dI_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4667,7 +4557,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dI_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4718,7 +4607,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tN_r1_c1_uu_sU_dI_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4769,7 +4657,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4804,7 +4691,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tT_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4841,7 +4727,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4876,7 +4761,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tT_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4913,7 +4797,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -4948,7 +4831,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_C__tC_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -4985,7 +4867,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5020,7 +4901,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_float_complex_H__tC_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -5056,8 +4936,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dE_uU\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5109,8 +4988,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dE_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const float complex bb_0=rhs[(1*i*(incx))];
@@ -5162,8 +5040,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dE_uU\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5215,8 +5092,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dE_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const float complex bb_0=rhs[(1*i*(incx))];
@@ -5268,8 +5144,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float complex ax_0;
@@ -5304,8 +5179,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dE_uL\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5342,8 +5216,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float complex ax_0;
@@ -5378,8 +5251,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dE_uL\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5416,8 +5288,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float complex ax_0;
@@ -5452,8 +5323,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dE_uL\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5490,8 +5360,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dE_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float complex ax_0;
@@ -5526,8 +5395,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dE_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dE_uL\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5564,8 +5432,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dI_uU\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5614,8 +5481,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tN_r1_c1_uu_sU_dI_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const float complex bb_0=rhs[(1*i*(incx))];
@@ -5664,8 +5530,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dI_uU\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5714,8 +5579,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tN_r1_c1_uu_sU_dI_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const float complex bb_0=rhs[(1*i*(incx))];
@@ -5764,8 +5628,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float complex ax_0;
@@ -5799,8 +5662,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tT_r1_c1_uu_sU_dI_uL\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5836,8 +5698,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float complex ax_0;
@@ -5871,8 +5732,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tT_r1_c1_uu_sU_dI_uL\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5908,8 +5768,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float complex ax_0;
@@ -5943,8 +5802,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_C__tC_r1_c1_uu_sU_dI_uL\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -5980,8 +5838,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dI_uU(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const float complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		float complex ax_0;
@@ -6015,8 +5872,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dI_uL(const float 
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const float complex *a=VA;
-	const float complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_float_complex_H__tC_r1_c1_uu_sU_dI_uL\n");
-
+	const float complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6053,7 +5909,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dE_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6107,7 +5962,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dE_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6161,7 +6015,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dE_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6215,7 +6068,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dE_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6269,7 +6121,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6305,7 +6156,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6343,7 +6193,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6379,7 +6228,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6417,7 +6265,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6453,7 +6300,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6491,7 +6337,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dE_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6527,7 +6372,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dE_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6565,7 +6409,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dI_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6616,7 +6459,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tN_r1_c1_uu_sU_dI_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6667,7 +6509,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dI_uU\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6718,7 +6559,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tN_r1_c1_uu_sU_dI_uL\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6769,7 +6609,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6804,7 +6643,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tT_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6841,7 +6679,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6876,7 +6713,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tT_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6913,7 +6749,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -6948,7 +6783,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_C__tC_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -6985,7 +6819,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dI_uU\n");
 	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7020,7 +6853,6 @@ rsb_err_t rsb__BCSR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_uxua_double_complex_H__tC_r1_c1_uu_sU_dI_uL\n");
 
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
@@ -7056,8 +6888,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dE_uU\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7109,8 +6940,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dE_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const double complex bb_0=rhs[(1*i*(incx))];
@@ -7162,8 +6992,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dE_uU\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7215,8 +7044,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dE_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const double complex bb_0=rhs[(1*i*(incx))];
@@ -7268,8 +7096,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double complex ax_0;
@@ -7304,8 +7131,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dE_uL\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7342,8 +7168,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double complex ax_0;
@@ -7378,8 +7203,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dE_uL\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7416,8 +7240,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double complex ax_0;
@@ -7452,8 +7275,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dE_uL\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7490,8 +7312,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dE_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dE_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double complex ax_0;
@@ -7526,8 +7347,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dE_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dE_uL\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7564,8 +7384,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dI_uU\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7614,8 +7433,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tN_r1_c1_uu_sU_dI_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const double complex bb_0=rhs[(1*i*(incx))];
@@ -7664,8 +7482,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dI_uU\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7714,8 +7531,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tN_r1_c1_uu_sU_dI_uL\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		const double complex bb_0=rhs[(1*i*(incx))];
@@ -7764,8 +7580,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double complex ax_0;
@@ -7799,8 +7614,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tT_r1_c1_uu_sU_dI_uL\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7836,8 +7650,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double complex ax_0;
@@ -7871,8 +7684,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tT_r1_c1_uu_sU_dI_uL\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7908,8 +7720,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double complex ax_0;
@@ -7943,8 +7754,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_C__tC_r1_c1_uu_sU_dI_uL\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
@@ -7980,8 +7790,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dI_uU(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dI_uU\n");
-	for(i=br;RSB_LIKELY(i<bc);++i)
+	const double complex alpha=*alphap;	for(i=br;RSB_LIKELY(i<bc);++i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
 		double complex ax_0;
@@ -8015,8 +7824,7 @@ rsb_err_t rsb__BCSR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dI_uL(const doubl
 	register rsb_nnz_idx_t k=0;
 	const register rsb_coo_idx_t columns=1,rows=1;
 	const double complex *a=VA;
-	const double complex alpha=*alphap;	if(rsb__getenv_int_t("RSB_VERBOSE_KERNELS",0))RSB_STDOUT("in rsb__BCSR_spsv_sxsx_double_complex_H__tC_r1_c1_uu_sU_dI_uL\n");
-
+	const double complex alpha=*alphap;
 	for(i=Mdim-1; RSB_LIKELY((i+1)>0);--i)
 	{
 		const rsb_nnz_idx_t fk=bpntr[i],lk=bpntr[i+1];
