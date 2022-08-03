@@ -8,3 +8,8 @@
 **/stamp-h1
 **/librsb.pc
 **/Makefile
+doc/*
+!doc/*.tex
+!doc/*.bib
+!doc/*.png
+!doc/*.jpg
