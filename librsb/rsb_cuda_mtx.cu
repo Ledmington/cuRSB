@@ -22,7 +22,7 @@ struct rsb_mtx_t * rsb_cuda__do_mtx_alloc_from_coo_begin(rsb_nnz_idx_t nnzA, rsb
 	if(RSB_DO_FLAG_HAS(flags,RSB_FLAG_SYMMETRIC) && RSB_DO_FLAG_HAS(flags,RSB_FLAG_HERMITIAN))
 	{
 		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_BFSAH);
+		goto err;
 	}
 
     cudaCheckError( cudaMallocManaged(&mtxAp, sizeof(struct rsb_mtx_t)) );
@@ -30,7 +30,7 @@ struct rsb_mtx_t * rsb_cuda__do_mtx_alloc_from_coo_begin(rsb_nnz_idx_t nnzA, rsb
 	if(!mtxAp)
 	{
 		errval = RSB_ERR_ENOMEM;
-		RSB_PERR_GOTO(err,RSB_ERRM_E_MTXAP"\n");
+		goto err;
 	}
 	RSB_MTX_SET_HBDF(mtxAp);
 	bmtxA = mtxAp->RSB_MTX_BDF = rsb__BLAS_Xuscr_begin(nrA,ncA,typecode);
@@ -38,7 +38,7 @@ struct rsb_mtx_t * rsb_cuda__do_mtx_alloc_from_coo_begin(rsb_nnz_idx_t nnzA, rsb
 	{
 		errval = RSB_ERR_GENERIC_ERROR;
 		RSB_CONDITIONAL_FREE(mtxAp);
-		RSB_PERR_GOTO(err,RSB_ERRM_IPEWIEM);
+		goto err;
 	}
 
 	/* FIXME : the following need an improvement  */
@@ -66,7 +66,7 @@ rsb_err_t rsb_cuda__do_mtx_alloc_from_coo_end(struct rsb_mtx_t ** mtxApp)
 	if(!mtxApp || !*mtxApp)
 	{
 		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_E_MTXAPP);
+		goto err;
 	}
 
 	mtxAp = *mtxApp ;
@@ -75,15 +75,15 @@ rsb_err_t rsb_cuda__do_mtx_alloc_from_coo_end(struct rsb_mtx_t ** mtxApp)
 	{
 		/* errval = RSB_ERR_NO_ERROR; */
 		errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_DNSAMIWAFCB);
+		goto err;
 	}
 
 	bmtxA = RSB_MTX_HBDFH(mtxAp);
 	/* FIXME: missing serious check on mtxAp->flags ! */
 	if( rsb__BLAS_Xuscr_end_flagged(bmtxA,NULL) == RSB_BLAS_INVALID_VAL )
 	{
-	       	errval = RSB_ERR_BADARGS;
-		RSB_PERR_GOTO(err,RSB_ERRM_PFTM);
+	    errval = RSB_ERR_BADARGS;
+		goto err;
 		/* FIXME: insufficient cleanup */
 	}
 	mtxBp = rsb__BLAS_inner_matrix_retrieve(bmtxA);

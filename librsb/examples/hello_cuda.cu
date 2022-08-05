@@ -1,5 +1,15 @@
-#include "../rsb_cuda.h"
 #include <stdio.h> /* printf() */
+#include <assert.h>
+
+#include "../rsb_cuda.h"
+
+#define RSB_CHECK_ERROR(err) \
+do { \
+    if ( err != RSB_ERR_NO_ERROR ) { \
+        rsb_perror(NULL, err); \
+        exit(EXIT_FAILURE); \
+    } \
+} while (0)
 
 int main(const int argc, char *const argv[])
 {
@@ -45,21 +55,16 @@ int main(const int argc, char *const argv[])
 
     printf("Hello, RSB!\n");
     printf("Initializing the library...\n");
-    if ((errval = rsb_lib_init(RSB_NULL_INIT_OPTIONS)) != RSB_ERR_NO_ERROR)
-    {
-        printf("Error initializing the library!\n");
-        goto err;
-    }
+    RSB_CHECK_ERROR(rsb_lib_init(RSB_NULL_INIT_OPTIONS));
     printf("Correctly initialized the library.\n");
 
     printf("Attempting to set the RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE library option.\n");
 
-    {
+    /*{
         rsb_int_t evi = 1;
 
-        /* Setting a single optional library parameter. */
-        errval = rsb_lib_set_opt(
-            RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE, &evi);
+        // Setting a single optional library parameter.
+        errval = rsb_lib_set_opt(RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE, &evi);
         if (errval != RSB_ERR_NO_ERROR)
         {
             char errbuf[256];
@@ -88,7 +93,7 @@ int main(const int argc, char *const argv[])
                                      &evi);
             errval = RSB_ERR_NO_ERROR;
         }
-    }
+    }*/
 
     mtxAp = rsb_cuda_mtx_alloc_from_coo_const(
         VA, IA, JA, nnzA, typecode, nrA, ncA, brA, bcA,
@@ -102,26 +107,21 @@ int main(const int argc, char *const argv[])
         goto err;
     }
     printf("Correctly allocated a matrix.\n");
-    printf("Summary information of the matrix:\n");
+    //printf("Summary information of the matrix:\n");
     /* print out the matrix summary information  */
-    rsb_mtx_get_info_str(mtxAp, "RSB_MIF_MATRIX_INFO__TO__CHAR_P", ib, sizeof(ib));
+    //rsb_mtx_get_info_str(mtxAp, "RSB_MIF_MATRIX_INFO__TO__CHAR_P", ib, sizeof(ib));
 
-    printf("%s", ib);
-    printf("\n");
+    //printf("%s", ib);
+    //printf("\n");
 
-    if ((errval = rsb_cuda_spmv(RSB_TRANSPOSITION_N, &one, mtxAp, B, 1, &one, X, 1)) != RSB_ERR_NO_ERROR)
-    {
-        printf("Error performing a multiplication!\n");
-        goto err;
-    }
+    RSB_CHECK_ERROR( rsb_cuda_spmv(RSB_TRANSPOSITION_N, &one, mtxAp, B, 1, &one, X, 1) );
+
     printf("Correctly performed a SPMV.\n");
     rsb_cuda_mtx_free(mtxAp);
     printf("Correctly freed the matrix.\n");
-    if ((errval = rsb_lib_exit(RSB_NULL_EXIT_OPTIONS)) != RSB_ERR_NO_ERROR)
-    {
-        printf("Error finalizing the library!\n");
-        goto err;
-    }
+
+    RSB_CHECK_ERROR( rsb_lib_exit(RSB_NULL_EXIT_OPTIONS) );
+
     printf("Correctly finalized the library.\n");
     printf("Program terminating with no error.\n");
     return EXIT_SUCCESS;

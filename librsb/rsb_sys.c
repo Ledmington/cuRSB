@@ -30,6 +30,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>	/* sysconf */
 #include "rsb_internals.h"
 #include "rsb.h"
+#include "rsb-config.h"
 #ifdef RSB_HAVE_LIMITS_H
 #include <limits.h>	/* CHAR_BIT */
 #endif /* RSB_HAVE_LIMITS_H */

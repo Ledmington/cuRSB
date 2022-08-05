@@ -263,6 +263,7 @@ struct rsb_options_t{
 
 #define RSB_WANT_DEBUG_PARANOID_ASSERTS 1	/**< if 1, will activate a number of assert() calls which won't change the code flow but will check for anomalous error conditions */
 #if RSB_WANT_DEBUG_PARANOID_ASSERTS
+#include <assert.h>
 #define RSB_DEBUG_ASSERT(e) assert(e)
 #else /* RSB_WANT_DEBUG_PARANOID_ASSERTS */
 #define RSB_DEBUG_ASSERT(e) 

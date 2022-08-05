@@ -30,6 +30,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb.h"
 #include <strings.h>	/* RSB_BZERO */
 #include <stdint.h> /* uintptr_t */
+#include <limits.h>
 
 #define RSB__PC_STRIDE 1 /* stride for pointer chasing */
 

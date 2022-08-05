@@ -1,8 +1,6 @@
 #ifndef RSB_CUDA_H_INCLUDED
 #define RSB_CUDA_H_INCLUDED
 
-#define RSB_CONST_MAX_SUPPORTED_THREADS 1 // TODO change or remove
-
 #include "rsb.h"
 
 #define cudaCheckError(cudaAPICall) \

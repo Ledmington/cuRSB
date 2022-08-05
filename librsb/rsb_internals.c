@@ -34,6 +34,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #include "rsb.h"
 #include "rsb_types.h"
 #include "rsb_unroll.h"
+#include "rsb-config.h"
 
 #define RSB_WANT_NULL_ALLOCATED_ZERO_NNZ_COO_MATRICES_ARRAYS 1 /* 20110419 a bugfix for the nnz == 0 case vs realloc and memory counters */
 #define RSB_TOKLEN 16

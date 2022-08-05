@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#define RSB_CONST_MAX_SUPPORTED_THREADS 1 // TODO change or remove
+#define RSB_LOCK_H_INCLUDED // TODO: change or remove
 
 #include "rsb_cuda.h"
 #include "rsb_internals.h"
