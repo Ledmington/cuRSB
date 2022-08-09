@@ -3913,7 +3913,6 @@ err:
 }
 
 struct rsb_mtx_t * rsb__do_mtx_alloc_from_coo_const(const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnzA, rsb_type_t typecode, rsb_coo_idx_t nrA, rsb_coo_idx_t ncA, rsb_blk_idx_t brA, rsb_blk_idx_t bcA, rsb_flags_t flags, rsb_err_t * errvalp)
-
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	void *VA_ = NULL;

@@ -58,7 +58,7 @@ int main(const int argc, char *const argv[])
     RSB_CHECK_ERROR(rsb_lib_init(RSB_NULL_INIT_OPTIONS));
     printf("Correctly initialized the library.\n");
 
-    printf("Attempting to set the RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE library option.\n");
+    //printf("Attempting to set the RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE library option.\n");
 
     /*{
         rsb_int_t evi = 1;
