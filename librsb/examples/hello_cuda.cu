@@ -14,7 +14,7 @@ do { \
 int main(const int argc, char *const argv[])
 {
     /*!
-      A Hello-RSB program.
+      A Hello-cuRSB program.
 
       This program shows how to use the rsb.h interface correctly to:
 

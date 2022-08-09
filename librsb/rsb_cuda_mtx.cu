@@ -118,3 +118,13 @@ rsb_err_t rsb_cuda_mtx_alloc_from_coo_end(struct rsb_mtx_t **mtxApp)
     errval = rsb_cuda__do_mtx_alloc_from_coo_end(mtxApp);
     RSB_INTERFACE_RETURN_ERR(errval)
 }
+
+struct rsb_mtx_t * rsb_cuda_mtx_alloc_from_coo_const(const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnzA, rsb_type_t typecode, rsb_coo_idx_t nrA, rsb_coo_idx_t ncA, rsb_blk_idx_t brA, rsb_blk_idx_t bcA, rsb_flags_t flagsA, rsb_err_t * errvalp) {
+	printf("Called rsb_cuda_mtx_alloc_from_coo_const which is not implemented\n");
+	return NULL;
+}
+
+struct rsb_mtx_t * rsb_cuda_mtx_free(struct rsb_mtx_t * mtxAp) {
+	printf("Called rsb_cuda_mtx_free which is not implemented\n");
+	return NULL;
+}

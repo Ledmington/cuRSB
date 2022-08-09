@@ -29,6 +29,8 @@ If not, see <http://www.gnu.org/licenses/>.
  * \internal
  *
  * */
+#include <omp.h>
+
 #include "rsb_common.h"
 #include "rsb_util.h"
 #include "rsb.h"
@@ -2370,7 +2372,7 @@ static const rsb_char_t * rsb__sprint_matrix_implementation_code(const struct rs
                 #pragma omp parallel RSB_NTC
                 if(omp_get_thread_num()==0)
                 {
-                        ncores = omp_get_num_threads();
+                    ncores = omp_get_num_threads();
                 }
 #endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 		ncores = ncores?ncores:1;
@@ -3393,12 +3395,10 @@ rsb_bool_t rsb__are_coo_matrices_equal(const struct rsb_coo_mtx_t *cm1, const st
 equal:
 	return yes;
 differing:
-#if RSB_ALLOW_STDOUT
-#if (RSB_WANT_VERBOSE_MESSAGES || 1)
+#if RSB_ALLOW_STDOUT && RSB_WANT_VERBOSE_MESSAGES
 	if(cm1)RSB_STDOUT_COO_MATRIX_SUMMARY(cm1);
 	if(cm2)RSB_STDOUT_COO_MATRIX_SUMMARY(cm2);
-#endif /* RSB_WANT_VERBOSE_MESSAGES */
-#endif /* RSB_ALLOW_STDOUT */
+#endif /* RSB_ALLOW_STDOUT && RSB_WANT_VERBOSE_MESSAGES */
 	return no;
 #undef	RSB_GOTO_DIFFERING
 }

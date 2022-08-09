@@ -28,6 +28,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 #include "rsb_common.h"
 #include <unistd.h>	/* sysconf */
+#include <omp.h>
 #include "rsb_internals.h"
 #include "rsb.h"
 #include "rsb-config.h"

@@ -365,19 +365,14 @@ rsb_err_t rsb__dodo_getdiag( const struct rsb_mtx_t * mtxAp, void * diagonal )
 #if RSB_WANT_OMP_RECURSIVE_KERNELS
 		long nt = rsb_get_num_threads();
 		const int gdc = RSB_DIVIDE_IN_CHUNKS(mtxAp->nr,nt);
+#else
+		const int gdc = 1;
 #endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 		#pragma omp parallel for schedule(static,gdc) reduction(|:errval)  RSB_NTC
 		for(i=0;i<mtxAp->nr;++i)
 			RSB_DO_ERROR_CUMULATE(errval,rsb__do_get_coo_element(mtxAp,((rsb_char_t*)diagonal)+mtxAp->el_size*(i),i,i));
 		errval = RSB_ERR_NO_ERROR;
 	}
-#if 0
-	else
-	{
-		RSB_BZERO(diagonal,mtxAp->el_size*RSB_MTX_DIAG_SIZE(mtxAp));
-		errval = rsb_do_getdiag(mtxAp,diagonal);
-	}
-#endif
 err:
 	return errval;
 }
