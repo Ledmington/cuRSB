@@ -53,7 +53,7 @@ int main(const int argc, char *const argv[])
 
     rsb_err_t errval = RSB_ERR_NO_ERROR;
 
-    printf("Hello, RSB!\n");
+    printf("Hello, cuRSB!\n");
     printf("Initializing the library...\n");
     RSB_CHECK_ERROR(rsb_lib_init(RSB_NULL_INIT_OPTIONS));
     printf("Correctly initialized the library.\n");
@@ -95,6 +95,7 @@ int main(const int argc, char *const argv[])
         }
     }*/
 
+    printf("Allocating matrix.\n");
     mtxAp = rsb_cuda_mtx_alloc_from_coo_const(
         VA, IA, JA, nnzA, typecode, nrA, ncA, brA, bcA,
         RSB_FLAG_NOFLAGS              /* default format will be chosen */
@@ -114,6 +115,7 @@ int main(const int argc, char *const argv[])
     //printf("%s", ib);
     //printf("\n");
 
+    printf("Computing SpMV.\n");
     RSB_CHECK_ERROR( rsb_cuda_spmv(RSB_TRANSPOSITION_N, &one, mtxAp, B, 1, &one, X, 1) );
 
     printf("Correctly performed a SPMV.\n");

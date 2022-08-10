@@ -296,7 +296,7 @@ If not, see <http://www.gnu.org/licenses/>.
 /* #undef RSB_INCLUDE_MKL_MKL_H */
 
 /* Inner error verbosity (internal debug level). */
-#define RSB_INT_ERR_VERBOSITY 0
+#define RSB_INT_ERR_VERBOSITY 1
 
 /* Extra internal memory checks (for debugging). */
 /* #undef RSB_MEM_DBG */
