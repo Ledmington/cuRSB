@@ -1210,15 +1210,11 @@ err:
 
 static rsb_err_t rsb_do_compute_vertical_split_parallel(const rsb_coo_idx_t *RSB_RESTRICT IA, const rsb_coo_idx_t *RSB_RESTRICT JA, rsb_coo_idx_t roff, rsb_coo_idx_t coff, rsb_coo_idx_t m, rsb_coo_idx_t k, rsb_coo_idx_t hm, rsb_coo_idx_t hk, rsb_nnz_idx_t nnz, rsb_coo_idx_t *IL, rsb_coo_idx_t *RSB_RESTRICT IM, rsb_coo_idx_t *IR, rsb_nnz_idx_t *ulp, rsb_nnz_idx_t *urp, rsb_nnz_idx_t *llp, rsb_nnz_idx_t *lrp)
 {
-
 	/**
 	Binary search for the boundaries of each row.
 	Assign threads to rows intervals.
 	Perform the row pointers vector fill calling rsb_do_compute_vertical_split.
 	*/
-#if 0
-	return rsb_do_compute_vertical_split(IA,JA,roff,coff,m,k,hm,hk,nnz,IL,IM,IR,ulp,urp,llp,lrp);
-#else
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	/* const rsb_thread_t wet = rsb_get_num_threads(); */
 
@@ -1290,7 +1286,6 @@ after:
 	// RSB_INFO(":::"); for(i=0;RSB_LIKELY(i<nnz);++i) RSB_INFO("%d ",IA[i]); RSB_INFO("\n");
 	// err:
 	RSB_DO_ERR_RETURN(errval)
-#endif
 }
 
 #if 0
