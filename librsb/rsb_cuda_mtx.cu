@@ -13,9 +13,6 @@
 
 #define RSB_DO_ENOUGHNNZFORINDEXBASEDBUILD(M) (!RSB_DO_TOOFEWNNZFORRCSR((M)->nnz, (M)->nr))
 
-//#define RSB_A_MEMCPY(ID,IS,DOFF,SOFF,NNZ,ES) RSB_MEMCPY(((rsb_char_t*)(ID))+(ES)*(DOFF),((const rsb_char_t*)(IS))+(ES)*(SOFF),(ES)*(NNZ)) \
-//#define RSB_MEMCPY(DST,SRC,BYTES) rsb__memcpy((DST),(SRC),(BYTES))
-
 RSB_INTERNALS_COMMON_HEAD_DECLS
 
 #define RSB_INTERFACE_RETURN_MTX_ERRP(MTXAP, ERRVAL, ERRVALP) \
@@ -1661,7 +1658,7 @@ struct rsb_mtx_t *rsb_cuda__allocate_recursive_sparse_matrix_from_row_major_coo(
 	rsb_coo_idx_t roff = 0;
 	rsb_coo_idx_t coff = 0;
 	rsb_nnz_idx_t dnnz = 0;
-	printf("Calling rsb__estimate_subm_count\n");
+	printf("Calling rsb_cuda__estimate_subm_count\n");
 	const rsb_submatrix_idx_t tmc = rsb_cuda__estimate_subm_count(nnz, typecode, flags, wet, &errval); /* total (max) matrix count */
 
 	if (RSB_SOME_ERROR(errval))
@@ -1715,6 +1712,7 @@ struct rsb_mtx_t *rsb_cuda__allocate_recursive_sparse_matrix_from_row_major_coo(
 
 	/* TODO: may plug *here* upcoming RSB_WANT_FASTER_EXPERIMENTAL_CONSTRUCTOR stuff */
 
+	printf("Allocating submatrices\n");
 	mat = -dt;
 	submatrices = (rsb_mtx_t *)rsb_cuda__calloc(sizeof(struct rsb_mtx_t) * tmc);
 	submatricesp = (rsb_mtx_t **)rsb_cuda__calloc(sizeof(struct rsb_mtx_t *) * tmc);
@@ -1729,6 +1727,7 @@ struct rsb_mtx_t *rsb_cuda__allocate_recursive_sparse_matrix_from_row_major_coo(
 	for (smi = 0; smi < tmc; ++smi)
 		submatricesp[smi] = submatrices + smi;
 
+	printf("Cleanup\n");
 	ect = -dt;
 	if ((errval = rsb__do_cleanup_nnz(VA, IA, JA, nnz, roff, coff, m, k, &nnz, typecode, flags)) != RSB_ERR_NO_ERROR)
 		goto err;
@@ -1736,14 +1735,19 @@ struct rsb_mtx_t *rsb_cuda__allocate_recursive_sparse_matrix_from_row_major_coo(
 
 	est = -dt;
 	if (!RSB_DO_FLAG_HAS(flags, RSB_FLAG_SORTED_INPUT))
+	{
+		printf("Calling rsb__util_sort_row_major_inner\n");
 		if ((errval = rsb__util_sort_row_major_inner(VA, IA, JA, nnz, m, k, typecode, flags)) != RSB_ERR_NO_ERROR)
 			RSB_PERR_GOTO(err, RSB_ERRM_ES);
+	}
 
+	printf("Adding flags (?)\n");
 	RSB_DO_FLAG_ADD(flags, RSB_FLAG_SORTED_INPUT); /* TODO: is this needed ? */
 	est += (dt = rsb_time());					   /* with 'sorting' (est) we DO NOT intend also cleanup (in ect) */
 
 	/* we need duplicates removal, and this can only take place after sorting */
 	drt = -dt;
+	printf("Calling rsb__weed_out_duplicates\n");
 	dnnz = nnz - rsb__weed_out_duplicates(IA, JA, VA, nnz, typecode, flags);
 	nnz -= dnnz;
 	drt += (dt = rsb_time());
@@ -1754,6 +1758,7 @@ struct rsb_mtx_t *rsb_cuda__allocate_recursive_sparse_matrix_from_row_major_coo(
 	/* work vectors allocation */
 	/*	IL = rsb__malloc(sizeof(rsb_coo_idx_t)*(m+1)); */
 	mat -= dt;
+	printf("Allocating COO vectors\n");
 	IT = (rsb_coo_idx_t *)rsb_cuda__malloc(sizeof(rsb_coo_idx_t) * (m + 1));
 	IX = (rsb_coo_idx_t *)rsb_cuda__malloc(sizeof(rsb_coo_idx_t) * 2 * (m + 1));
 	IB = (rsb_coo_idx_t *)rsb_cuda__malloc(sizeof(rsb_coo_idx_t) * (m + 1));
@@ -1798,6 +1803,7 @@ struct rsb_mtx_t *rsb_cuda__allocate_recursive_sparse_matrix_from_row_major_coo(
 
 	sat = -(dt = rsb_time());
 	/* computing the first right-left pointer vectors */
+	printf("Calling rsb_cuda_do_compute_vertical_split_parallel\n");
 	if ((errval = rsb_cuda_do_compute_vertical_split_parallel(IA, JA, roff, coff, m, k, 0, 0, nnz, IB, NULL, NULL, NULL, NULL, NULL, NULL)) != RSB_ERR_NO_ERROR)
 	{
 		RSB_PERR_GOTO(err, RSB_ERRM_ES);
@@ -1811,6 +1817,7 @@ struct rsb_mtx_t *rsb_cuda__allocate_recursive_sparse_matrix_from_row_major_coo(
 			 submatrices[smi].matrix_storage, (rsb_printf_int_t)tmc);
 #endif
 
+	printf("Calling rsb_do_coo2rec_subdivide_parallel\n");
 	errval = rsb_do_coo2rec_subdivide_parallel(VA, IA, JA, m, k, nnz, typecode, pinfop, flags, errvalp, submatricesp, mtxAp, IB, IX, IT, WA, cmc, omc, tmc, RSB_MAX(1, RSB_MIN(wet, nnz)), &cmc);
 
 	sat += (dt = rsb_time());
@@ -1855,12 +1862,14 @@ struct rsb_mtx_t *rsb_cuda__allocate_recursive_sparse_matrix_from_row_major_coo(
 			RSB_PERR_GOTO(err, RSB_ERRM_ALSMINT);
 		}
 
+	printf("Calling rsb_do_coo2rec_shuffle\n");
 	errval = rsb_do_coo2rec_shuffle(VA, IA, JA, m, k, nnz, typecode, pinfop, flags, errvalp, submatricesp, mtxAp, IB, WA, cmc);
 	if (RSB_SOME_ERROR(errval))
 	{
 		RSB_PERR_GOTO(err, RSB_ERRM_SEOWS);
 	}
 
+	printf("Calling rsb__do_set_in_place_submatrices_offsets\n");
 	rsb__do_set_in_place_submatrices_offsets(submatrices, cmc, (rsb_char_t *)VA, IA, JA, el_size);
 
 	/*	RSB_INFO("VA:%p, IA:%p, JA:%p\n",VA,IA,JA); */
@@ -1904,17 +1913,22 @@ arrays_done:
 			   ||	RSB_DO_FLAG_HAS(flags,RSB_FLAG_USE_HALFWORD_INDICES_CSR)
 			   ||	RSB_DO_FLAG_HAS(flags,RSB_FLAG_WANT_COO_STORAGE)*/
 		RSB_DO_FLAG_HAS(flags, RSB_FLAG_USE_HALFWORD_INDICES))
+	{
 #if RSB_WANT_MORE_PARALLELISM
 		RSB_DO_ERROR_CUMULATE(errval, rsb_do_switch_fresh_recursive_matrix_to_halfword_storages_parallel(mtxAp));
 #else  /* RSB_WANT_MORE_PARALLELISM */
+		printf("Calling rsb_do_switch_fresh_recursive_matrix_to_halfword_storages\n");
 		RSB_DO_ERROR_CUMULATE(errval, rsb_do_switch_fresh_recursive_matrix_to_halfword_storages(mtxAp));
 #endif /* RSB_WANT_MORE_PARALLELISM */
+	}
 	else
 	{
 #if defined(RSB_C2R_IF_VERBOSE) && RSB_C2R_IF_VERBOSE != 0
 		RSB_INFO("no  RSB_FLAG_USE_HALFWORD_INDICES flag\n");
 #endif
 	}
+
+	printf("Calling rsb_do_compute_bounded_boxes\n");
 	RSB_DO_ERROR_CUMULATE(errval, rsb_do_compute_bounded_boxes(mtxAp));
 
 	hct += rsb_time();
@@ -1949,6 +1963,7 @@ arrays_done:
 #endif
 
 #if RSB_STORE_IDXSA
+	printf("Calling rsb__get_index_storage_amount\n");
 	mtxAp->idxsa = rsb__get_index_storage_amount(mtxAp);
 #endif
 
