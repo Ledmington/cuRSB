@@ -3,13 +3,15 @@
 
 #include "../rsb_cuda.h"
 
-#define RSB_CHECK_ERROR(err) \
-do { \
-    if ( err != RSB_ERR_NO_ERROR ) { \
-        rsb_perror(NULL, err); \
-        exit(EXIT_FAILURE); \
-    } \
-} while (0)
+#define RSB_CHECK_ERROR(err)         \
+    do                               \
+    {                                \
+        if (err != RSB_ERR_NO_ERROR) \
+        {                            \
+            rsb_perror(NULL, err);   \
+            exit(EXIT_FAILURE);      \
+        }                            \
+    } while (0)
 
 int main(const int argc, char *const argv[])
 {
@@ -35,19 +37,22 @@ int main(const int argc, char *const argv[])
     const rsb_blk_idx_t brA = bs, bcA = bs;
     const RSB_DEFAULT_TYPE one = 1;
     const rsb_type_t typecode = RSB_NUMERICAL_TYPE_DEFAULT;
-    const rsb_nnz_idx_t nnzA = 4; /* matrix nonzeroes count */
+
+    const rsb_nnz_idx_t nnzA = 5; /* matrix nonzeroes count */
     const rsb_coo_idx_t nrA = 3;  /* matrix rows count */
     const rsb_coo_idx_t ncA = 3;  /* matrix columns count */
 
     /* nonzero row indices coordinates: */
-    const rsb_coo_idx_t IA[] = {0, 1, 2, 2};
+    const rsb_coo_idx_t IA[] = {0, 0, 1, 1, 2};
 
     /* nonzero column indices coordinates: */
-    const rsb_coo_idx_t JA[] = {0, 1, 2, 2};
+    const rsb_coo_idx_t JA[] = {0, 1, 1, 2, 0};
 
-    const RSB_DEFAULT_TYPE VA[] = {11, 22, 32, 1}; /* values of nonzeroes */
+    const RSB_DEFAULT_TYPE VA[] = {9, 2, 11, 36, 13}; /* values of nonzeroes */
+
     RSB_DEFAULT_TYPE X[] = {0, 0, 0};              /* X vector's array */
-    const RSB_DEFAULT_TYPE B[] = {-1, -2, -5};     /* B vector's array */
+    const RSB_DEFAULT_TYPE B[] = {42, 70, 16};     /* B vector's array */
+    const size_t result_size = sizeof(X) / sizeof(X[0]);
     char ib[200];
     struct rsb_mtx_t *mtxAp = NULL; /* matrix structure pointer */
 
@@ -58,7 +63,7 @@ int main(const int argc, char *const argv[])
     RSB_CHECK_ERROR(rsb_lib_init(RSB_NULL_INIT_OPTIONS));
     printf("Correctly initialized the library.\n");
 
-    //printf("Attempting to set the RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE library option.\n");
+    // printf("Attempting to set the RSB_IO_WANT_EXTRA_VERBOSE_INTERFACE library option.\n");
 
     /*{
         rsb_int_t evi = 1;
@@ -108,21 +113,29 @@ int main(const int argc, char *const argv[])
         goto err;
     }
     printf("Correctly allocated a matrix.\n");
-    //printf("Summary information of the matrix:\n");
-    /* print out the matrix summary information  */
-    //rsb_mtx_get_info_str(mtxAp, "RSB_MIF_MATRIX_INFO__TO__CHAR_P", ib, sizeof(ib));
 
-    //printf("%s", ib);
-    //printf("\n");
+    printf("Summary information of the matrix:\n");
+    /* print out the matrix summary information  */
+    rsb_mtx_get_info_str(mtxAp, "RSB_MIF_MATRIX_INFO__TO__CHAR_P", ib, sizeof(ib));
+    printf("%s", ib);
+    printf("\n");
 
     printf("Computing SpMV.\n");
-    RSB_CHECK_ERROR( rsb_cuda_spmv(RSB_TRANSPOSITION_N, &one, mtxAp, B, 1, &one, X, 1) );
-
+    RSB_CHECK_ERROR(rsb_cuda_spmv(RSB_TRANSPOSITION_N, &one, mtxAp, B, 1, &one, X, 1));
     printf("Correctly performed a SPMV.\n");
-    rsb_cuda_mtx_free(mtxAp);
-    printf("Correctly freed the matrix.\n");
 
-    RSB_CHECK_ERROR( rsb_lib_exit(RSB_NULL_EXIT_OPTIONS) );
+    printf("Printing result.\n");
+    printf("[%f", X[0]);
+    for (size_t i=1; i<result_size; i++) {
+        printf(", %f", X[i]);
+    }
+    printf("]\n");
+
+    printf("Deallocating matrix.\n");
+    rsb_cuda_mtx_free(mtxAp);
+    printf("Correctly deallocated the matrix.\n");
+
+    RSB_CHECK_ERROR(rsb_lib_exit(RSB_NULL_EXIT_OPTIONS));
 
     printf("Correctly finalized the library.\n");
     printf("Program terminating with no error.\n");

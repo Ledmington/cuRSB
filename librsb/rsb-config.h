@@ -366,7 +366,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_WANT_OMPIO_SUPPORT 0
 
 /* Recursive kernels parallelized with OpenMP. */
-#define RSB_WANT_OMP_RECURSIVE_KERNELS 1
+#define RSB_WANT_OMP_RECURSIVE_KERNELS 0
 
 /* OSKI comparative benchmarking. */
 /* #undef RSB_WANT_OSKI_BENCHMARKING */

@@ -234,9 +234,9 @@ rsb_err_t rsb__util_sort_row_major_bucket_based_parallel(void * RSB_RESTRICT VA,
 	size_t el_size = RSB_SIZEOF(typecode);
 	//struct rsb_mtx_partitioning_info_t pinfop;
 	/* const long wet = rsb_get_num_threads();*/ /* want executing threads */
-	printf("setting threads\n");
+	//printf("setting threads\n");
 	const long wet = rsb__set_num_threads(RSB_THREADS_GET_MAX_SYS); /* want executing threads; FIXME: it seems there is a severe bug with the definition of RSB_NTC */
-	printf("done setting threads\n");
+	//printf("done setting threads\n");
 #if RSB_DO_WANT_PSORT_TIMING
 	rsb_time_t dt,pt,st,mt,ct;
 	rsb_time_t tt = - rsb_time();

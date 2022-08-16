@@ -2330,13 +2330,13 @@ struct rsb_mtx_t *rsb__allocate_recursive_sparse_matrix_from_row_major_coo(void 
 	rsb_time_t ect = RSB_TIME_ZERO;
 	rsb_time_t tat = RSB_TIME_ZERO;
 	rsb_time_t sat = RSB_TIME_ZERO;
-	printf("Calling rsb_get_num_coo2rec_threads\n");
+	//printf("Calling rsb_get_num_coo2rec_threads\n");
 	const rsb_thread_t wet = rsb_get_num_coo2rec_threads(); /* want executing threads: */
 	const size_t el_size = RSB_SIZEOF(typecode);
 	rsb_coo_idx_t roff = 0;
 	rsb_coo_idx_t coff = 0;
 	rsb_nnz_idx_t dnnz = 0;
-	printf("Calling rsb__estimate_subm_count\n");
+	//printf("Calling rsb__estimate_subm_count\n");
 	const rsb_submatrix_idx_t tmc = rsb__estimate_subm_count(nnz, typecode, flags, wet, &errval); /* total (max) matrix count */
 
 	if (RSB_SOME_ERROR(errval))

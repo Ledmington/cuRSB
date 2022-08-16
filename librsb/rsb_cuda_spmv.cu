@@ -8,7 +8,7 @@
 #include "rsb_common.h"
 //#include "rsb_lock.h" // TODO remove if unused
 
-#define min(A,B) ((A)<(B)?(A):(B))
+#define min(A, B) ((A) < (B) ? (A) : (B))
 
 __global__ void rsb_cuda__spmv_kernel(const struct rsb_mtx_t *mtxAp)
 {
@@ -67,7 +67,7 @@ __global__ void rsb_cuda__spmv_kernel(const struct rsb_mtx_t *mtxAp)
                 assert(scoff >= 0);
                 assert(sroff >= 0);
                 RSB_DO_ERROR_CUMULATE(errval, rsb__do_spmv_non_recursive(submatrix, offx, offy, alphap, NULL, incx, oincy, transA RSB_INNER_NRHS_SPMV_ARGS_IDS));
-                
+
                 // #pragma omp critical(rsb_spmv_crs)
                 // {
                 //     rsb_do_spmv_lock_release(&lock, th_id, ov);
