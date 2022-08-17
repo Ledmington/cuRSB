@@ -1,4 +1,6 @@
 #include <stdio.h> /* printf() */
+#include <stdlib.h>
+#include <time.h>
 #include <assert.h>
 
 #include "../rsb_cuda.h"
@@ -15,24 +17,7 @@
 
 int main(const int argc, char *const argv[])
 {
-    /*!
-      A Hello-cuRSB program.
-
-      This program shows how to use the rsb.h interface correctly to:
-
-      - initialize the library using #rsb_lib_init()
-      - set library options using #rsb_lib_set_opt()
-      - revert such changes
-      - allocate (build) a single sparse matrix in the RSB format
-        using #rsb_mtx_alloc_from_coo_const()
-      - prints information obtained via #rsb_mtx_get_info_str()
-      - multiply the matrix times a vector using #rsb_spmv()
-      - deallocate the matrix using #rsb_mtx_free()
-      - finalize the library using #rsb_lib_exit()
-
-      In this example, we use #RSB_DEFAULT_TYPE as matrix type.
-      This type depends on what was configured at library build time.
-     * */
+    srand(time(NULL));
     const rsb_blk_idx_t bs = RSB_DEFAULT_BLOCKING;
     const rsb_blk_idx_t brA = bs, bcA = bs;
     const RSB_DEFAULT_TYPE one = 1;

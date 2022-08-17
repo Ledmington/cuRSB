@@ -163,7 +163,6 @@ struct rsb_mtx_t *rsb_cuda_mtx_alloc_from_coo_begin(
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t *mtxAp = NULL;
-	RSB_INTERFACE_PREAMBLE
 	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	mtxAp = rsb_cuda__do_mtx_alloc_from_coo_begin(nnzA, typecode, nrA, ncA, flagsA, &errval);
 	RSB_INTERFACE_RETURN_MTX_ERRP(mtxAp, errval, errvalp);
@@ -172,7 +171,6 @@ struct rsb_mtx_t *rsb_cuda_mtx_alloc_from_coo_begin(
 rsb_err_t rsb_cuda_mtx_alloc_from_coo_end(struct rsb_mtx_t **mtxApp)
 {
 	rsb_err_t errval = RSB_ERR_BADARGS;
-	RSB_INTERFACE_PREAMBLE
 	errval = rsb_cuda__do_mtx_alloc_from_coo_end(mtxApp);
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
@@ -802,7 +800,7 @@ iagain:
 
 			if (sqs)
 			{
-				rsb_bool_t awfcsr = RSB_BOOL_FALSE; /* all of the matrices will fit csr ? */
+				rsb_bool_t all_will_fit_csr = RSB_BOOL_FALSE; /* all of the matrices will fit csr ? */
 #if RSB_WANT_SUBDIVISION_FIXES_20101120
 				rsb_nnz_idx_t mqnnz = RSB_MAX(RSB_MAX(ul, ur), RSB_MAX(lr, ll));
 #endif /* RSB_WANT_SUBDIVISION_FIXES_20101120 */
@@ -814,9 +812,9 @@ iagain:
 				dt += rsb_time();
 				cpt += dt;
 				// assert(IR);
-				awfcsr = ((ul > 0 && RSB_DO_TOOFEWNNZFORCSR(ul, hm)) || (ur > 0 && RSB_DO_TOOFEWNNZFORCSR(ur, hm)) || (lr > 0 && RSB_DO_TOOFEWNNZFORCSR(lr, m - hm)) || (ll > 0 && RSB_DO_TOOFEWNNZFORCSR(ll, m - hm))) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
+				all_will_fit_csr = ((ul > 0 && RSB_DO_TOOFEWNNZFORCSR(ul, hm)) || (ur > 0 && RSB_DO_TOOFEWNNZFORCSR(ur, hm)) || (lr > 0 && RSB_DO_TOOFEWNNZFORCSR(lr, m - hm)) || (ll > 0 && RSB_DO_TOOFEWNNZFORCSR(ll, m - hm))) ? RSB_BOOL_TRUE : RSB_BOOL_FALSE;
 
-				if (awfcsr) /* FIXME: misleading naming ! */
+				if (all_will_fit_csr)
 				{
 					/* if some leaf won't fit in CSR, we don't split anymore */
 					if (RSB_DO_FLAG_HAS(flags, RSB_FLAG_WANT_COO_STORAGE))
@@ -2166,7 +2164,6 @@ struct rsb_mtx_t *rsb_cuda_mtx_alloc_from_coo_const(const void *VA, const rsb_co
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	struct rsb_mtx_t *mtxAp = NULL;
-	RSB_INTERFACE_PREAMBLE
 	RSB_INITIALIZE_CHECK_MTX_ERRP(errvalp);
 	//printf("calling rsb_cuda__do_mtx_alloc_from_coo_const\n");
 	mtxAp = rsb_cuda__do_mtx_alloc_from_coo_const(VA, IA, JA, nnzA, typecode, nrA, ncA, brA, bcA, flagsA, &errval);
@@ -2308,7 +2305,6 @@ ret:
 struct rsb_mtx_t *rsb_cuda_mtx_free(struct rsb_mtx_t *mtxAp)
 {
 	struct rsb_mtx_t *mtxBp = NULL;
-	RSB_INTERFACE_PREAMBLE
 	mtxBp = rsb_cuda__do_mtx_free(mtxAp);
 	return mtxBp;
 }

@@ -17,6 +17,4 @@ LINKING=-lgomp
 
 build:
 	nvcc ${MACROS} ${GCCFLAGS} librsb/examples/hello_cuda.cu ${CFILES} librsb/*.cu -o librsb/examples/hello_cuda ${LINKING}
-
-run:
-	./librsb/examples/hello_cuda
+	nvcc ${MACROS} ${GCCFLAGS} librsb/examples/rsb_cuda_bench.cu ${CFILES} librsb/*.cu -o librsb/examples/rsb_cuda_bench ${LINKING}
