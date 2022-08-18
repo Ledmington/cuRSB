@@ -50,6 +50,56 @@ __device__ inline rsb_bool_t rsb__is_element_minus_one(const void *x, rsb_type_t
     return rsb__is_equal(x, type, &y);
 }
 
+__device__ static rsb_err_t rsb_cuda__cblas_Xscal(rsb_type_t type, size_t n, const void *alphap, void *a, size_t stride)
+{
+    /*!
+     * a <- a * alpha
+     * */
+    size_t i;
+
+    if (type == RSB_NUMERICAL_TYPE_DOUBLE)
+    {
+        const double alpha = *(double *)alphap;
+        double *a_d = (double *)a;
+        for (i = 0; i < n; i += stride)
+        {
+            a_d[i] *= alpha;
+        }
+    }
+    else if (type == RSB_NUMERICAL_TYPE_FLOAT)
+    {
+        const float alpha = *(float *)alphap;
+        float *a_f = (float *)a;
+        for (i = 0; i < n; i += stride)
+        {
+            a_f[i] *= alpha;
+        }
+    }
+    else if (type == RSB_NUMERICAL_TYPE_DOUBLE_COMPLEX)
+    {
+        const double _Complex alpha = *(double _Complex *)alphap;
+        double _Complex *a_dc = (double _Complex *)a;
+        for (i = 0; i < n; i += stride)
+        {
+            a_dc[i] *= alpha;
+        }
+    }
+    else if (type == RSB_NUMERICAL_TYPE_FLOAT_COMPLEX)
+    {
+        const float _Complex alpha = *(float _Complex *)alphap;
+        float _Complex *a_fc = (float _Complex *)a;
+        for (i = 0; i < n; i += stride)
+        {
+            a_fc[i] *= alpha;
+        }
+    }
+    else
+    {
+        return RSB_ERR_UNSUPPORTED_TYPE;
+    }
+    return RSB_ERR_NO_ERROR;
+}
+
 __device__ rsb_err_t rsb_cuda__do_spmv_non_recursive(const struct rsb_mtx_t *mtxAp, const void *x, void *y, const void *alphap, const void *betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA RSB_INNER_NRHS_SPMV_ARGS)
 {
     rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -74,7 +124,7 @@ __device__ rsb_err_t rsb_cuda__do_spmv_non_recursive(const struct rsb_mtx_t *mtx
 
         if (should_scale_y && !use_y_zeroing_kernel)
         {
-            RSB_CBLAS_X_SCAL_SPMV(mtxAp->typecode, rsb__do_get_rows_of(mtxAp, transA), betap, out, incy);
+            rsb_cuda__cblas_Xscal(mtxAp->typecode, rsb__do_get_rows_of(mtxAp, transA), betap, out, incy);
         }
         /* no beta specified counts as beta=1, and so no scaling is needed */
 
@@ -128,18 +178,8 @@ __device__ rsb_err_t rsb_cuda__do_spmv_non_recursive(const struct rsb_mtx_t *mtx
 
 __global__ void rsb_cuda__spmv_kernel(const struct rsb_mtx_t *mtxAp, const void *x, void *y, const void *alphap, const void *betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPMV_ARGS)
 {
-    // const unsigned int thread_id_x = threadIdx.x;
-    // const unsigned int thread_id_y = threadIdx.y;
-    // const unsigned int block_id_x = blockIdx.x;
-    // const unsigned int block_id_y = blockIdx.y;
-    // const unsigned int block_dim_x = blockDim.x;
-    // const unsigned int block_dim_y = blockDim.y;
-    // const unsigned int grid_dim_x = gridDim.x;
-    // const unsigned int grid_dim_y = gridDim.y;
-
     const unsigned int global_thread_id = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // printf("Thread (%u, %u) of (%u, %u) inside block (%u, %u) of (%u, %u)\n", thread_id_x, thread_id_y, block_dim_x, block_dim_y, block_id_x, block_id_y, grid_dim_x, grid_dim_y);
     printf("Thread %u (%d, %d, %d) alive\n", global_thread_id, threadIdx.x, blockDim.x, blockIdx.x);
 
     if (global_thread_id >= mtxAp->nnz)
@@ -150,6 +190,7 @@ __global__ void rsb_cuda__spmv_kernel(const struct rsb_mtx_t *mtxAp, const void 
 
     rsb_submatrix_idx_t n = 0;
     // rsb_submatrix_idx_t dm = 0; // TODO remove if unused/useless
+    const size_t el_size = mtxAp->el_size;
 
     for (n = 0; n < mtxAp->all_leaf_matrices_n; ++n)
     {
@@ -262,20 +303,19 @@ __global__ void rsb_cuda__spmv_kernel(const struct rsb_mtx_t *mtxAp, const void 
     //     }
 }
 
-void rsb_cuda__do_spmv_recursive(const struct rsb_mtx_t *mtxAp, const void *x, void *y, const void *alphap, const void *betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPMV_ARGS)
+rsb_err_t rsb_cuda__do_spmv_recursive(const struct rsb_mtx_t *mtxAp, const void *x, void *y, const void *alphap, const void *betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPMV_ARGS)
 {
     rsb_err_t errval = RSB_ERR_NO_ERROR;
 
     const struct rsb_translated_matrix_t *all_leaf_matrices = NULL;
     const rsb_submatrix_idx_t all_leaf_matrices_n = mtxAp->all_leaf_matrices_n;
-    const size_t el_size = mtxAp->el_size;
 
     // IMPORTANT
     if (!rsb__is_recursive_matrix(mtxAp->flags))
     {
         // dim3 dimBlock(2, 2);
         // dim3 dimGrid(2, 2);
-        rsb_cuda__spmv_kernel<<<2, 2>>>(mtxAp, x, y, alphap, betap, incx, incy, transA RSB_INNER_NRHS_SPMV_ARGS_IDS);
+        rsb_cuda__spmv_kernel<<<2, 2>>>(mtxAp, x, y, alphap, betap, incx, incy, transA, op_flags RSB_INNER_NRHS_SPMV_ARGS_IDS);
         // return rsb__do_spmv_non_recursive(mtxAp, x, y, alphap, betap, incx, incy, transA RSB_INNER_NRHS_SPMV_ARGS_IDS);
     }
 
@@ -283,8 +323,6 @@ void rsb_cuda__do_spmv_recursive(const struct rsb_mtx_t *mtxAp, const void *x, v
 
     if (!all_leaf_matrices || all_leaf_matrices_n < 1)
     {
-        // errval = RSB_ERR_ENOMEM;
-        // goto err;
         return RSB_ERR_ENOMEM;
     }
 
