@@ -58,10 +58,10 @@ If not, see <http://www.gnu.org/licenses/>.
 /* Define to 1 if you have the <dmalloc.h> header file. */
 /* #undef HAVE_DMALLOC_H */
 
-/* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
+/* Define to 1 if you don't have 'vprintf' but do have '_doprnt.' */
 /* #undef HAVE_DOPRNT */
 
-/* Define to 1 if you have the `dup' function. */
+/* Define to 1 if you have the 'dup' function. */
 #define RSB_HAVE_DUP 1
 
 /* Define to 1 if you have the <execinfo.h> header file. */
@@ -70,10 +70,10 @@ If not, see <http://www.gnu.org/licenses/>.
 /* fileno(): C FILE to posix file descriptor. */
 #define RSB_HAVE_FILENO 1
 
-/* Define to 1 if you have the `fread' function. */
+/* Define to 1 if you have the 'fread' function. */
 #define RSB_HAVE_FREAD 1
 
-/* Define to 1 if you have the `fwrite' function. */
+/* Define to 1 if you have the 'fwrite' function. */
 #define RSB_HAVE_FWRITE 1
 
 /* Get an environment variable. */
@@ -104,15 +104,15 @@ If not, see <http://www.gnu.org/licenses/>.
 /* #undef HAVE_GTEST_GTEST_H */
 
 /* used by RSB_WANT_EXPERIMENTAL_BINARY_COO, and not present on older zlib */
-#define RSB_HAVE_GZFREAD 1
+/* #undef HAVE_GZFREAD */
 
 /* Define to 1 if you have the <hwloc.h> header file. */
-#define RSB_HAVE_HWLOC_H 1
+/* #undef HAVE_HWLOC_H */
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define RSB_HAVE_INTTYPES_H 1
 
-/* Define to 1 if you have the `isatty' function. */
+/* Define to 1 if you have the 'isatty' function. */
 #define RSB_HAVE_ISATTY 1
 
 /* Define to 1 if you have the <limits.h> header file. */
@@ -130,7 +130,7 @@ If not, see <http://www.gnu.org/licenses/>.
 /* Define to 1 if you have the <memory.h> header file. */
 #define RSB_HAVE_MEMORY_H 1
 
-/* Define to 1 if you have the `memset' function. */
+/* Define to 1 if you have the 'memset' function. */
 #define RSB_HAVE_MEMSET 1
 
 /* Define to 1 if you have the <mkl/mkl.h> header file. */
@@ -155,7 +155,7 @@ If not, see <http://www.gnu.org/licenses/>.
 /* Define to 1 if you have the <pthread.h> header file. */
 #define RSB_HAVE_PTHREAD_H 1
 
-/* Define to 1 if you have the `rand' function. */
+/* Define to 1 if you have the 'rand' function. */
 #define RSB_HAVE_RAND 1
 
 /* Define to 1 if you have the <regex.h> header file. */
@@ -165,9 +165,9 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_HAVE_RINDEX 1
 
 /* Define to 1 if you have the <rpc/xdr.h> header file. */
-#define RSB_HAVE_RPC_XDR_H 1
+/* #undef HAVE_RPC_XDR_H */
 
-/* Define to 1 if you have the `sched_getaffinity' function. */
+/* Define to 1 if you have the 'sched_getaffinity' function. */
 #define RSB_HAVE_SCHED_GETAFFINITY 1
 
 /* Define to 1 if you have the <sched.h> header file. */
@@ -197,7 +197,7 @@ If not, see <http://www.gnu.org/licenses/>.
 /* Define to 1 if you have the <string.h> header file. */
 #define RSB_HAVE_STRING_H 1
 
-/* Define to 1 if you have the `strncmp' function. */
+/* Define to 1 if you have the 'strncmp' function. */
 #define RSB_HAVE_STRNCMP 1
 
 /* strrchr */
@@ -239,11 +239,11 @@ If not, see <http://www.gnu.org/licenses/>.
 /* Define to 1 if you have the <unistd.h> header file. */
 #define RSB_HAVE_UNISTD_H 1
 
-/* Define to 1 if you have the `vprintf' function. */
+/* Define to 1 if you have the 'vprintf' function. */
 #define RSB_HAVE_VPRINTF 1
 
 /* Define to 1 if you have the <zlib.h> header file. */
-#define RSB_HAVE_ZLIB_H 1
+/* #undef HAVE_ZLIB_H */
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #define RSB_LT_OBJDIR ".libs/"
@@ -262,7 +262,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_PACKAGE_NAME "librsb"
 
 /* Define to the full name and version of this package. */
-#define RSB_PACKAGE_STRING "librsb ec50843"
+#define RSB_PACKAGE_STRING "librsb 1.3.0.1"
 
 /* Define to the one symbol short name of this package. */
 #define RSB_PACKAGE_TARNAME "librsb"
@@ -271,7 +271,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define RSB_PACKAGE_VERSION "ec50843"
+#define RSB_PACKAGE_VERSION "1.3.0.1"
 
 /* Extra (undocumented) developer oriented control switches. */
 /* #undef RSB_ALLOW_INTERNAL_GETENVS */
@@ -284,7 +284,7 @@ If not, see <http://www.gnu.org/licenses/>.
 
 /* If not null, the library will rely on this for memory hierarchy info,
    unless RSB_USER_SET_MEM_HIERARCHY_INFO is set. */
-#define RSB_DETECTED_MEM_HIERARCHY_INFO "L3:11/64/19712K,L2:16/64/1024K,L1:8/64/32K"
+#define RSB_DETECTED_MEM_HIERARCHY_INFO "L3:11/64/8448K,L2:16/64/1024K,L1:8/64/32K"
 
 /* If defined, will not account for internally used memory. */
 #define RSB_DISABLE_ALLOCATOR_WRAPPER 1
@@ -296,7 +296,7 @@ If not, see <http://www.gnu.org/licenses/>.
 /* #undef RSB_INCLUDE_MKL_MKL_H */
 
 /* Inner error verbosity (internal debug level). */
-#define RSB_INT_ERR_VERBOSITY 0
+#define RSB_INT_ERR_VERBOSITY 1
 
 /* Extra internal memory checks (for debugging). */
 /* #undef RSB_MEM_DBG */
@@ -317,7 +317,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_USE_GETRUSAGE 1
 
 /* Use librsbpp. */
-#define RSB_USE_LIBRSBPP 1
+#define RSB_USE_LIBRSBPP 0
 
 /* Enable calling MKL from RSB (internal, deprecated). */
 /* #undef RSB_USE_MKL */
@@ -366,7 +366,7 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_WANT_OMPIO_SUPPORT 0
 
 /* Recursive kernels parallelized with OpenMP. */
-#define RSB_WANT_OMP_RECURSIVE_KERNELS 1
+#define RSB_WANT_OMP_RECURSIVE_KERNELS 0
 
 /* OSKI comparative benchmarking. */
 /* #undef RSB_WANT_OSKI_BENCHMARKING */
@@ -386,10 +386,10 @@ If not, see <http://www.gnu.org/licenses/>.
 #define RSB_WANT_VERBOSE_MESSAGES 0
 
 /* experimental. */
-#define RSB_WANT_XDR_SUPPORT 1
+#define RSB_WANT_XDR_SUPPORT 0
 
 /* Support for reading gzipped matrices. */
-#define RSB_WANT_ZLIB_SUPPORT 1
+#define RSB_WANT_ZLIB_SUPPORT 0
 
 /* HWLOC API support. */
 #define RSB_WITH_HWLOC 0
@@ -400,59 +400,61 @@ If not, see <http://www.gnu.org/licenses/>.
 /* Sparse BLAS interface compilation. */
 #define RSB_WITH_SPARSE_BLAS_INTERFACE 1
 
-/* The size of `char', as computed by sizeof. */
+/* The size of 'char', as computed by sizeof. */
 #define RSB_SIZEOF_CHAR 1
 
-/* The size of `complex', as computed by sizeof. */
+/* The size of 'complex', as computed by sizeof. */
 #define RSB_SIZEOF_COMPLEX 16
 
-/* The size of `double', as computed by sizeof. */
+/* The size of 'double', as computed by sizeof. */
 #define RSB_SIZEOF_DOUBLE 8
 
-/* The size of `double complex', as computed by sizeof. */
+/* The size of 'double complex', as computed by sizeof. */
 #define RSB_SIZEOF_DOUBLE_COMPLEX 16
 
-/* The size of `float', as computed by sizeof. */
+/* The size of 'float', as computed by sizeof. */
 #define RSB_SIZEOF_FLOAT 4
 
-/* The size of `float complex', as computed by sizeof. */
+/* The size of 'float complex', as computed by sizeof. */
 #define RSB_SIZEOF_FLOAT_COMPLEX 8
 
-/* The size of `int', as computed by sizeof. */
+/* The size of 'int', as computed by sizeof. */
 #define RSB_SIZEOF_INT 4
 
-/* The size of `long', as computed by sizeof. */
+/* The size of 'long', as computed by sizeof. */
 #define RSB_SIZEOF_LONG 8
 
-/* The size of `long double', as computed by sizeof. */
+/* The size of 'long double', as computed by sizeof. */
 #define RSB_SIZEOF_LONG_DOUBLE 16
 
-/* The size of `long double complex', as computed by sizeof. */
+/* The size of 'long double complex', as computed by sizeof. */
 #define RSB_SIZEOF_LONG_DOUBLE_COMPLEX 32
 
-/* The size of `long int', as computed by sizeof. */
+/* The size of 'long int', as computed by sizeof. */
 #define RSB_SIZEOF_LONG_INT 8
 
-/* The size of `long long int', as computed by sizeof. */
+/* The size of 'long long int', as computed by sizeof. */
 #define RSB_SIZEOF_LONG_LONG_INT 8
 
-/* The size of `short int', as computed by sizeof. */
+/* The size of 'short int', as computed by sizeof. */
 #define RSB_SIZEOF_SHORT_INT 2
 
-/* The size of `size_t', as computed by sizeof. */
+/* The size of 'size_t', as computed by sizeof. */
 #define RSB_SIZEOF_SIZE_T 8
 
-/* The size of `void *', as computed by sizeof. */
+/* The size of 'void *', as computed by sizeof. */
 #define RSB_SIZEOF_VOID_P 8
 
-/* Define to 1 if you have the ANSI C header files. */
+/* Define to 1 if all of the C90 standard headers exist (not just the ones
+   required in a freestanding environment). This macro is provided for
+   backward compatibility; new code need not use it. */
 #define RSB_STDC_HEADERS 1
 
 /* VCS REVISION */
-#define RSB_VCS_REVISION "ec50843"
+#define RSB_VCS_REVISION "da054a8"
 
 /* Version number of package */
-#define RSB_VERSION "ec50843"
+#define RSB_VERSION "1.3.0.1"
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
@@ -466,10 +468,10 @@ If not, see <http://www.gnu.org/licenses/>.
 # endif
 #endif
 
-/* Define to empty if `const' does not conform to ANSI C. */
+/* Define to empty if 'const' does not conform to ANSI C. */
 /* #undef const */
 
-/* Define to `__inline__' or `__inline' if that's what the C compiler
+/* Define to '__inline__' or '__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
 /* #undef inline */
@@ -477,18 +479,19 @@ If not, see <http://www.gnu.org/licenses/>.
 
 /* Define to the equivalent of the C99 'restrict' keyword, or to
    nothing if this is not supported.  Do not define if restrict is
-   supported directly.  */
-#define RSB_restrict __restrict
-/* Work around a bug in Sun C++: it does not support _Restrict or
-   __restrict__, even though the corresponding Sun C compiler ends up with
-   "#define restrict _Restrict" or "#define restrict __restrict__" in the
-   previous line.  Perhaps some future version of Sun C++ will work with
-   restrict; if so, hopefully it defines __RESTRICT like Sun C does.  */
-#if defined __SUNPRO_CC && !defined __RESTRICT
+   supported only directly.  */
+#define RSB_restrict __restrict__
+/* Work around a bug in older versions of Sun C++, which did not
+   #define __restrict__ or support _Restrict or __restrict__
+   even though the corresponding Sun C compiler ended up with
+   "#define restrict _Restrict" or "#define restrict __restrict__"
+   in the previous line.  This workaround can be removed once
+   we assume Oracle Developer Studio 12.5 (2016) or later.  */
+#if defined __SUNPRO_CC && !defined __RESTRICT && !defined __restrict__
 # define _Restrict
 # define __restrict__
 #endif
 
-/* Define to `unsigned int' if <sys/types.h> does not define. */
+/* Define to 'unsigned int' if <sys/types.h> does not define. */
 /* #undef size_t */
 #endif /* RSB_CONFIG_H_INCLUDED */

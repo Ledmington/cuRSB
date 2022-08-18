@@ -366,103 +366,9 @@ errval = rsb_mtx_clone(&mtxBp,RSB_NUMERICAL_TYPE_SAME_TYPE,RSB_TRANSPOSITION_N,N
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
 
-#if 0
-rsb_err_t rsb_get_rows_dense(const struct rsb_mtx_t * mtxAp, void* row, rsb_coo_idx_t frA, rsb_coo_idx_t lrA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t *rnzp, rsb_flags_t flags )
-{
-        /*!
-	 * \ingroup rsb_doc_matrix_operations rsb_doc_rsb
-	 * \return \rsberrcodemsg
-         * FIXME : missing test case, document
-         * */
-        return rsb__do_get_rows_dense(mtxAp,row,frA,lrA,IA,JA,rnzp,flags);
-}
-#endif
-
 
 
 #define RSB_EXPOSE_NEW_GENERAL_INTERFACE 1	/* temporary (internals) to delimit the new interface which supersedes the deprecated one */
-#if RSB_EXPOSE_NEW_GENERAL_INTERFACE
-#if 0
-/* #define RSB_EXTF_NONE		0x00000000*/			/* */
-#define RSB_EXTF_SLOWTRI	0x00000001			/*!< Flag values for extracting the strictly lower submatrix*/
-#define RSB_EXTF_SUPPTRI	0x00000002			/*!< Flag values for extracting the strictly upper submatrix .*/
-#define RSB_EXTF_DIAG		0x00000004			/*!< Flag values for extracting the diagonal submatrix.*/
-#define RSB_EXTF_LOWTRI		(RSB_EXTF_SLOWTRI|RSB_EXTF_DIAG)/*!< Flag values for extracting the lower submatrix.*/
-#define RSB_EXTF_UPPTRI		(RSB_EXTF_SUPPTRI|RSB_EXTF_DIAG)/*!< Flag values for extracting the upper submatrix.*/
-#define RSB_EXTF_OFFDIAG	(RSB_EXTF_SUPPTRI|RSB_EXTF_SLOWTRI)/*!< Flag values for extracting the whole matrix.*/
-#define RSB_EXTF_EXPSYMM	0x00000008			/*!< */
-#define RSB_EXTF_EXPDIAG	0x00000010			/*!< */
-#define RSB_EXTF_EXP		(RSB_EXTF_EXPDIAG|RSB_EXTF_EXPSYMM)	/*!< */
-#define RSB_EXTF_ALL		(RSB_EXTF_OFFDIAG|RSB_EXTF_DIAG)/*!< Flag values for extracting the whole matrix.*/
-#define RSB_EXTF_EXPALL		(RSB_EXTF_ALL|RSB_EXTF_EXP)	/*!< */
-#define RSB_EXTF_DEFAULT	RSB_EXTF_ALL			/*!< Flag values for extracting the whole matrix. */
-/* #define RSB_EXTF_SYMMEXP	0x00000020*/
-rsb_err_t rsb_get_submatrix_as_coo(rsb_type_t typecode, rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t *mtxAp, void* VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t *rnzp, rsb_flags_t flags);/* NEW, unfinished */
-
-rsb_err_t rsb_get_submatrix_as_coo(rsb_type_t typecode, rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t *mtxAp, void* VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA, rsb_nnz_idx_t *rnzp, rsb_flags_t flags/* , rsb_extff_t eflags*/)/* NEW, unfinished */
-{
-	/*!
-	   \ingroup rsb_doc_matrix_conversion rsb_doc_rsb
-
-	   Extracts a submatrix.
-	   Call this function with VA,IA,JA NULL in order to get nonzeroes count.
-
-	   \param \rsb_type_param_msg
-	   \param \rsb_transa_inp_param_msg
-	   \param \rsb_alpha_inp_param_msg
-	   \param \rsb_wr_va_ia_ja_desc_msg
-	   \param \rsb_inp_rnz_msg
-	   \param \rsb_flags_idc_param_msg
-	   \return \rsberrcodemsg
-
-	   \warning \rsb_warn_unfinished_msg 
-	   \warning \rsb_warn_unfinished_flags_doc_msg
-	 */
-	 /*
-	   \todo: Shall document eflags.
-	 */
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	RSB_INTERFACE_PREAMBLE
-	errval = rsb_do_get_submatrix_as_coo(typecode, transA, alphap, mtxAp, VA, IA, JA, rnzp, flags/* , eflags*/);
-	RSB_INTERFACE_RETURN_ERR(errval)
-}
-#endif
-#endif /* RSB_EXPOSE_NEW_GENERAL_INTERFACE */
-
-#if 0
-rsb_err_t rsb_spmv_nt(const void *alphap, const struct rsb_mtx_t * mtxAp, const void * x1p, const void * x2p, rsb_coo_idx_t incX, const void * betap, void * y1p, void * y2p, rsb_coo_idx_t incY);
-rsb_err_t rsb_spmv_ata(const void *alphap, const struct rsb_mtx_t * mtxAp, const void * Xp, rsb_coo_idx_t incX, const void * betap, void * Yp, rsb_coo_idx_t incY);
-rsb_err_t rsb_spmv_power(rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t * mtxAp,  rsb_int_t exp, const void * Xp, rsb_coo_idx_t incX, const void * betap, void * Yp, rsb_coo_idx_t incY);
-
-rsb_err_t rsb_spmv_nt(const void *alphap, const struct rsb_mtx_t * mtxAp, const void * x1p, const void * x2p, rsb_coo_idx_t incX, const void * betap, void * y1p, void * y2p, rsb_coo_idx_t incY)
-{
-	/*!
-	   \ingroup rsb_doc_matrix_operations rsb_doc_rsb
-
-	   Computes \f$Y_1 \leftarrow \beta Y_1 + \alpha {A}     \cdot X_1 \f$
-	   and      \f$Y_2 \leftarrow \beta Y_2 + \alpha {A}^{T} \cdot X_2 \f$.
-
-	   \param \rsb_beta_inp_param_msg
-	   \param \rsb_transa_inp_param_msg
-	   \param \rsb_mtxt_inp_param_msg_a
-	   \param \rsb_incx_inp_param_msg
-	   \param \rsb_incy_inp_param_msg
-	   \param \rsb_y1y2_inp_param_msg
-	   \param \rsb_x1x2_inp_param_msg
-	   \return \rsberrcodemsg
-
-	   \warning \rsb_warn_untested_msg
-	 */
-
-	// FIXME: this is only a placeholder, waiting for a combined implementation.
-	// once done, should speedup methods like Biconjugate Gradient (BiCG).
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	RSB_INTERFACE_PREAMBLE
-	errval = rsb_spmv(RSB_TRANSPOSITION_N,alphap,mtxAp,x1p,incX,betap,y1p,incY)|
-		rsb_spmv(RSB_TRANSPOSITION_T,alphap,mtxAp,x2p,incX,betap,y2p,incY);
-	RSB_INTERFACE_RETURN_ERR(errval)
-}
-#endif
 
 #ifdef RSB_OBSOLETE_QUARANTINE_UNUSED
 /* Postponed... (from rsb.h) */
@@ -496,35 +402,6 @@ rsb_err_t rsb_spata(const void *alphap, const struct rsb_mtx_t * mtxAp, const vo
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
 #endif /* RSB_OBSOLETE_QUARANTINE_UNUSED */
-
-#if 0
-rsb_err_t rsb_spmv_power(rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t * mtxAp,  rsb_int_t exp, const void * Xp, rsb_coo_idx_t incX, const void * betap, void * Y, rsb_coo_idx_t incY)
-{
-	/*!
-	   \ingroup rsb_doc_matrix_operations rsb_doc_rsb
-
-	   Computes \f$Y \leftarrow \beta Y + \alpha ({A}^{T})^{exp} {A} \cdot X \f$.
-
-	   \param \rsb_mtxt_inp_param_msg_a
-	   \param \rsb_x_inp_param_msg
-	   \param \rsb_y_out_param_msg
-	   \param \rsb_incx_inp_param_msg
-	   \param \rsb_incy_inp_param_msg
-	   \param \rsb_alpha_inp_param_msg
-	   \param \rsb_beta_inp_param_msg
-	   \param \rsb_exp_inp_param_msg
-	   \return \rsberrcodemsg
-
-	   \warning \rsb_warn_unimplemented_msg
-	   \warning \rsb_warn_untested_msg
-	 */
-
-	rsb_err_t errval = RSB_ERR_UNIMPLEMENTED_YET;
-	RSB_INTERFACE_PREAMBLE
-	RSB_INTERFACE_RETURN_ERR(errval)
-	// FIXME: this is only a placeholder, waiting for a combined implementation.
-}
-#endif
 
 rsb_err_t rsb_spmv(rsb_trans_t transA, const void *alphap, const struct rsb_mtx_t * mtxAp, const void * Xp, rsb_coo_idx_t incX, const void * betap, void * Yp, rsb_coo_idx_t incY)
 {
@@ -563,21 +440,6 @@ rsb_err_t rsb_spmv(rsb_trans_t transA, const void *alphap, const struct rsb_mtx_
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
 
-#if 0
-rsb_err_t rsb_spmv_sa(const struct rsb_mtx_t * mtxAp, const void * Xp, void * Yp, const void *alphap, rsb_trans_t transA)
-{
-	/*!
-	 * \ingroup rsb_doc_matrix_operations rsb_doc_rsb
-	 * computes \f$Y \leftarrow Y + \alpha op(A) \cdot X \f$
-	 * \return \rsberrcodemsg
-	 * 
-	 * */
-	if(!alphap || !mtxAp)
-		return RSB_ERR_BADARGS;
-	return rsb__do_spmv_general(transA,alphap,mtxTp,Xp,1,NULL,Yp,1,RSB_OP_FLAG_DEFAULT RSB_DEFAULT_OUTER_NRHS_SPMV_ARGS);
-}
-#endif
-
 rsb_err_t rsb_spsv(rsb_trans_t transT, const void * alphap, const struct rsb_mtx_t * mtxTp, const void * Xp, rsb_coo_idx_t incX, void * Yp, rsb_coo_idx_t incY)
 {
 	/*!
@@ -608,65 +470,6 @@ rsb_err_t rsb_spsv(rsb_trans_t transT, const void * alphap, const struct rsb_mtx
 	errval = rsb__do_spsv(transT, alphap, mtxTp, Xp, incX, Yp, incY);
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
-
-#if 0
-static rsb_err_t rsb__do_spsv_sxsx(const struct rsb_mtx_t * mtxAp, void * Yp, const void * alphap, rsb_coo_idx_t incX, rsb_trans_t transl)
-{
-	/*!
-	   \ingroup rsb_doc_matrix_operations rsb_doc_rsb
-	   computes \f$Y \leftarrow \alpha op(A)^{-1} \cdot Y \f$.
-	   \return \rsberrcodemsg
-	  
-	   It is allowed to use rhs == out, but in this case beta should be set to 1 and incX=incY, or the result will be undefined.
-	 */
-	return rsb__do_spsv_general(transl,alphap,mtxAp,Yp,1,Yp,1,RSB_OP_FLAG_DEFAULT RSB_INNER_NRHS_SPSV_ARGS_IDS);
-}
-#endif
-
-#if 0
-rsb_err_t rsb_spmv_uxux(const struct rsb_mtx_t * mtxAp, const void * Xp, void * Yp, const void *alphap, const void * betap, rsb_trans_t transA)
-{
-	/*!
-	 * \ingroup rsb_doc_matrix_operations rsb_doc_rsb
-	 * computes \f$Y \leftarrow \beta \cdot Y + \alpha\cdot A\cdot X\f$
-	 * \return \rsberrcodemsg
-	 * */
-	if(!alphap || !betap)
-		return RSB_ERR_BADARGS;
-	return rsb__do_spmv_general(transA,alphap,mtxAp,Xp,1,betap,Yp,1,RSB_OP_FLAG_DEFAULT RSB_DEFAULT_OUTER_NRHS_SPMV_ARGS);
-}
-#endif
-
-#if 0
-rsb_err_t rsb_spmm_az(const struct rsb_mtx_t * mtxAp, const void * mrhs, void *mout, rsb_int_t bstride, rsb_int_t cstride, rsb_int_t nrhs, rsb_trans_t transA)
-{
-	/*!
-	 * \ingroup rsb_doc_matrix_operations rsb_doc_rsb
-	 * computes \f$Y \leftarrow op(A) \cdot X \f$
-	 * when X is a multi-vector with nrhs elements, mrhs elements having stride bstride and mout elements having stride cstride
-	 * \return \rsberrcodemsg
-	 * */
-	 /* FIXME : and error detection ? **/
-#ifdef RSB_HAVE_OPTYPE_SPMM_AZ
-	if(!mtxAp || !mout)
-		return -1;
-
-	rsb__cblas_Xscal(mtxAp->typecode,nrhs*mtxAp->nr,NULL,mout,1);	/*FIXME:temporary*/
-
-	return rsb_spmm_inner(mtxAp,mrhs,mout,bstride,cstride,nrhs,transA);
-#else
-	return RSB_ERR_UNSUPPORTED_OPERATION;
-#endif
-}
-
-rsb_err_t rsb_spmm_sxsx(const struct rsb_mtx_t * mtxAp, const void * Bp, void * Cp, rsb_nnz_idx_t ldB, rsb_nnz_idx_t ldC, rsb_coo_idx_t nrhs, rsb_trans_t transA, const void * alphap, const void * betap, rsb_flags_t order)
-{
-	/*!
-	   \return \rsberrcodemsg
-	 */
-	return rsb__do_spmm(transA,alphap,mtxAp,nrhs,order,Bp,ldB,betap,Cp,ldC,RSB_OP_FLAG_DEFAULT);
-}
-#endif
 
 // rsb_err_t rsb_spsm_sxsx(const struct rsb_mtx_t * mtxAp, void * Bp, rsb_nnz_idx_t ldB, rsb_coo_idx_t nrhs, rsb_trans_t transT, const void * alphap, const void * betap, rsb_flags_t order)
 
@@ -1755,23 +1558,6 @@ rsb_err_t rsb_mtx_alloc_from_coo_end(struct rsb_mtx_t ** mtxApp)
 }
 #endif
 
-#if 0
-rsb_err_t rsb_tune_wrt(struct rsb_mtx_t ** mtxOpp, rsb_real_t *sfp, rsb_int_t *tnp, rsb_int_t maxr, rsb_time_t maxt, const struct rsb_mtx_t * mtxAp)
-{
-	/*!
- 	\ingroup rsb_doc_matrix_assembly rsb_doc_rsb
-
-	Tunes matrix with respect to a user specified "benchmark" or "performance oracle" function.
-	...
-	\rsb_version_12
-	*/
-
-	rsb_err_t errval = RSB_ERR_NO_ERROR;
-	/* rsb__tune_spxx_bos (...) */
-	return errval;
-}
-#endif
-
 rsb_err_t rsb_tune_spmm(struct rsb_mtx_t ** mtxOpp, rsb_real_t *sfp, rsb_int_t *tnp, rsb_int_t maxr, rsb_time_t maxt, rsb_trans_t transA, const void * alphap, const struct rsb_mtx_t * mtxAp, rsb_coo_idx_t nrhs, rsb_flags_t order, const void * Bp, rsb_nnz_idx_t ldB, const void * betap, void * Cp, rsb_nnz_idx_t ldC)
 {
 	/*!
@@ -1879,14 +1665,3 @@ rsb_err_t rsb_tune_spsm(struct rsb_mtx_t ** mtxOpp, rsb_real_t *sfp, rsb_int_t *
 	errval = rsb__do_tune_spsm( mtxOpp, sfp, tnp, maxr, maxt, transA, alphap, mtxAp, nrhs, order, Bp, ldB, betap, Cp, ldC);
 	RSB_INTERFACE_RETURN_ERR(errval)
 }
-
-/*
-struct rsb_mtx_t * rsb_BLAS_get_mtx(blas_sparse_matrix handle)
-{
-	struct rsb_mtx_t * mtxAp = NULL;
-	RSB_INTERFACE_PREAMBLE
-	mtxAp = rsb_do_BLAS_get_mtx(handle);
-	RSB_INTERFACE_RETURN_MTX(mtxAp);
-}
-*/
-

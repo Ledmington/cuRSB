@@ -347,7 +347,9 @@ void rsb__util_coo_array_to_fortran_indices_parallel(rsb_coo_idx_t * p, rsb_nnz_
 	*/
 	register rsb_nnz_idx_t k;
 #if RSB_WANT_OMP_RECURSIVE_KERNELS
-	const rsb_nnz_idx_t mcs = RSB_MINIMUM_VECOP_OMP_CHUNK; 
+	const rsb_nnz_idx_t mcs = RSB_MINIMUM_VECOP_OMP_CHUNK;
+#else
+	const rsb_nnz_idx_t mcs = 1;
 #endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 
 	RSB_DEBUG_ASSERT(p || n==0);

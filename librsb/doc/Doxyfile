@@ -1072,15 +1072,15 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = ../blas_sparse.h \
-                         /home/users/fbarbari/cuRSB/librsb/rsb.h \
+                         /home/filippobarbari/Desktop/cuRSB/librsb/rsb.h \
                          ../rsb.F90 \
-                         /home/users/fbarbari/cuRSB/librsb/rsb_libspblas.c \
-                         /home/users/fbarbari/cuRSB/librsb/rsb_libspblas.h \
-                         /home/users/fbarbari/cuRSB/librsb/rsb_rsb.c \
+                         /home/filippobarbari/Desktop/cuRSB/librsb/rsb_libspblas.c \
+                         /home/filippobarbari/Desktop/cuRSB/librsb/rsb_libspblas.h \
+                         /home/filippobarbari/Desktop/cuRSB/librsb/rsb_rsb.c \
                          ../rsb_types.h \
-                         /home/users/fbarbari/cuRSB/librsb/rsb_blas_sparse.F90 \
-                         /home/users/fbarbari/cuRSB/librsb/rsblib/rsb.hpp /home/users/fbarbari/cuRSB/librsb/rsblib/examples/ \
-                         /home/users/fbarbari/cuRSB/librsb/examples/
+                         /home/filippobarbari/Desktop/cuRSB/librsb/rsb_blas_sparse.F90 \
+                         /home/filippobarbari/Desktop/cuRSB/librsb/rsblib/rsb.hpp /home/filippobarbari/Desktop/cuRSB/librsb/rsblib/examples/ \
+                         /home/filippobarbari/Desktop/cuRSB/librsb/examples/
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -1180,9 +1180,9 @@ EXCLUDE_SYMBOLS        =
 # that contain example code fragments that are included (see the \include
 # command).
 
-EXAMPLE_PATH           = /home/users/fbarbari/cuRSB/librsb \
-                         /home/users/fbarbari/cuRSB/librsb/rsblib/rsb.hpp /home/users/fbarbari/cuRSB/librsb/rsblib/examples/ \
-                         /home/users/fbarbari/cuRSB/librsb/examples
+EXAMPLE_PATH           = /home/filippobarbari/Desktop/cuRSB/librsb \
+                         /home/filippobarbari/Desktop/cuRSB/librsb/rsblib/rsb.hpp /home/filippobarbari/Desktop/cuRSB/librsb/rsblib/examples/ \
+                         /home/filippobarbari/Desktop/cuRSB/librsb/examples
 
 # If the value of the EXAMPLE_PATH tag contains directories, you can use the
 # EXAMPLE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and
@@ -1202,7 +1202,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = /home/users/fbarbari/cuRSB/librsb/doc/img
+IMAGE_PATH             = /home/filippobarbari/Desktop/cuRSB/librsb/doc/img
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program

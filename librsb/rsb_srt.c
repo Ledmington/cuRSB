@@ -111,6 +111,9 @@ rsb_err_t rsb__do_util_sortcoo(void *VA, rsb_coo_idx_t * IA, rsb_coo_idx_t * JA,
 	rsb_coo_idx_t * bMindx=NULL, *bmindx=NULL;
 	rsb_coo_idx_t * brMindx=NULL,*brmindx=NULL;
 #endif
+
+	#define RSB_WANT_OMP_RECURSIVE_KERNELS 1
+
 //	enum rsb_op_flags_t op_flags = RSB_OP_FLAG_WANT_PARALLEL_SORT;
 //	enum rsb_op_flags_t op_flags = RSB_OP_FLAG_WANT_SERIAL_SORT;
 	enum rsb_op_flags_t op_flags = RSB_WANT_OMP_RECURSIVE_KERNELS?RSB_OP_FLAG_WANT_PARALLEL_SORT:RSB_OP_FLAG_WANT_SERIAL_SORT;

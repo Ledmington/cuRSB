@@ -29,11 +29,14 @@ If not, see <http://www.gnu.org/licenses/>.
  * \internal
  *
  * */
+#include <omp.h>
+
 #include "rsb_common.h"
 #include "rsb_util.h"
 #include "rsb.h"
 #include "rsb_types.h"
 #include "rsb_unroll.h"
+#include "rsb-config.h"
 
 #define RSB_WANT_NULL_ALLOCATED_ZERO_NNZ_COO_MATRICES_ARRAYS 1 /* 20110419 a bugfix for the nnz == 0 case vs realloc and memory counters */
 #define RSB_TOKLEN 16
@@ -2369,7 +2372,7 @@ static const rsb_char_t * rsb__sprint_matrix_implementation_code(const struct rs
                 #pragma omp parallel RSB_NTC
                 if(omp_get_thread_num()==0)
                 {
-                        ncores = omp_get_num_threads();
+                    ncores = omp_get_num_threads();
                 }
 #endif /* RSB_WANT_OMP_RECURSIVE_KERNELS */
 		ncores = ncores?ncores:1;
@@ -3392,12 +3395,10 @@ rsb_bool_t rsb__are_coo_matrices_equal(const struct rsb_coo_mtx_t *cm1, const st
 equal:
 	return yes;
 differing:
-#if RSB_ALLOW_STDOUT
-#if (RSB_WANT_VERBOSE_MESSAGES || 1)
+#if RSB_ALLOW_STDOUT && RSB_WANT_VERBOSE_MESSAGES
 	if(cm1)RSB_STDOUT_COO_MATRIX_SUMMARY(cm1);
 	if(cm2)RSB_STDOUT_COO_MATRIX_SUMMARY(cm2);
-#endif /* RSB_WANT_VERBOSE_MESSAGES */
-#endif /* RSB_ALLOW_STDOUT */
+#endif /* RSB_ALLOW_STDOUT && RSB_WANT_VERBOSE_MESSAGES */
 	return no;
 #undef	RSB_GOTO_DIFFERING
 }
@@ -3912,7 +3913,6 @@ err:
 }
 
 struct rsb_mtx_t * rsb__do_mtx_alloc_from_coo_const(const void *VA, const rsb_coo_idx_t * IA, const rsb_coo_idx_t * JA, rsb_nnz_idx_t nnzA, rsb_type_t typecode, rsb_coo_idx_t nrA, rsb_coo_idx_t ncA, rsb_blk_idx_t brA, rsb_blk_idx_t bcA, rsb_flags_t flags, rsb_err_t * errvalp)
-
 {
 	rsb_err_t errval = RSB_ERR_NO_ERROR;
 	void *VA_ = NULL;

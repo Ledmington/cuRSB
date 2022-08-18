@@ -392,10 +392,10 @@ rsb_err_t rsb__init_check_for_constants_correctness(void)
 	}
 #endif /* NDEBUG */
 
-	RSB_ASSERT(!RSB_MUL_OVERFLOW(         0,         0,uint64_t,uint64_t) );
-	RSB_ASSERT(!RSB_MUL_OVERFLOW(         1,         1,uint64_t,uint64_t) );
-	RSB_ASSERT(!RSB_MUL_OVERFLOW(     65536,     65536,uint64_t,uint64_t) );
-	RSB_ASSERT(!RSB_MUL_OVERFLOW(2147483647,2147483647,uint64_t,uint64_t) );
+	RSB_ASSERT(!RSB_MUL_OVERFLOW(         0,         0,u_int64_t,u_int64_t) );
+	RSB_ASSERT(!RSB_MUL_OVERFLOW(         1,         1,u_int64_t,u_int64_t) );
+	RSB_ASSERT(!RSB_MUL_OVERFLOW(     65536,     65536,u_int64_t,u_int64_t) );
+	RSB_ASSERT(!RSB_MUL_OVERFLOW(2147483647,2147483647,u_int64_t,u_int64_t) );
 	RSB_ASSERT(!RSB_MUL_OVERFLOW(         0,         0,int,int) );
 	RSB_ASSERT(!RSB_MUL_OVERFLOW(         0,         0,int,int) );
 	RSB_ASSERT( RSB_MUL_OVERFLOW(         1,     65536,short unsigned int,short unsigned int) );
