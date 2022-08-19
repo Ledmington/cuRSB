@@ -100,6 +100,76 @@ __device__ static rsb_err_t rsb_cuda__cblas_Xscal(rsb_type_t type, size_t n, con
     return RSB_ERR_NO_ERROR;
 }
 
+__device__ rsb_err_t rsb_cuda__do_spmv(
+    const double *restrict VA,
+    const double *restrict rhs,
+    double *restrict out,
+    // const rsb_coo_idx_t Mdim,
+    const rsb_coo_idx_t *restrict bindx,
+    const rsb_nnz_idx_t *restrict bpntr,
+    // const rsb_nnz_idx_t *restrict indptr,
+    // const rsb_coo_idx_t *restrict rpntr,
+    // const rsb_coo_idx_t *restrict cpntr,
+    // const rsb_coo_idx_t br,
+    // const rsb_coo_idx_t bc,
+    // const rsb_coo_idx_t roff,
+    // const rsb_coo_idx_t coff,
+    // const rsb_flags_t flags,
+    const rsb_nnz_idx_t nnz)
+{
+    /**
+     * \ingroup rsb_doc_kernels
+     * Computes \f$y \leftarrow {A} \cdot x, where A \neq A^T. \f$
+     * A blocked 1 x 1, stored in BCOR format, diagonal explicit, of type double, with rsb_coo_idx_t column indices.
+     * \return \rsb_errval_inp_param_msg
+     */
+
+    register rsb_coo_idx_t i = 0;
+    register rsb_coo_idx_t j = 0;
+    const rsb_coo_idx_t *IA = (const rsb_coo_idx_t *)bpntr, *JA = (const rsb_coo_idx_t *)bindx;
+    register rsb_nnz_idx_t n = 0;
+
+    // rsb__cblas_Xscal(RSB_NUMERICAL_TYPE_DOUBLE, Mdim, NULL, out, 1);
+
+    for (n = 0; n < nnz; n++)
+    {
+        i = IA[n];
+        j = JA[n];
+        out[i] += VA[n] * rhs[j];
+    }
+
+    /*
+    for (n = 0; n + 3 < nnz; n += 4)
+    {
+        i = IA[n + 0];
+        j = JA[n + 0];
+        out[i * 1] += VA[n + 0] * rhs[j * 1];
+        i = IA[n + 1];
+        j = JA[n + 1];
+        out[i * 1] += VA[n + 1] * rhs[j * 1];
+        i = IA[n + 2];
+        j = JA[n + 2];
+        out[i * 1] += VA[n + 2] * rhs[j * 1];
+        i = IA[n + 3];
+        j = JA[n + 3];
+        out[i * 1] += VA[n + 3] * rhs[j * 1];
+    }
+    for (; n < nnz; ++n)
+    {
+        i = IA[n + 0];
+        j = JA[n + 0];
+        out[i * 1] += VA[n + 0] * rhs[j * 1];
+    }*/
+
+    return RSB_ERR_NO_ERROR;
+}
+
+__device__ rsb_coo_idx_t rsb_cuda__do_get_rows_of(const struct rsb_mtx_t *mtxAp, rsb_trans_t transA)
+{
+    RSB_DEBUG_ASSERT(mtxAp);
+    return RSB_MTX_TRANSPOSED_ROWS(mtxAp, transA);
+}
+
 __device__ rsb_err_t rsb_cuda__do_spmv_non_recursive(const struct rsb_mtx_t *mtxAp, const void *x, void *y, const void *alphap, const void *betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA RSB_INNER_NRHS_SPMV_ARGS)
 {
     rsb_err_t errval = RSB_ERR_NO_ERROR;
@@ -124,28 +194,30 @@ __device__ rsb_err_t rsb_cuda__do_spmv_non_recursive(const struct rsb_mtx_t *mtx
 
         if (should_scale_y && !use_y_zeroing_kernel)
         {
-            rsb_cuda__cblas_Xscal(mtxAp->typecode, rsb__do_get_rows_of(mtxAp, transA), betap, out, incy);
+            rsb_cuda__cblas_Xscal(mtxAp->typecode, rsb_cuda__do_get_rows_of(mtxAp, transA), betap, out, incy);
         }
         /* no beta specified counts as beta=1, and so no scaling is needed */
 
-        if (use_alpha_one)
+        rsb_cuda__do_spmv((const double *)mtxAp->VA, (const double *)rhs, (double *)out, /*transA,*/ mtxAp->bindx, mtxAp->bpntr, mtxAp->nnz);
+
+        /*if (use_alpha_one)
         {
-            /* no alpha specified counts as alpha=1 */
+            // no alpha specified counts as alpha=1
             if (nostride)
             {
                 if (use_y_zeroing_kernel)
-                /* y <- a * x  */
+                // y <- a * x
                 {
                     RSB_DO_ERROR_CUMULATE(errval, rsb__do_spmv_uauz(mtxAp, rhs, out, transA));
                 }
                 else
-                /* y <- y + a * x  */
+                // y <- y + a * x
                 {
                     RSB_DO_ERROR_CUMULATE(errval, rsb__do_spmv_uaua(mtxAp, rhs, out, transA));
                 }
             }
             else
-            /* y <- a * x  , with stride */
+            // y <- a * x  , with stride
             {
                 RSB_DO_ERROR_CUMULATE(errval, rsb__do_spmv_sasa(mtxAp, rhs, out, incx, incy, transA));
             }
@@ -154,39 +226,50 @@ __device__ rsb_err_t rsb_cuda__do_spmv_non_recursive(const struct rsb_mtx_t *mtx
         {
             if (nostride)
             {
-                /* y <- - a * x  */
+                // y <- - a * x
                 if (rsb__is_element_minus_one(alphap, mtxAp->typecode))
                 {
                     RSB_DO_ERROR_CUMULATE(errval, rsb__do_spmv_unua(mtxAp, rhs, out, transA));
                 }
-                /* y <- alpha * a * x  */
+                // y <- alpha * a * x
                 else
                 {
                     RSB_DO_ERROR_CUMULATE(errval, rsb__do_spmv_uxua(mtxAp, rhs, out, alphap, transA));
                 }
             }
             else
-            /* y <- alpha * a * x  , with stride */
+            // y <- alpha * a * x, with stride
             {
                 RSB_DO_ERROR_CUMULATE(errval, rsb__do_spmv_sxsa(mtxAp, rhs, out, alphap, incx, incy, transA));
             }
-        }
+        }*/
     }
 
     RSB_DO_ERR_RETURN(errval)
 }
 
-__global__ void rsb_cuda__spmv_kernel(const struct rsb_mtx_t *mtxAp, const void *x, void *y, const void *alphap, const void *betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPMV_ARGS)
+__global__ void rsb_cuda__spmv_kernel(
+    const struct rsb_mtx_t *mtxAp,
+    const void *x,
+    void *y,
+    const void *alphap,
+    const void *betap,
+    rsb_coo_idx_t incx,
+    rsb_coo_idx_t incy,
+    rsb_trans_t transA,
+    enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPMV_ARGS /*, rsb_err_t *errvalp*/)
 {
     const unsigned int global_thread_id = blockIdx.x * blockDim.x + threadIdx.x;
 
-    printf("Thread %u (%d, %d, %d) alive\n", global_thread_id, threadIdx.x, blockDim.x, blockIdx.x);
+    // printf("Thread %u (%d, %d, %d) alive\n", global_thread_id, threadIdx.x, blockDim.x, blockIdx.x);
 
     if (global_thread_id >= mtxAp->nnz)
     {
-        printf("Thread %d dying\n", global_thread_id);
+        // printf("Thread %d dying\n", global_thread_id);
         return;
     }
+
+    printf("[%4u]: %d\n", global_thread_id, mtxAp->all_leaf_matrices_n);
 
     rsb_submatrix_idx_t n = 0;
     // rsb_submatrix_idx_t dm = 0; // TODO remove if unused/useless
@@ -194,8 +277,14 @@ __global__ void rsb_cuda__spmv_kernel(const struct rsb_mtx_t *mtxAp, const void 
 
     for (n = 0; n < mtxAp->all_leaf_matrices_n; ++n)
     {
+        printf("[%4u]: iteration n.%2d\n", global_thread_id, n);
+        mtxAp->all_leaf_matrices;
+        printf("[%4u]: here\n", global_thread_id);
+        mtxAp->all_leaf_matrices[n];
+        printf("[%4u]: also here\n", global_thread_id);
         const struct rsb_mtx_t *const submatrix = mtxAp->all_leaf_matrices[n].mtxlp;
-        rsb_bool_t gomv = RSB_BOOL_FALSE; // TODO remove if unused/useless
+        // rsb_bool_t gomv = RSB_BOOL_FALSE; // TODO remove if unused/useless
+        printf("[%4u]: taken submatrix\n", global_thread_id);
 
         char *const ov = (char *const)y;
         const rsb_coo_idx_t oincy = incy;
@@ -216,6 +305,7 @@ __global__ void rsb_cuda__spmv_kernel(const struct rsb_mtx_t *mtxAp, const void 
 
         // if (gomv == RSB_BOOL_TRUE)
         // {
+        printf("[%4u]: gathering data\n", global_thread_id);
         const size_t scoff = submatrix->coff - mtxAp->coff;
         const size_t sroff = submatrix->roff - mtxAp->roff;
         const char *const offx = ((const char *)x) + (el_size * scoff) * incx;
@@ -223,89 +313,95 @@ __global__ void rsb_cuda__spmv_kernel(const struct rsb_mtx_t *mtxAp, const void 
 
         assert(scoff >= 0);
         assert(sroff >= 0);
-        RSB_DO_ERROR_CUMULATE(errval, rsb_cuda__do_spmv_non_recursive(submatrix, offx, offy, alphap, NULL, incx, oincy, transA RSB_INNER_NRHS_SPMV_ARGS_IDS));
+        //  RSB_DO_ERROR_CUMULATE(
+        //      *errvalp,
+        printf("[%4u]: calling rsb_cuda__do_spmv_non_recursive\n", global_thread_id);
+        rsb_cuda__do_spmv_non_recursive(submatrix, offx, offy, alphap, NULL, incx, oincy, transA RSB_INNER_NRHS_SPMV_ARGS_IDS)
+            //)
+            ;
         // }
     }
 
-    // TODO return error somehow
+    /*
+    #pragma omp parallel default(none)         \
+    shared(lock, all_leaf_matrices, mtxAp) \
+        reduction(|                        \
+                  : errval)
+        {
+            // const size_t want_threads = rsb_global_session_handle.rsb_want_threads;
+            //  const size_t max_threads = min(all_leaf_matrices_n, want_threads);
+            //  const rsb_thr_t th_id = omp_get_thread_num();
+            rsb_submatrix_idx_t n = 0;
+            rsb_submatrix_idx_t dm = 0;
 
-    // #pragma omp parallel default(none)         \
-//     shared(lock, all_leaf_matrices, mtxAp) \
-//         reduction(|                        \
-//                   : errval)
-    //     {
-    //         // const size_t want_threads = rsb_global_session_handle.rsb_want_threads;
-    //         //  const size_t max_threads = min(all_leaf_matrices_n, want_threads);
-    //         //  const rsb_thr_t th_id = omp_get_thread_num();
-    //         rsb_submatrix_idx_t n = 0;
-    //         rsb_submatrix_idx_t dm = 0;
+            // if (RSB_UNLIKELY(th_id >= max_threads))
+            // if (th_id >= max_threads)
+            // {
+            //     goto skip;
+            // }
+        again:
+            // for (n = 0; RSB_LIKELY(n < all_leaf_matrices_n); ++n) {
+            for (n = 0; n < all_leaf_matrices_n; ++n)
+            {
+                const struct rsb_mtx_t *const submatrix = all_leaf_matrices[n].mtxlp;
+                rsb_bool_t gomv = RSB_BOOL_FALSE;
 
-    //         // if (RSB_UNLIKELY(th_id >= max_threads))
-    //         // if (th_id >= max_threads)
-    //         // {
-    //         //     goto skip;
-    //         // }
-    //     again:
-    //         // for (n = 0; RSB_LIKELY(n < all_leaf_matrices_n); ++n) {
-    //         for (n = 0; n < all_leaf_matrices_n; ++n)
-    //         {
-    //             const struct rsb_mtx_t *const submatrix = all_leaf_matrices[n].mtxlp;
-    //             rsb_bool_t gomv = RSB_BOOL_FALSE;
+                char *const ov = (char *const)y;
+                const rsb_coo_idx_t oincy = incy;
 
-    //             char *const ov = (char *const)y;
-    //             const rsb_coo_idx_t oincy = incy;
+    #pragma omp critical(rsb_spmv_crs)
+                {
+                    const rsb_coo_idx_t roff = submatrix->broff;
+                    const rsb_coo_idx_t nr = RSB_MTX_EFF_R(submatrix);
+                    const rsb_coo_idx_t coff = submatrix->bcoff;
+                    const rsb_coo_idx_t nc = RSB_MTX_EFF_C(submatrix);
 
-    // #pragma omp critical(rsb_spmv_crs)
-    //             {
-    //                 const rsb_coo_idx_t roff = submatrix->broff;
-    //                 const rsb_coo_idx_t nr = RSB_MTX_EFF_R(submatrix);
-    //                 const rsb_coo_idx_t coff = submatrix->bcoff;
-    //                 const rsb_coo_idx_t nc = RSB_MTX_EFF_C(submatrix);
+                    gomv = (rsb_do_spmv_lock_get(&lock, th_id, roff, nr, coff, nc, n, transA, &ov, &oincy) == RSB_BOOL_TRUE);
+                    if (gomv == RSB_BOOL_TRUE)
+                    {
+                        RSB_SPMV_VS_MARK_PRE(n);
+                    }
+                }
+                if (gomv == RSB_BOOL_TRUE)
+                {
+                    const size_t scoff = submatrix->coff - mtxAp->coff;
+                    const size_t sroff = submatrix->roff - mtxAp->roff;
+                    const char *const offx = ((const char *)x) + (el_size * scoff) * incx;
+                    char *const offy = ((char *)ov) + (el_size * sroff) * oincy;
 
-    //                 gomv = (rsb_do_spmv_lock_get(&lock, th_id, roff, nr, coff, nc, n, transA, &ov, &oincy) == RSB_BOOL_TRUE);
-    //                 if (gomv == RSB_BOOL_TRUE)
-    //                 {
-    //                     RSB_SPMV_VS_MARK_PRE(n);
-    //                 }
-    //             }
-    //             if (gomv == RSB_BOOL_TRUE)
-    //             {
-    //                 const size_t scoff = submatrix->coff - mtxAp->coff;
-    //                 const size_t sroff = submatrix->roff - mtxAp->roff;
-    //                 const char *const offx = ((const char *)x) + (el_size * scoff) * incx;
-    //                 char *const offy = ((char *)ov) + (el_size * sroff) * oincy;
+                    assert(scoff >= 0);
+                    assert(sroff >= 0);
+                    RSB_DO_ERROR_CUMULATE(errval, rsb__do_spmv_non_recursive(submatrix, offx, offy, alphap, NULL, incx, oincy, transA RSB_INNER_NRHS_SPMV_ARGS_IDS));
 
-    //                 assert(scoff >= 0);
-    //                 assert(sroff >= 0);
-    //                 RSB_DO_ERROR_CUMULATE(errval, rsb__do_spmv_non_recursive(submatrix, offx, offy, alphap, NULL, incx, oincy, transA RSB_INNER_NRHS_SPMV_ARGS_IDS));
+                    // #pragma omp critical(rsb_spmv_crs)
+                    // {
+                    //     rsb_do_spmv_lock_release(&lock, th_id, ov);
+                    //     RSB_DO_SPMV_LOCK_DM_INC(lock);
+                    // }
+                    // RSB_SPMV_VS_MARK_POST(n);
+                }
+            }
+            // #pragma omp critical(rsb_spmv_crs)
+            // {
+            //     dm = RSB_DO_SPMV_LOCK_DM(lock);
+            // }
 
-    //                 // #pragma omp critical(rsb_spmv_crs)
-    //                 // {
-    //                 //     rsb_do_spmv_lock_release(&lock, th_id, ov);
-    //                 //     RSB_DO_SPMV_LOCK_DM_INC(lock);
-    //                 // }
-    //                 // RSB_SPMV_VS_MARK_POST(n);
-    //             }
-    //         }
-    //         // #pragma omp critical(rsb_spmv_crs)
-    //         // {
-    //         //     dm = RSB_DO_SPMV_LOCK_DM(lock);
-    //         // }
-
-    //         if (dm < all_leaf_matrices_n
-    // #if RSB_WANT_EARLY_PARALLEL_REGION_JUMPOUT_SPMV
-    //             && ((all_leaf_matrices_n - dm) > th_id)
-    // #endif // RSB_WANT_EARLY_PARALLEL_REGION_JUMPOUT_SPMV
-    //         )
-    //         {
-    //             goto again;
-    //         }
-    //     }
+            if (dm < all_leaf_matrices_n
+    #if RSB_WANT_EARLY_PARALLEL_REGION_JUMPOUT_SPMV
+                && ((all_leaf_matrices_n - dm) > th_id)
+    #endif // RSB_WANT_EARLY_PARALLEL_REGION_JUMPOUT_SPMV
+            )
+            {
+                goto again;
+            }
+        }*/
 }
 
 rsb_err_t rsb_cuda__do_spmv_recursive(const struct rsb_mtx_t *mtxAp, const void *x, void *y, const void *alphap, const void *betap, rsb_coo_idx_t incx, rsb_coo_idx_t incy, rsb_trans_t transA, enum rsb_op_flags_t op_flags RSB_INNER_NRHS_SPMV_ARGS)
 {
-    rsb_err_t errval = RSB_ERR_NO_ERROR;
+    // rsb_err_t *errval_d;
+    // cudaCheckError(cudaMallocManaged(&errval_d, sizeof(rsb_err_t)));
+    // *errval_d = RSB_ERR_NO_ERROR;
 
     const struct rsb_translated_matrix_t *all_leaf_matrices = NULL;
     const rsb_submatrix_idx_t all_leaf_matrices_n = mtxAp->all_leaf_matrices_n;
@@ -313,9 +409,10 @@ rsb_err_t rsb_cuda__do_spmv_recursive(const struct rsb_mtx_t *mtxAp, const void 
     // IMPORTANT
     if (!rsb__is_recursive_matrix(mtxAp->flags))
     {
-        // dim3 dimBlock(2, 2);
-        // dim3 dimGrid(2, 2);
-        rsb_cuda__spmv_kernel<<<2, 2>>>(mtxAp, x, y, alphap, betap, incx, incy, transA, op_flags RSB_INNER_NRHS_SPMV_ARGS_IDS);
+        const unsigned int block_dim = 1024;
+        rsb_cuda__spmv_kernel<<<(mtxAp->nnz + block_dim - 1) / block_dim, block_dim>>>(mtxAp, x, y, alphap, betap, incx, incy, transA, op_flags RSB_INNER_NRHS_SPMV_ARGS_IDS /*, errval_d*/);
+        cudaCheckError(cudaPeekAtLastError());
+        cudaCheckError(cudaDeviceSynchronize());
         // return rsb__do_spmv_non_recursive(mtxAp, x, y, alphap, betap, incx, incy, transA RSB_INNER_NRHS_SPMV_ARGS_IDS);
     }
 
@@ -327,7 +424,10 @@ rsb_err_t rsb_cuda__do_spmv_recursive(const struct rsb_mtx_t *mtxAp, const void 
     }
 
 err:
-    return errval;
+    // rsb_err_t tmp_err = *errval_d;
+    // cudaCheckError(cudaFree(errval_d));
+    // return tmp_err;
+    return RSB_ERR_NO_ERROR;
 }
 
 rsb_err_t rsb_cuda__do_spmv(

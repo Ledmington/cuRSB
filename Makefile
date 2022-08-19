@@ -14,7 +14,12 @@ CFILES=librsb/rsb_rsb.c librsb/rsb_init.c librsb/rsb_internals.c librsb/rsb_do.c
 		librsb/rsb_krnl_bcss*.c
 GCCFLAGS=-Xcompiler -fopenmp
 LINKING=-lgomp
+IGNORE_WARNINGS=--disable-warnings
 
-build:
-	nvcc ${MACROS} ${GCCFLAGS} librsb/examples/hello_cuda.cu ${CFILES} librsb/*.cu -o librsb/examples/hello_cuda ${LINKING}
-	nvcc ${MACROS} ${GCCFLAGS} librsb/examples/rsb_cuda_bench.cu ${CFILES} librsb/*.cu -o librsb/examples/rsb_cuda_bench ${LINKING}
+build: librsb/examples/hello_cuda librsb/examples/rsb_cuda_bench
+
+librsb/examples/hello_cuda: librsb/examples/hello_cuda.cu
+	nvcc ${MACROS} ${GCCFLAGS} librsb/examples/hello_cuda.cu ${CFILES} librsb/*.cu -o librsb/examples/hello_cuda ${LINKING} ${IGNORE_WARNINGS}
+
+librsb/examples/rsb_cuda_bench: librsb/examples/rsb_cuda_bench.cu
+	nvcc ${MACROS} ${GCCFLAGS} librsb/examples/rsb_cuda_bench.cu ${CFILES} librsb/*.cu -o librsb/examples/rsb_cuda_bench ${LINKING} ${IGNORE_WARNINGS}
